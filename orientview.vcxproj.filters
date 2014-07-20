@@ -67,4 +67,7 @@
       <Filter>Generated Files</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="misc\orientview.rc" />
+  </ItemGroup>
 </Project>
