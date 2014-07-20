@@ -1,43 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>OrientViewClass</class>
- <widget class="QMainWindow" name="OrientViewClass">
+ <class>MainViewClass</class>
+ <widget class="QMainWindow" name="MainViewClass">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>813</width>
-    <height>603</height>
+    <width>924</width>
+    <height>682</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>OrientView</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="OrientView.qrc">
-    <normaloff>:/OrientView/misc/orientview.ico</normaloff>:/OrientView/misc/orientview.ico</iconset>
+   <iconset resource="MainView.qrc">
+    <normaloff>:/MainView/misc/orientview.ico</normaloff>:/MainView/misc/orientview.ico</iconset>
   </property>
-  <widget class="QWidget" name="centralWidget">
-   <widget class="QPushButton" name="pushButton">
-    <property name="geometry">
-     <rect>
-      <x>260</x>
-      <y>220</y>
-      <width>251</width>
-      <height>81</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>PushButton</string>
-    </property>
-   </widget>
-  </widget>
+  <widget class="QWidget" name="centralWidget"/>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>813</width>
+     <width>924</width>
      <height>21</height>
     </rect>
    </property>
@@ -83,7 +69,7 @@
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources>
-  <include location="OrientView.qrc"/>
+  <include location="MainView.qrc"/>
  </resources>
  <connections/>
 </ui>

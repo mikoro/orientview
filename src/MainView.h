@@ -2,18 +2,18 @@
 #define ORIENTVIEW_H
 
 #include <QtWidgets/QMainWindow>
-#include "ui_OrientView.h"
+#include "ui_MainView.h"
 
-class OrientView : public QMainWindow
+class MainView : public QMainWindow
 {
 	Q_OBJECT
 
 public:
-	OrientView(QWidget *parent = 0);
-	~OrientView();
+	MainView(QWidget *parent = 0);
+	~MainView();
 
 private:
-	Ui::OrientViewClass ui;
+	Ui::MainViewClass ui;
 };
 
 #endif // ORIENTVIEW_H

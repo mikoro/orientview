@@ -1,5 +1,5 @@
 <RCC>
-  <qresource prefix="OrientView">
+  <qresource prefix="MainView">
     <file>../misc/orientview.ico</file>
   </qresource>
 </RCC>

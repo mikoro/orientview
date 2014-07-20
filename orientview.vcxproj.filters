@@ -38,32 +38,35 @@
     <ClCompile Include="src\Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\OrientView.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="build\GeneratedFiles\Debug\moc_OrientView.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="build\GeneratedFiles\Release\moc_OrientView.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="build\GeneratedFiles\qrc_OrientView.cpp">
+    <ClCompile Include="build\GeneratedFiles\qrc_MainView.cpp">
       <Filter>Generated Files</Filter>
     </ClCompile>
+    <ClCompile Include="build\GeneratedFiles\Debug\moc_MainView.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="build\GeneratedFiles\Release\moc_MainView.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MainView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="src\OrientView.h">
-      <Filter>Header Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="src\OrientView.qrc">
+    <CustomBuild Include="src\MainView.qrc">
       <Filter>Resource Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="src\OrientView.ui">
+    <CustomBuild Include="src\MainView.ui">
       <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="src\MainView.h">
+      <Filter>Header Files</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="build\GeneratedFiles\ui_OrientView.h">
+    <ClInclude Include="VideoDecoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="build\GeneratedFiles\ui_MainView.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
   </ItemGroup>
