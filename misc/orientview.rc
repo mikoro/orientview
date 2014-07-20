@@ -1,0 +1,29 @@
+RT_ICON ICON "orientview.ico"
+GLFW_ICON ICON "orientview.ico"
+
+1 24 "orientview.exe.manifest"
+
+1 VERSIONINFO
+FILEVERSION     0,1,0,0
+PRODUCTVERSION  0,1,0,0
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+    BLOCK "040904E4"
+    BEGIN
+      VALUE "FileDescription", "OrientView"
+      VALUE "ProductName", "OrientView"
+      VALUE "InternalName", "OrientView"
+      VALUE "ProductVersion", "0.1.0"
+      VALUE "FileVersion", "0.1.0"
+      VALUE "CompanyName", "Mikko Ronkainen"
+      VALUE "LegalCopyright", "Copyright (C) 2014 Mikko Ronkainen"
+      VALUE "OriginalFilename", "orientview.exe"
+    END
+  END
+
+  BLOCK "VarFileInfo"
+  BEGIN
+    VALUE "Translation", 0x409, 1252
+  END
+END
