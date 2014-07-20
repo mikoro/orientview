@@ -1,10 +1,5 @@
 /bin
 /build
-/doc
-/My*
-/TestResults
-/assembly.txt
-/*.common.settings
 *.sdf
 *.opensdf
 *.suo

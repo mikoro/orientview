@@ -24,12 +24,12 @@
       <SourceControlFiles>False</SourceControlFiles>
     </Filter>
     <Filter Include="Generated Files\Debug">
-      <UniqueIdentifier>{27f51765-7696-4c09-be87-22989ecc2ec4}</UniqueIdentifier>
+      <UniqueIdentifier>{51952667-4baa-40ca-9f31-450d89d15595}</UniqueIdentifier>
       <Extensions>cpp;moc</Extensions>
       <SourceControlFiles>False</SourceControlFiles>
     </Filter>
     <Filter Include="Generated Files\Release">
-      <UniqueIdentifier>{ad76bbee-aeff-4af4-99f5-8b4ef8bb34a5}</UniqueIdentifier>
+      <UniqueIdentifier>{b69c3f13-7bd2-4f4f-917f-acfb120813b8}</UniqueIdentifier>
       <Extensions>cpp;moc</Extensions>
       <SourceControlFiles>False</SourceControlFiles>
     </Filter>
@@ -41,13 +41,13 @@
     <ClCompile Include="src\OrientView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_OrientView.cpp">
+    <ClCompile Include="build\GeneratedFiles\Debug\moc_OrientView.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_OrientView.cpp">
+    <ClCompile Include="build\GeneratedFiles\Release\moc_OrientView.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\qrc_OrientView.cpp">
+    <ClCompile Include="build\GeneratedFiles\qrc_OrientView.cpp">
       <Filter>Generated Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -63,7 +63,7 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="GeneratedFiles\ui_OrientView.h">
+    <ClInclude Include="build\GeneratedFiles\ui_OrientView.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
   </ItemGroup>
