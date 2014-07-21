@@ -9,6 +9,7 @@ extern "C"
 {
 #include <libavformat/avformat.h>
 #include <libavutil/avutil.h>
+#include <libswscale/swscale.h>
 }
 
 namespace OrientView
@@ -22,7 +23,7 @@ namespace OrientView
 
 		bool Open(const std::string& fileName);
 		void Close();
-		void GetNextFrame();
+		AVPicture* GetNextFrame();
 
 		bool IsOpen() const;
 
@@ -44,5 +45,7 @@ namespace OrientView
 		int videoBufferSize = 0;
 		AVFrame* frame = nullptr;
 		AVPacket packet;
+		SwsContext* resizeContext = nullptr;
+		AVPicture* resizedPicture;
 	};
 }

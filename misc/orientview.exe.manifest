@@ -46,5 +46,11 @@
       <assemblyIdentity type="win32" name="swresample-0.dll" version="9.9.9.9" processorArchitecture="amd64" />
     </dependentAssembly>
   </dependency>
+  
+  <dependency>
+    <dependentAssembly>
+      <assemblyIdentity type="win32" name="swscale-2.dll" version="9.9.9.9" processorArchitecture="amd64" />
+    </dependentAssembly>
+  </dependency>
 
 </assembly>
