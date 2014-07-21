@@ -143,7 +143,7 @@ bool FFmpegDecoder::Open(const std::string& fileName)
 		if (!resizeContext)
 			throw std::runtime_error("Could not get resize context");
 
-		if (avpicture_alloc(resizedPicture, PIX_FMT_RGB24, videoCodecContext->width, videoCodecContext->height) < 0)
+		if (avpicture_alloc(&resizedPicture, PIX_FMT_RGB24, videoCodecContext->width, videoCodecContext->height) < 0)
 			throw std::runtime_error("Could not allocate picture");
 	}
 	catch (const std::exception& ex)
@@ -172,7 +172,7 @@ void FFmpegDecoder::Close()
 	av_free(videoData[0]);
 	av_frame_free(&frame);
 	sws_freeContext(resizeContext);
-	avpicture_free(resizedPicture);
+	avpicture_free(&resizedPicture);
 
 	formatContext = nullptr;
 	videoCodecContext = nullptr;
@@ -192,7 +192,6 @@ void FFmpegDecoder::Close()
 	videoBufferSize = 0;
 	frame = nullptr;
 	resizeContext = nullptr;
-	resizedPicture = nullptr;
 
 	isOpen = false;
 }
@@ -214,8 +213,8 @@ AVPicture* FFmpegDecoder::GetNextFrame()
 
 				if (gotPicture)
 				{
-					sws_scale(resizeContext, frame->data, frame->linesize, 0, frame->height, resizedPicture->data, resizedPicture->linesize);
-					return resizedPicture;
+					sws_scale(resizeContext, frame->data, frame->linesize, 0, frame->height, resizedPicture.data, resizedPicture.linesize);
+					return &resizedPicture;
 				}
 			}
 			else
@@ -227,6 +226,6 @@ AVPicture* FFmpegDecoder::GetNextFrame()
 			break;
 		}
 	}
-	
+
 	return nullptr;
 }

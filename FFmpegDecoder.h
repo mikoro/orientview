@@ -46,6 +46,6 @@ namespace OrientView
 		AVFrame* frame = nullptr;
 		AVPacket packet;
 		SwsContext* resizeContext = nullptr;
-		AVPicture* resizedPicture;
+		AVPicture resizedPicture;
 	};
 }
