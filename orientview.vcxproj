@@ -64,6 +64,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="build\GeneratedFiles\ui_MainView.h" />
+    <ClInclude Include="SimpleLogger.h" />
     <ClInclude Include="VideoDecoder.h" />
   </ItemGroup>
   <ItemGroup>

@@ -69,6 +69,9 @@
     <ClInclude Include="build\GeneratedFiles\ui_MainView.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
+    <ClInclude Include="SimpleLogger.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="misc\orientview.rc" />

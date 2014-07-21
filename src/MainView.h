@@ -1,19 +1,29 @@
-#ifndef ORIENTVIEW_H
-#define ORIENTVIEW_H
+// Copyright © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
+// License: GPLv3, see the LICENSE file.
 
-#include <QtWidgets/QMainWindow>
-#include "ui_MainView.h"
+#pragma once
+
+#include <QMainWindow>
+
+namespace Ui
+{
+	class MainView;
+}
 
 class MainView : public QMainWindow
 {
 	Q_OBJECT
 
 public:
-	MainView(QWidget *parent = 0);
+
+	explicit MainView(QWidget *parent = 0);
 	~MainView();
 
-private:
-	Ui::MainViewClass ui;
-};
+private slots:
 
-#endif // ORIENTVIEW_H
+	void on_pushButtonTest_clicked();
+
+private:
+
+	Ui::MainView *ui;
+};
