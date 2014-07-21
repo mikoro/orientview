@@ -23,11 +23,28 @@
     </security>
   </trustInfo>
 
-  <!--dependency>
+  <dependency>
     <dependentAssembly>
-      <assemblyIdentity type="win32" name="msvcr120.dll" version="9.9.9.9" processorArchitecture="amd64" />
+      <assemblyIdentity type="win32" name="avformat-55.dll" version="9.9.9.9" processorArchitecture="amd64" />
     </dependentAssembly>
-  </dependency-->
+  </dependency>
   
+  <dependency>
+    <dependentAssembly>
+      <assemblyIdentity type="win32" name="avcodec-55.dll" version="9.9.9.9" processorArchitecture="amd64" />
+    </dependentAssembly>
+  </dependency>
+  
+  <dependency>
+    <dependentAssembly>
+      <assemblyIdentity type="win32" name="avutil-52.dll" version="9.9.9.9" processorArchitecture="amd64" />
+    </dependentAssembly>
+  </dependency>
+  
+  <dependency>
+    <dependentAssembly>
+      <assemblyIdentity type="win32" name="swresample-0.dll" version="9.9.9.9" processorArchitecture="amd64" />
+    </dependentAssembly>
+  </dependency>
 
 </assembly>

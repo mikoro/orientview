@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <string>
+
 namespace OrientView
 {
 	class VideoDecoder
@@ -12,7 +14,10 @@ namespace OrientView
 		VideoDecoder();
 		~VideoDecoder();
 
+		void LoadVideo(const std::string& fileName);
+
 	private:
 
+		static bool isRegistered;
 	};
 }

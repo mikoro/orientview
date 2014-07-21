@@ -5,6 +5,8 @@
 
 #include <QMainWindow>
 
+#include "VideoDecoder.h"
+
 namespace Ui
 {
 	class MainView;
