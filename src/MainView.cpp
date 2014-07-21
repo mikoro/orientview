@@ -14,7 +14,17 @@ MainView::~MainView()
 	delete ui;
 }
 
-void MainView::on_pushButtonTest_clicked()
+void MainView::on_pushButtonOpen_clicked()
 {
-	qDebug("Test!");
+	decoder.Open("testvideo.mp4");
+}
+
+void MainView::on_pushButtonClose_clicked()
+{
+	decoder.Close();
+}
+
+void MainView::on_pushButtonGet_clicked()
+{
+	decoder.GetNextFrame();
 }

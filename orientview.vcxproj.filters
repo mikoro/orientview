@@ -50,7 +50,7 @@
     <ClCompile Include="src\MainView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="VideoDecoder.cpp">
+    <ClCompile Include="FFmpegDecoder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -66,13 +66,13 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="VideoDecoder.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="build\GeneratedFiles\ui_MainView.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
     <ClInclude Include="SimpleLogger.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FFmpegDecoder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

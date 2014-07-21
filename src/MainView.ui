@@ -11,24 +11,60 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainView</string>
+   <string>OrientView</string>
   </property>
   <property name="windowIcon">
    <iconset resource="MainView.qrc">
     <normaloff>:/MainView/misc/orientview.ico</normaloff>:/MainView/misc/orientview.ico</iconset>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QPushButton" name="pushButtonTest">
+   <widget class="QPushButton" name="pushButtonOpen">
     <property name="geometry">
      <rect>
-      <x>240</x>
-      <y>190</y>
+      <x>20</x>
+      <y>20</y>
       <width>141</width>
       <height>71</height>
      </rect>
     </property>
     <property name="text">
-     <string>Test</string>
+     <string>Open</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButtonClose">
+    <property name="geometry">
+     <rect>
+      <x>170</x>
+      <y>20</y>
+      <width>141</width>
+      <height>71</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Close</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButtonGet">
+    <property name="geometry">
+     <rect>
+      <x>320</x>
+      <y>20</y>
+      <width>141</width>
+      <height>71</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Get</string>
+    </property>
+   </widget>
+   <widget class="QGraphicsView" name="graphicsView">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>110</y>
+      <width>441</width>
+      <height>371</height>
+     </rect>
     </property>
    </widget>
   </widget>

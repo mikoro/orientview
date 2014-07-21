@@ -5,7 +5,7 @@
 
 #include <QMainWindow>
 
-#include "VideoDecoder.h"
+#include "FFmpegDecoder.h"
 
 namespace Ui
 {
@@ -23,9 +23,12 @@ public:
 
 private slots:
 
-	void on_pushButtonTest_clicked();
+	void on_pushButtonOpen_clicked();
+	void on_pushButtonClose_clicked();
+	void on_pushButtonGet_clicked();
 
 private:
 
 	Ui::MainView *ui;
+	OrientView::FFmpegDecoder decoder;
 };
