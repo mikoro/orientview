@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>851</width>
-    <height>533</height>
+    <width>1280</width>
+    <height>851</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -21,8 +21,8 @@
    <widget class="QPushButton" name="pushButtonOpen">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>20</y>
+      <x>10</x>
+      <y>730</y>
       <width>141</width>
       <height>71</height>
      </rect>
@@ -34,8 +34,8 @@
    <widget class="QPushButton" name="pushButtonClose">
     <property name="geometry">
      <rect>
-      <x>170</x>
-      <y>20</y>
+      <x>160</x>
+      <y>730</y>
       <width>141</width>
       <height>71</height>
      </rect>
@@ -47,8 +47,8 @@
    <widget class="QPushButton" name="pushButtonGet">
     <property name="geometry">
      <rect>
-      <x>320</x>
-      <y>20</y>
+      <x>310</x>
+      <y>730</y>
       <width>141</width>
       <height>71</height>
      </rect>
@@ -57,14 +57,49 @@
      <string>Get</string>
     </property>
    </widget>
-   <widget class="QGraphicsView" name="graphicsView">
+   <widget class="QLabel" name="labelPicture">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>110</y>
-      <width>441</width>
-      <height>371</height>
+      <x>0</x>
+      <y>0</y>
+      <width>1280</width>
+      <height>720</height>
      </rect>
+    </property>
+    <property name="autoFillBackground">
+     <bool>true</bool>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::Box</enum>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButtonPlay">
+    <property name="geometry">
+     <rect>
+      <x>460</x>
+      <y>730</y>
+      <width>141</width>
+      <height>71</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Play</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButtonStop">
+    <property name="geometry">
+     <rect>
+      <x>610</x>
+      <y>730</y>
+      <width>141</width>
+      <height>71</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Stop</string>
     </property>
    </widget>
   </widget>
@@ -73,7 +108,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>851</width>
+     <width>1280</width>
      <height>21</height>
     </rect>
    </property>

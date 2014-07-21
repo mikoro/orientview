@@ -14,6 +14,15 @@ extern "C"
 
 namespace OrientView
 {
+	struct DecodedPicture
+	{
+		uint8_t* data = nullptr;
+		int dataLength = 0;
+		int stride = 0;
+		int width = 0;
+		int height = 0;
+	};
+
 	class FFmpegDecoder
 	{
 	public:
@@ -23,15 +32,17 @@ namespace OrientView
 
 		bool Open(const std::string& fileName);
 		void Close();
-		AVPicture* GetNextFrame();
+		DecodedPicture* GetNextPicture();
 
 		bool IsOpen() const;
+		double GetFrameTime() const;
 
 	private:
 
 		static bool isRegistered;
 		bool isOpen = false;
 		bool hasAudio = false;
+		double frameTime = 0.0;
 
 		AVFormatContext* formatContext = nullptr;
 		AVCodecContext* videoCodecContext = nullptr;
@@ -47,5 +58,6 @@ namespace OrientView
 		AVPacket packet;
 		SwsContext* resizeContext = nullptr;
 		AVPicture resizedPicture;
+		DecodedPicture decodedPicture;
 	};
 }

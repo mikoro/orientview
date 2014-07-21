@@ -23,9 +23,9 @@
     <ClCompile Include="build\GeneratedFiles\Release\moc_MainView.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="src\FFmpegDecoder.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\MainView.cpp" />
-    <ClCompile Include="FFmpegDecoder.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="src\MainView.h">
@@ -65,8 +65,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="build\GeneratedFiles\ui_MainView.h" />
-    <ClInclude Include="SimpleLogger.h" />
-    <ClInclude Include="FFmpegDecoder.h" />
+    <ClInclude Include="src\FFmpegDecoder.h" />
+    <ClInclude Include="src\SimpleLogger.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="misc\orientview.rc" />

@@ -68,6 +68,11 @@ namespace
 
 FFmpegDecoder::FFmpegDecoder()
 {
+	for (int i = 0; i < 8; ++i)
+	{
+		resizedPicture.data[i] = nullptr;
+		resizedPicture.linesize[i] = 0;
+	}
 }
 
 FFmpegDecoder::~FFmpegDecoder()
@@ -145,6 +150,8 @@ bool FFmpegDecoder::Open(const std::string& fileName)
 
 		if (avpicture_alloc(&resizedPicture, PIX_FMT_RGB24, videoCodecContext->width, videoCodecContext->height) < 0)
 			throw std::runtime_error("Could not allocate picture");
+
+		frameTime = videoCodecContext->ticks_per_frame * 1000.0 * videoCodecContext->time_base.num / (double)videoCodecContext->time_base.den;
 	}
 	catch (const std::exception& ex)
 	{
@@ -164,7 +171,7 @@ bool FFmpegDecoder::Open(const std::string& fileName)
 
 void FFmpegDecoder::Close()
 {
-	qDebug("Closing");
+	qDebug("Closing file");
 
 	avcodec_close(videoCodecContext);
 	avcodec_close(audioCodecContext);
@@ -196,9 +203,9 @@ void FFmpegDecoder::Close()
 	isOpen = false;
 }
 
-AVPicture* FFmpegDecoder::GetNextFrame()
+DecodedPicture* FFmpegDecoder::GetNextPicture()
 {
-	while (true)
+	while (isOpen)
 	{
 		if (av_read_frame(formatContext, &packet) >= 0)
 		{
@@ -214,7 +221,14 @@ AVPicture* FFmpegDecoder::GetNextFrame()
 				if (gotPicture)
 				{
 					sws_scale(resizeContext, frame->data, frame->linesize, 0, frame->height, resizedPicture.data, resizedPicture.linesize);
-					return &resizedPicture;
+
+					decodedPicture.data = resizedPicture.data[0];
+					decodedPicture.dataLength = frame->height * resizedPicture.linesize[0];
+					decodedPicture.stride = resizedPicture.linesize[0];
+					decodedPicture.width = videoCodecContext->width;
+					decodedPicture.height = frame->height;
+
+					return &decodedPicture;
 				}
 			}
 			else
@@ -228,4 +242,14 @@ AVPicture* FFmpegDecoder::GetNextFrame()
 	}
 
 	return nullptr;
+}
+
+bool FFmpegDecoder::IsOpen() const
+{
+	return isOpen;
+}
+
+double FFmpegDecoder::GetFrameTime() const
+{
+	return frameTime;
 }
