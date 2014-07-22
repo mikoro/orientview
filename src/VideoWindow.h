@@ -22,5 +22,10 @@ namespace OrientView
 
 	private:
 
+		GLuint posAttr = 0;
+		GLuint colAttr = 0;
+		GLuint matrixUniform = 0;
+
+		QOpenGLShaderProgram* program = nullptr;
 	};
 }

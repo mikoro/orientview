@@ -6,9 +6,27 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1280</width>
-    <height>851</height>
+    <width>600</width>
+    <height>332</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>600</width>
+    <height>332</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>600</width>
+    <height>332</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>OrientView</string>
@@ -18,88 +36,174 @@
     <normaloff>:/MainView/misc/orientview.ico</normaloff>:/MainView/misc/orientview.ico</iconset>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QPushButton" name="pushButtonOpen">
+   <widget class="QGroupBox" name="groupBoxVideoFile">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>730</y>
-      <width>141</width>
-      <height>71</height>
+      <y>10</y>
+      <width>581</width>
+      <height>51</height>
      </rect>
     </property>
-    <property name="text">
-     <string>Open</string>
+    <property name="title">
+     <string>Video file</string>
     </property>
+    <widget class="QLineEdit" name="lineEditVideoFile">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>511</width>
+       <height>21</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButtonBrowseVideoFile">
+     <property name="geometry">
+      <rect>
+       <x>530</x>
+       <y>20</y>
+       <width>41</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>...</string>
+     </property>
+    </widget>
    </widget>
-   <widget class="QPushButton" name="pushButtonClose">
+   <widget class="QGroupBox" name="groupBoxMapFile">
     <property name="geometry">
      <rect>
-      <x>160</x>
-      <y>730</y>
-      <width>141</width>
-      <height>71</height>
+      <x>10</x>
+      <y>70</y>
+      <width>581</width>
+      <height>51</height>
      </rect>
     </property>
-    <property name="text">
-     <string>Close</string>
+    <property name="title">
+     <string>QuickRoute JPEG file</string>
     </property>
+    <widget class="QLineEdit" name="lineEditMapFile">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>511</width>
+       <height>21</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButtonBrowseMapFile">
+     <property name="geometry">
+      <rect>
+       <x>530</x>
+       <y>20</y>
+       <width>41</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>...</string>
+     </property>
+    </widget>
    </widget>
-   <widget class="QPushButton" name="pushButtonGet">
+   <widget class="QPushButton" name="pushButtonRun">
     <property name="geometry">
      <rect>
-      <x>310</x>
-      <y>730</y>
-      <width>141</width>
-      <height>71</height>
+      <x>10</x>
+      <y>190</y>
+      <width>75</width>
+      <height>23</height>
      </rect>
     </property>
     <property name="text">
-     <string>Get</string>
+     <string>Run</string>
     </property>
    </widget>
-   <widget class="QLabel" name="labelPicture">
+   <widget class="QGroupBox" name="groupBoxSettingsFile">
     <property name="geometry">
      <rect>
-      <x>0</x>
-      <y>0</y>
-      <width>1280</width>
-      <height>720</height>
+      <x>10</x>
+      <y>130</y>
+      <width>581</width>
+      <height>51</height>
      </rect>
     </property>
-    <property name="autoFillBackground">
-     <bool>true</bool>
+    <property name="title">
+     <string>Settings file</string>
     </property>
-    <property name="frameShape">
-     <enum>QFrame::Box</enum>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
+    <widget class="QLineEdit" name="lineEditSettingsFile">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>511</width>
+       <height>21</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButtonBrowseSettingsFile">
+     <property name="geometry">
+      <rect>
+       <x>530</x>
+       <y>20</y>
+       <width>41</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>...</string>
+     </property>
+    </widget>
    </widget>
-   <widget class="QPushButton" name="pushButtonPlay">
+   <widget class="QGroupBox" name="groupBoxOutputVideoFile">
     <property name="geometry">
      <rect>
-      <x>460</x>
-      <y>730</y>
-      <width>141</width>
-      <height>71</height>
+      <x>10</x>
+      <y>220</y>
+      <width>581</width>
+      <height>51</height>
      </rect>
     </property>
-    <property name="text">
-     <string>Play</string>
+    <property name="title">
+     <string>Output video file</string>
     </property>
+    <widget class="QLineEdit" name="lineEditOutputVideoFile">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>511</width>
+       <height>21</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButtonBrowseOutputVideoFile">
+     <property name="geometry">
+      <rect>
+       <x>530</x>
+       <y>20</y>
+       <width>41</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>...</string>
+     </property>
+    </widget>
    </widget>
-   <widget class="QPushButton" name="pushButtonStop">
+   <widget class="QPushButton" name="pushButtonEncode">
     <property name="geometry">
      <rect>
-      <x>610</x>
-      <y>730</y>
-      <width>141</width>
-      <height>71</height>
+      <x>10</x>
+      <y>280</y>
+      <width>75</width>
+      <height>23</height>
      </rect>
     </property>
     <property name="text">
-     <string>Stop</string>
+     <string>Encode</string>
     </property>
    </widget>
   </widget>
@@ -108,7 +212,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1280</width>
+     <width>600</width>
      <height>21</height>
     </rect>
    </property>
@@ -127,7 +231,6 @@
    <addaction name="menuFile"/>
    <addaction name="menuHelp"/>
   </widget>
-  <widget class="QStatusBar" name="statusBar"/>
   <action name="actionAbout">
    <property name="text">
     <string>About</string>

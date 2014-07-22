@@ -1,7 +1,7 @@
 // Copyright © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
 // License: GPLv3, see the LICENSE file.
 
-#include <QTimer>
+#include <QFileDialog>
 
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
@@ -12,47 +12,81 @@ using namespace OrientView;
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
 	ui->setupUi(this);
-	playTimer = new QTimer(this);
-	connect(playTimer, SIGNAL(timeout()), this, SLOT(on_playTimer_update()));
 }
 
 MainWindow::~MainWindow()
 {
-	delete playTimer;
 	delete ui;
 }
 
-void MainWindow::on_pushButtonOpen_clicked()
+void MainWindow::on_pushButtonBrowseVideoFile_clicked()
 {
-	decoder.Open("testvideo.mp4");
-}
+	QFileDialog fileDialog(this);
+	fileDialog.setFileMode(QFileDialog::ExistingFile);
+	fileDialog.setWindowTitle(tr("Open video file"));
+	fileDialog.setNameFilter(tr("Video files (*.mp4 *.avi);;All files (*.*)"));
+	QStringList fileNames;
 
-void MainWindow::on_pushButtonClose_clicked()
-{
-	decoder.Close();
-}
-
-void MainWindow::on_pushButtonGet_clicked()
-{
-	DecodedPicture* picture = decoder.GetNextPicture();
-
-	if (picture != nullptr)
+	if (fileDialog.exec())
 	{
-		ui->labelPicture->setPixmap(QPixmap::fromImage(QImage(picture->data, picture->width, picture->height, picture->stride, QImage::Format_RGB888)));
+		fileNames = fileDialog.selectedFiles();
+		ui->lineEditVideoFile->setText(fileNames.at(0));
 	}
 }
 
-void MainWindow::on_pushButtonPlay_clicked()
+void MainWindow::on_pushButtonBrowseMapFile_clicked()
 {
-	playTimer->start((int)round(decoder.GetFrameTime()));
+	QFileDialog fileDialog(this);
+	fileDialog.setFileMode(QFileDialog::ExistingFile);
+	fileDialog.setWindowTitle(tr("Open QuickRoute JPEG file"));
+	fileDialog.setNameFilter(tr("QuickRoute JPEG files (*.jpg);;All files (*.*)"));
+	QStringList fileNames;
+
+	if (fileDialog.exec())
+	{
+		fileNames = fileDialog.selectedFiles();
+		ui->lineEditMapFile->setText(fileNames.at(0));
+	}
 }
 
-void MainWindow::on_pushButtonStop_clicked()
+void MainWindow::on_pushButtonBrowseSettingsFile_clicked()
 {
-	playTimer->stop();
+	QFileDialog fileDialog(this);
+	fileDialog.setFileMode(QFileDialog::ExistingFile);
+	fileDialog.setWindowTitle(tr("Open settings file"));
+	fileDialog.setNameFilter(tr("Settings files (*.ini);;All files (*.*)"));
+	QStringList fileNames;
+
+	if (fileDialog.exec())
+	{
+		fileNames = fileDialog.selectedFiles();
+		ui->lineEditSettingsFile->setText(fileNames.at(0));
+	}
 }
 
-void MainWindow::on_playTimer_update()
+void MainWindow::on_pushButtonBrowseOutputVideoFile_clicked()
 {
-	on_pushButtonGet_clicked();
+	QFileDialog fileDialog(this);
+	fileDialog.setFileMode(QFileDialog::AnyFile);
+	fileDialog.setWindowTitle(tr("Save video file"));
+	fileDialog.setNameFilter(tr("Video files (*.mp4)"));
+	fileDialog.setDefaultSuffix(tr("mp4"));
+	fileDialog.setAcceptMode(QFileDialog::AcceptSave);
+	QStringList fileNames;
+
+	if (fileDialog.exec())
+	{
+		fileNames = fileDialog.selectedFiles();
+		ui->lineEditOutputVideoFile->setText(fileNames.at(0));
+	}
+}
+
+void MainWindow::on_pushButtonRun_clicked()
+{
+	
+}
+
+void MainWindow::on_pushButtonEncode_clicked()
+{
+
 }

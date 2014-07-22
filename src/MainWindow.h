@@ -23,19 +23,18 @@ namespace OrientView
 		explicit MainWindow(QWidget *parent = 0);
 		~MainWindow();
 
-	private slots:
+		private slots:
 
-		void on_pushButtonOpen_clicked();
-		void on_pushButtonClose_clicked();
-		void on_pushButtonGet_clicked();
-		void on_pushButtonPlay_clicked();
-		void on_pushButtonStop_clicked();
-		void on_playTimer_update();
+		void on_pushButtonBrowseVideoFile_clicked();
+		void on_pushButtonBrowseMapFile_clicked();
+		void on_pushButtonBrowseSettingsFile_clicked();
+		void on_pushButtonBrowseOutputVideoFile_clicked();
+		void on_pushButtonRun_clicked();
+		void on_pushButtonEncode_clicked();
 
 	private:
 
-		Ui::MainWindow *ui;
-		QTimer* playTimer;
+		Ui::MainWindow* ui;
 		FFmpegDecoder decoder;
 	};
 }
