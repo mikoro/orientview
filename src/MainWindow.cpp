@@ -7,6 +7,7 @@
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
 #include "FFmpegDecoder.h"
+#include "VideoWindow.h"
 
 using namespace OrientView;
 
@@ -19,7 +20,18 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
 MainWindow::~MainWindow()
 {
-	delete ui;
+	if (videoWindow != nullptr)
+	{
+		videoWindow->destroy();
+		delete videoWindow;
+		videoWindow = nullptr;
+	}
+
+	if (ui != nullptr)
+	{
+		delete ui;
+		ui = nullptr;
+	}
 }
 
 void MainWindow::on_pushButtonBrowseVideoFile_clicked()
@@ -86,12 +98,19 @@ void MainWindow::on_pushButtonBrowseOutputVideoFile_clicked()
 
 void MainWindow::on_pushButtonRun_clicked()
 {
-	
+	if (videoWindow != nullptr)
+	{
+		videoWindow->destroy();
+		delete videoWindow;
+		videoWindow = nullptr;
+	}
+
+	videoWindow = new VideoWindow();
+	videoWindow->show();
 }
 
 void MainWindow::on_pushButtonEncode_clicked()
 {
-
 }
 
 void MainWindow::readSettings()

@@ -14,6 +14,8 @@ namespace Ui
 
 namespace OrientView
 {
+	class VideoWindow;
+
 	class MainWindow : public QMainWindow
 	{
 		Q_OBJECT
@@ -39,7 +41,8 @@ namespace OrientView
 
 		void closeEvent(QCloseEvent* event);
 
-		Ui::MainWindow* ui;
+		Ui::MainWindow* ui = nullptr;
+		VideoWindow* videoWindow = nullptr;
 		FFmpegDecoder decoder;
 	};
 }
