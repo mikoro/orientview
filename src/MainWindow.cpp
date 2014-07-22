@@ -2,6 +2,7 @@
 // License: GPLv3, see the LICENSE file.
 
 #include <QFileDialog>
+#include <QtGUI>
 
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
@@ -12,6 +13,8 @@ using namespace OrientView;
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
 	ui->setupUi(this);
+
+	readSettings();
 }
 
 MainWindow::~MainWindow()
@@ -89,4 +92,29 @@ void MainWindow::on_pushButtonRun_clicked()
 void MainWindow::on_pushButtonEncode_clicked()
 {
 
+}
+
+void MainWindow::readSettings()
+{
+	QSettings settings;
+
+	ui->lineEditVideoFile->setText(settings.value("mainWindow/videoFile", "").toString());
+	ui->lineEditMapFile->setText(settings.value("mainWindow/mapFile", "").toString());
+	ui->lineEditSettingsFile->setText(settings.value("mainWindow/settingsFile", "").toString());
+	ui->lineEditOutputVideoFile->setText(settings.value("mainWindow/outputVideoFile", "").toString());
+}
+
+void MainWindow::writeSettings()
+{
+	QSettings settings;
+
+	settings.setValue("mainWindow/videoFile", ui->lineEditVideoFile->text());
+	settings.setValue("mainWindow/mapFile", ui->lineEditMapFile->text());
+	settings.setValue("mainWindow/settingsFile", ui->lineEditSettingsFile->text());
+	settings.setValue("mainWindow/outputVideoFile", ui->lineEditOutputVideoFile->text());
+}
+
+void MainWindow::closeEvent(QCloseEvent* event)
+{
+	writeSettings();
 }

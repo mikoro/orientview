@@ -21,6 +21,11 @@ int main(int argc, char *argv[])
 	try
 	{
 		qInstallMessageHandler(messageHandler);
+
+		QCoreApplication::setOrganizationName("Mikko Ronkainen");
+		QCoreApplication::setOrganizationDomain("mikkoronkainen.com");
+		QCoreApplication::setApplicationName("OrientView");
+
 		QApplication app(argc, argv);
 		OrientView::MainWindow mainWindow;
 		mainWindow.show();

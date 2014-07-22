@@ -23,7 +23,7 @@ namespace OrientView
 		explicit MainWindow(QWidget *parent = 0);
 		~MainWindow();
 
-		private slots:
+	private slots:
 
 		void on_pushButtonBrowseVideoFile_clicked();
 		void on_pushButtonBrowseMapFile_clicked();
@@ -33,6 +33,11 @@ namespace OrientView
 		void on_pushButtonEncode_clicked();
 
 	private:
+
+		void readSettings();
+		void writeSettings();
+
+		void closeEvent(QCloseEvent* event);
 
 		Ui::MainWindow* ui;
 		FFmpegDecoder decoder;
