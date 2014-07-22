@@ -1,9 +1,10 @@
 // Copyright © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
 // License: GPLv3, see the LICENSE file.
 
-#include "MainView.h"
-#include "SimpleLogger.h"
 #include <QApplication>
+
+#include "MainWindow.h"
+#include "SimpleLogger.h"
 
 namespace
 {
@@ -21,8 +22,8 @@ int main(int argc, char *argv[])
 	{
 		qInstallMessageHandler(messageHandler);
 		QApplication app(argc, argv);
-		MainView mainView;
-		mainView.show();
+		OrientView::MainWindow mainWindow;
+		mainWindow.show();
 		app.exec();
 	}
 	catch (const std::exception& ex)

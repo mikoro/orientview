@@ -3,36 +3,36 @@
 
 #include <QTimer>
 
-#include "MainView.h"
-#include "ui_MainView.h"
+#include "MainWindow.h"
+#include "ui_MainWindow.h"
 #include "FFmpegDecoder.h"
 
 using namespace OrientView;
 
-MainView::MainView(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainView)
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
 	ui->setupUi(this);
 	playTimer = new QTimer(this);
 	connect(playTimer, SIGNAL(timeout()), this, SLOT(on_playTimer_update()));
 }
 
-MainView::~MainView()
+MainWindow::~MainWindow()
 {
 	delete playTimer;
 	delete ui;
 }
 
-void MainView::on_pushButtonOpen_clicked()
+void MainWindow::on_pushButtonOpen_clicked()
 {
 	decoder.Open("testvideo.mp4");
 }
 
-void MainView::on_pushButtonClose_clicked()
+void MainWindow::on_pushButtonClose_clicked()
 {
 	decoder.Close();
 }
 
-void MainView::on_pushButtonGet_clicked()
+void MainWindow::on_pushButtonGet_clicked()
 {
 	DecodedPicture* picture = decoder.GetNextPicture();
 
@@ -42,17 +42,17 @@ void MainView::on_pushButtonGet_clicked()
 	}
 }
 
-void MainView::on_pushButtonPlay_clicked()
+void MainWindow::on_pushButtonPlay_clicked()
 {
 	playTimer->start((int)round(decoder.GetFrameTime()));
 }
 
-void MainView::on_pushButtonStop_clicked()
+void MainWindow::on_pushButtonStop_clicked()
 {
 	playTimer->stop();
 }
 
-void MainView::on_playTimer_update()
+void MainWindow::on_playTimer_update()
 {
 	on_pushButtonGet_clicked();
 }
