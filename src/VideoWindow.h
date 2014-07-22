@@ -3,29 +3,39 @@
 
 #pragma once
 
-#include "OpenGLWindow.h"
+#include <memory>
 
+#include <QWindow>
+#include <QOpenGLFunctions>
 #include <QOpenGLShaderProgram>
 
 namespace OrientView
 {
-	class VideoWindow : public OpenGLWindow
+	class VideoWindow : public QWindow, protected QOpenGLFunctions
 	{
+		Q_OBJECT
 
 	public:
 
 		explicit VideoWindow(QWindow* parent = 0);
-		~VideoWindow();
 
-		void initialize();
-		void render();
+		bool initialize();
+		void start();
+
+		void renderOnScreen();
+		void renderOffScreen();
+
+	private slots:
+
+		void timerUpdate();
 
 	private:
 
-		GLuint posAttr = 0;
-		GLuint colAttr = 0;
-		GLuint matrixUniform = 0;
+		std::unique_ptr<QOpenGLContext> context = nullptr;
+		std::unique_ptr<QOpenGLShaderProgram> shaderProgram = nullptr;
 
-		QOpenGLShaderProgram* program = nullptr;
+		GLuint positionAttribute = 0;
+		GLuint colorAttribute = 0;
+		GLuint matrixUniform = 0;
 	};
 }

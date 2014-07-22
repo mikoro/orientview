@@ -3,19 +3,16 @@
 
 #pragma once
 
+#include <memory>
+
 #include <QMainWindow>
 
+#include "ui_MainWindow.h"
 #include "FFmpegDecoder.h"
-
-namespace Ui
-{
-	class MainWindow;
-}
+#include "VideoWindow.h"
 
 namespace OrientView
 {
-	class VideoWindow;
-
 	class MainWindow : public QMainWindow
 	{
 		Q_OBJECT
@@ -41,8 +38,8 @@ namespace OrientView
 
 		void closeEvent(QCloseEvent* event);
 
-		Ui::MainWindow* ui = nullptr;
-		VideoWindow* videoWindow = nullptr;
+		std::unique_ptr<Ui::MainWindow> ui = nullptr;
 		FFmpegDecoder decoder;
+		std::unique_ptr<VideoWindow> videoWindow = nullptr;
 	};
 }

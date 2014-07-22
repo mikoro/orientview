@@ -5,14 +5,12 @@
 #include <QtGUI>
 
 #include "MainWindow.h"
-#include "ui_MainWindow.h"
-#include "FFmpegDecoder.h"
-#include "VideoWindow.h"
 
 using namespace OrientView;
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
+	ui = std::unique_ptr<Ui::MainWindow>(new Ui::MainWindow());
 	ui->setupUi(this);
 
 	readSettings();
@@ -20,18 +18,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
 MainWindow::~MainWindow()
 {
-	if (videoWindow != nullptr)
-	{
-		videoWindow->destroy();
-		delete videoWindow;
-		videoWindow = nullptr;
-	}
-
-	if (ui != nullptr)
-	{
-		delete ui;
-		ui = nullptr;
-	}
 }
 
 void MainWindow::on_pushButtonBrowseVideoFile_clicked()
@@ -98,15 +84,20 @@ void MainWindow::on_pushButtonBrowseOutputVideoFile_clicked()
 
 void MainWindow::on_pushButtonRun_clicked()
 {
-	if (videoWindow != nullptr)
+	this->setCursor(Qt::WaitCursor);
+
+	videoWindow = std::unique_ptr<VideoWindow>(new VideoWindow());
+	videoWindow->show();
+
+	if (videoWindow->initialize())
+		videoWindow->start();
+	else
 	{
-		videoWindow->destroy();
-		delete videoWindow;
-		videoWindow = nullptr;
+		videoWindow->close();
+		videoWindow.reset(nullptr);
 	}
 
-	videoWindow = new VideoWindow();
-	videoWindow->show();
+	this->setCursor(Qt::ArrowCursor);
 }
 
 void MainWindow::on_pushButtonEncode_clicked()
