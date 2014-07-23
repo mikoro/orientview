@@ -43,7 +43,7 @@ void RenderOnScreenThread::run()
 				options.setRowLength(decodedPicture.width);
 				options.setImageHeight(decodedPicture.height);
 
-				videoRenderer->getVideoPanelTexture()->setData(QOpenGLTexture::RGB, QOpenGLTexture::UInt8, decodedPicture.data, &options);
+				videoRenderer->getVideoPanelTexture()->setData(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, decodedPicture.data, &options);
 
 				videoWindow->getContext()->makeCurrent(videoWindow);
 				glViewport(0, 0, videoWindow->width(), videoWindow->height());
@@ -52,7 +52,7 @@ void RenderOnScreenThread::run()
 			}
 		}
 
-		QThread::msleep((int)round(ffmpegDecoder->getFrameTime()));
+		//QThread::msleep((int)round(ffmpegDecoder->getFrameTime()));
 	}
 
 	videoWindow->getContext()->makeCurrent(videoWindow);

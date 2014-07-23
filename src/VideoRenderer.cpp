@@ -90,7 +90,7 @@ bool VideoRenderer::initialize()
 	videoPanelTexture->create();
 	videoPanelTexture->bind();
 	videoPanelTexture->setSize(1280, 720);
-	videoPanelTexture->setFormat(QOpenGLTexture::RGB8_UNorm);
+	videoPanelTexture->setFormat(QOpenGLTexture::RGBA8_UNorm);
 	videoPanelTexture->allocateStorage();
 	videoPanelTexture->release();
 

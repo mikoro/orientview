@@ -126,12 +126,12 @@ bool FFmpegDecoder::initialize(const std::string& fileName)
 		packet.data = nullptr;
 		packet.size = 0;
 
-		resizeContext = sws_getContext(videoCodecContext->width, videoCodecContext->height, videoCodecContext->pix_fmt, videoCodecContext->width, videoCodecContext->height, PIX_FMT_RGB24, SWS_BILINEAR, nullptr, nullptr, nullptr);
+		resizeContext = sws_getContext(videoCodecContext->width, videoCodecContext->height, videoCodecContext->pix_fmt, videoCodecContext->width, videoCodecContext->height, PIX_FMT_RGBA, SWS_BILINEAR, nullptr, nullptr, nullptr);
 
 		if (!resizeContext)
 			throw std::runtime_error("Could not get resize context");
 
-		if (avpicture_alloc(&resizedPicture, PIX_FMT_RGB24, videoCodecContext->width, videoCodecContext->height) < 0)
+		if (avpicture_alloc(&resizedPicture, PIX_FMT_RGBA, videoCodecContext->width, videoCodecContext->height) < 0)
 			throw std::runtime_error("Could not allocate picture");
 
 		frameTime = videoCodecContext->ticks_per_frame * 1000.0 * videoCodecContext->time_base.num / (double)videoCodecContext->time_base.den;
