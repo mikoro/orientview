@@ -1,6 +1,10 @@
 // Copyright © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
 // License: GPLv3, see the LICENSE file.
 
+#include <QApplication>
+#include <QStyle>
+#include <QDesktopWidget>
+
 #include "VideoWindow.h"
 
 using namespace OrientView;
@@ -23,6 +27,7 @@ bool VideoWindow::initialize()
 	setTitle("OrientView - Video");
 	resize(1280, 720);
 	setModality(Qt::ApplicationModal);
+	setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, size(), QApplication::desktop()->availableGeometry()));
 
 	qDebug("Creating OpenGL context");
 
