@@ -7,6 +7,8 @@
 
 #include <QOpenGLFunctions>
 #include <QOpenGLShaderProgram>
+#include <QOpenGLBuffer>
+#include <QOpenGLTexture>
 
 namespace OrientView
 {
@@ -26,9 +28,15 @@ namespace OrientView
 	private:
 
 		std::unique_ptr<QOpenGLShaderProgram> shaderProgram = nullptr;
-
-		GLuint positionAttribute = 0;
-		GLuint colorAttribute = 0;
-		GLuint matrixUniform = 0;
+		std::unique_ptr<QOpenGLBuffer> videoPanelBuffer = nullptr;
+		std::unique_ptr<QOpenGLTexture> videoPanelTexture = nullptr;
+		std::unique_ptr<QOpenGLBuffer> mapPanelBuffer = nullptr;
+		std::unique_ptr<QOpenGLTexture> mapPanelTexture = nullptr;
+		
+		GLuint vertexMatrixUniform = 0;
+		GLuint textureMatrixUniform = 0;
+		GLuint textureSamplerUniform = 0;
+		GLuint vertexCoordAttribute = 0;
+		GLuint textureCoordAttribute = 0;
 	};
 }

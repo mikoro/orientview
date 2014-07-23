@@ -90,7 +90,7 @@ void MainWindow::on_pushButtonRun_clicked()
 
 	try
 	{
-		videoWindow.show();
+		videoWindow.showNormal();
 
 		if (!videoWindow.initialize())
 			throw std::runtime_error("Could not initialize VideoWindow");
