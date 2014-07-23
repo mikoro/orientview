@@ -9,5 +9,4 @@ out vec3 out_color;
 void main()
 {
 	out_color = texture(textureSampler, pass_textureCoord).rgb;
-	out_color += vec3(0.5, 0.5, 0.5);
 }

@@ -40,7 +40,7 @@ void RenderOnScreenThread::run()
 		{
 			if (videoWindow->isExposed())
 			{
-				options.setRowLength(decodedPicture.width);
+				options.setRowLength(decodedPicture.stride / 4);
 				options.setImageHeight(decodedPicture.height);
 
 				videoRenderer->getVideoPanelTexture()->setData(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, decodedPicture.data, &options);
