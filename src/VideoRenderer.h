@@ -25,6 +25,8 @@ namespace OrientView
 
 		void render();
 
+		QOpenGLTexture* getVideoPanelTexture();
+
 	private:
 
 		std::unique_ptr<QOpenGLShaderProgram> shaderProgram = nullptr;

@@ -30,27 +30,21 @@ namespace OrientView
 		FFmpegDecoder();
 		~FFmpegDecoder();
 
-		bool Open(const std::string& fileName);
-		void Close();
-		DecodedPicture* GetNextPicture();
-
-		bool IsOpen() const;
-		double GetFrameTime() const;
+		bool initialize(const std::string& fileName);
+		void shutdown();
+		bool getNextPicture(DecodedPicture* decodedPicture);
+		double getFrameTime() const;
 
 	private:
 
 		static bool isRegistered;
-		bool isOpen = false;
-		bool hasAudio = false;
+		bool isInitialized = false;
 		double frameTime = 0.0;
 
 		AVFormatContext* formatContext = nullptr;
 		AVCodecContext* videoCodecContext = nullptr;
-		AVCodecContext* audioCodecContext = nullptr;
 		AVStream* videoStream = nullptr;
-		AVStream* audioStream = nullptr;
 		int videoStreamIndex = -1;
-		int	audioStreamIndex = -1;
 		uint8_t* videoData[4] = { nullptr };
 		int videoLineSize[4] = { 0 };
 		int videoBufferSize = 0;
@@ -58,6 +52,5 @@ namespace OrientView
 		AVPacket packet;
 		SwsContext* resizeContext = nullptr;
 		AVPicture resizedPicture;
-		DecodedPicture decodedPicture;
 	};
 }

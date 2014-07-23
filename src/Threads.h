@@ -9,6 +9,7 @@ namespace OrientView
 {
 	class VideoWindow;
 	class VideoRenderer;
+	class FFmpegDecoder;
 
 	class DecodeThread : public QThread
 	{
@@ -29,13 +30,14 @@ namespace OrientView
 
 		RenderOnScreenThread();
 
-		void initialize(VideoWindow* videoWindow, VideoRenderer* videoRenderer);
+		void initialize(VideoWindow* videoWindow, VideoRenderer* videoRenderer, FFmpegDecoder* ffmpegDecoder);
 		void run();
 
 	private:
 
-		VideoWindow* videoWindow;
-		VideoRenderer* videoRenderer;
+		VideoWindow* videoWindow = nullptr;
+		VideoRenderer* videoRenderer = nullptr;
+		FFmpegDecoder* ffmpegDecoder = nullptr;
 	};
 
 	class RenderOffScreenThread : public QThread

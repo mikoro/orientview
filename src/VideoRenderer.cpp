@@ -86,6 +86,14 @@ bool VideoRenderer::initialize()
 	videoPanelBuffer->allocate(videoPanelBufferData, sizeof(GLfloat) * 16);
 	videoPanelBuffer->release();
 
+	videoPanelTexture = std::unique_ptr<QOpenGLTexture>(new QOpenGLTexture(QOpenGLTexture::Target2D));
+	videoPanelTexture->create();
+	videoPanelTexture->bind();
+	videoPanelTexture->setSize(1280, 720);
+	videoPanelTexture->setFormat(QOpenGLTexture::RGB8_UNorm);
+	videoPanelTexture->allocateStorage();
+	videoPanelTexture->release();
+
 	mapPanelBuffer = std::unique_ptr<QOpenGLBuffer>(new QOpenGLBuffer(QOpenGLBuffer::VertexBuffer));
 	mapPanelBuffer->setUsagePattern(QOpenGLBuffer::StaticDraw);
 	mapPanelBuffer->create();
@@ -120,29 +128,20 @@ void VideoRenderer::shutdown()
 {
 	qDebug("Shutting down VideoRenderer");
 
+	if (videoPanelTexture != nullptr)
+		videoPanelTexture.reset(nullptr);
+
 	if (mapPanelTexture != nullptr)
-	{
-		mapPanelTexture->destroy();
 		mapPanelTexture.reset(nullptr);
-	}
 
 	if (mapPanelBuffer != nullptr)
-	{
-		mapPanelBuffer->destroy();
 		mapPanelBuffer.reset(nullptr);
-	}
 
 	if (videoPanelBuffer != nullptr)
-	{
-		videoPanelBuffer->destroy();
 		videoPanelBuffer.reset(nullptr);
-	}
 
 	if (shaderProgram != nullptr)
-	{
-		shaderProgram->removeAllShaders();
 		shaderProgram.reset(nullptr);
-	}
 }
 
 void VideoRenderer::render()
@@ -153,19 +152,14 @@ void VideoRenderer::render()
 	shaderProgram->bind();
 
 	QMatrix4x4 vertexMatrix;
-	//vertexMatrix.perspective(60.0f, 4.0f / 3.0f, 0.1f, 100.0f);
-	//vertexMatrix.translate(0, 0, -2);
-	//vertexMatrix.rotate(0.01f * QTime::currentTime().msecsSinceStartOfDay(), 0, 1, 0);
-
 	QMatrix4x4 textureMatrix;
-	vertexMatrix.rotate(0.01f * QTime::currentTime().msecsSinceStartOfDay(), 0, 0, 1);
 
 	shaderProgram->setUniformValue(vertexMatrixUniform, vertexMatrix);
 	shaderProgram->setUniformValue(textureMatrixUniform, textureMatrix);
 	shaderProgram->setUniformValue(textureSamplerUniform, 0);
 
-	mapPanelBuffer->bind();
-	mapPanelTexture->bind();
+	videoPanelBuffer->bind();
+	videoPanelTexture->bind();
 
 	glVertexAttribPointer(vertexCoordAttribute, 2, GL_FLOAT, GL_FALSE, 0, 0);
 	glVertexAttribPointer(textureCoordAttribute, 2, GL_FLOAT, GL_FALSE, 0, (void*)(sizeof(GLfloat) * 8));
@@ -175,8 +169,13 @@ void VideoRenderer::render()
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
 
-	mapPanelBuffer->release();
-	mapPanelTexture->release();
+	videoPanelBuffer->release();
+	videoPanelTexture->release();
 
 	shaderProgram->release();
+}
+
+QOpenGLTexture* VideoRenderer::getVideoPanelTexture()
+{
+	return videoPanelTexture.get();
 }

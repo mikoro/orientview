@@ -1,8 +1,9 @@
 // Copyright © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
 // License: GPLv3, see the LICENSE file.
 
-#include <QtGlobal>
 #include <windows.h>
+
+#include <QtGlobal>
 
 extern "C"
 {
@@ -77,26 +78,20 @@ FFmpegDecoder::FFmpegDecoder()
 
 FFmpegDecoder::~FFmpegDecoder()
 {
-	if (isOpen)
-		Close();
+	shutdown();
 }
 
-bool FFmpegDecoder::Open(const std::string& fileName)
+bool FFmpegDecoder::initialize(const std::string& fileName)
 {
+	qDebug("Initializing FFmpegDecoder (%s)", fileName.c_str());
+
 	if (!isRegistered)
 	{
-		qDebug("Initializing FFmpeg");
-
 		av_log_set_callback(ffmpegLogCallback);
 		av_register_all();
 
 		isRegistered = true;
 	}
-
-	if (isOpen)
-		Close();
-
-	qDebug("Opening %s", fileName.c_str());
 
 	int result = 0;
 
@@ -119,18 +114,6 @@ bool FFmpegDecoder::Open(const std::string& fileName)
 				throw std::runtime_error("Could not allocate raw video buffer");
 
 			videoBufferSize = result;
-		}
-
-		if ((result = openCodecContext(&audioStreamIndex, formatContext, AVMEDIA_TYPE_AUDIO)) < 0)
-		{
-			qWarning("Could not open audio codec context");
-			hasAudio = false;
-		}
-		else
-		{
-			audioStream = formatContext->streams[audioStreamIndex];
-			audioCodecContext = audioStream->codec;
-			hasAudio = true;
 		}
 
 		if (!(frame = av_frame_alloc()))
@@ -158,23 +141,22 @@ bool FFmpegDecoder::Open(const std::string& fileName)
 		char message[64] = { 0 };
 		av_strerror(result, message, 64);
 		qCritical("Could not open FFmpeg decoder: %s: %s", ex.what(), message);
-		Close();
+		shutdown();
 
 		return false;
 	}
 
 	qDebug("File opened successfully");
 
-	isOpen = true;
+	isInitialized = true;
 	return true;
 }
 
-void FFmpegDecoder::Close()
+void FFmpegDecoder::shutdown()
 {
-	qDebug("Closing file");
+	qDebug("Shutting down FFmpegDecoder");
 
 	avcodec_close(videoCodecContext);
-	avcodec_close(audioCodecContext);
 	avformat_close_input(&formatContext);
 	av_free(videoData[0]);
 	av_frame_free(&frame);
@@ -183,11 +165,8 @@ void FFmpegDecoder::Close()
 
 	formatContext = nullptr;
 	videoCodecContext = nullptr;
-	audioCodecContext = nullptr;
 	videoStream = nullptr;
-	audioStream = nullptr;
 	videoStreamIndex = -1;
-	audioStreamIndex = -1;
 	videoData[0] = nullptr;
 	videoData[1] = nullptr;
 	videoData[2] = nullptr;
@@ -200,12 +179,21 @@ void FFmpegDecoder::Close()
 	frame = nullptr;
 	resizeContext = nullptr;
 
-	isOpen = false;
+	for (int i = 0; i < 8; ++i)
+	{
+		resizedPicture.data[i] = nullptr;
+		resizedPicture.linesize[i] = 0;
+	}
+
+	isInitialized = false;
 }
 
-DecodedPicture* FFmpegDecoder::GetNextPicture()
+bool FFmpegDecoder::getNextPicture(DecodedPicture* decodedPicture)
 {
-	while (isOpen)
+	if (!isInitialized)
+		return false;
+
+	while (true)
 	{
 		if (av_read_frame(formatContext, &packet) >= 0)
 		{
@@ -222,34 +210,24 @@ DecodedPicture* FFmpegDecoder::GetNextPicture()
 				{
 					sws_scale(resizeContext, frame->data, frame->linesize, 0, frame->height, resizedPicture.data, resizedPicture.linesize);
 
-					decodedPicture.data = resizedPicture.data[0];
-					decodedPicture.dataLength = frame->height * resizedPicture.linesize[0];
-					decodedPicture.stride = resizedPicture.linesize[0];
-					decodedPicture.width = videoCodecContext->width;
-					decodedPicture.height = frame->height;
+					decodedPicture->data = resizedPicture.data[0];
+					decodedPicture->dataLength = frame->height * resizedPicture.linesize[0];
+					decodedPicture->stride = resizedPicture.linesize[0];
+					decodedPicture->width = videoCodecContext->width;
+					decodedPicture->height = frame->height;
 
-					return &decodedPicture;
+					return true;
 				}
 			}
 			else
 				av_free_packet(&packet);
 		}
 		else
-		{
-			qWarning("Could not read frame");
-			break;
-		}
+			return false;
 	}
-
-	return nullptr;
 }
 
-bool FFmpegDecoder::IsOpen() const
-{
-	return isOpen;
-}
-
-double FFmpegDecoder::GetFrameTime() const
+double FFmpegDecoder::getFrameTime() const
 {
 	return frameTime;
 }

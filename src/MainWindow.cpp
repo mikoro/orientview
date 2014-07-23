@@ -90,6 +90,9 @@ void MainWindow::on_pushButtonRun_clicked()
 
 	try
 	{
+		if(!ffmpegDecoder.initialize(ui->lineEditVideoFile->text().toStdString()))
+			throw std::runtime_error("Could not initialize FFmpegDecoder");
+
 		videoWindow.showNormal();
 
 		if (!videoWindow.initialize())
@@ -98,7 +101,7 @@ void MainWindow::on_pushButtonRun_clicked()
 		if (!videoRenderer.initialize())
 			throw std::runtime_error("Could not initialize VideoRenderer");
 
-		renderOnScreenThread.initialize(&videoWindow, &videoRenderer);
+		renderOnScreenThread.initialize(&videoWindow, &videoRenderer, &ffmpegDecoder);
 		videoWindow.getContext()->doneCurrent();
 		videoWindow.getContext()->moveToThread(&renderOnScreenThread);
 		renderOnScreenThread.start();
@@ -106,10 +109,8 @@ void MainWindow::on_pushButtonRun_clicked()
 	catch (const std::exception& ex)
 	{
 		qWarning("Could not run video: %s", ex.what());
-
-		videoRenderer.shutdown();
-		videoWindow.shutdown();
 		videoWindow.close();
+		videoWindowClosing();
 	}
 
 	this->setCursor(Qt::ArrowCursor);
@@ -123,6 +124,9 @@ void MainWindow::videoWindowClosing()
 {
 	renderOnScreenThread.requestInterruption();
 	renderOnScreenThread.wait();
+
+	videoWindow.shutdown();
+	ffmpegDecoder.shutdown();
 }
 
 void MainWindow::readSettings()
