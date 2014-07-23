@@ -1,8 +1,9 @@
-#version 330 core
+#version 330
 
-varying vec4 pass_color;
+in vec4 pass_color;
+out vec4 output_color;
 
 void main()
 {
-	gl_FragColor = pass_color;
+	output_color = pass_color;
 }

@@ -1,9 +1,11 @@
-#version 330 core
+#version 330
 
-attribute vec4 position;
-attribute vec4 color;
 uniform mat4 matrix;
-varying vec4 pass_color;
+
+in vec4 position;
+in vec4 color;
+
+out vec4 pass_color;
 
 void main()
 {

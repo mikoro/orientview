@@ -13,6 +13,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 	ui = std::unique_ptr<Ui::MainWindow>(new Ui::MainWindow());
 	ui->setupUi(this);
 
+	connect(&videoWindow, SIGNAL(closing()), this, SLOT(videoWindowClosing()));
+
 	readSettings();
 }
 
@@ -86,15 +88,28 @@ void MainWindow::on_pushButtonRun_clicked()
 {
 	this->setCursor(Qt::WaitCursor);
 
-	videoWindow = std::unique_ptr<VideoWindow>(new VideoWindow());
-	videoWindow->show();
-
-	if (videoWindow->initialize())
-		videoWindow->start();
-	else
+	try
 	{
-		videoWindow->close();
-		videoWindow.reset(nullptr);
+		videoWindow.show();
+
+		if (!videoWindow.initialize())
+			throw std::runtime_error("Could not initialize VideoWindow");
+
+		if (!videoRenderer.initialize())
+			throw std::runtime_error("Could not initialize VideoRenderer");
+
+		renderOnScreenThread.initialize(&videoWindow, &videoRenderer);
+		videoWindow.getContext()->doneCurrent();
+		videoWindow.getContext()->moveToThread(&renderOnScreenThread);
+		renderOnScreenThread.start();
+	}
+	catch (const std::exception& ex)
+	{
+		qWarning("Could not run video: %s", ex.what());
+
+		videoRenderer.shutdown();
+		videoWindow.shutdown();
+		videoWindow.close();
 	}
 
 	this->setCursor(Qt::ArrowCursor);
@@ -102,6 +117,12 @@ void MainWindow::on_pushButtonRun_clicked()
 
 void MainWindow::on_pushButtonEncode_clicked()
 {
+}
+
+void MainWindow::videoWindowClosing()
+{
+	renderOnScreenThread.requestInterruption();
+	renderOnScreenThread.wait();
 }
 
 void MainWindow::readSettings()

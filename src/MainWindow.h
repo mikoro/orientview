@@ -9,7 +9,9 @@
 
 #include "ui_MainWindow.h"
 #include "FFmpegDecoder.h"
+#include "VideoRenderer.h"
 #include "VideoWindow.h"
+#include "Threads.h"
 
 namespace OrientView
 {
@@ -31,6 +33,8 @@ namespace OrientView
 		void on_pushButtonRun_clicked();
 		void on_pushButtonEncode_clicked();
 
+		void videoWindowClosing();
+
 	private:
 
 		void readSettings();
@@ -39,7 +43,9 @@ namespace OrientView
 		void closeEvent(QCloseEvent* event);
 
 		std::unique_ptr<Ui::MainWindow> ui = nullptr;
-		FFmpegDecoder decoder;
-		std::unique_ptr<VideoWindow> videoWindow = nullptr;
+		FFmpegDecoder ffmpegDecoder;
+		VideoRenderer videoRenderer;
+		VideoWindow videoWindow;
+		RenderOnScreenThread renderOnScreenThread;
 	};
 }
