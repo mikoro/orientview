@@ -36,43 +36,42 @@ void RenderOnScreenThread::run()
 	QOpenGLPixelTransferOptions options;
 	QElapsedTimer displayTimer;
 
+	displayTimer.start();
+
 	while (!isInterruptionRequested())
 	{
-		displayTimer.restart();
-
-		if (ffmpegDecoder->getNextFrame(&decodedFrame))
+		if (videoWindow->isExposed() && ffmpegDecoder->getNextFrame(&decodedFrame))
 		{
-			if (videoWindow->isExposed())
+			videoWindow->getContext()->makeCurrent(videoWindow);
+
+			options.setRowLength(decodedFrame.stride / 4);
+			options.setImageHeight(decodedFrame.height);
+			options.setAlignment(1);
+
+			videoRenderer->getVideoPanelTexture()->setData(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, decodedFrame.data, &options);
+
+			glViewport(0, 0, videoWindow->width(), videoWindow->height());
+			videoRenderer->render();
+
+			while (true)
 			{
-				videoWindow->getContext()->makeCurrent(videoWindow);
+				int64_t timeToSleep = decodedFrame.duration - (displayTimer.nsecsElapsed() / 1000);
 
-				options.setRowLength(decodedFrame.stride / 4);
-				options.setImageHeight(decodedFrame.height);
-				options.setAlignment(1);
-
-				videoRenderer->getVideoPanelTexture()->setData(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, decodedFrame.data, &options);
-
-				glViewport(0, 0, videoWindow->width(), videoWindow->height());
-				videoRenderer->render();
-				videoWindow->getContext()->swapBuffers(videoWindow);
-
-				while (true)
+				if (timeToSleep > 2000)
 				{
-					int64_t timeToSleep = decodedFrame.duration - (displayTimer.nsecsElapsed() / 1000);
-
-					if (timeToSleep > 2000)
-					{
-						QThread::msleep(1);
-						continue;
-					}
-					else if (timeToSleep > 0)
-						continue;
-					else
-						break;
+					QThread::msleep(1);
+					continue;
 				}
-
-				continue;
+				else if (timeToSleep > 0)
+					continue;
+				else
+					break;
 			}
+
+			displayTimer.restart();
+			videoWindow->getContext()->swapBuffers(videoWindow);
+
+			continue;
 		}
 
 		QThread::msleep(100);
