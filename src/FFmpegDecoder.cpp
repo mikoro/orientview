@@ -30,40 +30,36 @@ namespace
 		}
 	}
 
-	int openCodecContext(int* streamIndex, AVFormatContext* formatContext, enum AVMediaType mediaType)
+	bool openCodecContext(int* streamIndex, AVFormatContext* formatContext, AVMediaType mediaType)
 	{
-		int result = 0;
-		AVStream* stream = nullptr;
-		AVCodecContext* codecContext = nullptr;
-		AVCodec* codec = nullptr;
-		AVDictionary* opts = nullptr;
+		*streamIndex = av_find_best_stream(formatContext, mediaType, -1, -1, nullptr, 0);
 
-		if ((result = av_find_best_stream(formatContext, mediaType, -1, -1, nullptr, 0)) < 0)
+		if (*streamIndex < 0)
 		{
 			qWarning("Could not find %s stream in input file", av_get_media_type_string(mediaType));
-			return result;
+			return false;
 		}
 		else
 		{
-			*streamIndex = result;
-			stream = formatContext->streams[*streamIndex];
-			codecContext = stream->codec;
-			codec = avcodec_find_decoder(codecContext->codec_id);
+			AVCodecContext* codecContext = formatContext->streams[*streamIndex]->codec;
+			AVCodec* codec = avcodec_find_decoder(codecContext->codec_id);
 
 			if (!codec)
 			{
-				qWarning("Failed to find %s codec", av_get_media_type_string(mediaType));
-				return AVERROR(EINVAL);
+				qWarning("Could not find %s codec", av_get_media_type_string(mediaType));
+				return false;
 			}
 
-			if ((result = avcodec_open2(codecContext, codec, &opts)) < 0)
+			AVDictionary* opts = nullptr;
+
+			if (avcodec_open2(codecContext, codec, &opts) < 0)
 			{
-				qWarning("Failed to open %s codec", av_get_media_type_string(mediaType));
-				return result;
+				qWarning("Could not open %s codec", av_get_media_type_string(mediaType));
+				return false;
 			}
 		}
 
-		return 0;
+		return true;
 	}
 }
 
@@ -76,14 +72,9 @@ FFmpegDecoder::FFmpegDecoder()
 	}
 }
 
-FFmpegDecoder::~FFmpegDecoder()
+bool FFmpegDecoder::initialize(const QString& fileName)
 {
-	shutdown();
-}
-
-bool FFmpegDecoder::initialize(const std::string& fileName)
-{
-	qDebug("Initializing FFmpegDecoder (%s)", fileName.c_str());
+	qDebug("Initializing FFmpegDecoder (%s)", fileName.toLocal8Bit().constData());
 
 	if (!isRegistered)
 	{
@@ -93,62 +84,49 @@ bool FFmpegDecoder::initialize(const std::string& fileName)
 		isRegistered = true;
 	}
 
-	int result = 0;
-
 	try
 	{
-		if ((result = avformat_open_input(&formatContext, fileName.c_str(), nullptr, nullptr)) < 0)
+		if (avformat_open_input(&formatContext, fileName.toLocal8Bit().constData(), nullptr, nullptr) < 0)
 			throw std::runtime_error("Could not open source file");
 
-		if ((result = avformat_find_stream_info(formatContext, nullptr)) < 0)
+		if (avformat_find_stream_info(formatContext, nullptr) < 0)
 			throw std::runtime_error("Could not find stream information");
 
-		if ((result = openCodecContext(&videoStreamIndex, formatContext, AVMEDIA_TYPE_VIDEO)) < 0)
+		if (!openCodecContext(&videoStreamIndex, formatContext, AVMEDIA_TYPE_VIDEO))
 			throw std::runtime_error("Could not open video codec context");
-		else
-		{
-			videoStream = formatContext->streams[videoStreamIndex];
-			videoCodecContext = videoStream->codec;
+		
+		videoStream = formatContext->streams[videoStreamIndex];
+		videoCodecContext = videoStream->codec;
+		frameWidth = videoCodecContext->width;
+		frameHeight = videoCodecContext->height;
 
-			if ((result = av_image_alloc(videoData, videoLineSize, videoCodecContext->width, videoCodecContext->height, videoCodecContext->pix_fmt, 1)) < 0)
-				throw std::runtime_error("Could not allocate raw video buffer");
+		if (av_image_alloc(videoData, videoLineSize, frameWidth, frameHeight, videoCodecContext->pix_fmt, 1) < 0)
+			throw std::runtime_error("Could not allocate raw video buffer");
 
-			videoBufferSize = result;
-		}
+		frame = av_frame_alloc();
 
-		if (!(frame = av_frame_alloc()))
-		{
-			result = AVERROR(ENOMEM);
+		if (!frame)
 			throw std::runtime_error("Could not allocate frame");
-		}
 
 		av_init_packet(&packet);
 		packet.data = nullptr;
 		packet.size = 0;
 
-		resizeContext = sws_getContext(videoCodecContext->width, videoCodecContext->height, videoCodecContext->pix_fmt, videoCodecContext->width, videoCodecContext->height, PIX_FMT_RGBA, SWS_BILINEAR, nullptr, nullptr, nullptr);
+		resizeContext = sws_getContext(frameWidth, frameHeight, videoCodecContext->pix_fmt, frameWidth, frameHeight, PIX_FMT_RGBA, SWS_BILINEAR, nullptr, nullptr, nullptr);
 
 		if (!resizeContext)
 			throw std::runtime_error("Could not get resize context");
 
-		if (avpicture_alloc(&resizedPicture, PIX_FMT_RGBA, videoCodecContext->width, videoCodecContext->height) < 0)
+		if (avpicture_alloc(&resizedPicture, PIX_FMT_RGBA, frameWidth, frameHeight) < 0)
 			throw std::runtime_error("Could not allocate picture");
 
 		preCalculatedFrameDuration = av_rescale_q(videoCodecContext->ticks_per_frame, videoCodecContext->time_base, AVRational{ 1, AV_TIME_BASE });
-		frameWidth = videoCodecContext->width;
-		frameHeight = videoCodecContext->height;
 	}
 	catch (const std::exception& ex)
 	{
-		char message[64] = { 0 };
-		av_strerror(result, message, 64);
-		qWarning("Could not open FFmpeg decoder: %s: %s", ex.what(), message);
-		shutdown();
-
+		qWarning("Could not initialize FFmpegDecoder: %s", ex.what());
 		return false;
 	}
-
-	qDebug("File opened successfully");
 
 	isInitialized = true;
 	return true;
@@ -177,7 +155,6 @@ void FFmpegDecoder::shutdown()
 	videoLineSize[1] = 0;
 	videoLineSize[2] = 0;
 	videoLineSize[3] = 0;
-	videoBufferSize = 0;
 	frame = nullptr;
 	resizeContext = nullptr;
 	lastFrameTimestamp = 0;
@@ -217,8 +194,6 @@ bool FFmpegDecoder::getNextFrame(DecodedFrame* decodedFrame)
 				if (gotPicture)
 				{
 					sws_scale(resizeContext, frame->data, frame->linesize, 0, frame->height, resizedPicture.data, resizedPicture.linesize);
-					
-					int j = av_frame_get_best_effort_timestamp(frame);
 
 					decodedFrame->data = resizedPicture.data[0];
 					decodedFrame->dataLength = frame->height * resizedPicture.linesize[0];
@@ -238,7 +213,7 @@ bool FFmpegDecoder::getNextFrame(DecodedFrame* decodedFrame)
 					return true;
 				}
 			}
-			
+
 			av_free_packet(&packet);
 		}
 		else

@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <string>
+#include <QString>
 
 extern "C"
 {
@@ -29,9 +29,8 @@ namespace OrientView
 	public:
 
 		FFmpegDecoder();
-		~FFmpegDecoder();
 
-		bool initialize(const std::string& fileName);
+		bool initialize(const QString& fileName);
 		void shutdown();
 		bool getNextFrame(DecodedFrame* decodedFrame);
 		int getFrameWidth() const;
@@ -49,7 +48,6 @@ namespace OrientView
 		int videoStreamIndex = -1;
 		uint8_t* videoData[4] = { nullptr };
 		int videoLineSize[4] = { 0 };
-		int videoBufferSize = 0;
 		AVFrame* frame = nullptr;
 		AVPacket packet;
 		SwsContext* resizeContext = nullptr;

@@ -38,6 +38,7 @@
     <ClCompile Include="src\FFmpegDecoder.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\MainWindow.cpp" />
+    <ClCompile Include="src\QuickRouteReader.cpp" />
     <ClCompile Include="src\Threads.cpp" />
     <ClCompile Include="src\VideoRenderer.cpp" />
     <ClCompile Include="src\VideoWindow.cpp" />
@@ -81,6 +82,7 @@
   <ItemGroup>
     <ClInclude Include="build\GeneratedFiles\ui_MainWindow.h" />
     <ClInclude Include="src\FFmpegDecoder.h" />
+    <ClInclude Include="src\QuickRouteReader.h" />
     <ClInclude Include="src\SimpleLogger.h" />
     <ClInclude Include="src\VideoRenderer.h" />
     <CustomBuild Include="src\Threads.h">

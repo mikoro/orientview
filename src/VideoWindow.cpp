@@ -13,11 +13,6 @@ VideoWindow::VideoWindow(QWindow* parent) : QWindow(parent)
 {
 }
 
-VideoWindow::~VideoWindow()
-{
-	shutdown();
-}
-
 bool VideoWindow::initialize()
 {
 	qDebug("Initializing VideoWindow");

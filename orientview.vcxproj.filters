@@ -74,6 +74,9 @@
     <ClCompile Include="src\VideoRenderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\QuickRouteReader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="src\MainView.qrc">
@@ -103,6 +106,9 @@
       <Filter>Generated Files</Filter>
     </ClInclude>
     <ClInclude Include="src\VideoRenderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\QuickRouteReader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

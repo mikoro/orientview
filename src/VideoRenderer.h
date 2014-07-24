@@ -18,7 +18,6 @@ namespace OrientView
 	public:
 
 		VideoRenderer();
-		~VideoRenderer();
 
 		bool initialize(int videoWidth, int videoHeight);
 		void shutdown();

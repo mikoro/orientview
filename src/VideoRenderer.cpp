@@ -11,11 +11,6 @@ VideoRenderer::VideoRenderer()
 {
 }
 
-VideoRenderer::~VideoRenderer()
-{
-	shutdown();
-}
-
 bool VideoRenderer::initialize(int videoWidth, int videoHeight)
 {
 	qDebug("Initializing VideoRenderer");
@@ -121,10 +116,12 @@ void VideoRenderer::shutdown()
 
 void VideoRenderer::update(int windowWidth, int windowHeight)
 {
-	float videoAspectRatio = (float)videoWidth / videoHeight;
 	float videoPanelTop = 1.0f;
 	float videoPanelBottom = 0.0f;
 	float videoPanelLeft = 0.0f;
+
+	// try to fit the video panel on the screen as big as possible and keep the video aspect ratio
+	float videoAspectRatio = (float)videoWidth / videoHeight;
 	float newVideoHeight = windowWidth / videoAspectRatio;
 	float newVideoWidth = windowHeight * videoAspectRatio;
 
@@ -133,6 +130,7 @@ void VideoRenderer::update(int windowWidth, int windowHeight)
 	else
 		videoPanelLeft = 1.0f - (newVideoWidth / windowWidth);
 
+	// center video panel vertically
 	float halfFromBottom = videoPanelBottom / 2.0f;
 	videoPanelBottom -= halfFromBottom;
 	videoPanelTop -= halfFromBottom;

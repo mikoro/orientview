@@ -17,7 +17,6 @@ namespace OrientView
 	public:
 
 		explicit VideoWindow(QWindow* parent = 0);
-		~VideoWindow();
 
 		bool initialize();
 		void shutdown();

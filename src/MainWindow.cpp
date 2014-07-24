@@ -18,10 +18,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 	readSettings();
 }
 
-MainWindow::~MainWindow()
-{
-}
-
 void MainWindow::on_pushButtonBrowseVideoFile_clicked()
 {
 	QFileDialog fileDialog(this);
@@ -90,8 +86,11 @@ void MainWindow::on_pushButtonRun_clicked()
 
 	try
 	{
-		if(!ffmpegDecoder.initialize(ui->lineEditVideoFile->text().toStdString()))
+		if(!ffmpegDecoder.initialize(ui->lineEditVideoFile->text()))
 			throw std::runtime_error("Could not initialize FFmpegDecoder");
+
+		if (!quickRouteReader.initialize(ui->lineEditMapFile->text()))
+			throw std::runtime_error("Could not initialize QuickRouteReader");
 
 		videoWindow.showNormal();
 
@@ -126,6 +125,7 @@ void MainWindow::videoWindowClosing()
 	renderOnScreenThread.wait();
 
 	videoWindow.shutdown();
+	quickRouteReader.shutdown();
 	ffmpegDecoder.shutdown();
 
 	this->activateWindow();

@@ -12,6 +12,7 @@
 #include "VideoRenderer.h"
 #include "VideoWindow.h"
 #include "Threads.h"
+#include "QuickRouteReader.h"
 
 namespace OrientView
 {
@@ -22,7 +23,6 @@ namespace OrientView
 	public:
 
 		explicit MainWindow(QWidget *parent = 0);
-		~MainWindow();
 
 	private slots:
 
@@ -44,6 +44,7 @@ namespace OrientView
 
 		std::unique_ptr<Ui::MainWindow> ui = nullptr;
 		FFmpegDecoder ffmpegDecoder;
+		QuickRouteReader quickRouteReader;
 		VideoRenderer videoRenderer;
 		VideoWindow videoWindow;
 		RenderOnScreenThread renderOnScreenThread;
