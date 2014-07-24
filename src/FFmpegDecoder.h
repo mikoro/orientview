@@ -46,8 +46,6 @@ namespace OrientView
 		AVCodecContext* videoCodecContext = nullptr;
 		AVStream* videoStream = nullptr;
 		int videoStreamIndex = -1;
-		uint8_t* videoData[4] = { nullptr };
-		int videoLineSize[4] = { 0 };
 		AVFrame* frame = nullptr;
 		AVPacket packet;
 		SwsContext* resizeContext = nullptr;

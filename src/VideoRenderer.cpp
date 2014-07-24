@@ -98,17 +98,17 @@ void VideoRenderer::shutdown()
 {
 	qDebug("Shutting down VideoRenderer");
 
+	if (videoPanelBuffer != nullptr)
+		videoPanelBuffer.reset(nullptr);
+
 	if (videoPanelTexture != nullptr)
 		videoPanelTexture.reset(nullptr);
-
-	if (mapPanelTexture != nullptr)
-		mapPanelTexture.reset(nullptr);
 
 	if (mapPanelBuffer != nullptr)
 		mapPanelBuffer.reset(nullptr);
 
-	if (videoPanelBuffer != nullptr)
-		videoPanelBuffer.reset(nullptr);
+	if (mapPanelTexture != nullptr)
+		mapPanelTexture.reset(nullptr);
 
 	if (shaderProgram != nullptr)
 		shaderProgram.reset(nullptr);

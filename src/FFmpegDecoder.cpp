@@ -100,9 +100,6 @@ bool FFmpegDecoder::initialize(const QString& fileName)
 		frameWidth = videoCodecContext->width;
 		frameHeight = videoCodecContext->height;
 
-		if (av_image_alloc(videoData, videoLineSize, frameWidth, frameHeight, videoCodecContext->pix_fmt, 1) < 0)
-			throw std::runtime_error("Could not allocate raw video buffer");
-
 		frame = av_frame_alloc();
 
 		if (!frame)
@@ -138,7 +135,6 @@ void FFmpegDecoder::shutdown()
 
 	avcodec_close(videoCodecContext);
 	avformat_close_input(&formatContext);
-	av_free(videoData[0]);
 	av_frame_free(&frame);
 	sws_freeContext(resizeContext);
 	avpicture_free(&resizedPicture);
@@ -147,14 +143,6 @@ void FFmpegDecoder::shutdown()
 	videoCodecContext = nullptr;
 	videoStream = nullptr;
 	videoStreamIndex = -1;
-	videoData[0] = nullptr;
-	videoData[1] = nullptr;
-	videoData[2] = nullptr;
-	videoData[3] = nullptr;
-	videoLineSize[0] = 0;
-	videoLineSize[1] = 0;
-	videoLineSize[2] = 0;
-	videoLineSize[3] = 0;
 	frame = nullptr;
 	resizeContext = nullptr;
 	lastFrameTimestamp = 0;
