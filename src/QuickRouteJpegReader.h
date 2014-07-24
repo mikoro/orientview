@@ -8,15 +8,17 @@
 
 namespace OrientView
 {
-	class QuickRouteReader
+	class QuickRouteJpegReader
 	{
 
 	public:
 
-		QuickRouteReader();
+		QuickRouteJpegReader();
 
 		bool initialize(const QString& fileName);
 		void shutdown();
+
+		QImage getMapImage() const;
 
 	private:
 

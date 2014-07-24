@@ -12,7 +12,7 @@
 #include "VideoRenderer.h"
 #include "VideoWindow.h"
 #include "Threads.h"
-#include "QuickRouteReader.h"
+#include "QuickRouteJpegReader.h"
 
 namespace OrientView
 {
@@ -44,7 +44,7 @@ namespace OrientView
 
 		std::unique_ptr<Ui::MainWindow> ui = nullptr;
 		FFmpegDecoder ffmpegDecoder;
-		QuickRouteReader quickRouteReader;
+		QuickRouteJpegReader quickRouteJpegReader;
 		VideoRenderer videoRenderer;
 		VideoWindow videoWindow;
 		RenderOnScreenThread renderOnScreenThread;

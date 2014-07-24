@@ -1,8 +1,6 @@
 // Copyright © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
 // License: GPLv3, see the LICENSE file.
 
-#include <QTime>
-
 #include "VideoRenderer.h"
 
 using namespace OrientView;
@@ -11,12 +9,14 @@ VideoRenderer::VideoRenderer()
 {
 }
 
-bool VideoRenderer::initialize(int videoWidth, int videoHeight)
+bool VideoRenderer::initialize(const FFmpegDecoder& ffmpegDecoder, const QuickRouteJpegReader& quickRouteJpegReader)
 {
 	qDebug("Initializing VideoRenderer");
 
-	this->videoWidth = videoWidth;
-	this->videoHeight = videoHeight;
+	this->videoWidth = ffmpegDecoder.getFrameWidth();
+	this->videoHeight = ffmpegDecoder.getFrameHeight();
+	this->mapWidth = quickRouteJpegReader.getMapImage().width();
+	this->mapHeight = quickRouteJpegReader.getMapImage().height();
 
 	initializeOpenGLFunctions();
 
@@ -75,6 +75,9 @@ bool VideoRenderer::initialize(int videoWidth, int videoHeight)
 	videoPanelTexture->bind();
 	videoPanelTexture->setSize(videoWidth, videoHeight);
 	videoPanelTexture->setFormat(QOpenGLTexture::RGBA8_UNorm);
+	videoPanelTexture->setMinificationFilter(QOpenGLTexture::Linear);
+	videoPanelTexture->setMagnificationFilter(QOpenGLTexture::Linear);
+	videoPanelTexture->setWrapMode(QOpenGLTexture::ClampToEdge);
 	videoPanelTexture->allocateStorage();
 	videoPanelTexture->release();
 
@@ -85,7 +88,8 @@ bool VideoRenderer::initialize(int videoWidth, int videoHeight)
 	mapPanelBuffer->allocate(sizeof(GLfloat) * 16);
 	mapPanelBuffer->release();
 
-	mapPanelTexture = std::unique_ptr<QOpenGLTexture>(new QOpenGLTexture(QImage("map.jpg")));
+	mapPanelTexture = std::unique_ptr<QOpenGLTexture>(new QOpenGLTexture(quickRouteJpegReader.getMapImage()));
+	mapPanelTexture->bind();
 	mapPanelTexture->setMinificationFilter(QOpenGLTexture::Linear);
 	mapPanelTexture->setMagnificationFilter(QOpenGLTexture::Linear);
 	mapPanelTexture->setWrapMode(QOpenGLTexture::ClampToEdge);
@@ -155,8 +159,8 @@ void VideoRenderer::update(int windowWidth, int windowHeight)
 	GLfloat mapPanelBufferData[] =
 	{
 		0.0f, 0.0f,
-		1.0f, 0.0f,
-		1.0f, 1.0f,
+		0.2f, 0.0f,
+		0.2f, 1.0f,
 		0.0f, 1.0f,
 
 		0.0f, 1.0f,
@@ -169,10 +173,13 @@ void VideoRenderer::update(int windowWidth, int windowHeight)
 	mapPanelBuffer->write(0, mapPanelBufferData, sizeof(GLfloat) * 16);
 	mapPanelBuffer->release();
 
-	vertexMatrix.setToIdentity();
-	textureMatrix.setToIdentity();
+	videoVertexMatrix.setToIdentity();
+	videoTextureMatrix.setToIdentity();
+	mapVertexMatrix.setToIdentity();
+	mapTextureMatrix.setToIdentity();
 
-	vertexMatrix.ortho(0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f);
+	videoVertexMatrix.ortho(0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f);
+	mapVertexMatrix.ortho(0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f);
 }
 
 void VideoRenderer::render()
@@ -181,24 +188,45 @@ void VideoRenderer::render()
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	shaderProgram->bind();
-
-	shaderProgram->setUniformValue(vertexMatrixUniform, vertexMatrix);
-	shaderProgram->setUniformValue(textureMatrixUniform, textureMatrix);
 	shaderProgram->setUniformValue(textureSamplerUniform, 0);
 
+	// VIDEO
+
+	shaderProgram->setUniformValue(vertexMatrixUniform, videoVertexMatrix);
+	shaderProgram->setUniformValue(textureMatrixUniform, videoTextureMatrix);
+	
 	videoPanelBuffer->bind();
 	videoPanelTexture->bind();
 
-	glVertexAttribPointer(vertexCoordAttribute, 2, GL_FLOAT, GL_FALSE, 0, 0);
-	glVertexAttribPointer(textureCoordAttribute, 2, GL_FLOAT, GL_FALSE, 0, (void*)(sizeof(GLfloat) * 8));
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(vertexCoordAttribute, 2, GL_FLOAT, GL_FALSE, 0, 0);
+	glVertexAttribPointer(textureCoordAttribute, 2, GL_FLOAT, GL_FALSE, 0, (void*)(sizeof(GLfloat) * 8));
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+	glDisableVertexAttribArray(0);
+	glDisableVertexAttribArray(1);
+	
+	videoPanelBuffer->release();
+	videoPanelTexture->release();
+
+	// MAP
+
+	shaderProgram->setUniformValue(vertexMatrixUniform, mapVertexMatrix);
+	shaderProgram->setUniformValue(textureMatrixUniform, mapTextureMatrix);
+
+	mapPanelBuffer->bind();
+	mapPanelTexture->bind();
+
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(vertexCoordAttribute, 2, GL_FLOAT, GL_FALSE, 0, 0);
+	glVertexAttribPointer(textureCoordAttribute, 2, GL_FLOAT, GL_FALSE, 0, (void*)(sizeof(GLfloat) * 8));
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
 
-	videoPanelBuffer->release();
-	videoPanelTexture->release();
+	mapPanelBuffer->release();
+	mapPanelTexture->release();
 
 	shaderProgram->release();
 }

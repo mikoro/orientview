@@ -74,7 +74,7 @@
     <ClCompile Include="src\VideoRenderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\QuickRouteReader.cpp">
+    <ClCompile Include="src\QuickRouteJpegReader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -108,7 +108,7 @@
     <ClInclude Include="src\VideoRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\QuickRouteReader.h">
+    <ClInclude Include="src\QuickRouteJpegReader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
