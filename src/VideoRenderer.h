@@ -20,14 +20,18 @@ namespace OrientView
 		VideoRenderer();
 		~VideoRenderer();
 
-		bool initialize();
+		bool initialize(int videoWidth, int videoHeight);
 		void shutdown();
 
+		void update(int windowWidth, int windowHeight);
 		void render();
 
 		QOpenGLTexture* getVideoPanelTexture();
 
 	private:
+
+		int videoWidth = 0;
+		int videoHeight = 0;
 
 		std::unique_ptr<QOpenGLShaderProgram> shaderProgram = nullptr;
 		std::unique_ptr<QOpenGLBuffer> videoPanelBuffer = nullptr;
@@ -35,6 +39,9 @@ namespace OrientView
 		std::unique_ptr<QOpenGLBuffer> mapPanelBuffer = nullptr;
 		std::unique_ptr<QOpenGLTexture> mapPanelTexture = nullptr;
 		
+		QMatrix4x4 vertexMatrix;
+		QMatrix4x4 textureMatrix;
+
 		GLuint vertexMatrixUniform = 0;
 		GLuint textureMatrixUniform = 0;
 		GLuint textureSamplerUniform = 0;

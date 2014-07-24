@@ -135,6 +135,8 @@ bool FFmpegDecoder::initialize(const std::string& fileName)
 			throw std::runtime_error("Could not allocate picture");
 
 		preCalculatedFrameDuration = av_rescale_q(videoCodecContext->ticks_per_frame, videoCodecContext->time_base, AVRational{ 1, AV_TIME_BASE });
+		frameWidth = videoCodecContext->width;
+		frameHeight = videoCodecContext->height;
 	}
 	catch (const std::exception& ex)
 	{
@@ -179,6 +181,8 @@ void FFmpegDecoder::shutdown()
 	frame = nullptr;
 	resizeContext = nullptr;
 	lastFrameTimestamp = 0;
+	frameWidth = 0;
+	frameHeight = 0;
 
 	for (int i = 0; i < 8; ++i)
 	{
@@ -240,4 +244,14 @@ bool FFmpegDecoder::getNextFrame(DecodedFrame* decodedFrame)
 		else
 			return false;
 	}
+}
+
+int FFmpegDecoder::getFrameWidth() const
+{
+	return frameWidth;
+}
+
+int FFmpegDecoder::getFrameHeight() const
+{
+	return frameHeight;
 }

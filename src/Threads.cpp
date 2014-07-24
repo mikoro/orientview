@@ -51,6 +51,7 @@ void RenderOnScreenThread::run()
 			videoRenderer->getVideoPanelTexture()->setData(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, decodedFrame.data, &options);
 
 			glViewport(0, 0, videoWindow->width(), videoWindow->height());
+			videoRenderer->update(videoWindow->width(), videoWindow->height());
 			videoRenderer->render();
 
 			while (true)

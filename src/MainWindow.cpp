@@ -98,7 +98,7 @@ void MainWindow::on_pushButtonRun_clicked()
 		if (!videoWindow.initialize())
 			throw std::runtime_error("Could not initialize VideoWindow");
 
-		if (!videoRenderer.initialize())
+		if (!videoRenderer.initialize(ffmpegDecoder.getFrameWidth(), ffmpegDecoder.getFrameHeight()))
 			throw std::runtime_error("Could not initialize VideoRenderer");
 
 		renderOnScreenThread.initialize(&videoWindow, &videoRenderer, &ffmpegDecoder);

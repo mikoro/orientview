@@ -34,6 +34,8 @@ namespace OrientView
 		bool initialize(const std::string& fileName);
 		void shutdown();
 		bool getNextFrame(DecodedFrame* decodedFrame);
+		int getFrameWidth() const;
+		int getFrameHeight() const;
 
 	private:
 
@@ -53,5 +55,7 @@ namespace OrientView
 		SwsContext* resizeContext = nullptr;
 		AVPicture resizedPicture;
 		int64_t lastFrameTimestamp = 0;
+		int frameWidth = 0;
+		int frameHeight = 0;
 	};
 }

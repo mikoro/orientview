@@ -16,9 +16,12 @@ VideoRenderer::~VideoRenderer()
 	shutdown();
 }
 
-bool VideoRenderer::initialize()
+bool VideoRenderer::initialize(int videoWidth, int videoHeight)
 {
 	qDebug("Initializing VideoRenderer");
+
+	this->videoWidth = videoWidth;
+	this->videoHeight = videoHeight;
 
 	initializeOpenGLFunctions();
 
@@ -66,53 +69,25 @@ bool VideoRenderer::initialize()
 	}
 
 	videoPanelBuffer = std::unique_ptr<QOpenGLBuffer>(new QOpenGLBuffer(QOpenGLBuffer::VertexBuffer));
-	videoPanelBuffer->setUsagePattern(QOpenGLBuffer::StaticDraw);
+	videoPanelBuffer->setUsagePattern(QOpenGLBuffer::DynamicDraw);
 	videoPanelBuffer->create();
 	videoPanelBuffer->bind();
-
-	GLfloat videoPanelBufferData[] =
-	{
-		-1.0f, -1.0f,
-		1.0f, -1.0f,
-		1.0f, 1.0f,
-		-1.0f, 1.0f,
-
-		0.0f, 1.0f,
-		1.0f, 1.0f,
-		1.0f, 0.0f,
-		0.0f, 0.0f
-	};
-
-	videoPanelBuffer->allocate(videoPanelBufferData, sizeof(GLfloat) * 16);
+	videoPanelBuffer->allocate(sizeof(GLfloat) * 16);
 	videoPanelBuffer->release();
 
 	videoPanelTexture = std::unique_ptr<QOpenGLTexture>(new QOpenGLTexture(QOpenGLTexture::Target2D));
 	videoPanelTexture->create();
 	videoPanelTexture->bind();
-	videoPanelTexture->setSize(1280, 720);
+	videoPanelTexture->setSize(videoWidth, videoHeight);
 	videoPanelTexture->setFormat(QOpenGLTexture::RGBA8_UNorm);
 	videoPanelTexture->allocateStorage();
 	videoPanelTexture->release();
 
 	mapPanelBuffer = std::unique_ptr<QOpenGLBuffer>(new QOpenGLBuffer(QOpenGLBuffer::VertexBuffer));
-	mapPanelBuffer->setUsagePattern(QOpenGLBuffer::StaticDraw);
+	mapPanelBuffer->setUsagePattern(QOpenGLBuffer::DynamicDraw);
 	mapPanelBuffer->create();
 	mapPanelBuffer->bind();
-
-	GLfloat mapPanelBufferData[] =
-	{
-		-1.0f, -1.0f,
-		1.0f, -1.0f,
-		1.0f, 1.0f,
-		-1.0f, 1.0f,
-
-		0.0f, 1.0f,
-		1.0f, 1.0f,
-		1.0f, 0.0f,
-		0.0f, 0.0f
-	};
-
-	mapPanelBuffer->allocate(mapPanelBufferData, sizeof(GLfloat) * 16);
+	mapPanelBuffer->allocate(sizeof(GLfloat) * 16);
 	mapPanelBuffer->release();
 
 	mapPanelTexture = std::unique_ptr<QOpenGLTexture>(new QOpenGLTexture(QImage("map.jpg")));
@@ -144,15 +119,65 @@ void VideoRenderer::shutdown()
 		shaderProgram.reset(nullptr);
 }
 
+void VideoRenderer::update(int windowWidth, int windowHeight)
+{
+	float videoAspectRatio = (float)videoWidth / videoHeight;
+	float videoPanelTop = 1.0f;
+	float videoPanelRight = 1.0f;
+	float newVideoHeight = windowWidth / videoAspectRatio;
+	float newVideoWidth = windowHeight * videoAspectRatio;
+
+	if (newVideoHeight < windowHeight)
+		videoPanelTop = newVideoHeight / windowHeight;
+	else
+		videoPanelRight = newVideoWidth / windowWidth;
+
+	GLfloat videoPanelBufferData[] =
+	{
+		0.0f, 0.0f,
+		videoPanelRight, 0.0f,
+		videoPanelRight, videoPanelTop,
+		0.0f, videoPanelTop,
+
+		0.0f, 1.0f,
+		1.0f, 1.0f,
+		1.0f, 0.0f,
+		0.0f, 0.0f
+	};
+
+	videoPanelBuffer->bind();
+	videoPanelBuffer->write(0, videoPanelBufferData, sizeof(GLfloat) * 16);
+	videoPanelBuffer->release();
+
+	GLfloat mapPanelBufferData[] =
+	{
+		0.0f, 0.0f,
+		1.0f, 0.0f,
+		1.0f, 1.0f,
+		0.0f, 1.0f,
+
+		0.0f, 1.0f,
+		1.0f, 1.0f,
+		1.0f, 0.0f,
+		0.0f, 0.0f
+	};
+
+	mapPanelBuffer->bind();
+	mapPanelBuffer->write(0, mapPanelBufferData, sizeof(GLfloat) * 16);
+	mapPanelBuffer->release();
+
+	vertexMatrix.setToIdentity();
+	textureMatrix.setToIdentity();
+
+	vertexMatrix.ortho(0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f);
+}
+
 void VideoRenderer::render()
 {
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	shaderProgram->bind();
-
-	QMatrix4x4 vertexMatrix;
-	QMatrix4x4 textureMatrix;
 
 	shaderProgram->setUniformValue(vertexMatrixUniform, vertexMatrix);
 	shaderProgram->setUniformValue(textureMatrixUniform, textureMatrix);
@@ -171,9 +196,8 @@ void VideoRenderer::render()
 
 	videoPanelBuffer->release();
 	videoPanelTexture->release();
-	shaderProgram->release();
 
-	glFinish();
+	shaderProgram->release();
 }
 
 QOpenGLTexture* VideoRenderer::getVideoPanelTexture()
