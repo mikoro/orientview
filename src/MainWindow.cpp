@@ -92,7 +92,7 @@ void MainWindow::on_pushButtonRun_clicked()
 		if (!quickRouteJpegReader.initialize(ui->lineEditMapFile->text()))
 			throw std::runtime_error("Could not initialize QuickRouteJpegReader");
 
-		videoWindow.showNormal();
+		videoWindow.show();
 
 		if (!videoWindow.initialize())
 			throw std::runtime_error("Could not initialize VideoWindow");

@@ -32,10 +32,10 @@ namespace OrientView
 
 	private:
 
-		int videoWidth = 0;
-		int videoHeight = 0;
-		int mapWidth = 0;
-		int mapHeight = 0;
+		int videoFrameWidth = 0;
+		int videoFrameHeight = 0;
+		int mapImageWidth = 0;
+		int mapImageHeight = 0;
 
 		std::unique_ptr<QOpenGLShaderProgram> shaderProgram = nullptr;
 		std::unique_ptr<QOpenGLBuffer> videoPanelBuffer = nullptr;

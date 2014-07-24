@@ -13,11 +13,16 @@ bool QuickRouteJpegReader::initialize(const QString& fileName)
 {
 	qDebug("Initializing QuickRouteJpegReader (%s)", fileName.toLocal8Bit().constData());
 
-	if (!mapImage.load(fileName))
+	QImage tempImage;
+
+	if (!tempImage.load(fileName))
 	{
 		qWarning("Could not load image file");
 		return false;
 	}
+
+	const int headerHeight = 65;
+	mapImage = tempImage.copy(0, headerHeight, tempImage.width(), tempImage.height() - headerHeight);
 
 	return true;
 }

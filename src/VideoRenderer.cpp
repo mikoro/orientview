@@ -13,10 +13,10 @@ bool VideoRenderer::initialize(const FFmpegDecoder& ffmpegDecoder, const QuickRo
 {
 	qDebug("Initializing VideoRenderer");
 
-	this->videoWidth = ffmpegDecoder.getFrameWidth();
-	this->videoHeight = ffmpegDecoder.getFrameHeight();
-	this->mapWidth = quickRouteJpegReader.getMapImage().width();
-	this->mapHeight = quickRouteJpegReader.getMapImage().height();
+	this->videoFrameWidth = ffmpegDecoder.getFrameWidth();
+	this->videoFrameHeight = ffmpegDecoder.getFrameHeight();
+	this->mapImageWidth = quickRouteJpegReader.getMapImage().width();
+	this->mapImageHeight = quickRouteJpegReader.getMapImage().height();
 
 	initializeOpenGLFunctions();
 
@@ -73,7 +73,7 @@ bool VideoRenderer::initialize(const FFmpegDecoder& ffmpegDecoder, const QuickRo
 	videoPanelTexture = std::unique_ptr<QOpenGLTexture>(new QOpenGLTexture(QOpenGLTexture::Target2D));
 	videoPanelTexture->create();
 	videoPanelTexture->bind();
-	videoPanelTexture->setSize(videoWidth, videoHeight);
+	videoPanelTexture->setSize(videoFrameWidth, videoFrameHeight);
 	videoPanelTexture->setFormat(QOpenGLTexture::RGBA8_UNorm);
 	videoPanelTexture->setMinificationFilter(QOpenGLTexture::Linear);
 	videoPanelTexture->setMagnificationFilter(QOpenGLTexture::Linear);
@@ -92,7 +92,8 @@ bool VideoRenderer::initialize(const FFmpegDecoder& ffmpegDecoder, const QuickRo
 	mapPanelTexture->bind();
 	mapPanelTexture->setMinificationFilter(QOpenGLTexture::Linear);
 	mapPanelTexture->setMagnificationFilter(QOpenGLTexture::Linear);
-	mapPanelTexture->setWrapMode(QOpenGLTexture::ClampToEdge);
+	mapPanelTexture->setBorderColor(1.0f, 1.0f, 1.0f, 1.0f);
+	mapPanelTexture->setWrapMode(QOpenGLTexture::ClampToBorder);
 	mapPanelTexture->release();
 
 	return true;
@@ -120,21 +121,31 @@ void VideoRenderer::shutdown()
 
 void VideoRenderer::update(int windowWidth, int windowHeight)
 {
+	float mapPanelWidth = 0.2f;
+	float mapPanelWidthInverse = 1.0f - mapPanelWidth;
+	float scaledWindowWidth = mapPanelWidthInverse * windowWidth;
+
 	float videoPanelTop = 1.0f;
 	float videoPanelBottom = 0.0f;
-	float videoPanelLeft = 0.0f;
+	float videoPanelLeft = mapPanelWidth;
+	float videoPanelRight = 1.0f;
 
 	// try to fit the video panel on the screen as big as possible and keep the video aspect ratio
-	float videoAspectRatio = (float)videoWidth / videoHeight;
-	float newVideoHeight = windowWidth / videoAspectRatio;
+	float videoAspectRatio = (float)videoFrameWidth / videoFrameHeight;
 	float newVideoWidth = windowHeight * videoAspectRatio;
+	float newVideoHeight = scaledWindowWidth / videoAspectRatio;
+
+	if (newVideoWidth < scaledWindowWidth)
+		//videoPanelLeft = mapPanelWidth + (mapPanelWidthInverse - (newVideoWidth / scaledWindowWidth));
+		videoPanelLeft = mapPanelWidth + ((1.0f - (newVideoWidth / scaledWindowWidth)) * mapPanelWidthInverse);
 
 	if (newVideoHeight < windowHeight)
 		videoPanelBottom = 1.0f - (newVideoHeight / windowHeight);
-	else
-		videoPanelLeft = 1.0f - (newVideoWidth / windowWidth);
 
-	// center video panel vertically
+	float halfLeft = (videoPanelLeft - mapPanelWidth) / 2.0f;
+	videoPanelLeft -= halfLeft;
+	videoPanelRight -= halfLeft;
+
 	float halfFromBottom = videoPanelBottom / 2.0f;
 	videoPanelBottom -= halfFromBottom;
 	videoPanelTop -= halfFromBottom;
@@ -142,8 +153,8 @@ void VideoRenderer::update(int windowWidth, int windowHeight)
 	GLfloat videoPanelBufferData[] =
 	{
 		videoPanelLeft, videoPanelBottom,
-		1.0f, videoPanelBottom,
-		1.0f, videoPanelTop,
+		videoPanelRight, videoPanelBottom,
+		videoPanelRight, videoPanelTop,
 		videoPanelLeft, videoPanelTop,
 
 		0.0f, 1.0f,
@@ -156,16 +167,20 @@ void VideoRenderer::update(int windowWidth, int windowHeight)
 	videoPanelBuffer->write(0, videoPanelBufferData, sizeof(GLfloat) * 16);
 	videoPanelBuffer->release();
 
+	float mapAspectRatio = (float)mapImageWidth / mapImageHeight;
+	float mapPanelTextureRight = (mapPanelWidth * windowWidth) / mapImageWidth;
+	float mapPanelTextureTop = windowHeight / (float)mapImageHeight;
+
 	GLfloat mapPanelBufferData[] =
 	{
 		0.0f, 0.0f,
-		0.2f, 0.0f,
-		0.2f, 1.0f,
+		mapPanelWidth, 0.0f,
+		mapPanelWidth, 1.0f,
 		0.0f, 1.0f,
 
-		0.0f, 1.0f,
-		1.0f, 1.0f,
-		1.0f, 0.0f,
+		0.0f, mapPanelTextureTop,
+		mapPanelTextureRight, mapPanelTextureTop,
+		mapPanelTextureRight, 0.0f,
 		0.0f, 0.0f
 	};
 
@@ -180,6 +195,8 @@ void VideoRenderer::update(int windowWidth, int windowHeight)
 
 	videoVertexMatrix.ortho(0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f);
 	mapVertexMatrix.ortho(0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f);
+
+	mapTextureMatrix.scale(5.0f);
 }
 
 void VideoRenderer::render()
@@ -194,7 +211,7 @@ void VideoRenderer::render()
 
 	shaderProgram->setUniformValue(vertexMatrixUniform, videoVertexMatrix);
 	shaderProgram->setUniformValue(textureMatrixUniform, videoTextureMatrix);
-	
+
 	videoPanelBuffer->bind();
 	videoPanelTexture->bind();
 
@@ -205,7 +222,7 @@ void VideoRenderer::render()
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
-	
+
 	videoPanelBuffer->release();
 	videoPanelTexture->release();
 
