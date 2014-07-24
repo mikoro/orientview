@@ -123,21 +123,26 @@ void VideoRenderer::update(int windowWidth, int windowHeight)
 {
 	float videoAspectRatio = (float)videoWidth / videoHeight;
 	float videoPanelTop = 1.0f;
-	float videoPanelRight = 1.0f;
+	float videoPanelBottom = 0.0f;
+	float videoPanelLeft = 0.0f;
 	float newVideoHeight = windowWidth / videoAspectRatio;
 	float newVideoWidth = windowHeight * videoAspectRatio;
 
 	if (newVideoHeight < windowHeight)
-		videoPanelTop = newVideoHeight / windowHeight;
+		videoPanelBottom = 1.0f - (newVideoHeight / windowHeight);
 	else
-		videoPanelRight = newVideoWidth / windowWidth;
+		videoPanelLeft = 1.0f - (newVideoWidth / windowWidth);
+
+	float halfFromBottom = videoPanelBottom / 2.0f;
+	videoPanelBottom -= halfFromBottom;
+	videoPanelTop -= halfFromBottom;
 
 	GLfloat videoPanelBufferData[] =
 	{
-		0.0f, 0.0f,
-		videoPanelRight, 0.0f,
-		videoPanelRight, videoPanelTop,
-		0.0f, videoPanelTop,
+		videoPanelLeft, videoPanelBottom,
+		1.0f, videoPanelBottom,
+		1.0f, videoPanelTop,
+		videoPanelLeft, videoPanelTop,
 
 		0.0f, 1.0f,
 		1.0f, 1.0f,
