@@ -171,8 +171,9 @@ void VideoRenderer::render()
 
 	videoPanelBuffer->release();
 	videoPanelTexture->release();
-
 	shaderProgram->release();
+
+	glFinish();
 }
 
 QOpenGLTexture* VideoRenderer::getVideoPanelTexture()

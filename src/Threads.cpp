@@ -1,6 +1,7 @@
 // Copyright © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
 // License: GPLv3, see the LICENSE file.
 
+#include <QElapsedTimer>
 #include <QOpenGLPixelTransferOptions>
 
 #include "Threads.h"
@@ -31,28 +32,50 @@ void RenderOnScreenThread::initialize(VideoWindow* videoWindow, VideoRenderer* v
 
 void RenderOnScreenThread::run()
 {
-	DecodedPicture decodedPicture;
+	DecodedFrame decodedFrame;
 	QOpenGLPixelTransferOptions options;
+	QElapsedTimer displayTimer;
 
 	while (!isInterruptionRequested())
 	{
-		if (ffmpegDecoder->getNextPicture(&decodedPicture))
+		displayTimer.restart();
+
+		if (ffmpegDecoder->getNextFrame(&decodedFrame))
 		{
 			if (videoWindow->isExposed())
 			{
-				options.setRowLength(decodedPicture.stride / 4);
-				options.setImageHeight(decodedPicture.height);
-
-				videoRenderer->getVideoPanelTexture()->setData(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, decodedPicture.data, &options);
-
 				videoWindow->getContext()->makeCurrent(videoWindow);
+
+				options.setRowLength(decodedFrame.stride / 4);
+				options.setImageHeight(decodedFrame.height);
+				options.setAlignment(1);
+
+				videoRenderer->getVideoPanelTexture()->setData(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, decodedFrame.data, &options);
+
 				glViewport(0, 0, videoWindow->width(), videoWindow->height());
 				videoRenderer->render();
 				videoWindow->getContext()->swapBuffers(videoWindow);
+
+				while (true)
+				{
+					int64_t timeToSleep = decodedFrame.duration - (displayTimer.nsecsElapsed() / 1000);
+
+					if (timeToSleep > 2000)
+					{
+						QThread::msleep(1);
+						continue;
+					}
+					else if (timeToSleep > 0)
+						continue;
+					else
+						break;
+				}
+
+				continue;
 			}
 		}
 
-		//QThread::msleep((int)round(ffmpegDecoder->getFrameTime()));
+		QThread::msleep(100);
 	}
 
 	videoWindow->getContext()->makeCurrent(videoWindow);

@@ -127,6 +127,8 @@ void MainWindow::videoWindowClosing()
 
 	videoWindow.shutdown();
 	ffmpegDecoder.shutdown();
+
+	this->activateWindow();
 }
 
 void MainWindow::readSettings()

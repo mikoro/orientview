@@ -134,13 +134,13 @@ bool FFmpegDecoder::initialize(const std::string& fileName)
 		if (avpicture_alloc(&resizedPicture, PIX_FMT_RGBA, videoCodecContext->width, videoCodecContext->height) < 0)
 			throw std::runtime_error("Could not allocate picture");
 
-		frameTime = videoCodecContext->ticks_per_frame * 1000.0 * videoCodecContext->time_base.num / (double)videoCodecContext->time_base.den;
+		preCalculatedFrameDuration = av_rescale_q(videoCodecContext->ticks_per_frame, videoCodecContext->time_base, AVRational{ 1, AV_TIME_BASE });
 	}
 	catch (const std::exception& ex)
 	{
 		char message[64] = { 0 };
 		av_strerror(result, message, 64);
-		qCritical("Could not open FFmpeg decoder: %s: %s", ex.what(), message);
+		qWarning("Could not open FFmpeg decoder: %s: %s", ex.what(), message);
 		shutdown();
 
 		return false;
@@ -178,6 +178,7 @@ void FFmpegDecoder::shutdown()
 	videoBufferSize = 0;
 	frame = nullptr;
 	resizeContext = nullptr;
+	lastFrameTimestamp = 0;
 
 	for (int i = 0; i < 8; ++i)
 	{
@@ -188,7 +189,7 @@ void FFmpegDecoder::shutdown()
 	isInitialized = false;
 }
 
-bool FFmpegDecoder::getNextPicture(DecodedPicture* decodedPicture)
+bool FFmpegDecoder::getNextFrame(DecodedFrame* decodedFrame)
 {
 	if (!isInitialized)
 		return false;
@@ -200,34 +201,43 @@ bool FFmpegDecoder::getNextPicture(DecodedPicture* decodedPicture)
 			if (packet.stream_index == videoStreamIndex)
 			{
 				int gotPicture = 0;
+				int decodedBytes = avcodec_decode_video2(videoCodecContext, frame, &gotPicture, &packet);
 
-				if (avcodec_decode_video2(videoCodecContext, frame, &gotPicture, &packet) < 0)
-					qWarning("Error decoding video frame");
-
-				av_free_packet(&packet);
+				if (decodedBytes < 0)
+				{
+					qWarning("Could not decode video frame");
+					av_free_packet(&packet);
+					return false;
+				}
 
 				if (gotPicture)
 				{
 					sws_scale(resizeContext, frame->data, frame->linesize, 0, frame->height, resizedPicture.data, resizedPicture.linesize);
+					
+					int j = av_frame_get_best_effort_timestamp(frame);
 
-					decodedPicture->data = resizedPicture.data[0];
-					decodedPicture->dataLength = frame->height * resizedPicture.linesize[0];
-					decodedPicture->stride = resizedPicture.linesize[0];
-					decodedPicture->width = videoCodecContext->width;
-					decodedPicture->height = frame->height;
+					decodedFrame->data = resizedPicture.data[0];
+					decodedFrame->dataLength = frame->height * resizedPicture.linesize[0];
+					decodedFrame->stride = resizedPicture.linesize[0];
+					decodedFrame->width = videoCodecContext->width;
+					decodedFrame->height = frame->height;
+					decodedFrame->duration = av_rescale_q(frame->best_effort_timestamp - lastFrameTimestamp, videoStream->time_base, AVRational{ 1, AV_TIME_BASE });
+					lastFrameTimestamp = frame->best_effort_timestamp;
 
+					if (decodedFrame->duration < 0 || decodedFrame->duration > 1000000)
+					{
+						qWarning("Could not calculate correct frame duration");
+						decodedFrame->duration = preCalculatedFrameDuration;
+					}
+
+					av_free_packet(&packet);
 					return true;
 				}
 			}
-			else
-				av_free_packet(&packet);
+			
+			av_free_packet(&packet);
 		}
 		else
 			return false;
 	}
-}
-
-double FFmpegDecoder::getFrameTime() const
-{
-	return frameTime;
 }
