@@ -29,9 +29,14 @@ namespace OrientView
 
 		void closing();
 
-	public slots :
+	public slots:
 
-		void setProgress(int currentFrame, int totalFrames);
+		void progressUpdate(int currentFrame, int totalFrames);
+		void encodingFinished();
+
+	private slots:
+		
+		void on_pushButtonStop_clicked();
 
 	private:
 

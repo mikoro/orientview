@@ -18,6 +18,11 @@ namespace OrientView
 		bool initialize();
 		void shutdown();
 
+	signals:
+
+		void progressUpdate(int currentFrame, int totalFrames);
+		void encodingFinished();
+
 	protected:
 
 		void run();

@@ -41,6 +41,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
 	connect(videoWindow, &VideoWindow::closing, this, &MainWindow::videoWindowClosing);
 	connect(encodeWindow, &EncodeWindow::closing, this, &MainWindow::encodeWindowClosing);
+	connect(videoEncoderThread, &VideoEncoderThread::progressUpdate, encodeWindow, &EncodeWindow::progressUpdate);
+	connect(videoEncoderThread, &VideoEncoderThread::encodingFinished, encodeWindow, &EncodeWindow::encodingFinished);
 
 	readSettings();
 }
@@ -192,14 +194,14 @@ void MainWindow::on_pushButtonEncode_clicked()
 		if (!videoDecoderThread->initialize(videoDecoder))
 			throw std::runtime_error("Could not initialize VideoDecoderThread");
 
-		if (!renderOffScreenThread->initialize())
-			throw std::runtime_error("Could not initialize RenderOffScreenThread");
+		//if (!renderOffScreenThread->initialize())
+			//throw std::runtime_error("Could not initialize RenderOffScreenThread");
 
 		if (!encodeWindow->initialize())
 			throw std::runtime_error("Could not initialize EncodeWindow");
 
-		if (!videoRenderer->initialize(videoDecoder, quickRouteJpegReader))
-			throw std::runtime_error("Could not initialize VideoRenderer");
+		//if (!videoRenderer->initialize(videoDecoder, quickRouteJpegReader))
+			//throw std::runtime_error("Could not initialize VideoRenderer");
 
 		if (!videoEncoder->initialize(ui->lineEditOutputVideoFile->text()))
 			throw std::runtime_error("Could not initialize VideoEncoder");
@@ -231,8 +233,10 @@ void MainWindow::videoWindowClosing()
 {
 	renderOnScreenThread->requestInterruption();
 	videoDecoderThread->requestInterruption();
+
 	renderOnScreenThread->wait();
 	videoDecoderThread->wait();
+
 	renderOnScreenThread->shutdown();
 	videoDecoderThread->shutdown();
 
@@ -250,9 +254,11 @@ void MainWindow::encodeWindowClosing()
 	videoEncoderThread->requestInterruption();
 	renderOffScreenThread->requestInterruption();
 	videoDecoderThread->requestInterruption();
+
 	videoEncoderThread->wait();
 	renderOffScreenThread->wait();
 	videoDecoderThread->wait();
+
 	videoEncoderThread->shutdown();
 	renderOffScreenThread->shutdown();
 	videoDecoderThread->shutdown();

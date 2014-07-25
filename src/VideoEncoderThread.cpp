@@ -23,4 +23,19 @@ void VideoEncoderThread::shutdown()
 
 void VideoEncoderThread::run()
 {
+	int currentFrame = 0;
+	int totalFrames = 100;
+
+	while (!isInterruptionRequested())
+	{
+		currentFrame++;
+		emit progressUpdate(currentFrame, totalFrames);
+
+		if (currentFrame >= totalFrames)
+			break;
+
+		QThread::msleep(100);
+	}
+
+	emit encodingFinished();
 }

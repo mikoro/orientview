@@ -31,22 +31,36 @@ void EncodeWindow::shutdown()
 	qDebug("Shutting down EncodeWindow");
 }
 
-void EncodeWindow::setProgress(int currentFrame, int totalFrames)
+void EncodeWindow::progressUpdate(int currentFrame, int totalFrames)
 {
-	int value = (int)round((double)currentFrame / totalFrames * 100.0);
+	int value = (int)round((double)currentFrame / totalFrames * 1000.0);
 	ui->progressBar->setValue(value);
 
 	int elapsedTime = startTime.elapsed();
 	double timePerFrame = (double)elapsedTime / currentFrame;
-	int remainingTimeTemp = ((int)round(timePerFrame * totalFrames)) - elapsedTime;
+	int remainingTime1 = ((int)round(timePerFrame * totalFrames)) - elapsedTime;
 
-	if (remainingTimeTemp < 0)
-		remainingTimeTemp = 0;
+	if (remainingTime1 < 0)
+		remainingTime1 = 0;
 
-	QTime remainingTime(0, 0, 0, 0);
-	remainingTime.addMSecs(remainingTimeTemp);
+	QTime remainingTime2(0, 0, 0, 0);
+	QTime remainingTime3 = remainingTime2.addMSecs(remainingTime1);
 
-	ui->labelRemaining->setText(QString("Remaining: %1").arg(remainingTime.toString()));
+	ui->labelRemaining->setText(QString("Remaining: %1").arg(remainingTime3.toString()));
+}
+
+void EncodeWindow::encodingFinished()
+{
+	QTime elapsedTime1(0, 0, 0, 0);
+	QTime elapsedTime2 = elapsedTime1.addMSecs(startTime.elapsed());
+
+	ui->pushButtonStop->setText("Close");
+	ui->labelRemaining->setText(QString("Ready! (%1)").arg(elapsedTime2.toString()));
+}
+
+void EncodeWindow::on_pushButtonStop_clicked()
+{
+	close();
 }
 
 bool EncodeWindow::event(QEvent* event)
