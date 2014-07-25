@@ -95,7 +95,7 @@ bool VideoDecoder::initialize(const QString& fileName)
 
 		if (!openCodecContext(&videoStreamIndex, formatContext, AVMEDIA_TYPE_VIDEO))
 			throw std::runtime_error("Could not open video codec context");
-		
+
 		videoStream = formatContext->streams[videoStreamIndex];
 		videoCodecContext = videoStream->codec;
 		frameWidth = videoCodecContext->width;
@@ -118,8 +118,10 @@ bool VideoDecoder::initialize(const QString& fileName)
 		if (avpicture_alloc(&resizedPicture, PIX_FMT_RGBA, frameWidth, frameHeight) < 0)
 			throw std::runtime_error("Could not allocate picture");
 
-		preCalculatedFrameDuration = av_rescale_q(videoCodecContext->ticks_per_frame, videoCodecContext->time_base, AVRational{ 1, AV_TIME_BASE });
 		frameDataLength = frameHeight * resizedPicture.linesize[0];
+		totalFrameCount = videoStream->nb_frames;
+		frameDuration = av_rescale(1000000, videoStream->avg_frame_rate.den, videoStream->avg_frame_rate.num);
+		frameRate = (double)videoStream->avg_frame_rate.num / videoStream->avg_frame_rate.den;
 	}
 	catch (const std::exception& ex)
 	{
@@ -151,6 +153,10 @@ void VideoDecoder::shutdown()
 	frameWidth = 0;
 	frameHeight = 0;
 	frameDataLength = 0;
+	totalFrameCount = 0;
+	processedFrameCount = 0;
+	frameDuration = 0;
+	frameRate = 0.0;
 
 	for (int i = 0; i < 8; ++i)
 	{
@@ -174,6 +180,7 @@ bool VideoDecoder::getNextFrame(DecodedFrame* decodedFrame)
 			{
 				int gotPicture = 0;
 				int decodedBytes = avcodec_decode_video2(videoCodecContext, frame, &gotPicture, &packet);
+				processedFrameCount++;
 
 				if (decodedBytes < 0)
 				{
@@ -191,14 +198,11 @@ bool VideoDecoder::getNextFrame(DecodedFrame* decodedFrame)
 					decodedFrame->stride = resizedPicture.linesize[0];
 					decodedFrame->width = videoCodecContext->width;
 					decodedFrame->height = frame->height;
-					decodedFrame->duration = av_rescale_q(frame->best_effort_timestamp - lastFrameTimestamp, videoStream->time_base, AVRational{ 1, AV_TIME_BASE });
+					decodedFrame->duration = av_rescale((frame->best_effort_timestamp - lastFrameTimestamp) * 1000000, videoStream->time_base.num, videoStream->time_base.den);
 					lastFrameTimestamp = frame->best_effort_timestamp;
 
 					if (decodedFrame->duration < 0 || decodedFrame->duration > 1000000)
-					{
-						qWarning("Could not calculate correct frame duration");
-						decodedFrame->duration = preCalculatedFrameDuration;
-					}
+						decodedFrame->duration = frameDuration;
 
 					av_free_packet(&packet);
 					return true;
@@ -225,4 +229,24 @@ int VideoDecoder::getFrameHeight() const
 int VideoDecoder::getFrameDataLength() const
 {
 	return frameDataLength;
+}
+
+int VideoDecoder::getTotalFrameCount() const
+{
+	return totalFrameCount;
+}
+
+int VideoDecoder::getProcessedFrameCount() const
+{
+	return processedFrameCount;
+}
+
+int VideoDecoder::getFrameDuration() const
+{
+	return frameDuration;
+}
+
+double VideoDecoder::getFrameRate() const
+{
+	return frameRate;
 }

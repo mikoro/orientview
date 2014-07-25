@@ -4,6 +4,7 @@
 #pragma once
 
 #include <QDialog>
+#include <QTime>
 
 namespace Ui
 {
@@ -21,12 +22,22 @@ namespace OrientView
 		explicit EncodeWindow(QWidget *parent = 0);
 		~EncodeWindow();
 
+		bool initialize();
+		void shutdown();
+
 	signals:
+
+		void closing();
+
+	public slots :
+
+		void setProgress(int currentFrame, int totalFrames);
 
 	private:
 
-		void closeEvent(QCloseEvent* event);
+		bool event(QEvent* event);
 
 		Ui::EncodeWindow* ui = nullptr;
+		QTime startTime;
 	};
 }

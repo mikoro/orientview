@@ -1,8 +1,8 @@
 // Copyright © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
 // License: GPLv3, see the LICENSE file.
 
-#include <QApplication>
 #include <QStyle>
+#include <QApplication>
 #include <QDesktopWidget>
 
 #include "VideoWindow.h"

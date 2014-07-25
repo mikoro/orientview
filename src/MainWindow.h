@@ -43,6 +43,7 @@ namespace OrientView
 		void on_pushButtonEncode_clicked();
 
 		void videoWindowClosing();
+		void encodeWindowClosing();
 
 	private:
 

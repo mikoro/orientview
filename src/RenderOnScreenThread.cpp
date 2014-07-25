@@ -65,6 +65,7 @@ void RenderOnScreenThread::run()
 			videoRenderer->update(videoWindow->width(), videoWindow->height());
 			videoRenderer->render();
 
+			// use combination of normal and spinning wait to sync the frame rate accurately
 			while (true)
 			{
 				int64_t timeToSleep = decodedFrame.duration - (displayTimer.nsecsElapsed() / 1000);

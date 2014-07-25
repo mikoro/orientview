@@ -37,7 +37,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	renderOffScreenThread = new RenderOffScreenThread();
 	videoEncoderThread = new VideoEncoderThread();
 
-	connect(videoWindow, SIGNAL(closing()), this, SLOT(videoWindowClosing()));
+	connect(videoWindow, &VideoWindow::closing, this, &MainWindow::videoWindowClosing);
+	connect(encodeWindow, &EncodeWindow::closing, this, &MainWindow::encodeWindowClosing);
 
 	readSettings();
 }
@@ -181,7 +182,6 @@ void MainWindow::videoWindowClosing()
 	renderOnScreenThread->requestInterruption();
 	renderOnScreenThread->wait();
 
-	videoRenderer->shutdown();
 	videoWindow->shutdown();
 	quickRouteJpegReader->shutdown();
 	videoDecoder->shutdown();
@@ -189,6 +189,10 @@ void MainWindow::videoWindowClosing()
 
 	this->show();
 	this->activateWindow();
+}
+
+void MainWindow::encodeWindowClosing()
+{
 }
 
 void MainWindow::readSettings()
