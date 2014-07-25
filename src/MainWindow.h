@@ -3,16 +3,18 @@
 
 #pragma once
 
-#include <memory>
-
 #include <QMainWindow>
 
-#include "ui_MainWindow.h"
 #include "VideoDecoder.h"
 #include "QuickRouteJpegReader.h"
 #include "VideoRenderer.h"
 #include "VideoWindow.h"
 #include "RenderOnScreenThread.h"
+
+namespace Ui
+{
+	class MainWindow;
+}
 
 namespace OrientView
 {
@@ -23,6 +25,7 @@ namespace OrientView
 	public:
 
 		explicit MainWindow(QWidget *parent = 0);
+		~MainWindow();
 
 	private slots:
 
@@ -42,7 +45,7 @@ namespace OrientView
 
 		void closeEvent(QCloseEvent* event);
 
-		std::unique_ptr<Ui::MainWindow> ui = nullptr;
+		Ui::MainWindow* ui = nullptr;
 		VideoDecoder videoDecoder;
 		QuickRouteJpegReader quickRouteJpegReader;
 		VideoRenderer videoRenderer;

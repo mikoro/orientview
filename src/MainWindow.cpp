@@ -5,17 +5,22 @@
 #include <QtGUI>
 
 #include "MainWindow.h"
+#include "ui_MainWindow.h"
 
 using namespace OrientView;
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
-	ui = std::unique_ptr<Ui::MainWindow>(new Ui::MainWindow());
 	ui->setupUi(this);
 
 	connect(&videoWindow, SIGNAL(closing()), this, SLOT(videoWindowClosing()));
 
 	readSettings();
+}
+
+MainWindow::~MainWindow()
+{
+	delete ui;
 }
 
 void MainWindow::on_pushButtonBrowseVideoFile_clicked()

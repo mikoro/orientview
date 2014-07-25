@@ -110,6 +110,15 @@
     <ClCompile Include="build\GeneratedFiles\Release\moc_VideoWindow.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="src\EncodeWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="build\GeneratedFiles\Debug\moc_EncodeWindow.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="build\GeneratedFiles\Release\moc_EncodeWindow.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="src\MainView.qrc">
@@ -136,6 +145,12 @@
     <CustomBuild Include="src\VideoWindow.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
+    <CustomBuild Include="src\EncodeWindow.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="src\EncodeWindow.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="build\GeneratedFiles\ui_MainWindow.h">
@@ -158,6 +173,9 @@
     </ClInclude>
     <ClInclude Include="src\VideoRenderer.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="build\GeneratedFiles\ui_EncodeWindow.h">
+      <Filter>Generated Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

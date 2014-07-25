@@ -33,6 +33,7 @@ bool QuickRouteJpegReader::initialize(const QString& fileName)
 		return false;
 	}
 
+	mapFile.close();
 
 	return true;
 }
