@@ -3,9 +3,20 @@
 
 #include <QFileDialog>
 #include <QtGUI>
+#include <QProgressDialog>
 
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
+#include "VideoWindow.h"
+#include "EncodeWindow.h"
+#include "VideoDecoder.h"
+#include "QuickRouteJpegReader.h"
+#include "VideoStabilizer.h"
+#include "VideoRenderer.h"
+#include "VideoDecoderThread.h"
+#include "RenderOnScreenThread.h"
+#include "RenderOffScreenThread.h"
+#include "VideoEncoderThread.h"
 
 using namespace OrientView;
 
@@ -13,7 +24,18 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 {
 	ui->setupUi(this);
 
-	connect(&videoWindow, SIGNAL(closing()), this, SLOT(videoWindowClosing()));
+	videoWindow = new VideoWindow();
+	encodeWindow = new EncodeWindow(this);
+	videoDecoder = new VideoDecoder();
+	quickRouteJpegReader = new QuickRouteJpegReader();
+	videoStabilizer = new VideoStabilizer();
+	videoRenderer = new VideoRenderer();
+	videoDecoderThread = new VideoDecoderThread();
+	renderOnScreenThread = new RenderOnScreenThread();
+	renderOffScreenThread = new RenderOffScreenThread();
+	videoEncoderThread = new VideoEncoderThread();
+
+	connect(videoWindow, SIGNAL(closing()), this, SLOT(videoWindowClosing()));
 
 	readSettings();
 }
@@ -21,6 +43,16 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 MainWindow::~MainWindow()
 {
 	delete ui;
+	delete videoWindow;
+	delete encodeWindow;
+	delete videoDecoder;
+	delete quickRouteJpegReader;
+	delete videoStabilizer;
+	delete videoRenderer;
+	delete videoDecoderThread;
+	delete renderOnScreenThread;
+	delete renderOffScreenThread;
+	delete videoEncoderThread;
 }
 
 void MainWindow::on_pushButtonBrowseVideoFile_clicked()
@@ -91,30 +123,30 @@ void MainWindow::on_pushButtonRun_clicked()
 
 	try
 	{
-		if(!videoDecoder.initialize(ui->lineEditVideoFile->text()))
+		if(!videoDecoder->initialize(ui->lineEditVideoFile->text()))
 			throw std::runtime_error("Could not initialize VideoDecoder");
 
-		if (!quickRouteJpegReader.initialize(ui->lineEditMapFile->text()))
+		if (!quickRouteJpegReader->initialize(ui->lineEditMapFile->text()))
 			throw std::runtime_error("Could not initialize QuickRouteJpegReader");
 
-		videoWindow.show();
+		videoWindow->show();
 		this->hide();
 
-		if (!videoWindow.initialize(&videoDecoder))
+		if (!videoWindow->initialize(videoDecoder))
 			throw std::runtime_error("Could not initialize VideoWindow");
 
-		if (!videoRenderer.initialize(&videoDecoder, &quickRouteJpegReader))
+		if (!videoRenderer->initialize(videoDecoder, quickRouteJpegReader))
 			throw std::runtime_error("Could not initialize VideoRenderer");
 
-		renderOnScreenThread.initialize(&videoWindow, &videoRenderer, &videoDecoder);
-		videoWindow.getContext()->doneCurrent();
-		videoWindow.getContext()->moveToThread(&renderOnScreenThread);
-		renderOnScreenThread.start();
+		renderOnScreenThread->initialize(videoWindow, videoRenderer, videoDecoder);
+		videoWindow->getContext()->doneCurrent();
+		videoWindow->getContext()->moveToThread(renderOnScreenThread);
+		renderOnScreenThread->start();
 	}
 	catch (const std::exception& ex)
 	{
 		qWarning("Could not run video: %s", ex.what());
-		videoWindow.close();
+		videoWindow->close();
 		videoWindowClosing();
 	}
 
@@ -123,16 +155,18 @@ void MainWindow::on_pushButtonRun_clicked()
 
 void MainWindow::on_pushButtonEncode_clicked()
 {
+	encodeWindow->setModal(true);
+	encodeWindow->show();
 }
 
 void MainWindow::videoWindowClosing()
 {
-	renderOnScreenThread.requestInterruption();
-	renderOnScreenThread.wait();
+	renderOnScreenThread->requestInterruption();
+	renderOnScreenThread->wait();
 
-	videoWindow.shutdown();
-	quickRouteJpegReader.shutdown();
-	videoDecoder.shutdown();
+	videoWindow->shutdown();
+	quickRouteJpegReader->shutdown();
+	videoDecoder->shutdown();
 
 	this->show();
 	this->activateWindow();

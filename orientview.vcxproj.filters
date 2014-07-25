@@ -119,6 +119,9 @@
     <ClCompile Include="build\GeneratedFiles\Release\moc_EncodeWindow.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="src\VideoStabilizer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="src\MainView.qrc">
@@ -176,6 +179,9 @@
     </ClInclude>
     <ClInclude Include="build\GeneratedFiles\ui_EncodeWindow.h">
       <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VideoStabilizer.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

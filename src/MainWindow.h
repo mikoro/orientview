@@ -5,12 +5,6 @@
 
 #include <QMainWindow>
 
-#include "VideoDecoder.h"
-#include "QuickRouteJpegReader.h"
-#include "VideoRenderer.h"
-#include "VideoWindow.h"
-#include "RenderOnScreenThread.h"
-
 namespace Ui
 {
 	class MainWindow;
@@ -18,6 +12,17 @@ namespace Ui
 
 namespace OrientView
 {
+	class VideoWindow;
+	class EncodeWindow;
+	class VideoDecoder;
+	class QuickRouteJpegReader;
+	class VideoStabilizer;
+	class VideoRenderer;
+	class VideoDecoderThread;
+	class RenderOnScreenThread;
+	class RenderOffScreenThread;
+	class VideoEncoderThread;
+
 	class MainWindow : public QMainWindow
 	{
 		Q_OBJECT
@@ -46,10 +51,15 @@ namespace OrientView
 		void closeEvent(QCloseEvent* event);
 
 		Ui::MainWindow* ui = nullptr;
-		VideoDecoder videoDecoder;
-		QuickRouteJpegReader quickRouteJpegReader;
-		VideoRenderer videoRenderer;
-		VideoWindow videoWindow;
-		RenderOnScreenThread renderOnScreenThread;
+		VideoWindow* videoWindow = nullptr;
+		EncodeWindow* encodeWindow = nullptr;
+		VideoDecoder* videoDecoder = nullptr;
+		QuickRouteJpegReader* quickRouteJpegReader = nullptr;
+		VideoStabilizer* videoStabilizer = nullptr;
+		VideoRenderer* videoRenderer = nullptr;
+		VideoDecoderThread* videoDecoderThread = nullptr;
+		RenderOnScreenThread* renderOnScreenThread = nullptr;
+		RenderOffScreenThread* renderOffScreenThread = nullptr;
+		VideoEncoderThread* videoEncoderThread = nullptr;
 	};
 }

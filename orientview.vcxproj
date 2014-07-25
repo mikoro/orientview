@@ -71,6 +71,7 @@
     <ClCompile Include="src\VideoEncoder.cpp" />
     <ClCompile Include="src\VideoEncoderThread.cpp" />
     <ClCompile Include="src\VideoRenderer.cpp" />
+    <ClCompile Include="src\VideoStabilizer.cpp" />
     <ClCompile Include="src\VideoWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -100,6 +101,7 @@
   <ItemGroup>
     <ClInclude Include="build\GeneratedFiles\ui_EncodeWindow.h" />
     <ClInclude Include="build\GeneratedFiles\ui_MainWindow.h" />
+    <ClInclude Include="src\VideoStabilizer.h" />
     <CustomBuild Include="src\EncodeWindow.h">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc%27ing EncodeWindow.h...</Message>
