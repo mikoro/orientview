@@ -9,6 +9,7 @@
 #include "ui_MainWindow.h"
 #include "VideoWindow.h"
 #include "EncodeWindow.h"
+#include "Settings.h"
 #include "VideoDecoder.h"
 #include "QuickRouteJpegReader.h"
 #include "VideoStabilizer.h"
@@ -26,6 +27,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
 	videoWindow = new VideoWindow();
 	encodeWindow = new EncodeWindow(this);
+	settings = new Settings();
 	videoDecoder = new VideoDecoder();
 	quickRouteJpegReader = new QuickRouteJpegReader();
 	videoStabilizer = new VideoStabilizer();
@@ -45,6 +47,7 @@ MainWindow::~MainWindow()
 	delete ui;
 	delete videoWindow;
 	delete encodeWindow;
+	delete settings;
 	delete videoDecoder;
 	delete quickRouteJpegReader;
 	delete videoStabilizer;
@@ -123,14 +126,22 @@ void MainWindow::on_pushButtonRun_clicked()
 
 	try
 	{
+		if (!settings->initialize(ui->lineEditSettingsFile->text()))
+			throw std::runtime_error("Could not initialize Settings");
+
 		if(!videoDecoder->initialize(ui->lineEditVideoFile->text()))
 			throw std::runtime_error("Could not initialize VideoDecoder");
 
 		if (!quickRouteJpegReader->initialize(ui->lineEditMapFile->text()))
 			throw std::runtime_error("Could not initialize QuickRouteJpegReader");
 
+		if (!videoDecoderThread->initialize(videoDecoder))
+			throw std::runtime_error("Could not initialize VideoDecoderThread");
+
+		if (!renderOnScreenThread->initialize(videoWindow, videoRenderer, videoDecoderThread))
+			throw std::runtime_error("Could not initialize RenderOnScreenThread");
+
 		videoWindow->show();
-		this->hide();
 
 		if (!videoWindow->initialize(videoDecoder))
 			throw std::runtime_error("Could not initialize VideoWindow");
@@ -138,10 +149,13 @@ void MainWindow::on_pushButtonRun_clicked()
 		if (!videoRenderer->initialize(videoDecoder, quickRouteJpegReader))
 			throw std::runtime_error("Could not initialize VideoRenderer");
 
-		renderOnScreenThread->initialize(videoWindow, videoRenderer, videoDecoder);
 		videoWindow->getContext()->doneCurrent();
 		videoWindow->getContext()->moveToThread(renderOnScreenThread);
+
+		videoDecoderThread->start();
 		renderOnScreenThread->start();
+
+		this->hide();
 	}
 	catch (const std::exception& ex)
 	{
@@ -161,12 +175,17 @@ void MainWindow::on_pushButtonEncode_clicked()
 
 void MainWindow::videoWindowClosing()
 {
+	videoDecoderThread->requestInterruption();
+	videoDecoderThread->wait();
+
 	renderOnScreenThread->requestInterruption();
 	renderOnScreenThread->wait();
 
+	videoRenderer->shutdown();
 	videoWindow->shutdown();
 	quickRouteJpegReader->shutdown();
 	videoDecoder->shutdown();
+	settings->shutdown();
 
 	this->show();
 	this->activateWindow();

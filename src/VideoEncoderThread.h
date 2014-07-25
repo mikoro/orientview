@@ -15,7 +15,8 @@ namespace OrientView
 
 		VideoEncoderThread();
 
-		void initialize();
+		bool initialize();
+		void shutdown();
 
 	protected:
 

@@ -7,7 +7,8 @@
 #include "RenderOnScreenThread.h"
 #include "VideoWindow.h"
 #include "VideoRenderer.h"
-#include "VideoDecoder.h"
+#include "VideoDecoderThread.h"
+#include "DecodedFrame.h"
 
 using namespace OrientView;
 
@@ -15,11 +16,20 @@ RenderOnScreenThread::RenderOnScreenThread()
 {
 }
 
-void RenderOnScreenThread::initialize(VideoWindow* videoWindow, VideoRenderer* videoRenderer, VideoDecoder* videoDecoder)
+bool RenderOnScreenThread::initialize(VideoWindow* videoWindow, VideoRenderer* videoRenderer, VideoDecoderThread* videoDecoderThread)
 {
+	qDebug("Initializing RenderOnScreenThread");
+
 	this->videoWindow = videoWindow;
 	this->videoRenderer = videoRenderer;
-	this->videoDecoder = videoDecoder;
+	this->videoDecoderThread = videoDecoderThread;
+
+	return true;
+}
+
+void RenderOnScreenThread::shutdown()
+{
+	qDebug("Shutting down RenderOnScreenThread");
 }
 
 void RenderOnScreenThread::run()
@@ -32,17 +42,26 @@ void RenderOnScreenThread::run()
 
 	while (!isInterruptionRequested())
 	{
-		if (videoWindow->isExposed() && videoDecoder->getNextFrame(&decodedFrame))
+		if (!videoWindow->isExposed())
 		{
-			videoWindow->getContext()->makeCurrent(videoWindow);
+			QThread::msleep(20);
+			continue;
+		}
 
+		videoWindow->getContext()->makeCurrent(videoWindow);
+		glViewport(0, 0, videoWindow->width(), videoWindow->height());
+		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		if (videoDecoderThread->getDecodedFrame(&decodedFrame))
+		{
 			options.setRowLength(decodedFrame.stride / 4);
 			options.setImageHeight(decodedFrame.height);
 			options.setAlignment(1);
 
 			videoRenderer->getVideoPanelTexture()->setData(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, decodedFrame.data, &options);
+			videoDecoderThread->signalProcessingFinished();
 
-			glViewport(0, 0, videoWindow->width(), videoWindow->height());
 			videoRenderer->update(videoWindow->width(), videoWindow->height());
 			videoRenderer->render();
 
@@ -60,14 +79,10 @@ void RenderOnScreenThread::run()
 				else
 					break;
 			}
-
-			displayTimer.restart();
-			videoWindow->getContext()->swapBuffers(videoWindow);
-
-			continue;
 		}
 
-		QThread::msleep(100);
+		displayTimer.restart();
+		videoWindow->getContext()->swapBuffers(videoWindow);
 	}
 
 	videoWindow->getContext()->makeCurrent(videoWindow);

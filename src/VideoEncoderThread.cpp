@@ -9,8 +9,16 @@ VideoEncoderThread::VideoEncoderThread()
 {
 }
 
-void VideoEncoderThread::initialize()
+bool VideoEncoderThread::initialize()
 {
+	qDebug("Initializing VideoEncoderThread");
+
+	return true;
+}
+
+void VideoEncoderThread::shutdown()
+{
+	qDebug("Shutting down VideoEncoderThread");
 }
 
 void VideoEncoderThread::run()

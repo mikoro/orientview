@@ -14,6 +14,7 @@ namespace OrientView
 {
 	class VideoWindow;
 	class EncodeWindow;
+	class Settings;
 	class VideoDecoder;
 	class QuickRouteJpegReader;
 	class VideoStabilizer;
@@ -53,6 +54,7 @@ namespace OrientView
 		Ui::MainWindow* ui = nullptr;
 		VideoWindow* videoWindow = nullptr;
 		EncodeWindow* encodeWindow = nullptr;
+		Settings* settings = nullptr;
 		VideoDecoder* videoDecoder = nullptr;
 		QuickRouteJpegReader* quickRouteJpegReader = nullptr;
 		VideoStabilizer* videoStabilizer = nullptr;

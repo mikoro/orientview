@@ -183,6 +183,9 @@
     <ClInclude Include="src\VideoStabilizer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\DecodedFrame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="misc\orientview.rc" />

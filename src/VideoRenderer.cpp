@@ -206,9 +206,6 @@ void VideoRenderer::update(int windowWidth, int windowHeight)
 
 void VideoRenderer::render()
 {
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
-
 	shaderProgram->bind();
 	shaderProgram->setUniformValue(textureSamplerUniform, 0);
 

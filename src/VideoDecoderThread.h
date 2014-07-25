@@ -4,9 +4,15 @@
 #pragma once
 
 #include <QThread>
+#include <QSemaphore>
+
+#include "DecodedFrame.h"
 
 namespace OrientView
 {
+	class VideoDecoder;
+	struct DecodedFrame;
+
 	class VideoDecoderThread : public QThread
 	{
 		Q_OBJECT
@@ -15,7 +21,11 @@ namespace OrientView
 
 		VideoDecoderThread();
 
-		void initialize();
+		bool initialize(VideoDecoder* videoDecoder);
+		void shutdown();
+
+		bool getDecodedFrame(DecodedFrame* decodedFrame);
+		void signalProcessingFinished();
 
 	protected:
 
@@ -23,5 +33,10 @@ namespace OrientView
 
 	private:
 
+		VideoDecoder* videoDecoder = nullptr;
+		QSemaphore processingFinishedSemaphore;
+		QSemaphore frameUpdatedSemaphore;
+		DecodedFrame localDecodedFrame;
+		int localDataLength = 0;
 	};
 }

@@ -9,8 +9,16 @@ RenderOffScreenThread::RenderOffScreenThread()
 {
 }
 
-void RenderOffScreenThread::initialize()
+bool RenderOffScreenThread::initialize()
 {
+	qDebug("Initializing RenderOffScreenThread");
+
+	return true;
+}
+
+void RenderOffScreenThread::shutdown()
+{
+	qDebug("Shutting down RenderOffScreenThread");
 }
 
 void RenderOffScreenThread::run()

@@ -12,6 +12,7 @@ extern "C"
 }
 
 #include "VideoDecoder.h"
+#include "DecodedFrame.h"
 
 using namespace OrientView;
 
@@ -118,6 +119,7 @@ bool VideoDecoder::initialize(const QString& fileName)
 			throw std::runtime_error("Could not allocate picture");
 
 		preCalculatedFrameDuration = av_rescale_q(videoCodecContext->ticks_per_frame, videoCodecContext->time_base, AVRational{ 1, AV_TIME_BASE });
+		frameDataLength = frameHeight * resizedPicture.linesize[0];
 	}
 	catch (const std::exception& ex)
 	{
@@ -148,6 +150,7 @@ void VideoDecoder::shutdown()
 	lastFrameTimestamp = 0;
 	frameWidth = 0;
 	frameHeight = 0;
+	frameDataLength = 0;
 
 	for (int i = 0; i < 8; ++i)
 	{
@@ -217,4 +220,9 @@ int VideoDecoder::getFrameWidth() const
 int VideoDecoder::getFrameHeight() const
 {
 	return frameHeight;
+}
+
+int VideoDecoder::getFrameDataLength() const
+{
+	return frameDataLength;
 }

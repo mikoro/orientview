@@ -11,9 +11,12 @@ Settings::Settings()
 
 bool Settings::initialize(const QString& fileName)
 {
+	qDebug("Initializing Settings");
+
 	return true;
 }
 
 void Settings::shutdown()
 {
+	qDebug("Shutting down Settings");
 }

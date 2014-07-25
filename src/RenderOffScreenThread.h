@@ -15,7 +15,8 @@ namespace OrientView
 
 		RenderOffScreenThread();
 
-		void initialize();
+		bool initialize();
+		void shutdown();
 
 	protected:
 

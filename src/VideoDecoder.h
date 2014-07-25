@@ -14,15 +14,7 @@ extern "C"
 
 namespace OrientView
 {
-	struct DecodedFrame
-	{
-		uint8_t* data = nullptr;
-		int dataLength = 0;
-		int stride = 0;
-		int width = 0;
-		int height = 0;
-		int64_t duration = 0;
-	};
+	struct DecodedFrame;
 
 	class VideoDecoder
 	{
@@ -35,6 +27,7 @@ namespace OrientView
 		bool getNextFrame(DecodedFrame* decodedFrame);
 		int getFrameWidth() const;
 		int getFrameHeight() const;
+		int getFrameDataLength() const;
 
 	private:
 
@@ -52,5 +45,6 @@ namespace OrientView
 		int64_t lastFrameTimestamp = 0;
 		int frameWidth = 0;
 		int frameHeight = 0;
+		int frameDataLength = 0;
 	};
 }
