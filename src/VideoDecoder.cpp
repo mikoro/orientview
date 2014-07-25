@@ -11,11 +11,11 @@ extern "C"
 #include <libavutil/imgutils.h>
 }
 
-#include "FFmpegDecoder.h"
+#include "VideoDecoder.h"
 
 using namespace OrientView;
 
-bool FFmpegDecoder::isRegistered = false;
+bool VideoDecoder::isRegistered = false;
 
 namespace
 {
@@ -63,7 +63,7 @@ namespace
 	}
 }
 
-FFmpegDecoder::FFmpegDecoder()
+VideoDecoder::VideoDecoder()
 {
 	for (int i = 0; i < 8; ++i)
 	{
@@ -72,9 +72,9 @@ FFmpegDecoder::FFmpegDecoder()
 	}
 }
 
-bool FFmpegDecoder::initialize(const QString& fileName)
+bool VideoDecoder::initialize(const QString& fileName)
 {
-	qDebug("Initializing FFmpegDecoder (%s)", fileName.toLocal8Bit().constData());
+	qDebug("Initializing VideoDecoder (%s)", fileName.toLocal8Bit().constData());
 
 	if (!isRegistered)
 	{
@@ -121,7 +121,7 @@ bool FFmpegDecoder::initialize(const QString& fileName)
 	}
 	catch (const std::exception& ex)
 	{
-		qWarning("Could not initialize FFmpegDecoder: %s", ex.what());
+		qWarning("Could not initialize VideoDecoder: %s", ex.what());
 		return false;
 	}
 
@@ -129,9 +129,9 @@ bool FFmpegDecoder::initialize(const QString& fileName)
 	return true;
 }
 
-void FFmpegDecoder::shutdown()
+void VideoDecoder::shutdown()
 {
-	qDebug("Shutting down FFmpegDecoder");
+	qDebug("Shutting down VideoDecoder");
 
 	avcodec_close(videoCodecContext);
 	avformat_close_input(&formatContext);
@@ -158,7 +158,7 @@ void FFmpegDecoder::shutdown()
 	isInitialized = false;
 }
 
-bool FFmpegDecoder::getNextFrame(DecodedFrame* decodedFrame)
+bool VideoDecoder::getNextFrame(DecodedFrame* decodedFrame)
 {
 	if (!isInitialized)
 		return false;
@@ -209,12 +209,12 @@ bool FFmpegDecoder::getNextFrame(DecodedFrame* decodedFrame)
 	}
 }
 
-int FFmpegDecoder::getFrameWidth() const
+int VideoDecoder::getFrameWidth() const
 {
 	return frameWidth;
 }
 
-int FFmpegDecoder::getFrameHeight() const
+int VideoDecoder::getFrameHeight() const
 {
 	return frameHeight;
 }

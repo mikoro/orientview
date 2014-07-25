@@ -4,30 +4,19 @@
 #include <QElapsedTimer>
 #include <QOpenGLPixelTransferOptions>
 
-#include "Threads.h"
-#include "VideoWindow.h"
-#include "VideoRenderer.h"
-#include "FFmpegDecoder.h"
+#include "RenderOnScreenThread.h"
 
 using namespace OrientView;
-
-DecodeThread::DecodeThread()
-{
-}
-
-void DecodeThread::run()
-{
-}
 
 RenderOnScreenThread::RenderOnScreenThread()
 {
 }
 
-void RenderOnScreenThread::initialize(VideoWindow* videoWindow, VideoRenderer* videoRenderer, FFmpegDecoder* ffmpegDecoder)
+void RenderOnScreenThread::initialize(VideoWindow* videoWindow, VideoRenderer* videoRenderer, VideoDecoder* videoDecoder)
 {
 	this->videoWindow = videoWindow;
 	this->videoRenderer = videoRenderer;
-	this->ffmpegDecoder = ffmpegDecoder;
+	this->videoDecoder = videoDecoder;
 }
 
 void RenderOnScreenThread::run()
@@ -40,7 +29,7 @@ void RenderOnScreenThread::run()
 
 	while (!isInterruptionRequested())
 	{
-		if (videoWindow->isExposed() && ffmpegDecoder->getNextFrame(&decodedFrame))
+		if (videoWindow->isExposed() && videoDecoder->getNextFrame(&decodedFrame))
 		{
 			videoWindow->getContext()->makeCurrent(videoWindow);
 
@@ -80,20 +69,4 @@ void RenderOnScreenThread::run()
 
 	videoWindow->getContext()->makeCurrent(videoWindow);
 	videoRenderer->shutdown();
-}
-
-RenderOffScreenThread::RenderOffScreenThread()
-{
-}
-
-void RenderOffScreenThread::run()
-{
-}
-
-EncodeThread::EncodeThread()
-{
-}
-
-void EncodeThread::run()
-{
 }

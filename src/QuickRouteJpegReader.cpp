@@ -17,12 +17,22 @@ bool QuickRouteJpegReader::initialize(const QString& fileName)
 
 	if (!tempImage.load(fileName))
 	{
-		qWarning("Could not load image file");
+		qWarning("Could not load map image data");
 		return false;
 	}
 
+	// remove header from the image
 	const int headerHeight = 65;
 	mapImage = tempImage.copy(0, headerHeight, tempImage.width(), tempImage.height() - headerHeight);
+
+	mapFile.setFileName(fileName);
+
+	if (!mapFile.open(QIODevice::ReadOnly))
+	{
+		qWarning("Could not open map image file for reading");
+		return false;
+	}
+
 
 	return true;
 }

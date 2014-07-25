@@ -8,11 +8,11 @@
 #include <QMainWindow>
 
 #include "ui_MainWindow.h"
-#include "FFmpegDecoder.h"
+#include "VideoDecoder.h"
+#include "QuickRouteJpegReader.h"
 #include "VideoRenderer.h"
 #include "VideoWindow.h"
-#include "Threads.h"
-#include "QuickRouteJpegReader.h"
+#include "RenderOnScreenThread.h"
 
 namespace OrientView
 {
@@ -43,7 +43,7 @@ namespace OrientView
 		void closeEvent(QCloseEvent* event);
 
 		std::unique_ptr<Ui::MainWindow> ui = nullptr;
-		FFmpegDecoder ffmpegDecoder;
+		VideoDecoder videoDecoder;
 		QuickRouteJpegReader quickRouteJpegReader;
 		VideoRenderer videoRenderer;
 		VideoWindow videoWindow;

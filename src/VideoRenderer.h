@@ -10,7 +10,7 @@
 #include <QOpenGLBuffer>
 #include <QOpenGLTexture>
 
-#include "FFmpegDecoder.h"
+#include "VideoDecoder.h"
 #include "QuickRouteJpegReader.h"
 
 namespace OrientView
@@ -22,7 +22,7 @@ namespace OrientView
 
 		VideoRenderer();
 
-		bool initialize(const FFmpegDecoder& ffmpegDecoder, const QuickRouteJpegReader& quickRouteJpegReader);
+		bool initialize(VideoDecoder* videoDecoder, QuickRouteJpegReader* quickRouteJpegReader);
 		void shutdown();
 
 		void update(int windowWidth, int windowHeight);

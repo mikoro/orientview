@@ -86,8 +86,8 @@ void MainWindow::on_pushButtonRun_clicked()
 
 	try
 	{
-		if(!ffmpegDecoder.initialize(ui->lineEditVideoFile->text()))
-			throw std::runtime_error("Could not initialize FFmpegDecoder");
+		if(!videoDecoder.initialize(ui->lineEditVideoFile->text()))
+			throw std::runtime_error("Could not initialize VideoDecoder");
 
 		if (!quickRouteJpegReader.initialize(ui->lineEditMapFile->text()))
 			throw std::runtime_error("Could not initialize QuickRouteJpegReader");
@@ -97,10 +97,10 @@ void MainWindow::on_pushButtonRun_clicked()
 		if (!videoWindow.initialize())
 			throw std::runtime_error("Could not initialize VideoWindow");
 
-		if (!videoRenderer.initialize(ffmpegDecoder, quickRouteJpegReader))
+		if (!videoRenderer.initialize(&videoDecoder, &quickRouteJpegReader))
 			throw std::runtime_error("Could not initialize VideoRenderer");
 
-		renderOnScreenThread.initialize(&videoWindow, &videoRenderer, &ffmpegDecoder);
+		renderOnScreenThread.initialize(&videoWindow, &videoRenderer, &videoDecoder);
 		videoWindow.getContext()->doneCurrent();
 		videoWindow.getContext()->moveToThread(&renderOnScreenThread);
 		renderOnScreenThread.start();
@@ -126,7 +126,7 @@ void MainWindow::videoWindowClosing()
 
 	videoWindow.shutdown();
 	quickRouteJpegReader.shutdown();
-	ffmpegDecoder.shutdown();
+	videoDecoder.shutdown();
 
 	this->activateWindow();
 }

@@ -9,14 +9,14 @@ VideoRenderer::VideoRenderer()
 {
 }
 
-bool VideoRenderer::initialize(const FFmpegDecoder& ffmpegDecoder, const QuickRouteJpegReader& quickRouteJpegReader)
+bool VideoRenderer::initialize(VideoDecoder* videoDecoder, QuickRouteJpegReader* quickRouteJpegReader)
 {
 	qDebug("Initializing VideoRenderer");
 
-	this->videoFrameWidth = ffmpegDecoder.getFrameWidth();
-	this->videoFrameHeight = ffmpegDecoder.getFrameHeight();
-	this->mapImageWidth = quickRouteJpegReader.getMapImage().width();
-	this->mapImageHeight = quickRouteJpegReader.getMapImage().height();
+	this->videoFrameWidth = videoDecoder->getFrameWidth();
+	this->videoFrameHeight = videoDecoder->getFrameHeight();
+	this->mapImageWidth = quickRouteJpegReader->getMapImage().width();
+	this->mapImageHeight = quickRouteJpegReader->getMapImage().height();
 
 	initializeOpenGLFunctions();
 
@@ -88,7 +88,7 @@ bool VideoRenderer::initialize(const FFmpegDecoder& ffmpegDecoder, const QuickRo
 	mapPanelBuffer->allocate(sizeof(GLfloat) * 16);
 	mapPanelBuffer->release();
 
-	mapPanelTexture = std::unique_ptr<QOpenGLTexture>(new QOpenGLTexture(quickRouteJpegReader.getMapImage()));
+	mapPanelTexture = std::unique_ptr<QOpenGLTexture>(new QOpenGLTexture(quickRouteJpegReader->getMapImage()));
 	mapPanelTexture->bind();
 	mapPanelTexture->setMinificationFilter(QOpenGLTexture::Linear);
 	mapPanelTexture->setMagnificationFilter(QOpenGLTexture::Linear);
@@ -135,17 +135,20 @@ void VideoRenderer::update(int windowWidth, int windowHeight)
 	float newVideoWidth = windowHeight * videoAspectRatio;
 	float newVideoHeight = scaledWindowWidth / videoAspectRatio;
 
+	// scale horizontally
 	if (newVideoWidth < scaledWindowWidth)
-		//videoPanelLeft = mapPanelWidth + (mapPanelWidthInverse - (newVideoWidth / scaledWindowWidth));
 		videoPanelLeft = mapPanelWidth + ((1.0f - (newVideoWidth / scaledWindowWidth)) * mapPanelWidthInverse);
 
+	// scale vertically
 	if (newVideoHeight < windowHeight)
 		videoPanelBottom = 1.0f - (newVideoHeight / windowHeight);
 
+	// center horizontally
 	float halfLeft = (videoPanelLeft - mapPanelWidth) / 2.0f;
 	videoPanelLeft -= halfLeft;
 	videoPanelRight -= halfLeft;
 
+	// center vertically
 	float halfFromBottom = videoPanelBottom / 2.0f;
 	videoPanelBottom -= halfFromBottom;
 	videoPanelTop -= halfFromBottom;

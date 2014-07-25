@@ -24,11 +24,11 @@ namespace OrientView
 		int64_t duration = 0;
 	};
 
-	class FFmpegDecoder
+	class VideoDecoder
 	{
 	public:
 
-		FFmpegDecoder();
+		VideoDecoder();
 
 		bool initialize(const QString& fileName);
 		void shutdown();
@@ -41,7 +41,6 @@ namespace OrientView
 		static bool isRegistered;
 		bool isInitialized = false;
 		int64_t preCalculatedFrameDuration = 0;
-
 		AVFormatContext* formatContext = nullptr;
 		AVCodecContext* videoCodecContext = nullptr;
 		AVStream* videoStream = nullptr;

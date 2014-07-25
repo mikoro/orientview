@@ -4,26 +4,20 @@
 #pragma once
 
 #include <QString>
-#include <QImage>
-#include <QFile>
 
 namespace OrientView
 {
-	class QuickRouteJpegReader
+	class Settings
 	{
 
 	public:
 
-		QuickRouteJpegReader();
+		Settings();
 
 		bool initialize(const QString& fileName);
 		void shutdown();
 
-		QImage getMapImage() const;
-
 	private:
 
-		QImage mapImage;
-		QFile mapFile;
 	};
 }
