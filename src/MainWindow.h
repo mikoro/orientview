@@ -19,6 +19,7 @@ namespace OrientView
 	class QuickRouteJpegReader;
 	class VideoStabilizer;
 	class VideoRenderer;
+	class VideoEncoder;
 	class VideoDecoderThread;
 	class RenderOnScreenThread;
 	class RenderOffScreenThread;
@@ -60,6 +61,7 @@ namespace OrientView
 		QuickRouteJpegReader* quickRouteJpegReader = nullptr;
 		VideoStabilizer* videoStabilizer = nullptr;
 		VideoRenderer* videoRenderer = nullptr;
+		VideoEncoder* videoEncoder = nullptr;
 		VideoDecoderThread* videoDecoderThread = nullptr;
 		RenderOnScreenThread* renderOnScreenThread = nullptr;
 		RenderOffScreenThread* renderOffScreenThread = nullptr;
