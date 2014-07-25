@@ -5,12 +5,12 @@
 
 #include <QThread>
 
-#include "VideoWindow.h"
-#include "VideoRenderer.h"
-#include "VideoDecoder.h"
-
 namespace OrientView
 {
+	class VideoWindow;
+	class VideoRenderer;
+	class VideoDecoder;
+
 	class RenderOnScreenThread : public QThread
 	{
 		Q_OBJECT

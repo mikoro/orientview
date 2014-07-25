@@ -10,11 +10,11 @@
 #include <QOpenGLBuffer>
 #include <QOpenGLTexture>
 
-#include "VideoDecoder.h"
-#include "QuickRouteJpegReader.h"
-
 namespace OrientView
 {
+	class VideoDecoder;
+	class QuickRouteJpegReader;
+
 	class VideoRenderer : protected QOpenGLFunctions
 	{
 

@@ -6,6 +6,7 @@
 #include <QDesktopWidget>
 
 #include "VideoWindow.h"
+#include "VideoDecoder.h"
 
 using namespace OrientView;
 
@@ -13,15 +14,14 @@ VideoWindow::VideoWindow(QWindow* parent) : QWindow(parent)
 {
 }
 
-bool VideoWindow::initialize()
+bool VideoWindow::initialize(VideoDecoder* videoDecoder)
 {
 	qDebug("Initializing VideoWindow");
 
 	setSurfaceType(QWindow::OpenGLSurface);
 	setIcon(QIcon(":/MainView/misc/orientview.ico"));
 	setTitle("OrientView - Video");
-	resize(1280, 720);
-	setModality(Qt::ApplicationModal);
+	resize(videoDecoder->getFrameWidth(), videoDecoder->getFrameHeight());
 	setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, size(), QApplication::desktop()->availableGeometry()));
 
 	qDebug("Creating OpenGL context");

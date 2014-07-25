@@ -93,8 +93,9 @@ void MainWindow::on_pushButtonRun_clicked()
 			throw std::runtime_error("Could not initialize QuickRouteJpegReader");
 
 		videoWindow.show();
+		this->hide();
 
-		if (!videoWindow.initialize())
+		if (!videoWindow.initialize(&videoDecoder))
 			throw std::runtime_error("Could not initialize VideoWindow");
 
 		if (!videoRenderer.initialize(&videoDecoder, &quickRouteJpegReader))
@@ -128,6 +129,7 @@ void MainWindow::videoWindowClosing()
 	quickRouteJpegReader.shutdown();
 	videoDecoder.shutdown();
 
+	this->show();
 	this->activateWindow();
 }
 

@@ -2,6 +2,8 @@
 // License: GPLv3, see the LICENSE file.
 
 #include "VideoRenderer.h"
+#include "VideoDecoder.h"
+#include "QuickRouteJpegReader.h"
 
 using namespace OrientView;
 

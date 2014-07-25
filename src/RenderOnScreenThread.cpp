@@ -5,6 +5,9 @@
 #include <QOpenGLPixelTransferOptions>
 
 #include "RenderOnScreenThread.h"
+#include "VideoWindow.h"
+#include "VideoRenderer.h"
+#include "VideoDecoder.h"
 
 using namespace OrientView;
 
