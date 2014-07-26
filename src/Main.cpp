@@ -25,6 +25,7 @@ int main(int argc, char *argv[])
 		QCoreApplication::setOrganizationName("Mikko Ronkainen");
 		QCoreApplication::setOrganizationDomain("mikkoronkainen.com");
 		QCoreApplication::setApplicationName("OrientView");
+		QCoreApplication::addLibraryPath("data/plugins");
 
 		QApplication app(argc, argv);
 		OrientView::MainWindow mainWindow;

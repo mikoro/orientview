@@ -21,6 +21,8 @@ bool EncodeWindow::initialize()
 	qDebug("Initializing EncodeWindow");
 
 	ui->progressBar->setValue(0);
+	ui->pushButtonStop->setText("Stop");
+
 	startTime.restart();
 
 	return true;

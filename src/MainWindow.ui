@@ -142,6 +142,9 @@
        <height>21</height>
       </rect>
      </property>
+     <property name="text">
+      <string>data/settings/default.ini</string>
+     </property>
     </widget>
     <widget class="QPushButton" name="pushButtonBrowseSettingsFile">
      <property name="geometry">

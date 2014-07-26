@@ -22,7 +22,55 @@
       </requestedPrivileges>
     </security>
   </trustInfo>
-
+  
+  <dependency>
+    <dependentAssembly>
+      <assemblyIdentity type="win32" name="msvcr120.dll" version="9.9.9.9" processorArchitecture="amd64" />
+    </dependentAssembly>
+  </dependency>
+  
+  <dependency>
+    <dependentAssembly>
+      <assemblyIdentity type="win32" name="msvcp120.dll" version="9.9.9.9" processorArchitecture="amd64" />
+    </dependentAssembly>
+  </dependency>
+  
+  <dependency>
+    <dependentAssembly>
+      <assemblyIdentity type="win32" name="Qt5Core.dll" version="9.9.9.9" processorArchitecture="amd64" />
+    </dependentAssembly>
+  </dependency>
+  
+  <dependency>
+    <dependentAssembly>
+      <assemblyIdentity type="win32" name="Qt5Gui.dll" version="9.9.9.9" processorArchitecture="amd64" />
+    </dependentAssembly>
+  </dependency>
+  
+  <dependency>
+    <dependentAssembly>
+      <assemblyIdentity type="win32" name="Qt5Widgets.dll" version="9.9.9.9" processorArchitecture="amd64" />
+    </dependentAssembly>
+  </dependency>
+  
+  <dependency>
+    <dependentAssembly>
+      <assemblyIdentity type="win32" name="icuin52.dll" version="9.9.9.9" processorArchitecture="amd64" />
+    </dependentAssembly>
+  </dependency>
+  
+  <dependency>
+    <dependentAssembly>
+      <assemblyIdentity type="win32" name="icuuc52.dll" version="9.9.9.9" processorArchitecture="amd64" />
+    </dependentAssembly>
+  </dependency>
+  
+  <dependency>
+    <dependentAssembly>
+      <assemblyIdentity type="win32" name="icudt52.dll" version="9.9.9.9" processorArchitecture="amd64" />
+    </dependentAssembly>
+  </dependency>
+  
   <dependency>
     <dependentAssembly>
       <assemblyIdentity type="win32" name="avformat-55.dll" version="9.9.9.9" processorArchitecture="amd64" />
@@ -50,6 +98,48 @@
   <dependency>
     <dependentAssembly>
       <assemblyIdentity type="win32" name="swscale-2.dll" version="9.9.9.9" processorArchitecture="amd64" />
+    </dependentAssembly>
+  </dependency>
+  
+  <dependency>
+    <dependentAssembly>
+      <assemblyIdentity type="win32" name="opencv_core300.dll" version="9.9.9.9" processorArchitecture="amd64" />
+    </dependentAssembly>
+  </dependency>
+  
+  <dependency>
+    <dependentAssembly>
+      <assemblyIdentity type="win32" name="opencv_imgcodecs300.dll" version="9.9.9.9" processorArchitecture="amd64" />
+    </dependentAssembly>
+  </dependency>
+  
+  <dependency>
+    <dependentAssembly>
+      <assemblyIdentity type="win32" name="opencv_imgproc300.dll" version="9.9.9.9" processorArchitecture="amd64" />
+    </dependentAssembly>
+  </dependency>
+  
+  <dependency>
+    <dependentAssembly>
+      <assemblyIdentity type="win32" name="opencv_video300.dll" version="9.9.9.9" processorArchitecture="amd64" />
+    </dependentAssembly>
+  </dependency>
+  
+  <dependency>
+    <dependentAssembly>
+      <assemblyIdentity type="win32" name="opencv_videostab300.dll" version="9.9.9.9" processorArchitecture="amd64" />
+    </dependentAssembly>
+  </dependency>
+  
+  <dependency>
+    <dependentAssembly>
+      <assemblyIdentity type="win32" name="libx264-142.dll" version="9.9.9.9" processorArchitecture="amd64" />
+    </dependentAssembly>
+  </dependency>
+  
+  <dependency>
+    <dependentAssembly>
+      <assemblyIdentity type="win32" name="liblsmash.dll" version="9.9.9.9" processorArchitecture="amd64" />
     </dependentAssembly>
   </dependency>
 

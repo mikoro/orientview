@@ -253,7 +253,7 @@
       <OutputFile>$(OutDir)\$(ProjectName).exe</OutputFile>
       <AdditionalLibraryDirectories>$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>qtmaind.lib;Qt5Cored.lib;Qt5Guid.lib;Qt5Multimediad.lib;Qt5OpenGLd.lib;opengl32.lib;glu32.lib;Qt5Widgetsd.lib;avformat.lib;avutil.lib;avcodec.lib;swscale.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>qtmaind.lib;Qt5Cored.lib;Qt5Guid.lib;Qt5Multimediad.lib;Qt5OpenGLd.lib;Qt5Widgetsd.lib;opengl32.lib;avformat.lib;avutil.lib;avcodec.lib;swscale.lib;opencv_core300.lib;opencv_imgcodecs300.lib;opencv_imgproc300.lib;opencv_video300.lib;opencv_videostab300.lib;libx264.dll.lib;liblsmash.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>misc\post-build.bat $(Configuration)</Command>
@@ -277,7 +277,7 @@
       <OutputFile>$(OutDir)\$(ProjectName).exe</OutputFile>
       <AdditionalLibraryDirectories>$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>false</GenerateDebugInformation>
-      <AdditionalDependencies>qtmain.lib;Qt5Core.lib;Qt5Gui.lib;Qt5Multimedia.lib;Qt5OpenGL.lib;opengl32.lib;glu32.lib;Qt5Widgets.lib;avformat.lib;avutil.lib;avcodec.lib;swscale.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>qtmain.lib;Qt5Core.lib;Qt5Gui.lib;Qt5OpenGL.lib;Qt5Widgets.lib;opengl32.lib;avformat.lib;avutil.lib;avcodec.lib;swscale.lib;opencv_core300.lib;opencv_imgcodecs300.lib;opencv_imgproc300.lib;opencv_video300.lib;opencv_videostab300.lib;libx264.dll.lib;liblsmash.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>misc\post-build.bat $(Configuration)</Command>
