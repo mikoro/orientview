@@ -7,6 +7,10 @@
 
 namespace OrientView
 {
+	class EncodeWindow;
+	class VideoRenderer;
+	class VideoDecoderThread;
+
 	class RenderOffScreenThread : public QThread
 	{
 		Q_OBJECT
@@ -15,7 +19,7 @@ namespace OrientView
 
 		RenderOffScreenThread();
 
-		bool initialize();
+		bool initialize(EncodeWindow* encodeWindow, VideoRenderer* videoRenderer, VideoDecoderThread* videoDecoderThread);
 		void shutdown();
 
 	protected:
@@ -24,5 +28,8 @@ namespace OrientView
 
 	private:
 
+		EncodeWindow* encodeWindow = nullptr;
+		VideoRenderer* videoRenderer = nullptr;
+		VideoDecoderThread* videoDecoderThread = nullptr;
 	};
 }

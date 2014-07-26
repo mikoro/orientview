@@ -5,6 +5,9 @@
 
 #include <QDialog>
 #include <QTime>
+#include <QOffscreenSurface>
+#include <QOpenGLContext>
+#include <QOpenGLFramebufferObject>
 
 namespace Ui
 {
@@ -25,6 +28,10 @@ namespace OrientView
 		bool initialize();
 		void shutdown();
 
+		QOffscreenSurface* getSurface() const;
+		QOpenGLContext* getContext() const;
+		QOpenGLFramebufferObject* getFramebuffer() const;
+
 	signals:
 
 		void closing();
@@ -44,5 +51,8 @@ namespace OrientView
 
 		Ui::EncodeWindow* ui = nullptr;
 		QTime startTime;
+		QOffscreenSurface* surface = nullptr;
+		QOpenGLContext* context = nullptr;
+		QOpenGLFramebufferObject* framebuffer = nullptr;
 	};
 }

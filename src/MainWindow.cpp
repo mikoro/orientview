@@ -194,14 +194,14 @@ void MainWindow::on_pushButtonEncode_clicked()
 		if (!videoDecoderThread->initialize(videoDecoder))
 			throw std::runtime_error("Could not initialize VideoDecoderThread");
 
-		//if (!renderOffScreenThread->initialize())
-			//throw std::runtime_error("Could not initialize RenderOffScreenThread");
+		if (!renderOffScreenThread->initialize(encodeWindow, videoRenderer, videoDecoderThread))
+			throw std::runtime_error("Could not initialize RenderOffScreenThread");
 
 		if (!encodeWindow->initialize())
 			throw std::runtime_error("Could not initialize EncodeWindow");
 
-		//if (!videoRenderer->initialize(videoDecoder, quickRouteJpegReader))
-			//throw std::runtime_error("Could not initialize VideoRenderer");
+		if (!videoRenderer->initialize(videoDecoder, quickRouteJpegReader))
+			throw std::runtime_error("Could not initialize VideoRenderer");
 
 		if (!videoEncoder->initialize(ui->lineEditOutputVideoFile->text()))
 			throw std::runtime_error("Could not initialize VideoEncoder");
@@ -211,6 +211,9 @@ void MainWindow::on_pushButtonEncode_clicked()
 
 		encodeWindow->setModal(true);
 		encodeWindow->show();
+
+		encodeWindow->getContext()->doneCurrent();
+		encodeWindow->getContext()->moveToThread(renderOffScreenThread);
 
 		videoDecoderThread->start();
 		renderOffScreenThread->start();
