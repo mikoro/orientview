@@ -6,12 +6,11 @@
 #include <QThread>
 #include <QSemaphore>
 
-#include "DecodedFrame.h"
+#include "FrameData.h"
 
 namespace OrientView
 {
 	class VideoDecoder;
-	struct DecodedFrame;
 
 	class VideoDecoderThread : public QThread
 	{
@@ -24,8 +23,8 @@ namespace OrientView
 		bool initialize(VideoDecoder* videoDecoder);
 		void shutdown();
 
-		bool getDecodedFrame(DecodedFrame* decodedFrame);
-		void signalProcessingFinished();
+		bool getNextFrame(FrameData* frameDataPtr);
+		void signalFrameRead();
 
 	protected:
 
@@ -34,9 +33,10 @@ namespace OrientView
 	private:
 
 		VideoDecoder* videoDecoder = nullptr;
-		QSemaphore processingFinishedSemaphore;
-		QSemaphore frameUpdatedSemaphore;
-		DecodedFrame localDecodedFrame;
-		int localDataLength = 0;
+
+		QSemaphore frameReadSemaphore;
+		QSemaphore frameAvailableSemaphore;
+
+		FrameData frameData;
 	};
 }

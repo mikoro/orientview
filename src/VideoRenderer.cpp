@@ -15,8 +15,8 @@ bool VideoRenderer::initialize(VideoDecoder* videoDecoder, QuickRouteJpegReader*
 {
 	qDebug("Initializing VideoRenderer");
 
-	this->videoFrameWidth = videoDecoder->getFrameWidth();
-	this->videoFrameHeight = videoDecoder->getFrameHeight();
+	this->videoFrameWidth = videoDecoder->getVideoInfo().frameWidth;
+	this->videoFrameHeight = videoDecoder->getVideoInfo().frameHeight;
 	this->mapImageWidth = quickRouteJpegReader->getMapImage().width();
 	this->mapImageHeight = quickRouteJpegReader->getMapImage().height();
 

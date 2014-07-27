@@ -12,7 +12,7 @@ extern "C"
 }
 
 #include "VideoDecoder.h"
-#include "DecodedFrame.h"
+#include "FrameData.h"
 
 using namespace OrientView;
 
@@ -98,8 +98,8 @@ bool VideoDecoder::initialize(const QString& fileName)
 
 		videoStream = formatContext->streams[videoStreamIndex];
 		videoCodecContext = videoStream->codec;
-		frameWidth = videoCodecContext->width;
-		frameHeight = videoCodecContext->height;
+		videoInfo.frameWidth = videoCodecContext->width;
+		videoInfo.frameHeight = videoCodecContext->height;
 
 		frame = av_frame_alloc();
 
@@ -110,18 +110,20 @@ bool VideoDecoder::initialize(const QString& fileName)
 		packet.data = nullptr;
 		packet.size = 0;
 
-		resizeContext = sws_getContext(frameWidth, frameHeight, videoCodecContext->pix_fmt, frameWidth, frameHeight, PIX_FMT_RGBA, SWS_BILINEAR, nullptr, nullptr, nullptr);
+		resizeContext = sws_getContext(videoInfo.frameWidth, videoInfo.frameHeight, videoCodecContext->pix_fmt, videoInfo.frameWidth, videoInfo.frameHeight, PIX_FMT_RGBA, SWS_BILINEAR, nullptr, nullptr, nullptr);
 
 		if (!resizeContext)
 			throw std::runtime_error("Could not get resize context");
 
-		if (avpicture_alloc(&resizedPicture, PIX_FMT_RGBA, frameWidth, frameHeight) < 0)
+		if (avpicture_alloc(&resizedPicture, PIX_FMT_RGBA, videoInfo.frameWidth, videoInfo.frameHeight) < 0)
 			throw std::runtime_error("Could not allocate picture");
 
-		frameDataLength = frameHeight * resizedPicture.linesize[0];
-		totalFrameCount = videoStream->nb_frames;
-		frameDuration = av_rescale(1000000, videoStream->avg_frame_rate.den, videoStream->avg_frame_rate.num);
-		frameRate = (double)videoStream->avg_frame_rate.num / videoStream->avg_frame_rate.den;
+		videoInfo.frameDataLength = videoInfo.frameHeight * resizedPicture.linesize[0];
+		videoInfo.totalFrameCount = videoStream->nb_frames;
+		videoInfo.averageFrameDuration = (int)av_rescale(1000000, videoStream->avg_frame_rate.den, videoStream->avg_frame_rate.num);
+		videoInfo.averageFrameRateNum = videoStream->avg_frame_rate.num;
+		videoInfo.averageFrameRateDen = videoStream->avg_frame_rate.den;
+		videoInfo.averageFrameRate = (double)videoStream->avg_frame_rate.num / videoStream->avg_frame_rate.den;
 	}
 	catch (const std::exception& ex)
 	{
@@ -150,13 +152,7 @@ void VideoDecoder::shutdown()
 	frame = nullptr;
 	resizeContext = nullptr;
 	lastFrameTimestamp = 0;
-	frameWidth = 0;
-	frameHeight = 0;
-	frameDataLength = 0;
-	totalFrameCount = 0;
-	processedFrameCount = 0;
-	frameDuration = 0;
-	frameRate = 0.0;
+	videoInfo = VideoInfo();
 
 	for (int i = 0; i < 8; ++i)
 	{
@@ -167,7 +163,7 @@ void VideoDecoder::shutdown()
 	isInitialized = false;
 }
 
-bool VideoDecoder::getNextFrame(DecodedFrame* decodedFrame)
+bool VideoDecoder::getNextFrame(FrameData* frameDataPtr)
 {
 	if (!isInitialized)
 		return false;
@@ -180,7 +176,7 @@ bool VideoDecoder::getNextFrame(DecodedFrame* decodedFrame)
 			{
 				int gotPicture = 0;
 				int decodedBytes = avcodec_decode_video2(videoCodecContext, frame, &gotPicture, &packet);
-				processedFrameCount++;
+				videoInfo.currentFrameNumber++;
 
 				if (decodedBytes < 0)
 				{
@@ -193,16 +189,18 @@ bool VideoDecoder::getNextFrame(DecodedFrame* decodedFrame)
 				{
 					sws_scale(resizeContext, frame->data, frame->linesize, 0, frame->height, resizedPicture.data, resizedPicture.linesize);
 
-					decodedFrame->data = resizedPicture.data[0];
-					decodedFrame->dataLength = frame->height * resizedPicture.linesize[0];
-					decodedFrame->stride = resizedPicture.linesize[0];
-					decodedFrame->width = videoCodecContext->width;
-					decodedFrame->height = frame->height;
-					decodedFrame->duration = av_rescale((frame->best_effort_timestamp - lastFrameTimestamp) * 1000000, videoStream->time_base.num, videoStream->time_base.den);
+					frameDataPtr->data = resizedPicture.data[0];
+					frameDataPtr->dataLength = frame->height * resizedPicture.linesize[0];
+					frameDataPtr->rowLength = resizedPicture.linesize[0];
+					frameDataPtr->width = videoCodecContext->width;
+					frameDataPtr->height = frame->height;
+					frameDataPtr->duration = (int)av_rescale((frame->best_effort_timestamp - lastFrameTimestamp) * 1000000, videoStream->time_base.num, videoStream->time_base.den);
+					frameDataPtr->number = videoInfo.currentFrameNumber;
+
 					lastFrameTimestamp = frame->best_effort_timestamp;
 
-					if (decodedFrame->duration < 0 || decodedFrame->duration > 1000000)
-						decodedFrame->duration = frameDuration;
+					if (frameDataPtr->duration < 0 || frameDataPtr->duration > 1000000)
+						frameDataPtr->duration = videoInfo.averageFrameDuration;
 
 					av_free_packet(&packet);
 					return true;
@@ -216,37 +214,7 @@ bool VideoDecoder::getNextFrame(DecodedFrame* decodedFrame)
 	}
 }
 
-int VideoDecoder::getFrameWidth() const
+VideoInfo VideoDecoder::getVideoInfo() const
 {
-	return frameWidth;
-}
-
-int VideoDecoder::getFrameHeight() const
-{
-	return frameHeight;
-}
-
-int VideoDecoder::getFrameDataLength() const
-{
-	return frameDataLength;
-}
-
-int VideoDecoder::getTotalFrameCount() const
-{
-	return totalFrameCount;
-}
-
-int VideoDecoder::getProcessedFrameCount() const
-{
-	return processedFrameCount;
-}
-
-int VideoDecoder::getFrameDuration() const
-{
-	return frameDuration;
-}
-
-double VideoDecoder::getFrameRate() const
-{
-	return frameRate;
+	return videoInfo;
 }

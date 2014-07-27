@@ -14,7 +14,20 @@ extern "C"
 
 namespace OrientView
 {
-	struct DecodedFrame;
+	struct FrameData;
+
+	struct VideoInfo
+	{
+		int frameWidth = 0;
+		int frameHeight = 0;
+		int frameDataLength = 0;
+		int totalFrameCount = 0;
+		int currentFrameNumber = 0;
+		int averageFrameDuration = 0; // ms
+		int averageFrameRateNum = 0;
+		int averageFrameRateDen = 0;
+		double averageFrameRate = 0.0;
+	};
 
 	class VideoDecoder
 	{
@@ -25,15 +38,9 @@ namespace OrientView
 		bool initialize(const QString& fileName);
 		void shutdown();
 
-		bool getNextFrame(DecodedFrame* decodedFrame);
+		bool getNextFrame(FrameData* frameDataPtr);
 
-		int getFrameWidth() const;
-		int getFrameHeight() const;
-		int getFrameDataLength() const;
-		int getTotalFrameCount() const;
-		int getProcessedFrameCount() const;
-		int getFrameDuration() const;
-		double getFrameRate() const;
+		VideoInfo getVideoInfo() const;
 
 	private:
 
@@ -48,12 +55,6 @@ namespace OrientView
 		SwsContext* resizeContext = nullptr;
 		AVPicture resizedPicture;
 		int64_t lastFrameTimestamp = 0;
-		int frameWidth = 0;
-		int frameHeight = 0;
-		int frameDataLength = 0;
-		int totalFrameCount = 0;
-		int processedFrameCount = 0;
-		int frameDuration = 0;
-		double frameRate = 0.0;
+		VideoInfo videoInfo;
 	};
 }

@@ -15,8 +15,6 @@ bool VideoDecoderThread::initialize(VideoDecoder* videoDecoder)
 	qDebug("Initializing VideoDecoderThread");
 
 	this->videoDecoder = videoDecoder;
-	localDataLength = videoDecoder->getFrameDataLength();
-	localDecodedFrame.data = new uint8_t[localDataLength];
 
 	return true;
 }
@@ -24,54 +22,37 @@ bool VideoDecoderThread::initialize(VideoDecoder* videoDecoder)
 void VideoDecoderThread::shutdown()
 {
 	qDebug("Shutting down VideoDecoderThread");
-
-	if (localDecodedFrame.data != nullptr)
-	{
-		delete localDecodedFrame.data;
-		localDecodedFrame.data = nullptr;
-	}
-
-	localDataLength = 0;
 }
 
 void VideoDecoderThread::run()
 {
-	DecodedFrame decodedFrame;
-	processingFinishedSemaphore.release(1);
+	frameReadSemaphore.release(1);
 
 	while (!isInterruptionRequested())
 	{
-		if (videoDecoder->getNextFrame(&decodedFrame))
-		{
-			while (!processingFinishedSemaphore.tryAcquire(1, 20) && !isInterruptionRequested()) {}
+		while (!frameReadSemaphore.tryAcquire(1, 20) && !isInterruptionRequested()) {}
 
-			if (isInterruptionRequested())
-				break;
+		if (isInterruptionRequested())
+			break;
 
-			memcpy(localDecodedFrame.data, decodedFrame.data, localDataLength);
-			localDecodedFrame.dataLength = decodedFrame.dataLength;
-			localDecodedFrame.stride = decodedFrame.stride;
-			localDecodedFrame.width = decodedFrame.width;
-			localDecodedFrame.height = decodedFrame.height;
-			localDecodedFrame.duration = decodedFrame.duration;
-
-			frameUpdatedSemaphore.release(1);
-		}
+		if (videoDecoder->getNextFrame(&frameData))
+			frameAvailableSemaphore.release(1);
 		else
-			QThread::msleep(100);
+			QThread::msleep(20);
 	}
 }
 
-bool VideoDecoderThread::getDecodedFrame(DecodedFrame* decodedFrame)
+bool VideoDecoderThread::getNextFrame(FrameData* frameDataPtr)
 {
-	if (frameUpdatedSemaphore.tryAcquire(1, 20))
+	if (frameAvailableSemaphore.tryAcquire(1, 20))
 	{
-		decodedFrame->data = localDecodedFrame.data;
-		decodedFrame->dataLength = localDecodedFrame.dataLength;
-		decodedFrame->stride = localDecodedFrame.stride;
-		decodedFrame->width = localDecodedFrame.width;
-		decodedFrame->height = localDecodedFrame.height;
-		decodedFrame->duration = localDecodedFrame.duration;
+		frameDataPtr->data = frameData.data;
+		frameDataPtr->dataLength = frameData.dataLength;
+		frameDataPtr->rowLength = frameData.rowLength;
+		frameDataPtr->width = frameData.width;
+		frameDataPtr->height = frameData.height;
+		frameDataPtr->duration = frameData.duration;
+		frameDataPtr->number = frameData.number;
 
 		return true;
 	}
@@ -79,7 +60,7 @@ bool VideoDecoderThread::getDecodedFrame(DecodedFrame* decodedFrame)
 		return false;
 }
 
-void VideoDecoderThread::signalProcessingFinished()
+void VideoDecoderThread::signalFrameRead()
 {
-	processingFinishedSemaphore.release(1);
+	frameReadSemaphore.release(1);
 }

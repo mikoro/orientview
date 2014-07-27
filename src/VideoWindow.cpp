@@ -21,7 +21,7 @@ bool VideoWindow::initialize(VideoDecoder* videoDecoder)
 	setSurfaceType(QWindow::OpenGLSurface);
 	setIcon(QIcon(":/MainView/misc/orientview.ico"));
 	setTitle("OrientView - Video");
-	resize(videoDecoder->getFrameWidth(), videoDecoder->getFrameHeight());
+	resize(videoDecoder->getVideoInfo().frameWidth, videoDecoder->getVideoInfo().frameHeight);
 	setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, size(), QApplication::desktop()->availableGeometry()));
 
 	qDebug("Creating OpenGL context");

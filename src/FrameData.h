@@ -7,13 +7,14 @@
 
 namespace OrientView
 {
-	struct DecodedFrame
+	struct FrameData
 	{
-		uint8_t* data = nullptr;
+		uint8_t* data = nullptr; // RGBA8888 0xRRGGBBAA
 		int dataLength = 0;
-		int stride = 0;
+		int rowLength = 0;
 		int width = 0;
 		int height = 0;
-		int64_t duration = 0;
+		int duration = 0; // ms
+		int number = 0;
 	};
 }

@@ -9,7 +9,7 @@
 #include "EncodeWindow.h"
 #include "VideoDecoderThread.h"
 #include "VideoRenderer.h"
-#include "DecodedFrame.h"
+#include "FrameData.h"
 
 using namespace OrientView;
 
@@ -75,7 +75,7 @@ void RenderOffScreenThread::shutdown()
 
 void RenderOffScreenThread::run()
 {
-	DecodedFrame decodedFrame;
+	FrameData frameData;
 	QOpenGLPixelTransferOptions options;
 
 	while (!isInterruptionRequested())
@@ -87,14 +87,14 @@ void RenderOffScreenThread::run()
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		if (videoDecoderThread->getDecodedFrame(&decodedFrame))
+		if (videoDecoderThread->getNextFrame(&frameData))
 		{
-			options.setRowLength(decodedFrame.stride / 4);
-			options.setImageHeight(decodedFrame.height);
+			options.setRowLength(frameData.rowLength / 4);
+			options.setImageHeight(frameData.height);
 			options.setAlignment(1);
 
-			videoRenderer->getVideoPanelTexture()->setData(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, decodedFrame.data, &options);
-			videoDecoderThread->signalProcessingFinished();
+			videoRenderer->getVideoPanelTexture()->setData(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, frameData.data, &options);
+			videoDecoderThread->signalFrameRead();
 
 			videoRenderer->update(1280, 720);
 			videoRenderer->render();

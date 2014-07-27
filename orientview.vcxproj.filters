@@ -183,7 +183,7 @@
     <ClInclude Include="src\VideoStabilizer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\DecodedFrame.h">
+    <ClInclude Include="src\FrameData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

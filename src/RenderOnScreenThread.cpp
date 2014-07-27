@@ -9,7 +9,7 @@
 #include "VideoWindow.h"
 #include "VideoRenderer.h"
 #include "VideoDecoderThread.h"
-#include "DecodedFrame.h"
+#include "FrameData.h"
 
 using namespace OrientView;
 
@@ -36,7 +36,7 @@ void RenderOnScreenThread::shutdown()
 
 void RenderOnScreenThread::run()
 {
-	DecodedFrame decodedFrame;
+	FrameData frameData;
 	QOpenGLPixelTransferOptions options;
 	QElapsedTimer displayTimer;
 
@@ -56,14 +56,14 @@ void RenderOnScreenThread::run()
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		if (videoDecoderThread->getDecodedFrame(&decodedFrame))
+		if (videoDecoderThread->getNextFrame(&frameData))
 		{
-			options.setRowLength(decodedFrame.stride / 4);
-			options.setImageHeight(decodedFrame.height);
+			options.setRowLength(frameData.rowLength / 4);
+			options.setImageHeight(frameData.height);
 			options.setAlignment(1);
 
-			videoRenderer->getVideoPanelTexture()->setData(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, decodedFrame.data, &options);
-			videoDecoderThread->signalProcessingFinished();
+			videoRenderer->getVideoPanelTexture()->setData(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, frameData.data, &options);
+			videoDecoderThread->signalFrameRead();
 
 			videoRenderer->update(videoWindow->width(), videoWindow->height());
 			videoRenderer->render();
@@ -71,7 +71,7 @@ void RenderOnScreenThread::run()
 			// use combination of normal and spinning wait to sync the frame rate accurately
 			while (true)
 			{
-				int64_t timeToSleep = decodedFrame.duration - (displayTimer.nsecsElapsed() / 1000);
+				int64_t timeToSleep = frameData.duration - (displayTimer.nsecsElapsed() / 1000);
 
 				if (timeToSleep > 2000)
 				{
