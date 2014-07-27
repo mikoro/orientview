@@ -8,7 +8,7 @@
 
 namespace OrientView
 {
-	class VideoDecoder;
+	class Settings;
 
 	class VideoWindow : public QWindow
 	{
@@ -18,10 +18,11 @@ namespace OrientView
 
 		explicit VideoWindow(QWindow* parent = 0);
 
-		bool initialize(VideoDecoder* videoDecoder);
+		bool initialize(Settings* settings);
 		void shutdown();
 
 		QOpenGLContext* getContext() const;
+		bool getIsInitialized() const;
 
 	signals:
 
@@ -34,5 +35,7 @@ namespace OrientView
 	private:
 
 		QOpenGLContext* context = nullptr;
+
+		bool isInitialized = false;
 	};
 }

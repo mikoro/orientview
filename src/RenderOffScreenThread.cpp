@@ -9,6 +9,7 @@
 #include "EncodeWindow.h"
 #include "VideoDecoderThread.h"
 #include "VideoRenderer.h"
+#include "Settings.h"
 #include "FrameData.h"
 
 using namespace OrientView;
@@ -17,7 +18,7 @@ RenderOffScreenThread::RenderOffScreenThread()
 {
 }
 
-bool RenderOffScreenThread::initialize(MainWindow* mainWindow, EncodeWindow* encodeWindow, VideoDecoderThread* videoDecoderThread, VideoRenderer* videoRenderer)
+bool RenderOffScreenThread::initialize(MainWindow* mainWindow, EncodeWindow* encodeWindow, VideoDecoderThread* videoDecoderThread, VideoRenderer* videoRenderer, Settings* settings)
 {
 	qDebug("Initializing RenderOffScreenThread");
 
@@ -26,11 +27,11 @@ bool RenderOffScreenThread::initialize(MainWindow* mainWindow, EncodeWindow* enc
 	this->videoDecoderThread = videoDecoderThread;
 	this->videoRenderer = videoRenderer;
 
-	framebufferWidth = 1280;
-	framebufferHeight = 720;
+	framebufferWidth = settings->display.width;
+	framebufferHeight = settings->display.height;
 
 	QOpenGLFramebufferObjectFormat fboFormat;
-	fboFormat.setSamples(4);
+	fboFormat.setSamples(settings->display.multisamples);
 	fboFormat.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
 
 	framebuffer = new QOpenGLFramebufferObject(framebufferWidth, framebufferHeight, fboFormat);
@@ -85,7 +86,7 @@ void RenderOffScreenThread::run()
 
 		glViewport(0, 0, framebufferWidth, framebufferHeight);
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 		if (videoDecoderThread->getNextFrame(&frameData))
 		{
@@ -96,7 +97,7 @@ void RenderOffScreenThread::run()
 			videoRenderer->getVideoPanelTexture()->setData(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, frameData.data, &options);
 			videoDecoderThread->signalFrameRead();
 
-			videoRenderer->update(1280, 720);
+			videoRenderer->update(framebufferWidth, framebufferHeight);
 			videoRenderer->render();
 
 			QImage result = framebuffer->toImage();

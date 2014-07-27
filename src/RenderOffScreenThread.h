@@ -13,6 +13,7 @@ namespace OrientView
 	class EncodeWindow;
 	class VideoDecoderThread;
 	class VideoRenderer;
+	class Settings;
 
 	class RenderOffScreenThread : public QThread
 	{
@@ -22,7 +23,7 @@ namespace OrientView
 
 		RenderOffScreenThread();
 
-		bool initialize(MainWindow* mainWindow, EncodeWindow* encodeWindow, VideoDecoderThread* videoDecoderThread, VideoRenderer* videoRenderer);
+		bool initialize(MainWindow* mainWindow, EncodeWindow* encodeWindow, VideoDecoderThread* videoDecoderThread, VideoRenderer* videoRenderer, Settings* settings);
 		void shutdown();
 
 	protected:

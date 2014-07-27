@@ -15,6 +15,8 @@ namespace Ui
 
 namespace OrientView
 {
+	class Settings;
+
 	class EncodeWindow : public QDialog
 	{
 		Q_OBJECT
@@ -24,11 +26,12 @@ namespace OrientView
 		explicit EncodeWindow(QWidget *parent = 0);
 		~EncodeWindow();
 
-		bool initialize();
+		bool initialize(Settings* settings);
 		void shutdown();
 
 		QOffscreenSurface* getSurface() const;
 		QOpenGLContext* getContext() const;
+		bool getIsInitialized() const;
 
 	signals:
 
@@ -52,5 +55,7 @@ namespace OrientView
 
 		QOffscreenSurface* surface = nullptr;
 		QOpenGLContext* context = nullptr;
+
+		bool isInitialized = false;
 	};
 }

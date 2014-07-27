@@ -4,6 +4,7 @@
 #include "VideoRenderer.h"
 #include "VideoDecoder.h"
 #include "QuickRouteJpegReader.h"
+#include "Settings.h"
 
 using namespace OrientView;
 
@@ -11,7 +12,7 @@ VideoRenderer::VideoRenderer()
 {
 }
 
-bool VideoRenderer::initialize(VideoDecoder* videoDecoder, QuickRouteJpegReader* quickRouteJpegReader)
+bool VideoRenderer::initialize(VideoDecoder* videoDecoder, QuickRouteJpegReader* quickRouteJpegReader, Settings* settings)
 {
 	qDebug("Initializing VideoRenderer");
 
@@ -26,10 +27,10 @@ bool VideoRenderer::initialize(VideoDecoder* videoDecoder, QuickRouteJpegReader*
 
 	shaderProgram = std::unique_ptr<QOpenGLShaderProgram>(new QOpenGLShaderProgram());
 
-	if (!shaderProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, "data/shaders/basic120.vert"))
+	if (!shaderProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, settings->shaders.vertexShaderPath))
 		return false;
 
-	if (!shaderProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, "data/shaders/basic120.frag"))
+	if (!shaderProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, settings->shaders.fragmentShaderPath))
 		return false;
 
 	if (!shaderProgram->link())

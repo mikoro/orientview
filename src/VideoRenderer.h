@@ -14,6 +14,7 @@ namespace OrientView
 {
 	class VideoDecoder;
 	class QuickRouteJpegReader;
+	class Settings;
 
 	class VideoRenderer : protected QOpenGLFunctions
 	{
@@ -22,7 +23,7 @@ namespace OrientView
 
 		VideoRenderer();
 
-		bool initialize(VideoDecoder* videoDecoder, QuickRouteJpegReader* quickRouteJpegReader);
+		bool initialize(VideoDecoder* videoDecoder, QuickRouteJpegReader* quickRouteJpegReader, Settings* settings);
 		void shutdown();
 
 		void update(int windowWidth, int windowHeight);

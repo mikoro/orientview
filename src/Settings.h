@@ -17,7 +17,17 @@ namespace OrientView
 		bool initialize(const QString& fileName);
 		void shutdown();
 
-	private:
+		struct Display
+		{
+			int width = 0;
+			int height = 0;
+			int multisamples = 0;
+		} display;
 
+		struct Shaders
+		{
+			QString vertexShaderPath;
+			QString fragmentShaderPath;
+		} shaders;
 	};
 }

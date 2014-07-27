@@ -6,7 +6,7 @@
 #include <QDesktopWidget>
 
 #include "VideoWindow.h"
-#include "VideoDecoder.h"
+#include "Settings.h"
 
 using namespace OrientView;
 
@@ -14,20 +14,20 @@ VideoWindow::VideoWindow(QWindow* parent) : QWindow(parent)
 {
 }
 
-bool VideoWindow::initialize(VideoDecoder* videoDecoder)
+bool VideoWindow::initialize(Settings* settings)
 {
 	qDebug("Initializing VideoWindow");
 
 	setSurfaceType(QWindow::OpenGLSurface);
 	setIcon(QIcon(":/MainView/misc/orientview.ico"));
 	setTitle("OrientView - Video");
-	resize(videoDecoder->getVideoInfo().frameWidth, videoDecoder->getVideoInfo().frameHeight);
+	resize(settings->display.width, settings->display.height);
 	setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, size(), QApplication::desktop()->availableGeometry()));
 
 	qDebug("Creating OpenGL context");
 
 	QSurfaceFormat surfaceFormat;
-	surfaceFormat.setSamples(4);
+	surfaceFormat.setSamples(settings->display.multisamples);
 	this->setFormat(surfaceFormat);
 
 	context = new QOpenGLContext();
@@ -45,6 +45,8 @@ bool VideoWindow::initialize(VideoDecoder* videoDecoder)
 		return false;
 	}
 
+	isInitialized = true;
+
 	return true;
 }
 
@@ -57,11 +59,18 @@ void VideoWindow::shutdown()
 		delete context;
 		context = nullptr;
 	}
+
+	isInitialized = false;
 }
 
 QOpenGLContext* VideoWindow::getContext() const
 {
 	return context;
+}
+
+bool VideoWindow::getIsInitialized() const
+{
+	return isInitialized;
 }
 
 bool VideoWindow::event(QEvent* event)

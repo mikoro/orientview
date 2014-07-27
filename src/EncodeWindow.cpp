@@ -3,6 +3,7 @@
 
 #include "EncodeWindow.h"
 #include "ui_EncodeWindow.h"
+#include "Settings.h"
 
 using namespace OrientView;
 
@@ -16,14 +17,14 @@ EncodeWindow::~EncodeWindow()
 	delete ui;
 }
 
-bool EncodeWindow::initialize()
+bool EncodeWindow::initialize(Settings* settings)
 {
 	qDebug("Initializing EncodeWindow");
 
 	setWindowFlags(Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::Dialog | Qt::WindowSystemMenuHint);
 
 	QSurfaceFormat surfaceFormat;
-	surfaceFormat.setSamples(4);
+	surfaceFormat.setSamples(settings->display.multisamples);
 
 	qDebug("Creating offscreen surface");
 
@@ -59,6 +60,8 @@ bool EncodeWindow::initialize()
 
 	startTime.restart();
 
+	isInitialized = true;
+
 	return true;
 }
 
@@ -78,6 +81,8 @@ void EncodeWindow::shutdown()
 		delete surface;
 		surface = nullptr;
 	}
+
+	isInitialized = false;
 }
 
 QOffscreenSurface* EncodeWindow::getSurface() const
@@ -88,6 +93,11 @@ QOffscreenSurface* EncodeWindow::getSurface() const
 QOpenGLContext* EncodeWindow::getContext() const
 {
 	return context;
+}
+
+bool EncodeWindow::getIsInitialized() const
+{
+	return isInitialized;
 }
 
 void EncodeWindow::progressUpdate(int currentFrame, int totalFrames)

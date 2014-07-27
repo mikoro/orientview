@@ -143,10 +143,10 @@ void MainWindow::on_pushButtonRun_clicked()
 
 		videoWindow->show();
 
-		if (!videoWindow->initialize(videoDecoder))
+		if (!videoWindow->initialize(settings))
 			throw std::runtime_error("Could not initialize VideoWindow");
 
-		if (!videoRenderer->initialize(videoDecoder, quickRouteJpegReader))
+		if (!videoRenderer->initialize(videoDecoder, quickRouteJpegReader, settings))
 			throw std::runtime_error("Could not initialize VideoRenderer");
 
 		if (!videoDecoderThread->initialize(videoDecoder))
@@ -194,16 +194,16 @@ void MainWindow::on_pushButtonEncode_clicked()
 		if (!quickRouteJpegReader->initialize(ui->lineEditMapFile->text()))
 			throw std::runtime_error("Could not initialize QuickRouteJpegReader");
 
-		if (!encodeWindow->initialize())
+		if (!encodeWindow->initialize(settings))
 			throw std::runtime_error("Could not initialize EncodeWindow");
 
-		if (!videoRenderer->initialize(videoDecoder, quickRouteJpegReader))
+		if (!videoRenderer->initialize(videoDecoder, quickRouteJpegReader, settings))
 			throw std::runtime_error("Could not initialize VideoRenderer");
 
 		if (!videoDecoderThread->initialize(videoDecoder))
 			throw std::runtime_error("Could not initialize VideoDecoderThread");
 
-		if (!renderOffScreenThread->initialize(this, encodeWindow, videoDecoderThread, videoRenderer))
+		if (!renderOffScreenThread->initialize(this, encodeWindow, videoDecoderThread, videoRenderer, settings))
 			throw std::runtime_error("Could not initialize RenderOffScreenThread");
 
 		if (!videoEncoderThread->initialize())
@@ -243,7 +243,8 @@ void MainWindow::videoWindowClosing()
 	renderOnScreenThread->shutdown();
 	videoDecoderThread->shutdown();
 
-	videoWindow->getContext()->makeCurrent(videoWindow);
+	if (videoWindow->getIsInitialized())
+		videoWindow->getContext()->makeCurrent(videoWindow);
 
 	videoRenderer->shutdown();
 	videoWindow->shutdown();
@@ -273,7 +274,8 @@ void MainWindow::encodeWindowClosing()
 	renderOffScreenThread->shutdown();
 	videoDecoderThread->shutdown();
 
-	encodeWindow->getContext()->makeCurrent(encodeWindow->getSurface());
+	if (encodeWindow->getIsInitialized())
+		encodeWindow->getContext()->makeCurrent(encodeWindow->getSurface());
 
 	videoRenderer->shutdown();
 	encodeWindow->shutdown();
@@ -293,6 +295,9 @@ void MainWindow::readSettings()
 	ui->lineEditMapFile->setText(settings.value("mainWindow/mapFile", "").toString());
 	ui->lineEditSettingsFile->setText(settings.value("mainWindow/settingsFile", "").toString());
 	ui->lineEditOutputVideoFile->setText(settings.value("mainWindow/outputVideoFile", "").toString());
+
+	if (ui->lineEditSettingsFile->text().isEmpty())
+		ui->lineEditSettingsFile->setText("data/settings/default.ini");
 }
 
 void MainWindow::writeSettings()

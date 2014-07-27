@@ -29,7 +29,7 @@ bool QuickRouteJpegReader::initialize(const QString& fileName)
 
 	if (!mapFile.open(QIODevice::ReadOnly))
 	{
-		qWarning("Could not open map image file for reading");
+		qWarning("Could not open map file for reading");
 		return false;
 	}
 
