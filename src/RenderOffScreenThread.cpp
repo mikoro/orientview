@@ -1,12 +1,14 @@
 // Copyright © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
 // License: GPLv3, see the LICENSE file.
 
+#include <QOpenGLFramebufferObjectFormat>
 #include <QOpenGLPixelTransferOptions>
 
 #include "RenderOffScreenThread.h"
+#include "MainWindow.h"
 #include "EncodeWindow.h"
-#include "VideoRenderer.h"
 #include "VideoDecoderThread.h"
+#include "VideoRenderer.h"
 #include "DecodedFrame.h"
 
 using namespace OrientView;
@@ -15,13 +17,41 @@ RenderOffScreenThread::RenderOffScreenThread()
 {
 }
 
-bool RenderOffScreenThread::initialize(EncodeWindow* encodeWindow, VideoRenderer* videoRenderer, VideoDecoderThread* videoDecoderThread)
+bool RenderOffScreenThread::initialize(MainWindow* mainWindow, EncodeWindow* encodeWindow, VideoDecoderThread* videoDecoderThread, VideoRenderer* videoRenderer)
 {
 	qDebug("Initializing RenderOffScreenThread");
 
+	this->mainWindow = mainWindow;
 	this->encodeWindow = encodeWindow;
-	this->videoRenderer = videoRenderer;
 	this->videoDecoderThread = videoDecoderThread;
+	this->videoRenderer = videoRenderer;
+
+	framebufferWidth = 1280;
+	framebufferHeight = 720;
+
+	QOpenGLFramebufferObjectFormat fboFormat;
+	fboFormat.setSamples(4);
+	fboFormat.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
+
+	framebuffer = new QOpenGLFramebufferObject(framebufferWidth, framebufferHeight, fboFormat);
+
+	if (!framebuffer->isValid())
+	{
+		qWarning("Could not create normal framebuffer");
+		return false;
+	}
+
+	QOpenGLFramebufferObjectFormat convertFboFormat;
+	convertFboFormat.setSamples(0);
+	convertFboFormat.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
+
+	convertFramebuffer = new QOpenGLFramebufferObject(framebufferWidth, framebufferHeight, convertFboFormat);
+
+	if (!convertFramebuffer->isValid())
+	{
+		qWarning("Could not create convert framebuffer");
+		return false;
+	}
 
 	return true;
 }
@@ -29,6 +59,18 @@ bool RenderOffScreenThread::initialize(EncodeWindow* encodeWindow, VideoRenderer
 void RenderOffScreenThread::shutdown()
 {
 	qDebug("Shutting down RenderOffScreenThread");
+
+	if (convertFramebuffer != nullptr)
+	{
+		delete convertFramebuffer;
+		convertFramebuffer = nullptr;
+	}
+
+	if (framebuffer != nullptr)
+	{
+		delete framebuffer;
+		framebuffer = nullptr;
+	}
 }
 
 void RenderOffScreenThread::run()
@@ -39,9 +81,9 @@ void RenderOffScreenThread::run()
 	while (!isInterruptionRequested())
 	{
 		encodeWindow->getContext()->makeCurrent(encodeWindow->getSurface());
-		encodeWindow->getFramebuffer()->bind();
+		framebuffer->bind();
 
-		glViewport(0, 0, 1280, 720);
+		glViewport(0, 0, framebufferWidth, framebufferHeight);
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
@@ -57,13 +99,13 @@ void RenderOffScreenThread::run()
 			videoRenderer->update(1280, 720);
 			videoRenderer->render();
 
-			QImage result = encodeWindow->getFramebuffer()->toImage();
+			QImage result = framebuffer->toImage();
 			result.save("test.jpg");
 
 			break;
 		}
 	}
 
-	encodeWindow->getContext()->makeCurrent(encodeWindow->getSurface());
-	videoRenderer->shutdown();
+	encodeWindow->getContext()->doneCurrent();
+	encodeWindow->getContext()->moveToThread(mainWindow->thread());
 }

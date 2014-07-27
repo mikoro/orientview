@@ -1,8 +1,6 @@
 // Copyright © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
 // License: GPLv3, see the LICENSE file.
 
-#include <QOpenGLFramebufferObjectFormat>
-
 #include "EncodeWindow.h"
 #include "ui_EncodeWindow.h"
 
@@ -22,7 +20,15 @@ bool EncodeWindow::initialize()
 {
 	qDebug("Initializing EncodeWindow");
 
+	setWindowFlags(Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::Dialog | Qt::WindowSystemMenuHint);
+
+	QSurfaceFormat surfaceFormat;
+	surfaceFormat.setSamples(4);
+
+	qDebug("Creating offscreen surface");
+
 	surface = new QOffscreenSurface();
+	surface->setFormat(surfaceFormat);
 	surface->create();
 
 	if (!surface->isValid())
@@ -31,11 +37,10 @@ bool EncodeWindow::initialize()
 		return false;
 	}
 
-	QSurfaceFormat contextFormat;
-	contextFormat.setSamples(4);
+	qDebug("Creating OpenGL context");
 
 	context = new QOpenGLContext();
-	context->setFormat(contextFormat);
+	context->setFormat(surfaceFormat);
 
 	if (!context->create())
 	{
@@ -46,18 +51,6 @@ bool EncodeWindow::initialize()
 	if (!context->makeCurrent(surface))
 	{
 		qWarning("Could not make context current");
-		return false;
-	}
-
-	QOpenGLFramebufferObjectFormat fboFormat;
-	fboFormat.setSamples(4);
-	fboFormat.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
-
-	framebuffer = new QOpenGLFramebufferObject(1280, 720, fboFormat);
-
-	if (!framebuffer->isValid())
-	{
-		qWarning("Could not create framebuffer");
 		return false;
 	}
 
@@ -72,12 +65,6 @@ bool EncodeWindow::initialize()
 void EncodeWindow::shutdown()
 {
 	qDebug("Shutting down EncodeWindow");
-
-	if (framebuffer != nullptr)
-	{
-		delete framebuffer;
-		framebuffer = nullptr;
-	}
 
 	if (context != nullptr)
 	{
@@ -101,11 +88,6 @@ QOffscreenSurface* EncodeWindow::getSurface() const
 QOpenGLContext* EncodeWindow::getContext() const
 {
 	return context;
-}
-
-QOpenGLFramebufferObject* EncodeWindow::getFramebuffer() const
-{
-	return framebuffer;
 }
 
 void EncodeWindow::progressUpdate(int currentFrame, int totalFrames)

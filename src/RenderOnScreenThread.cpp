@@ -5,6 +5,7 @@
 #include <QOpenGLPixelTransferOptions>
 
 #include "RenderOnScreenThread.h"
+#include "MainWindow.h"
 #include "VideoWindow.h"
 #include "VideoRenderer.h"
 #include "VideoDecoderThread.h"
@@ -16,13 +17,14 @@ RenderOnScreenThread::RenderOnScreenThread()
 {
 }
 
-bool RenderOnScreenThread::initialize(VideoWindow* videoWindow, VideoRenderer* videoRenderer, VideoDecoderThread* videoDecoderThread)
+bool RenderOnScreenThread::initialize(MainWindow* mainWindow, VideoWindow* videoWindow, VideoDecoderThread* videoDecoderThread, VideoRenderer* videoRenderer)
 {
 	qDebug("Initializing RenderOnScreenThread");
 
+	this->mainWindow = mainWindow;
 	this->videoWindow = videoWindow;
-	this->videoRenderer = videoRenderer;
 	this->videoDecoderThread = videoDecoderThread;
+	this->videoRenderer = videoRenderer;
 
 	return true;
 }
@@ -49,6 +51,7 @@ void RenderOnScreenThread::run()
 		}
 
 		videoWindow->getContext()->makeCurrent(videoWindow);
+
 		glViewport(0, 0, videoWindow->width(), videoWindow->height());
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -86,6 +89,6 @@ void RenderOnScreenThread::run()
 		videoWindow->getContext()->swapBuffers(videoWindow);
 	}
 
-	videoWindow->getContext()->makeCurrent(videoWindow);
-	videoRenderer->shutdown();
+	videoWindow->getContext()->doneCurrent();
+	videoWindow->getContext()->moveToThread(mainWindow->thread());
 }

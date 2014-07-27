@@ -141,12 +141,6 @@ void MainWindow::on_pushButtonRun_clicked()
 		if (!quickRouteJpegReader->initialize(ui->lineEditMapFile->text()))
 			throw std::runtime_error("Could not initialize QuickRouteJpegReader");
 
-		if (!videoDecoderThread->initialize(videoDecoder))
-			throw std::runtime_error("Could not initialize VideoDecoderThread");
-
-		if (!renderOnScreenThread->initialize(videoWindow, videoRenderer, videoDecoderThread))
-			throw std::runtime_error("Could not initialize RenderOnScreenThread");
-
 		videoWindow->show();
 
 		if (!videoWindow->initialize(videoDecoder))
@@ -154,6 +148,12 @@ void MainWindow::on_pushButtonRun_clicked()
 
 		if (!videoRenderer->initialize(videoDecoder, quickRouteJpegReader))
 			throw std::runtime_error("Could not initialize VideoRenderer");
+
+		if (!videoDecoderThread->initialize(videoDecoder))
+			throw std::runtime_error("Could not initialize VideoDecoderThread");
+
+		if (!renderOnScreenThread->initialize(this, videoWindow, videoDecoderThread, videoRenderer))
+			throw std::runtime_error("Could not initialize RenderOnScreenThread");
 
 		videoWindow->getContext()->doneCurrent();
 		videoWindow->getContext()->moveToThread(renderOnScreenThread);
@@ -178,7 +178,7 @@ void MainWindow::on_pushButtonRun_clicked()
 
 void MainWindow::on_pushButtonEncode_clicked()
 {
-	this->setCursor(Qt::WaitCursor);
+	QApplication::setOverrideCursor(Qt::WaitCursor);
 
 	try
 	{
@@ -188,14 +188,11 @@ void MainWindow::on_pushButtonEncode_clicked()
 		if (!videoDecoder->initialize(ui->lineEditVideoFile->text()))
 			throw std::runtime_error("Could not initialize VideoDecoder");
 
+		if (!videoEncoder->initialize(ui->lineEditOutputVideoFile->text()))
+			throw std::runtime_error("Could not initialize VideoEncoder");
+
 		if (!quickRouteJpegReader->initialize(ui->lineEditMapFile->text()))
 			throw std::runtime_error("Could not initialize QuickRouteJpegReader");
-
-		if (!videoDecoderThread->initialize(videoDecoder))
-			throw std::runtime_error("Could not initialize VideoDecoderThread");
-
-		if (!renderOffScreenThread->initialize(encodeWindow, videoRenderer, videoDecoderThread))
-			throw std::runtime_error("Could not initialize RenderOffScreenThread");
 
 		if (!encodeWindow->initialize())
 			throw std::runtime_error("Could not initialize EncodeWindow");
@@ -203,8 +200,11 @@ void MainWindow::on_pushButtonEncode_clicked()
 		if (!videoRenderer->initialize(videoDecoder, quickRouteJpegReader))
 			throw std::runtime_error("Could not initialize VideoRenderer");
 
-		if (!videoEncoder->initialize(ui->lineEditOutputVideoFile->text()))
-			throw std::runtime_error("Could not initialize VideoEncoder");
+		if (!videoDecoderThread->initialize(videoDecoder))
+			throw std::runtime_error("Could not initialize VideoDecoderThread");
+
+		if (!renderOffScreenThread->initialize(this, encodeWindow, videoDecoderThread, videoRenderer))
+			throw std::runtime_error("Could not initialize RenderOffScreenThread");
 
 		if (!videoEncoderThread->initialize())
 			throw std::runtime_error("Could not initialize VideoEncoderThread");
@@ -229,7 +229,7 @@ void MainWindow::on_pushButtonEncode_clicked()
 		QMessageBox::critical(this, "OrientView - Error", QString("Could not encode video: %1\n\nPlease check the application log for details.").arg(ex.what()), QMessageBox::Ok);
 	}
 
-	this->setCursor(Qt::ArrowCursor);
+	QApplication::restoreOverrideCursor();
 }
 
 void MainWindow::videoWindowClosing()
@@ -243,6 +243,9 @@ void MainWindow::videoWindowClosing()
 	renderOnScreenThread->shutdown();
 	videoDecoderThread->shutdown();
 
+	videoWindow->getContext()->makeCurrent(videoWindow);
+
+	videoRenderer->shutdown();
 	videoWindow->shutdown();
 	quickRouteJpegReader->shutdown();
 	videoDecoder->shutdown();
@@ -254,6 +257,10 @@ void MainWindow::videoWindowClosing()
 
 void MainWindow::encodeWindowClosing()
 {
+	QApplication::setOverrideCursor(Qt::WaitCursor);
+
+	QThread::sleep(5);
+
 	videoEncoderThread->requestInterruption();
 	renderOffScreenThread->requestInterruption();
 	videoDecoderThread->requestInterruption();
@@ -266,11 +273,16 @@ void MainWindow::encodeWindowClosing()
 	renderOffScreenThread->shutdown();
 	videoDecoderThread->shutdown();
 
-	videoEncoder->shutdown();
+	encodeWindow->getContext()->makeCurrent(encodeWindow->getSurface());
+
+	videoRenderer->shutdown();
 	encodeWindow->shutdown();
 	quickRouteJpegReader->shutdown();
+	videoEncoder->shutdown();
 	videoDecoder->shutdown();
 	settings->shutdown();
+
+	QApplication::restoreOverrideCursor();
 }
 
 void MainWindow::readSettings()

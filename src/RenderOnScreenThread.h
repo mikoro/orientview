@@ -7,6 +7,7 @@
 
 namespace OrientView
 {
+	class MainWindow;
 	class VideoWindow;
 	class VideoRenderer;
 	class VideoDecoderThread;
@@ -19,7 +20,7 @@ namespace OrientView
 
 		RenderOnScreenThread();
 
-		bool initialize(VideoWindow* videoWindow, VideoRenderer* videoRenderer, VideoDecoderThread* videoDecoderThread);
+		bool initialize(MainWindow* mainWindow, VideoWindow* videoWindow, VideoDecoderThread* videoDecoderThread, VideoRenderer* videoRenderer);
 		void shutdown();
 
 	protected:
@@ -28,6 +29,7 @@ namespace OrientView
 
 	private:
 
+		MainWindow* mainWindow = nullptr;
 		VideoWindow* videoWindow = nullptr;
 		VideoRenderer* videoRenderer = nullptr;
 		VideoDecoderThread* videoDecoderThread = nullptr;

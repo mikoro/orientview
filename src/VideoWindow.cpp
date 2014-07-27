@@ -26,8 +26,12 @@ bool VideoWindow::initialize(VideoDecoder* videoDecoder)
 
 	qDebug("Creating OpenGL context");
 
-	context = std::unique_ptr<QOpenGLContext>(new QOpenGLContext());
-	context->setFormat(format());
+	QSurfaceFormat surfaceFormat;
+	surfaceFormat.setSamples(4);
+	this->setFormat(surfaceFormat);
+
+	context = new QOpenGLContext();
+	context->setFormat(surfaceFormat);
 
 	if (!context->create())
 	{
@@ -49,12 +53,15 @@ void VideoWindow::shutdown()
 	qDebug("Shutting down VideoWindow");
 
 	if (context != nullptr)
-		context.reset(nullptr);
+	{
+		delete context;
+		context = nullptr;
+	}
 }
 
 QOpenGLContext* VideoWindow::getContext() const
 {
-	return context.get();
+	return context;
 }
 
 bool VideoWindow::event(QEvent* event)

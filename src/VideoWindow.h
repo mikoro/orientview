@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <memory>
-
 #include <QWindow>
 #include <QOpenGLContext>
 
@@ -35,6 +33,6 @@ namespace OrientView
 
 	private:
 
-		std::unique_ptr<QOpenGLContext> context = nullptr;
+		QOpenGLContext* context = nullptr;
 	};
 }

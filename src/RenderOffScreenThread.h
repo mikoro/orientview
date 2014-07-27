@@ -4,12 +4,15 @@
 #pragma once
 
 #include <QThread>
+#include <QSemaphore>
+#include <QOpenGLFramebufferObject>
 
 namespace OrientView
 {
+	class MainWindow;
 	class EncodeWindow;
-	class VideoRenderer;
 	class VideoDecoderThread;
+	class VideoRenderer;
 
 	class RenderOffScreenThread : public QThread
 	{
@@ -19,7 +22,7 @@ namespace OrientView
 
 		RenderOffScreenThread();
 
-		bool initialize(EncodeWindow* encodeWindow, VideoRenderer* videoRenderer, VideoDecoderThread* videoDecoderThread);
+		bool initialize(MainWindow* mainWindow, EncodeWindow* encodeWindow, VideoDecoderThread* videoDecoderThread, VideoRenderer* videoRenderer);
 		void shutdown();
 
 	protected:
@@ -28,8 +31,15 @@ namespace OrientView
 
 	private:
 
+		MainWindow* mainWindow = nullptr;
 		EncodeWindow* encodeWindow = nullptr;
-		VideoRenderer* videoRenderer = nullptr;
 		VideoDecoderThread* videoDecoderThread = nullptr;
+		VideoRenderer* videoRenderer = nullptr;
+		QOpenGLFramebufferObject* framebuffer = nullptr;
+		QOpenGLFramebufferObject* convertFramebuffer = nullptr;
+		QSemaphore processingFinishedSemaphore;
+		QSemaphore frameUpdatedSemaphore;
+		int framebufferWidth = 0;
+		int framebufferHeight = 0;
 	};
 }
