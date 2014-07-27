@@ -2,6 +2,9 @@
 // License: GPLv3, see the LICENSE file.
 
 #include "VideoEncoderThread.h"
+#include "VideoDecoder.h"
+#include "VideoEncoder.h"
+#include "RenderOffScreenThread.h"
 
 using namespace OrientView;
 
@@ -9,9 +12,14 @@ VideoEncoderThread::VideoEncoderThread()
 {
 }
 
-bool VideoEncoderThread::initialize()
+bool VideoEncoderThread::initialize(VideoDecoder* videoDecoder, VideoEncoder* videoEncoder, RenderOffScreenThread* renderOffScreenThread)
 {
 	qDebug("Initializing VideoEncoderThread");
+
+	this->videoEncoder = videoEncoder;
+	this->renderOffScreenThread = renderOffScreenThread;
+
+	totalFrameCount = videoDecoder->getVideoInfo().totalFrameCount;
 
 	return true;
 }
@@ -19,22 +27,24 @@ bool VideoEncoderThread::initialize()
 void VideoEncoderThread::shutdown()
 {
 	qDebug("Shutting down VideoEncoderThread");
+
+	totalFrameCount = 0;
 }
 
 void VideoEncoderThread::run()
 {
-	int currentFrame = 0;
-	int totalFrames = 100;
+	FrameData renderedFrameData;
 
 	while (!isInterruptionRequested())
 	{
-		currentFrame++;
-		emit progressUpdate(currentFrame, totalFrames);
+		if (renderOffScreenThread->getNextFrame(&renderedFrameData))
+		{
+			renderOffScreenThread->signalFrameRead();
+			emit progressUpdate(renderedFrameData.number, totalFrameCount);
 
-		if (currentFrame >= totalFrames)
-			break;
-
-		QThread::msleep(100);
+			if (renderedFrameData.number == totalFrameCount)
+				break;
+		}
 	}
 
 	emit encodingFinished();

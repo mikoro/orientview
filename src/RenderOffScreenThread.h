@@ -7,6 +7,8 @@
 #include <QSemaphore>
 #include <QOpenGLFramebufferObject>
 
+#include "FrameData.h"
+
 namespace OrientView
 {
 	class MainWindow;
@@ -26,9 +28,14 @@ namespace OrientView
 		bool initialize(MainWindow* mainWindow, EncodeWindow* encodeWindow, VideoDecoderThread* videoDecoderThread, VideoRenderer* videoRenderer, Settings* settings);
 		void shutdown();
 
+		bool getNextFrame(FrameData* frameData);
+		void signalFrameRead();
+
 	protected:
 
 		void run();
+
+		void readDataFromFramebuffer(QOpenGLFramebufferObject* sourceFbo);
 
 	private:
 
@@ -36,11 +43,16 @@ namespace OrientView
 		EncodeWindow* encodeWindow = nullptr;
 		VideoDecoderThread* videoDecoderThread = nullptr;
 		VideoRenderer* videoRenderer = nullptr;
-		QOpenGLFramebufferObject* framebuffer = nullptr;
-		QOpenGLFramebufferObject* convertFramebuffer = nullptr;
-		QSemaphore processingFinishedSemaphore;
-		QSemaphore frameUpdatedSemaphore;
+
+		QOpenGLFramebufferObject* mainFramebuffer = nullptr;
+		QOpenGLFramebufferObject* secondaryFramebuffer = nullptr;
+
+		QSemaphore frameReadSemaphore;
+		QSemaphore frameAvailableSemaphore;
+
 		int framebufferWidth = 0;
 		int framebufferHeight = 0;
+
+		FrameData renderedFrameData;
 	};
 }

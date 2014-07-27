@@ -35,24 +35,24 @@ void VideoDecoderThread::run()
 		if (isInterruptionRequested())
 			break;
 
-		if (videoDecoder->getNextFrame(&frameData))
+		if (videoDecoder->getNextFrame(&decodedFrameData))
 			frameAvailableSemaphore.release(1);
 		else
 			QThread::msleep(20);
 	}
 }
 
-bool VideoDecoderThread::getNextFrame(FrameData* frameDataPtr)
+bool VideoDecoderThread::getNextFrame(FrameData* frameData)
 {
 	if (frameAvailableSemaphore.tryAcquire(1, 20))
 	{
-		frameDataPtr->data = frameData.data;
-		frameDataPtr->dataLength = frameData.dataLength;
-		frameDataPtr->rowLength = frameData.rowLength;
-		frameDataPtr->width = frameData.width;
-		frameDataPtr->height = frameData.height;
-		frameDataPtr->duration = frameData.duration;
-		frameDataPtr->number = frameData.number;
+		frameData->data = decodedFrameData.data;
+		frameData->dataLength = decodedFrameData.dataLength;
+		frameData->rowLength = decodedFrameData.rowLength;
+		frameData->width = decodedFrameData.width;
+		frameData->height = decodedFrameData.height;
+		frameData->duration = decodedFrameData.duration;
+		frameData->number = decodedFrameData.number;
 
 		return true;
 	}

@@ -163,7 +163,7 @@ void VideoDecoder::shutdown()
 	isInitialized = false;
 }
 
-bool VideoDecoder::getNextFrame(FrameData* frameDataPtr)
+bool VideoDecoder::getNextFrame(FrameData* frameData)
 {
 	if (!isInitialized)
 		return false;
@@ -189,18 +189,18 @@ bool VideoDecoder::getNextFrame(FrameData* frameDataPtr)
 				{
 					sws_scale(resizeContext, frame->data, frame->linesize, 0, frame->height, resizedPicture.data, resizedPicture.linesize);
 
-					frameDataPtr->data = resizedPicture.data[0];
-					frameDataPtr->dataLength = frame->height * resizedPicture.linesize[0];
-					frameDataPtr->rowLength = resizedPicture.linesize[0];
-					frameDataPtr->width = videoCodecContext->width;
-					frameDataPtr->height = frame->height;
-					frameDataPtr->duration = (int)av_rescale((frame->best_effort_timestamp - lastFrameTimestamp) * 1000000, videoStream->time_base.num, videoStream->time_base.den);
-					frameDataPtr->number = videoInfo.currentFrameNumber;
+					frameData->data = resizedPicture.data[0];
+					frameData->dataLength = frame->height * resizedPicture.linesize[0];
+					frameData->rowLength = resizedPicture.linesize[0];
+					frameData->width = videoCodecContext->width;
+					frameData->height = frame->height;
+					frameData->duration = (int)av_rescale((frame->best_effort_timestamp - lastFrameTimestamp) * 1000000, videoStream->time_base.num, videoStream->time_base.den);
+					frameData->number = videoInfo.currentFrameNumber;
 
 					lastFrameTimestamp = frame->best_effort_timestamp;
 
-					if (frameDataPtr->duration < 0 || frameDataPtr->duration > 1000000)
-						frameDataPtr->duration = videoInfo.averageFrameDuration;
+					if (frameData->duration < 0 || frameData->duration > 1000000)
+						frameData->duration = videoInfo.averageFrameDuration;
 
 					av_free_packet(&packet);
 					return true;

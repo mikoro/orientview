@@ -38,7 +38,7 @@ namespace OrientView
 		bool initialize(const QString& fileName);
 		void shutdown();
 
-		bool getNextFrame(FrameData* frameDataPtr);
+		bool getNextFrame(FrameData* frameData);
 
 		VideoInfo getVideoInfo() const;
 

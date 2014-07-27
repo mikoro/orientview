@@ -199,7 +199,7 @@ void MainWindow::on_pushButtonEncode_clicked()
 		if (!videoDecoder->initialize(ui->lineEditVideoFile->text()))
 			throw std::runtime_error("Could not initialize VideoDecoder");
 
-		if (!videoEncoder->initialize(ui->lineEditOutputVideoFile->text()))
+		if (!videoEncoder->initialize(ui->lineEditOutputVideoFile->text(), videoDecoder, settings))
 			throw std::runtime_error("Could not initialize VideoEncoder");
 
 		if (!quickRouteJpegReader->initialize(ui->lineEditMapFile->text()))
@@ -217,7 +217,7 @@ void MainWindow::on_pushButtonEncode_clicked()
 		if (!renderOffScreenThread->initialize(this, encodeWindow, videoDecoderThread, videoRenderer, settings))
 			throw std::runtime_error("Could not initialize RenderOffScreenThread");
 
-		if (!videoEncoderThread->initialize())
+		if (!videoEncoderThread->initialize(videoDecoder, videoEncoder, renderOffScreenThread))
 			throw std::runtime_error("Could not initialize VideoEncoderThread");
 
 		encodeWindow->setModal(true);
@@ -270,8 +270,6 @@ void MainWindow::videoWindowClosing()
 void MainWindow::encodeWindowClosing()
 {
 	QApplication::setOverrideCursor(Qt::WaitCursor);
-
-	QThread::sleep(5);
 
 	videoEncoderThread->requestInterruption();
 	renderOffScreenThread->requestInterruption();

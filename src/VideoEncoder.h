@@ -7,6 +7,9 @@
 
 namespace OrientView
 {
+	class VideoDecoder;
+	class Settings;
+
 	class VideoEncoder
 	{
 
@@ -14,7 +17,7 @@ namespace OrientView
 
 		VideoEncoder();
 
-		bool initialize(const QString& fileName);
+		bool initialize(const QString& fileName, VideoDecoder* videoDecoder, Settings* settings);
 		void shutdown();
 
 	private:

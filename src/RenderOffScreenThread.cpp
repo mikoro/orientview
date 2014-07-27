@@ -30,29 +30,35 @@ bool RenderOffScreenThread::initialize(MainWindow* mainWindow, EncodeWindow* enc
 	framebufferWidth = settings->display.width;
 	framebufferHeight = settings->display.height;
 
-	QOpenGLFramebufferObjectFormat fboFormat;
-	fboFormat.setSamples(settings->display.multisamples);
-	fboFormat.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
+	QOpenGLFramebufferObjectFormat mainFboFormat;
+	mainFboFormat.setSamples(settings->display.multisamples);
+	mainFboFormat.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
 
-	framebuffer = new QOpenGLFramebufferObject(framebufferWidth, framebufferHeight, fboFormat);
+	mainFramebuffer = new QOpenGLFramebufferObject(framebufferWidth, framebufferHeight, mainFboFormat);
 
-	if (!framebuffer->isValid())
+	if (!mainFramebuffer->isValid())
 	{
-		qWarning("Could not create normal framebuffer");
+		qWarning("Could not create main frame buffer");
 		return false;
 	}
 
-	QOpenGLFramebufferObjectFormat convertFboFormat;
-	convertFboFormat.setSamples(0);
-	convertFboFormat.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
+	QOpenGLFramebufferObjectFormat secondaryFboFormat;
+	secondaryFboFormat.setSamples(0);
+	secondaryFboFormat.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
 
-	convertFramebuffer = new QOpenGLFramebufferObject(framebufferWidth, framebufferHeight, convertFboFormat);
+	secondaryFramebuffer = new QOpenGLFramebufferObject(framebufferWidth, framebufferHeight, secondaryFboFormat);
 
-	if (!convertFramebuffer->isValid())
+	if (!secondaryFramebuffer->isValid())
 	{
-		qWarning("Could not create convert framebuffer");
+		qWarning("Could not create secondary frame buffer");
 		return false;
 	}
+
+	renderedFrameData.dataLength = framebufferWidth * framebufferHeight * 4;
+	renderedFrameData.rowLength = framebufferWidth * 4;
+	renderedFrameData.data = new uint8_t[renderedFrameData.dataLength];
+	renderedFrameData.width = framebufferWidth;
+	renderedFrameData.height = framebufferHeight;
 
 	return true;
 }
@@ -61,52 +67,104 @@ void RenderOffScreenThread::shutdown()
 {
 	qDebug("Shutting down RenderOffScreenThread");
 
-	if (convertFramebuffer != nullptr)
+	if (renderedFrameData.data)
 	{
-		delete convertFramebuffer;
-		convertFramebuffer = nullptr;
+		delete renderedFrameData.data;
+		renderedFrameData.data = nullptr;
 	}
 
-	if (framebuffer != nullptr)
+	if (secondaryFramebuffer != nullptr)
 	{
-		delete framebuffer;
-		framebuffer = nullptr;
+		delete secondaryFramebuffer;
+		secondaryFramebuffer = nullptr;
+	}
+
+	if (mainFramebuffer != nullptr)
+	{
+		delete mainFramebuffer;
+		mainFramebuffer = nullptr;
 	}
 }
 
 void RenderOffScreenThread::run()
 {
-	FrameData frameData;
+	FrameData decodedFrameData;
 	QOpenGLPixelTransferOptions options;
+
+	frameReadSemaphore.release(1);
 
 	while (!isInterruptionRequested())
 	{
 		encodeWindow->getContext()->makeCurrent(encodeWindow->getSurface());
-		framebuffer->bind();
+		mainFramebuffer->bind();
 
 		glViewport(0, 0, framebufferWidth, framebufferHeight);
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-		if (videoDecoderThread->getNextFrame(&frameData))
+		if (videoDecoderThread->getNextFrame(&decodedFrameData))
 		{
-			options.setRowLength(frameData.rowLength / 4);
-			options.setImageHeight(frameData.height);
+			options.setRowLength(decodedFrameData.rowLength / 4);
+			options.setImageHeight(decodedFrameData.height);
 			options.setAlignment(1);
 
-			videoRenderer->getVideoPanelTexture()->setData(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, frameData.data, &options);
+			videoRenderer->getVideoPanelTexture()->setData(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, decodedFrameData.data, &options);
 			videoDecoderThread->signalFrameRead();
 
 			videoRenderer->update(framebufferWidth, framebufferHeight);
 			videoRenderer->render();
 
-			QImage result = framebuffer->toImage();
-			result.save("test.jpg");
+			while (!frameReadSemaphore.tryAcquire(1, 20) && !isInterruptionRequested()) {}
 
-			break;
+			if (isInterruptionRequested())
+				break;
+
+			readDataFromFramebuffer(mainFramebuffer);
+			renderedFrameData.duration = decodedFrameData.duration;
+			renderedFrameData.number = decodedFrameData.number;
+
+			frameAvailableSemaphore.release(1);
 		}
 	}
 
 	encodeWindow->getContext()->doneCurrent();
 	encodeWindow->getContext()->moveToThread(mainWindow->thread());
+}
+
+bool RenderOffScreenThread::getNextFrame(FrameData* frameData)
+{
+	if (frameAvailableSemaphore.tryAcquire(1, 20))
+	{
+		frameData->data = renderedFrameData.data;
+		frameData->dataLength = renderedFrameData.dataLength;
+		frameData->rowLength = renderedFrameData.rowLength;
+		frameData->width = renderedFrameData.width;
+		frameData->height = renderedFrameData.height;
+		frameData->duration = renderedFrameData.duration;
+		frameData->number = renderedFrameData.number;
+
+		return true;
+	}
+	else
+		return false;
+}
+
+void RenderOffScreenThread::signalFrameRead()
+{
+	frameReadSemaphore.release(1);
+}
+
+void RenderOffScreenThread::readDataFromFramebuffer(QOpenGLFramebufferObject* sourceFbo)
+{
+	if (sourceFbo->format().samples() != 0)
+	{
+		QRect rect(0, 0, framebufferWidth, framebufferHeight);
+		QOpenGLFramebufferObject::blitFramebuffer(secondaryFramebuffer, rect, sourceFbo, rect);
+		readDataFromFramebuffer(secondaryFramebuffer);
+
+		return;
+	}
+
+	sourceFbo->bind();
+	glReadPixels(0, 0, framebufferWidth, framebufferHeight, GL_RGBA, GL_UNSIGNED_BYTE, renderedFrameData.data);
 }
