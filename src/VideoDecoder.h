@@ -52,8 +52,8 @@ namespace OrientView
 		int videoStreamIndex = -1;
 		AVFrame* frame = nullptr;
 		AVPacket packet;
-		SwsContext* resizeContext = nullptr;
-		AVPicture resizedPicture;
+		SwsContext* swsContext = nullptr;
+		AVPicture* convertedPicture;
 		int64_t lastFrameTimestamp = 0;
 		VideoInfo videoInfo;
 	};

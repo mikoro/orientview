@@ -66,11 +66,6 @@ namespace
 
 VideoDecoder::VideoDecoder()
 {
-	for (int i = 0; i < 8; ++i)
-	{
-		resizedPicture.data[i] = nullptr;
-		resizedPicture.linesize[i] = 0;
-	}
 }
 
 bool VideoDecoder::initialize(const QString& fileName)
@@ -110,15 +105,17 @@ bool VideoDecoder::initialize(const QString& fileName)
 		packet.data = nullptr;
 		packet.size = 0;
 
-		resizeContext = sws_getContext(videoInfo.frameWidth, videoInfo.frameHeight, videoCodecContext->pix_fmt, videoInfo.frameWidth, videoInfo.frameHeight, PIX_FMT_RGBA, SWS_BILINEAR, nullptr, nullptr, nullptr);
+		swsContext = sws_getContext(videoInfo.frameWidth, videoInfo.frameHeight, videoCodecContext->pix_fmt, videoInfo.frameWidth, videoInfo.frameHeight, PIX_FMT_RGBA, SWS_BILINEAR, nullptr, nullptr, nullptr);
 
-		if (!resizeContext)
-			throw std::runtime_error("Could not get resize context");
+		if (!swsContext)
+			throw std::runtime_error("Could not get sws context");
 
-		if (avpicture_alloc(&resizedPicture, PIX_FMT_RGBA, videoInfo.frameWidth, videoInfo.frameHeight) < 0)
-			throw std::runtime_error("Could not allocate picture");
+		convertedPicture = new AVPicture();
 
-		videoInfo.frameDataLength = videoInfo.frameHeight * resizedPicture.linesize[0];
+		if (avpicture_alloc(convertedPicture, PIX_FMT_RGBA, videoInfo.frameWidth, videoInfo.frameHeight) < 0)
+			throw std::runtime_error("Could not allocate conversion picture");
+
+		videoInfo.frameDataLength = videoInfo.frameHeight * convertedPicture->linesize[0];
 		videoInfo.totalFrameCount = videoStream->nb_frames;
 		videoInfo.averageFrameDuration = (int)av_rescale(1000000, videoStream->avg_frame_rate.den, videoStream->avg_frame_rate.num);
 		videoInfo.averageFrameRateNum = videoStream->avg_frame_rate.num;
@@ -139,26 +136,40 @@ void VideoDecoder::shutdown()
 {
 	qDebug("Shutting down VideoDecoder");
 
-	avcodec_close(videoCodecContext);
-	avformat_close_input(&formatContext);
-	av_frame_free(&frame);
-	sws_freeContext(resizeContext);
-	avpicture_free(&resizedPicture);
+	if (videoCodecContext != nullptr)
+	{
+		avcodec_close(videoCodecContext);
+		videoCodecContext = nullptr;
+	}
 
-	formatContext = nullptr;
-	videoCodecContext = nullptr;
+	if (formatContext != nullptr)
+	{
+		avformat_close_input(&formatContext);
+		formatContext = nullptr;
+	}
+
+	if (frame != nullptr)
+	{
+		av_frame_free(&frame);
+		frame = nullptr;
+	}
+
+	if (swsContext != nullptr)
+	{
+		sws_freeContext(swsContext);
+		swsContext = nullptr;
+	}
+
+	if (convertedPicture != nullptr)
+	{
+		avpicture_free(convertedPicture);
+		convertedPicture = nullptr;
+	}
+	
 	videoStream = nullptr;
 	videoStreamIndex = -1;
-	frame = nullptr;
-	resizeContext = nullptr;
 	lastFrameTimestamp = 0;
 	videoInfo = VideoInfo();
-
-	for (int i = 0; i < 8; ++i)
-	{
-		resizedPicture.data[i] = nullptr;
-		resizedPicture.linesize[i] = 0;
-	}
 
 	isInitialized = false;
 }
@@ -187,11 +198,11 @@ bool VideoDecoder::getNextFrame(FrameData* frameData)
 
 				if (gotPicture)
 				{
-					sws_scale(resizeContext, frame->data, frame->linesize, 0, frame->height, resizedPicture.data, resizedPicture.linesize);
+					sws_scale(swsContext, frame->data, frame->linesize, 0, frame->height, convertedPicture->data, convertedPicture->linesize);
 
-					frameData->data = resizedPicture.data[0];
-					frameData->dataLength = frame->height * resizedPicture.linesize[0];
-					frameData->rowLength = resizedPicture.linesize[0];
+					frameData->data = convertedPicture->data[0];
+					frameData->dataLength = frame->height * convertedPicture->linesize[0];
+					frameData->rowLength = convertedPicture->linesize[0];
 					frameData->width = videoCodecContext->width;
 					frameData->height = frame->height;
 					frameData->duration = (int)av_rescale((frame->best_effort_timestamp - lastFrameTimestamp) * 1000000, videoStream->time_base.num, videoStream->time_base.den);

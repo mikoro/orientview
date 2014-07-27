@@ -39,7 +39,10 @@ void VideoEncoderThread::run()
 	{
 		if (renderOffScreenThread->getNextFrame(&renderedFrameData))
 		{
+			videoEncoder->loadFrameData(&renderedFrameData);
 			renderOffScreenThread->signalFrameRead();
+			videoEncoder->encodeFrame();
+
 			emit progressUpdate(renderedFrameData.number, totalFrameCount);
 
 			if (renderedFrameData.number == totalFrameCount)

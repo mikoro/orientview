@@ -31,6 +31,10 @@ bool Settings::initialize(const QString& fileName)
 	shaders.vertexShaderPath = settings.value("shaders/vertexShaderPath", "data/shaders/basic120.vert").toString();
 	shaders.fragmentShaderPath = settings.value("shaders/fragmentShaderPath", "data/shaders/basic120.frag").toString();
 
+	encoder.preset = settings.value("encoder/preset", "veryfast").toString();
+	encoder.profile = settings.value("encoder/profile", "high").toString();
+	encoder.constantRateFactor = settings.value("encoder/constantRateFactor", 23).toInt();
+
 	return true;
 }
 

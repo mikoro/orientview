@@ -22,12 +22,22 @@ namespace OrientView
 			int width = 0;
 			int height = 0;
 			int multisamples = 0;
+
 		} display;
 
 		struct Shaders
 		{
 			QString vertexShaderPath;
 			QString fragmentShaderPath;
+
 		} shaders;
+
+		struct Encoder
+		{
+			QString preset;
+			QString profile;
+			int constantRateFactor = 0;
+
+		} encoder;
 	};
 }
