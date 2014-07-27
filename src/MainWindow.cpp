@@ -109,6 +109,17 @@ void MainWindow::on_pushButtonBrowseSettingsFile_clicked()
 	}
 }
 
+void MainWindow::on_pushButtonEditSettingsFile_clicked()
+{
+	QString fileName = ui->lineEditSettingsFile->text();
+
+	if (QFile::exists(fileName))
+	{
+		QFileInfo fileInfo(fileName);
+		QDesktopServices::openUrl(QUrl(QString("file:///%1").arg(fileInfo.absoluteFilePath())));
+	}
+}
+
 void MainWindow::on_pushButtonBrowseOutputVideoFile_clicked()
 {
 	QFileDialog fileDialog(this);

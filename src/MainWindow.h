@@ -39,6 +39,7 @@ namespace OrientView
 		void on_pushButtonBrowseVideoFile_clicked();
 		void on_pushButtonBrowseMapFile_clicked();
 		void on_pushButtonBrowseSettingsFile_clicked();
+		void on_pushButtonEditSettingsFile_clicked();
 		void on_pushButtonBrowseOutputVideoFile_clicked();
 		void on_pushButtonRun_clicked();
 		void on_pushButtonEncode_clicked();

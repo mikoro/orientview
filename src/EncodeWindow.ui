@@ -87,6 +87,9 @@
    </property>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>pushButtonStop</tabstop>
+ </tabstops>
  <resources>
   <include location="MainView.qrc"/>
  </resources>
