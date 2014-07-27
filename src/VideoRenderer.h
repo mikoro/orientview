@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <memory>
-
 #include <QOpenGLFunctions>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLBuffer>
@@ -38,11 +36,11 @@ namespace OrientView
 		int mapImageWidth = 0;
 		int mapImageHeight = 0;
 
-		std::unique_ptr<QOpenGLShaderProgram> shaderProgram = nullptr;
-		std::unique_ptr<QOpenGLBuffer> videoPanelBuffer = nullptr;
-		std::unique_ptr<QOpenGLTexture> videoPanelTexture = nullptr;
-		std::unique_ptr<QOpenGLBuffer> mapPanelBuffer = nullptr;
-		std::unique_ptr<QOpenGLTexture> mapPanelTexture = nullptr;
+		QOpenGLShaderProgram* shaderProgram = nullptr;
+		QOpenGLBuffer* videoPanelBuffer = nullptr;
+		QOpenGLTexture* videoPanelTexture = nullptr;
+		QOpenGLBuffer* mapPanelBuffer = nullptr;
+		QOpenGLTexture* mapPanelTexture = nullptr;
 		
 		QMatrix4x4 videoVertexMatrix;
 		QMatrix4x4 videoTextureMatrix;

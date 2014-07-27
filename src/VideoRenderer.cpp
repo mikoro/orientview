@@ -25,7 +25,7 @@ bool VideoRenderer::initialize(VideoDecoder* videoDecoder, QuickRouteJpegReader*
 
 	qDebug("Compiling shaders");
 
-	shaderProgram = std::unique_ptr<QOpenGLShaderProgram>(new QOpenGLShaderProgram());
+	shaderProgram = new QOpenGLShaderProgram();
 
 	if (!shaderProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, settings->shaders.vertexShaderPath))
 		return false;
@@ -66,14 +66,14 @@ bool VideoRenderer::initialize(VideoDecoder* videoDecoder, QuickRouteJpegReader*
 		return false;
 	}
 
-	videoPanelBuffer = std::unique_ptr<QOpenGLBuffer>(new QOpenGLBuffer(QOpenGLBuffer::VertexBuffer));
+	videoPanelBuffer = new QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
 	videoPanelBuffer->setUsagePattern(QOpenGLBuffer::DynamicDraw);
 	videoPanelBuffer->create();
 	videoPanelBuffer->bind();
 	videoPanelBuffer->allocate(sizeof(GLfloat) * 16);
 	videoPanelBuffer->release();
 
-	videoPanelTexture = std::unique_ptr<QOpenGLTexture>(new QOpenGLTexture(QOpenGLTexture::Target2D));
+	videoPanelTexture = new QOpenGLTexture(QOpenGLTexture::Target2D);
 	videoPanelTexture->create();
 	videoPanelTexture->bind();
 	videoPanelTexture->setSize(videoFrameWidth, videoFrameHeight);
@@ -84,14 +84,14 @@ bool VideoRenderer::initialize(VideoDecoder* videoDecoder, QuickRouteJpegReader*
 	videoPanelTexture->allocateStorage();
 	videoPanelTexture->release();
 
-	mapPanelBuffer = std::unique_ptr<QOpenGLBuffer>(new QOpenGLBuffer(QOpenGLBuffer::VertexBuffer));
+	mapPanelBuffer = new QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
 	mapPanelBuffer->setUsagePattern(QOpenGLBuffer::DynamicDraw);
 	mapPanelBuffer->create();
 	mapPanelBuffer->bind();
 	mapPanelBuffer->allocate(sizeof(GLfloat) * 16);
 	mapPanelBuffer->release();
 
-	mapPanelTexture = std::unique_ptr<QOpenGLTexture>(new QOpenGLTexture(quickRouteJpegReader->getMapImage()));
+	mapPanelTexture = new QOpenGLTexture(quickRouteJpegReader->getMapImage());
 	mapPanelTexture->bind();
 	mapPanelTexture->setMinificationFilter(QOpenGLTexture::Linear);
 	mapPanelTexture->setMagnificationFilter(QOpenGLTexture::Linear);
@@ -107,19 +107,34 @@ void VideoRenderer::shutdown()
 	qDebug("Shutting down VideoRenderer");
 
 	if (videoPanelBuffer != nullptr)
-		videoPanelBuffer.reset(nullptr);
+	{
+		delete videoPanelBuffer;
+		videoPanelBuffer = nullptr;
+	}
 
 	if (videoPanelTexture != nullptr)
-		videoPanelTexture.reset(nullptr);
+	{
+		delete videoPanelTexture;
+		videoPanelTexture = nullptr;
+	}
 
 	if (mapPanelBuffer != nullptr)
-		mapPanelBuffer.reset(nullptr);
+	{
+		delete mapPanelBuffer;
+		mapPanelBuffer = nullptr;
+	}
 
 	if (mapPanelTexture != nullptr)
-		mapPanelTexture.reset(nullptr);
+	{
+		delete mapPanelTexture;
+		mapPanelTexture = nullptr;
+	}
 
 	if (shaderProgram != nullptr)
-		shaderProgram.reset(nullptr);
+	{
+		delete shaderProgram;
+		shaderProgram = nullptr;
+	}
 }
 
 void VideoRenderer::update(int windowWidth, int windowHeight)
@@ -253,5 +268,5 @@ void VideoRenderer::render()
 
 QOpenGLTexture* VideoRenderer::getVideoPanelTexture()
 {
-	return videoPanelTexture.get();
+	return videoPanelTexture;
 }

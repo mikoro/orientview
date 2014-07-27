@@ -7,9 +7,9 @@
 
 extern "C"
 {
-#include <libavformat/avformat.h>
-#include <libavutil/avutil.h>
-#include <libswscale/swscale.h>
+#include "libavformat/avformat.h"
+#include "libavutil/avutil.h"
+#include "libswscale/swscale.h"
 }
 
 namespace OrientView

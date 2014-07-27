@@ -5,6 +5,11 @@
 
 #include <QString>
 
+extern "C"
+{
+#include "x264/x264.h"
+}
+
 namespace OrientView
 {
 	class VideoDecoder;
