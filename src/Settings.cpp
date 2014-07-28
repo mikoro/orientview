@@ -35,6 +35,8 @@ bool Settings::initialize(const QString& fileName)
 	encoder.profile = settings.value("encoder/profile", "high").toString();
 	encoder.constantRateFactor = settings.value("encoder/constantRateFactor", 23).toInt();
 
+	appearance.mapPanelWidth = settings.value("appearance/mapPanelWidth", 0.3f).toFloat();
+
 	return true;
 }
 

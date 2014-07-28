@@ -21,6 +21,8 @@ bool VideoRenderer::initialize(VideoDecoder* videoDecoder, QuickRouteJpegReader*
 	this->mapImageWidth = quickRouteJpegReader->getMapImage().width();
 	this->mapImageHeight = quickRouteJpegReader->getMapImage().height();
 
+	this->mapPanelWidth = settings->appearance.mapPanelWidth;
+
 	initializeOpenGLFunctions();
 
 	qDebug("Compiling shaders");
@@ -150,7 +152,6 @@ void VideoRenderer::shutdown()
 
 void VideoRenderer::update(int windowWidth, int windowHeight)
 {
-	float mapPanelWidth = 0.2f;
 	float mapPanelWidthInverse = 1.0f - mapPanelWidth;
 	float scaledWindowWidth = mapPanelWidthInverse * windowWidth;
 

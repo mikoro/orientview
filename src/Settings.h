@@ -39,5 +39,11 @@ namespace OrientView
 			int constantRateFactor = 0;
 
 		} encoder;
+
+		struct Appearance
+		{
+			float mapPanelWidth = 0.0f;
+
+		} appearance;
 	};
 }

@@ -37,6 +37,9 @@ namespace OrientView
 		int videoFrameHeight = 0;
 		int mapImageWidth = 0;
 		int mapImageHeight = 0;
+
+		float mapPanelWidth = 0.0f;
+
 		bool flipOutput = false;
 
 		QOpenGLShaderProgram* shaderProgram = nullptr;

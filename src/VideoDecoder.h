@@ -53,7 +53,7 @@ namespace OrientView
 		AVFrame* frame = nullptr;
 		AVPacket packet;
 		SwsContext* swsContext = nullptr;
-		AVPicture* convertedPicture;
+		AVPicture* convertedPicture = nullptr;
 		int64_t lastFrameTimestamp = 0;
 		VideoInfo videoInfo;
 	};
