@@ -65,14 +65,8 @@ namespace OrientView
 
 using namespace OrientView;
 
-MP4File::MP4File()
+bool MP4File::open(const QString& fileName)
 {
-}
-
-bool MP4File::initialize(const QString& fileName)
-{
-	qDebug("Initializing MP4File");
-
 	mp4Handle = (MP4Handle*)calloc(1, sizeof(MP4Handle));
 	RETURN_IF_ERR(!mp4Handle, "Failed to allocate memory for muxer information");
 
@@ -87,23 +81,6 @@ bool MP4File::initialize(const QString& fileName)
 	mp4Handle->summary->sample_type = ISOM_CODEC_TYPE_AVC1_VIDEO;
 
 	return true;
-}
-
-void MP4File::shutdown()
-{
-	qDebug("Shutting down MP4File");
-
-	if (mp4Handle != nullptr)
-	{
-		lsmash_cleanup_summary((lsmash_summary_t*)mp4Handle->summary);
-		lsmash_close_file(&mp4Handle->fileParameters);
-		lsmash_destroy_root(mp4Handle->root);
-
-		free(mp4Handle->seiBuffer);
-		free(mp4Handle);
-
-		mp4Handle = nullptr;
-	}
 }
 
 bool MP4File::setParam(x264_param_t* param)
@@ -248,29 +225,41 @@ bool MP4File::writeFrame(uint8_t* payload, int size, x264_picture_t* picture)
 	return true;
 }
 
-bool MP4File::finalize(int64_t lastPts)
+bool MP4File::close(int64_t lastPts)
 {
-	if (mp4Handle->root)
+	if (mp4Handle != nullptr)
 	{
-		if (mp4Handle->track)
+		if (mp4Handle->root)
 		{
-			RETURN_IF_ERR(lsmash_flush_pooled_samples(mp4Handle->root, mp4Handle->track, mp4Handle->timeIncrement), "Failed to flush the rest of samples");
+			if (mp4Handle->track)
+			{
+				RETURN_IF_ERR(lsmash_flush_pooled_samples(mp4Handle->root, mp4Handle->track, mp4Handle->timeIncrement), "Failed to flush the rest of samples");
 
-			double actualDuration = 0;
+				double actualDuration = 0;
 
-			if (mp4Handle->movieTimescale != 0 && mp4Handle->videoTimescale != 0)
-				actualDuration = ((double)(lastPts * mp4Handle->timeIncrement) / mp4Handle->videoTimescale) * mp4Handle->movieTimescale;
-			else
-				qWarning("Timescale is broken");
+				if (mp4Handle->movieTimescale != 0 && mp4Handle->videoTimescale != 0)
+					actualDuration = ((double)(lastPts * mp4Handle->timeIncrement) / mp4Handle->videoTimescale) * mp4Handle->movieTimescale;
+				else
+					qWarning("Timescale is broken");
 
-			lsmash_edit_t edit;
-			edit.duration = actualDuration;
-			edit.start_time = mp4Handle->firstCts;
-			edit.rate = ISOM_EDIT_MODE_NORMAL;
-			RETURN_IF_ERR(lsmash_create_explicit_timeline_map(mp4Handle->root, mp4Handle->track, edit), "Failed to set timeline map for video");
+				lsmash_edit_t edit;
+				edit.duration = actualDuration;
+				edit.start_time = mp4Handle->firstCts;
+				edit.rate = ISOM_EDIT_MODE_NORMAL;
+				RETURN_IF_ERR(lsmash_create_explicit_timeline_map(mp4Handle->root, mp4Handle->track, edit), "Failed to set timeline map for video");
+			}
+
+			RETURN_IF_ERR(lsmash_finish_movie(mp4Handle->root, nullptr), "Failed to finish movie");
 		}
 
-		RETURN_IF_ERR(lsmash_finish_movie(mp4Handle->root, nullptr), "Failed to finish movie");
+		lsmash_cleanup_summary((lsmash_summary_t*)mp4Handle->summary);
+		lsmash_close_file(&mp4Handle->fileParameters);
+		lsmash_destroy_root(mp4Handle->root);
+
+		free(mp4Handle->seiBuffer);
+		free(mp4Handle);
+
+		mp4Handle = nullptr;
 	}
 
 	return true;

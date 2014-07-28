@@ -16,27 +16,43 @@ bool VideoDecoderThread::initialize(VideoDecoder* videoDecoder)
 
 	this->videoDecoder = videoDecoder;
 
+	frameReadSemaphore = new QSemaphore();
+	frameAvailableSemaphore = new QSemaphore();
+	decodedFrameData = FrameData();
+
 	return true;
 }
 
 void VideoDecoderThread::shutdown()
 {
 	qDebug("Shutting down VideoDecoderThread");
+
+	if (frameReadSemaphore != nullptr)
+	{
+		delete frameReadSemaphore;
+		frameReadSemaphore = nullptr;
+	}
+
+	if (frameAvailableSemaphore != nullptr)
+	{
+		delete frameAvailableSemaphore;
+		frameAvailableSemaphore = nullptr;
+	}
 }
 
 void VideoDecoderThread::run()
 {
-	frameReadSemaphore.release(1);
+	frameReadSemaphore->release(1);
 
 	while (!isInterruptionRequested())
 	{
-		while (!frameReadSemaphore.tryAcquire(1, 20) && !isInterruptionRequested()) {}
+		while (!frameReadSemaphore->tryAcquire(1, 20) && !isInterruptionRequested()) {}
 
 		if (isInterruptionRequested())
 			break;
 
 		if (videoDecoder->getNextFrame(&decodedFrameData))
-			frameAvailableSemaphore.release(1);
+			frameAvailableSemaphore->release(1);
 		else
 			QThread::msleep(20);
 	}
@@ -44,7 +60,7 @@ void VideoDecoderThread::run()
 
 bool VideoDecoderThread::getNextFrame(FrameData* frameData)
 {
-	if (frameAvailableSemaphore.tryAcquire(1, 20))
+	if (frameAvailableSemaphore->tryAcquire(1, 20))
 	{
 		frameData->data = decodedFrameData.data;
 		frameData->dataLength = decodedFrameData.dataLength;
@@ -62,5 +78,5 @@ bool VideoDecoderThread::getNextFrame(FrameData* frameData)
 
 void VideoDecoderThread::signalFrameRead()
 {
-	frameReadSemaphore.release(1);
+	frameReadSemaphore->release(1);
 }

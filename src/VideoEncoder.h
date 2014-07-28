@@ -31,6 +31,7 @@ namespace OrientView
 
 		void loadFrameData(FrameData* frameData);
 		void encodeFrame();
+		void close();
 
 	private:
 

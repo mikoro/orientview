@@ -54,11 +54,15 @@ bool RenderOffScreenThread::initialize(MainWindow* mainWindow, EncodeWindow* enc
 		return false;
 	}
 
+	renderedFrameData = FrameData();
 	renderedFrameData.dataLength = framebufferWidth * framebufferHeight * 4;
 	renderedFrameData.rowLength = framebufferWidth * 4;
 	renderedFrameData.data = new uint8_t[renderedFrameData.dataLength];
 	renderedFrameData.width = framebufferWidth;
 	renderedFrameData.height = framebufferHeight;
+
+	frameReadSemaphore = new QSemaphore();
+	frameAvailableSemaphore = new QSemaphore();
 
 	return true;
 }
@@ -66,6 +70,18 @@ bool RenderOffScreenThread::initialize(MainWindow* mainWindow, EncodeWindow* enc
 void RenderOffScreenThread::shutdown()
 {
 	qDebug("Shutting down RenderOffScreenThread");
+
+	if (frameReadSemaphore != nullptr)
+	{
+		delete frameReadSemaphore;
+		frameReadSemaphore = nullptr;
+	}
+
+	if (frameAvailableSemaphore != nullptr)
+	{
+		delete frameAvailableSemaphore;
+		frameAvailableSemaphore = nullptr;
+	}
 
 	if (renderedFrameData.data)
 	{
@@ -91,7 +107,7 @@ void RenderOffScreenThread::run()
 	FrameData decodedFrameData;
 	QOpenGLPixelTransferOptions options;
 
-	frameReadSemaphore.release(1);
+	frameReadSemaphore->release(1);
 
 	while (!isInterruptionRequested())
 	{
@@ -114,7 +130,7 @@ void RenderOffScreenThread::run()
 			videoRenderer->update(framebufferWidth, framebufferHeight);
 			videoRenderer->render();
 
-			while (!frameReadSemaphore.tryAcquire(1, 20) && !isInterruptionRequested()) {}
+			while (!frameReadSemaphore->tryAcquire(1, 20) && !isInterruptionRequested()) {}
 
 			if (isInterruptionRequested())
 				break;
@@ -123,7 +139,7 @@ void RenderOffScreenThread::run()
 			renderedFrameData.duration = decodedFrameData.duration;
 			renderedFrameData.number = decodedFrameData.number;
 
-			frameAvailableSemaphore.release(1);
+			frameAvailableSemaphore->release(1);
 		}
 	}
 
@@ -133,7 +149,7 @@ void RenderOffScreenThread::run()
 
 bool RenderOffScreenThread::getNextFrame(FrameData* frameData)
 {
-	if (frameAvailableSemaphore.tryAcquire(1, 20))
+	if (frameAvailableSemaphore->tryAcquire(1, 20))
 	{
 		frameData->data = renderedFrameData.data;
 		frameData->dataLength = renderedFrameData.dataLength;
@@ -151,7 +167,7 @@ bool RenderOffScreenThread::getNextFrame(FrameData* frameData)
 
 void RenderOffScreenThread::signalFrameRead()
 {
-	frameReadSemaphore.release(1);
+	frameReadSemaphore->release(1);
 }
 
 void RenderOffScreenThread::readDataFromFramebuffer(QOpenGLFramebufferObject* sourceFbo)

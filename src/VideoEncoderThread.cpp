@@ -50,5 +50,6 @@ void VideoEncoderThread::run()
 		}
 	}
 
+	videoEncoder->close();
 	emit encodingFinished();
 }

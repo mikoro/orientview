@@ -104,7 +104,7 @@ bool VideoEncoder::initialize(const QString& fileName, VideoDecoder* videoDecode
 
 	mp4File = new MP4File();
 
-	if (!mp4File->initialize(fileName))
+	if (!mp4File->open(fileName))
 		return false;
 
 	if (!mp4File->setParam(&param))
@@ -131,8 +131,7 @@ void VideoEncoder::shutdown()
 
 	if (mp4File != nullptr)
 	{
-		mp4File->finalize(frameNumber);
-		mp4File->shutdown();
+		mp4File->close(frameNumber);
 		delete mp4File;
 		mp4File = nullptr;
 	}
@@ -178,4 +177,9 @@ void VideoEncoder::encodeFrame()
 		mp4File->writeFrame(nal[0].p_payload, frameSize, &encodedPicture);
 	else
 		qWarning("Could not encode frame");
+}
+
+void VideoEncoder::close()
+{
+	mp4File->close(frameNumber);
 }

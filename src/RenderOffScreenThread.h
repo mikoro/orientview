@@ -47,8 +47,8 @@ namespace OrientView
 		QOpenGLFramebufferObject* mainFramebuffer = nullptr;
 		QOpenGLFramebufferObject* secondaryFramebuffer = nullptr;
 
-		QSemaphore frameReadSemaphore;
-		QSemaphore frameAvailableSemaphore;
+		QSemaphore* frameReadSemaphore = nullptr;
+		QSemaphore* frameAvailableSemaphore = nullptr;
 
 		int framebufferWidth = 0;
 		int framebufferHeight = 0;

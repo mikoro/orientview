@@ -34,8 +34,8 @@ namespace OrientView
 
 		VideoDecoder* videoDecoder = nullptr;
 
-		QSemaphore frameReadSemaphore;
-		QSemaphore frameAvailableSemaphore;
+		QSemaphore* frameReadSemaphore = nullptr;
+		QSemaphore* frameAvailableSemaphore = nullptr;
 
 		FrameData decodedFrameData;
 	};

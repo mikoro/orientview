@@ -210,7 +210,7 @@ bool VideoDecoder::getNextFrame(FrameData* frameData)
 
 					lastFrameTimestamp = frame->best_effort_timestamp;
 
-					if (frameData->duration < 0 || frameData->duration > 1000000)
+					if (frameData->duration <= 0 || frameData->duration > 1000000)
 						frameData->duration = videoInfo.averageFrameDuration;
 
 					av_free_packet(&packet);

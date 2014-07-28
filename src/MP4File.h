@@ -14,15 +14,11 @@ namespace OrientView
 
 	public:
 
-		MP4File();
-
-		bool initialize(const QString& fileName);
-		void shutdown();
-
+		bool open(const QString& fileName);
 		bool setParam(x264_param_t* param);
 		bool writeHeaders(x264_nal_t* nal);
 		bool writeFrame(uint8_t* payload, int size, x264_picture_t* picture);
-		bool finalize(int64_t lastPts);
+		bool close(int64_t lastPts);
 		
 	private:
 
