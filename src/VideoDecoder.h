@@ -39,7 +39,7 @@ namespace OrientView
 		bool initialize(const QString& fileName, Settings* settings);
 		void shutdown();
 
-		bool getNextFrame(FrameData* frameData);
+		bool getNextFrame(FrameData* frameData, FrameData* frameDataGrayscale);
 
 		VideoInfo getVideoInfo() const;
 
@@ -54,10 +54,14 @@ namespace OrientView
 		AVFrame* frame = nullptr;
 		AVPacket packet;
 		SwsContext* swsContext = nullptr;
+		SwsContext* swsContextGrayscale = nullptr;
 		AVPicture* convertedPicture = nullptr;
+		AVPicture* convertedPictureGrayscale = nullptr;
 		int64_t lastFrameTimestamp = 0;
 		int frameCountDivisor = 0;
 		int frameDurationDivisor = 0;
+		bool stabilizationEnabled = false;
+		int imageSizeDivisor = 0;
 		VideoInfo videoInfo;
 	};
 }

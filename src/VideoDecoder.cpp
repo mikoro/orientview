@@ -116,6 +116,19 @@ bool VideoDecoder::initialize(const QString& fileName, Settings* settings)
 		if (avpicture_alloc(convertedPicture, PIX_FMT_RGBA, videoInfo.frameWidth, videoInfo.frameHeight) < 0)
 			throw std::runtime_error("Could not allocate conversion picture");
 
+		stabilizationEnabled = settings->stabilization.enabled;
+		imageSizeDivisor = settings->stabilization.imageSizeDivisor;
+		
+		swsContextGrayscale = sws_getContext(videoInfo.frameWidth, videoInfo.frameHeight, videoCodecContext->pix_fmt, videoInfo.frameWidth / imageSizeDivisor, videoInfo.frameHeight / imageSizeDivisor, PIX_FMT_GRAY8, SWS_BILINEAR, nullptr, nullptr, nullptr);
+
+		if (!swsContextGrayscale)
+			throw std::runtime_error("Could not get sws grayscale context");
+
+		convertedPictureGrayscale = new AVPicture();
+
+		if (avpicture_alloc(convertedPictureGrayscale, PIX_FMT_GRAY8, videoInfo.frameWidth / imageSizeDivisor, videoInfo.frameHeight / imageSizeDivisor) < 0)
+			throw std::runtime_error("Could not allocate grayscale conversion picture");
+
 		frameCountDivisor = settings->decoder.frameCountDivisor;
 		frameDurationDivisor = settings->decoder.frameDurationDivisor;
 
@@ -158,6 +171,18 @@ void VideoDecoder::shutdown()
 		frame = nullptr;
 	}
 
+	if (swsContextGrayscale != nullptr)
+	{
+		sws_freeContext(swsContextGrayscale);
+		swsContextGrayscale = nullptr;
+	}
+
+	if (convertedPictureGrayscale != nullptr)
+	{
+		avpicture_free(convertedPictureGrayscale);
+		convertedPictureGrayscale = nullptr;
+	}
+
 	if (swsContext != nullptr)
 	{
 		sws_freeContext(swsContext);
@@ -173,14 +198,16 @@ void VideoDecoder::shutdown()
 	videoStream = nullptr;
 	videoStreamIndex = -1;
 	lastFrameTimestamp = 0;
-	frameCountDivisor = 1;
-	int frameDurationDivisor = 1;
+	frameCountDivisor = 0;
+	int frameDurationDivisor = 0;
+	stabilizationEnabled = false;
+	imageSizeDivisor = 0;
 	videoInfo = VideoInfo();
 
 	isInitialized = false;
 }
 
-bool VideoDecoder::getNextFrame(FrameData* frameData)
+bool VideoDecoder::getNextFrame(FrameData* frameData, FrameData* frameDataGrayscale)
 {
 	if (!isInitialized)
 		return false;
@@ -217,10 +244,10 @@ bool VideoDecoder::getNextFrame(FrameData* frameData)
 					sws_scale(swsContext, frame->data, frame->linesize, 0, frame->height, convertedPicture->data, convertedPicture->linesize);
 
 					frameData->data = convertedPicture->data[0];
-					frameData->dataLength = frame->height * convertedPicture->linesize[0];
+					frameData->dataLength = videoInfo.frameHeight * convertedPicture->linesize[0];
 					frameData->rowLength = convertedPicture->linesize[0];
-					frameData->width = videoCodecContext->width;
-					frameData->height = frame->height;
+					frameData->width = videoInfo.frameWidth;
+					frameData->height = videoInfo.frameHeight;
 					frameData->duration = (int)av_rescale((frame->best_effort_timestamp - lastFrameTimestamp) * 1000000 / frameDurationDivisor, videoStream->time_base.num, videoStream->time_base.den);
 					frameData->number = videoInfo.currentFrameNumber;
 
@@ -228,6 +255,19 @@ bool VideoDecoder::getNextFrame(FrameData* frameData)
 
 					if (frameData->duration <= 0 || frameData->duration > 1000000)
 						frameData->duration = videoInfo.averageFrameDuration;
+
+					if (stabilizationEnabled && frameDataGrayscale != nullptr)
+					{
+						sws_scale(swsContextGrayscale, frame->data, frame->linesize, 0, frame->height, convertedPictureGrayscale->data, convertedPictureGrayscale->linesize);
+
+						frameDataGrayscale->data = convertedPictureGrayscale->data[0];
+						frameDataGrayscale->dataLength = videoInfo.frameHeight / imageSizeDivisor * convertedPictureGrayscale->linesize[0];
+						frameDataGrayscale->rowLength = convertedPictureGrayscale->linesize[0];
+						frameDataGrayscale->width = videoInfo.frameWidth / imageSizeDivisor;
+						frameDataGrayscale->height = videoInfo.frameHeight / imageSizeDivisor;
+						frameDataGrayscale->duration = frameData->duration;
+						frameDataGrayscale->number = frameData->number;
+					}
 
 					av_free_packet(&packet);
 					return true;

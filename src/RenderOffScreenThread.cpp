@@ -107,6 +107,7 @@ void RenderOffScreenThread::shutdown()
 void RenderOffScreenThread::run()
 {
 	FrameData decodedFrameData;
+	FrameData decodedFrameDataGrayscale;
 	QOpenGLPixelTransferOptions options;
 
 	frameReadSemaphore->release(1);
@@ -120,7 +121,7 @@ void RenderOffScreenThread::run()
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-		if (videoDecoderThread->getNextFrame(&decodedFrameData))
+		if (videoDecoderThread->getNextFrame(&decodedFrameData, &decodedFrameDataGrayscale))
 		{
 			options.setRowLength(decodedFrameData.rowLength / BYTES_PER_PIXEL);
 			options.setImageHeight(decodedFrameData.height);

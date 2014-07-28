@@ -9,7 +9,7 @@ namespace OrientView
 {
 	struct FrameData
 	{
-		uint8_t* data = nullptr; // RGBA8888 0xRRGGBBAA
+		uint8_t* data = nullptr;
 		int dataLength = 0;
 		int rowLength = 0;
 		int width = 0;

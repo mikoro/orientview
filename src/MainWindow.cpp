@@ -152,6 +152,9 @@ void MainWindow::on_pushButtonRun_clicked()
 		if (!quickRouteJpegReader->initialize(ui->lineEditMapFile->text()))
 			throw std::runtime_error("Could not initialize QuickRouteJpegReader");
 
+		if (!videoStabilizer->initialize())
+			throw std::runtime_error("Could not initialize VideoStabilizer");
+
 		videoWindow->show();
 
 		if (!videoWindow->initialize(settings))
@@ -163,7 +166,7 @@ void MainWindow::on_pushButtonRun_clicked()
 		if (!videoDecoderThread->initialize(videoDecoder))
 			throw std::runtime_error("Could not initialize VideoDecoderThread");
 
-		if (!renderOnScreenThread->initialize(this, videoWindow, videoDecoderThread, videoRenderer))
+		if (!renderOnScreenThread->initialize(this, videoWindow, videoDecoderThread, videoStabilizer, videoRenderer))
 			throw std::runtime_error("Could not initialize RenderOnScreenThread");
 
 		videoWindow->getContext()->doneCurrent();
@@ -206,6 +209,9 @@ void MainWindow::on_pushButtonEncode_clicked()
 
 		if (!quickRouteJpegReader->initialize(ui->lineEditMapFile->text()))
 			throw std::runtime_error("Could not initialize QuickRouteJpegReader");
+
+		if (!videoStabilizer->initialize())
+			throw std::runtime_error("Could not initialize VideoStabilizer");
 
 		if (!encodeWindow->initialize(settings))
 			throw std::runtime_error("Could not initialize EncodeWindow");
@@ -263,6 +269,7 @@ void MainWindow::videoWindowClosing()
 
 	videoRenderer->shutdown();
 	videoWindow->shutdown();
+	videoStabilizer->shutdown();
 	quickRouteJpegReader->shutdown();
 	videoDecoder->shutdown();
 	settings->shutdown();
@@ -292,6 +299,7 @@ void MainWindow::encodeWindowClosing()
 
 	videoRenderer->shutdown();
 	encodeWindow->shutdown();
+	videoStabilizer->shutdown();
 	quickRouteJpegReader->shutdown();
 	videoEncoder->shutdown();
 	videoDecoder->shutdown();

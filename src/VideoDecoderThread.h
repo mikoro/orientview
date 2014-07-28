@@ -23,7 +23,7 @@ namespace OrientView
 		bool initialize(VideoDecoder* videoDecoder);
 		void shutdown();
 
-		bool getNextFrame(FrameData* frameData);
+		bool getNextFrame(FrameData* frameData, FrameData* frameDataGrayscale);
 		void signalFrameRead();
 
 	protected:
@@ -38,5 +38,6 @@ namespace OrientView
 		QSemaphore* frameAvailableSemaphore = nullptr;
 
 		FrameData decodedFrameData;
+		FrameData decodedFrameDataGrayscale;
 	};
 }

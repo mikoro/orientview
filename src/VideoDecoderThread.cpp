@@ -19,6 +19,7 @@ bool VideoDecoderThread::initialize(VideoDecoder* videoDecoder)
 	frameReadSemaphore = new QSemaphore();
 	frameAvailableSemaphore = new QSemaphore();
 	decodedFrameData = FrameData();
+	decodedFrameDataGrayscale = FrameData();
 
 	return true;
 }
@@ -51,14 +52,14 @@ void VideoDecoderThread::run()
 		if (isInterruptionRequested())
 			break;
 
-		if (videoDecoder->getNextFrame(&decodedFrameData))
+		if (videoDecoder->getNextFrame(&decodedFrameData, &decodedFrameDataGrayscale))
 			frameAvailableSemaphore->release(1);
 		else
 			QThread::msleep(20);
 	}
 }
 
-bool VideoDecoderThread::getNextFrame(FrameData* frameData)
+bool VideoDecoderThread::getNextFrame(FrameData* frameData, FrameData* frameDataGrayscale)
 {
 	if (frameAvailableSemaphore->tryAcquire(1, 20))
 	{
@@ -69,6 +70,14 @@ bool VideoDecoderThread::getNextFrame(FrameData* frameData)
 		frameData->height = decodedFrameData.height;
 		frameData->duration = decodedFrameData.duration;
 		frameData->number = decodedFrameData.number;
+
+		frameDataGrayscale->data = decodedFrameDataGrayscale.data;
+		frameDataGrayscale->dataLength = decodedFrameDataGrayscale.dataLength;
+		frameDataGrayscale->rowLength = decodedFrameDataGrayscale.rowLength;
+		frameDataGrayscale->width = decodedFrameDataGrayscale.width;
+		frameDataGrayscale->height = decodedFrameDataGrayscale.height;
+		frameDataGrayscale->duration = decodedFrameDataGrayscale.duration;
+		frameDataGrayscale->number = decodedFrameDataGrayscale.number;
 
 		return true;
 	}

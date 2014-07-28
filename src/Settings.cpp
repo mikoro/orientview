@@ -36,6 +36,9 @@ bool Settings::initialize(const QString& fileName)
 	appearance.mapPanelWidth = settings.value("appearance/mapPanelWidth", 0.3f).toFloat();
 	appearance.showInfoPanel = settings.value("appearance/showInfoPanel", false).toBool();
 
+	stabilization.enabled = settings.value("stabilization/enabled", true).toBool();
+	stabilization.imageSizeDivisor = settings.value("stabilization/imageSizeDivisor", 1).toInt();
+
 	decoder.frameCountDivisor = settings.value("decoder/frameCountDivisor", 1).toInt();
 	decoder.frameDurationDivisor = settings.value("decoder/frameDurationDivisor", 1).toInt();
 

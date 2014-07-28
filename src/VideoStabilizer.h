@@ -7,6 +7,8 @@
 
 namespace OrientView
 {
+	struct FrameData;
+
 	class VideoStabilizer
 	{
 
@@ -16,6 +18,8 @@ namespace OrientView
 
 		bool initialize();
 		void shutdown();
+
+		void processFrame(FrameData* frameDataGrayscale);
 
 	private:
 

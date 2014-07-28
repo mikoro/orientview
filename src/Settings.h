@@ -22,8 +22,8 @@ namespace OrientView
 			int width = 0;
 			int height = 0;
 			int multisamples = 0;
-			bool fullscreen;
-			bool hideCursor;
+			bool fullscreen = false;
+			bool hideCursor = false;
 
 		} display;
 
@@ -37,9 +37,16 @@ namespace OrientView
 		struct Appearance
 		{
 			float mapPanelWidth = 0.0f;
-			bool showInfoPanel;
+			bool showInfoPanel = false;
 
 		} appearance;
+
+		struct Stabilization
+		{
+			bool enabled = true;
+			int imageSizeDivisor = 0;
+
+		} stabilization;
 
 		struct Decoder
 		{

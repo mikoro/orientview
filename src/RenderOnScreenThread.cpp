@@ -7,8 +7,9 @@
 #include "RenderOnScreenThread.h"
 #include "MainWindow.h"
 #include "VideoWindow.h"
-#include "VideoRenderer.h"
 #include "VideoDecoderThread.h"
+#include "VideoStabilizer.h"
+#include "VideoRenderer.h"
 #include "FrameData.h"
 
 #define BYTES_PER_PIXEL 4
@@ -19,13 +20,14 @@ RenderOnScreenThread::RenderOnScreenThread()
 {
 }
 
-bool RenderOnScreenThread::initialize(MainWindow* mainWindow, VideoWindow* videoWindow, VideoDecoderThread* videoDecoderThread, VideoRenderer* videoRenderer)
+bool RenderOnScreenThread::initialize(MainWindow* mainWindow, VideoWindow* videoWindow, VideoDecoderThread* videoDecoderThread, VideoStabilizer* videoStabilizer, VideoRenderer* videoRenderer)
 {
 	qDebug("Initializing RenderOnScreenThread");
 
 	this->mainWindow = mainWindow;
 	this->videoWindow = videoWindow;
 	this->videoDecoderThread = videoDecoderThread;
+	this->videoStabilizer = videoStabilizer;
 	this->videoRenderer = videoRenderer;
 
 	return true;
@@ -39,6 +41,7 @@ void RenderOnScreenThread::shutdown()
 void RenderOnScreenThread::run()
 {
 	FrameData frameData;
+	FrameData frameDataGrayscale;
 	QOpenGLPixelTransferOptions options;
 	QElapsedTimer displayTimer;
 
@@ -58,13 +61,14 @@ void RenderOnScreenThread::run()
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-		if (videoDecoderThread->getNextFrame(&frameData))
+		if (videoDecoderThread->getNextFrame(&frameData, &frameDataGrayscale))
 		{
 			options.setRowLength(frameData.rowLength / BYTES_PER_PIXEL);
 			options.setImageHeight(frameData.height);
 			options.setAlignment(1);
 
 			videoRenderer->getVideoPanelTexture()->setData(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, frameData.data, &options);
+			videoStabilizer->processFrame(&frameDataGrayscale);
 			videoDecoderThread->signalFrameRead();
 
 			videoRenderer->update(videoWindow->width(), videoWindow->height());
