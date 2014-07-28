@@ -22,6 +22,8 @@ namespace OrientView
 			int width = 0;
 			int height = 0;
 			int multisamples = 0;
+			bool fullscreen;
+			bool hideCursor;
 
 		} display;
 
@@ -32,6 +34,13 @@ namespace OrientView
 
 		} shaders;
 
+		struct Appearance
+		{
+			float mapPanelWidth = 0.0f;
+			bool showInfoPanel;
+
+		} appearance;
+
 		struct Encoder
 		{
 			QString preset;
@@ -39,11 +48,5 @@ namespace OrientView
 			int constantRateFactor = 0;
 
 		} encoder;
-
-		struct Appearance
-		{
-			float mapPanelWidth = 0.0f;
-
-		} appearance;
 	};
 }

@@ -27,15 +27,18 @@ bool Settings::initialize(const QString& fileName)
 	display.width = settings.value("display/width", 1280).toInt();
 	display.height = settings.value("display/height", 720).toInt();
 	display.multisamples = settings.value("display/multisamples", 0).toInt();
+	display.fullscreen = settings.value("display/fullscreen", false).toBool();
+	display.hideCursor = settings.value("display/hideCursor", false).toBool();
 
 	shaders.vertexShaderPath = settings.value("shaders/vertexShaderPath", "data/shaders/basic120.vert").toString();
 	shaders.fragmentShaderPath = settings.value("shaders/fragmentShaderPath", "data/shaders/basic120.frag").toString();
 
+	appearance.mapPanelWidth = settings.value("appearance/mapPanelWidth", 0.3f).toFloat();
+	appearance.showInfoPanel = settings.value("appearance/showInfoPanel", false).toBool();
+
 	encoder.preset = settings.value("encoder/preset", "veryfast").toString();
 	encoder.profile = settings.value("encoder/profile", "high").toString();
 	encoder.constantRateFactor = settings.value("encoder/constantRateFactor", 23).toInt();
-
-	appearance.mapPanelWidth = settings.value("appearance/mapPanelWidth", 0.3f).toFloat();
 
 	return true;
 }

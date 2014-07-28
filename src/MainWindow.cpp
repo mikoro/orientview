@@ -191,7 +191,7 @@ void MainWindow::on_pushButtonRun_clicked()
 
 void MainWindow::on_pushButtonEncode_clicked()
 {
-	QApplication::setOverrideCursor(Qt::WaitCursor);
+	this->setCursor(Qt::WaitCursor);
 
 	try
 	{
@@ -244,7 +244,7 @@ void MainWindow::on_pushButtonEncode_clicked()
 		QMessageBox::critical(this, "OrientView - Error", QString("Could not encode video: %1\n\nPlease check the application log for details.").arg(ex.what()), QMessageBox::Ok);
 	}
 
-	QApplication::restoreOverrideCursor();
+	this->setCursor(Qt::ArrowCursor);
 }
 
 void MainWindow::videoWindowClosing()
@@ -269,12 +269,12 @@ void MainWindow::videoWindowClosing()
 
 	this->show();
 	this->activateWindow();
+
+	QApplication::restoreOverrideCursor();
 }
 
 void MainWindow::encodeWindowClosing()
 {
-	QApplication::setOverrideCursor(Qt::WaitCursor);
-
 	videoEncoderThread->requestInterruption();
 	renderOffScreenThread->requestInterruption();
 	videoDecoderThread->requestInterruption();
@@ -296,8 +296,6 @@ void MainWindow::encodeWindowClosing()
 	videoEncoder->shutdown();
 	videoDecoder->shutdown();
 	settings->shutdown();
-
-	QApplication::restoreOverrideCursor();
 }
 
 void MainWindow::readSettings()

@@ -4,6 +4,7 @@
 #include <QStyle>
 #include <QApplication>
 #include <QDesktopWidget>
+#include <QKeyEvent>
 
 #include "VideoWindow.h"
 #include "Settings.h"
@@ -23,7 +24,9 @@ bool VideoWindow::initialize(Settings* settings)
 	setTitle("OrientView - Video");
 	resize(settings->display.width, settings->display.height);
 	setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, size(), QApplication::desktop()->availableGeometry()));
-
+	setWindowState(settings->display.fullscreen ? Qt::WindowFullScreen : Qt::WindowNoState);
+	setCursor(settings->display.hideCursor ? Qt::BlankCursor : Qt::ArrowCursor);
+	
 	qDebug("Creating OpenGL context");
 
 	QSurfaceFormat surfaceFormat;
@@ -54,6 +57,8 @@ void VideoWindow::shutdown()
 {
 	qDebug("Shutting down VideoWindow");
 
+	QApplication::restoreOverrideCursor();
+
 	if (context != nullptr)
 	{
 		delete context;
@@ -77,6 +82,17 @@ bool VideoWindow::event(QEvent* event)
 {
 	if (event->type() == QEvent::Close)
 		emit closing();
+
+	if (event->type() == QEvent::KeyPress)
+	{
+		QKeyEvent* ke = (QKeyEvent*)event;
+
+		if (ke->key() == Qt::Key_Escape)
+		{
+			emit closing();
+			this->close();
+		}
+	}
 
 	return QWindow::event(event);
 }
