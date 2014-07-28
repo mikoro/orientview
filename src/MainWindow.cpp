@@ -152,7 +152,7 @@ void MainWindow::on_pushButtonRun_clicked()
 		if (!quickRouteJpegReader->initialize(ui->lineEditMapFile->text()))
 			throw std::runtime_error("Could not initialize QuickRouteJpegReader");
 
-		if (!videoStabilizer->initialize())
+		if (!videoStabilizer->initialize(settings))
 			throw std::runtime_error("Could not initialize VideoStabilizer");
 
 		videoWindow->show();
@@ -210,7 +210,7 @@ void MainWindow::on_pushButtonEncode_clicked()
 		if (!quickRouteJpegReader->initialize(ui->lineEditMapFile->text()))
 			throw std::runtime_error("Could not initialize QuickRouteJpegReader");
 
-		if (!videoStabilizer->initialize())
+		if (!videoStabilizer->initialize(settings))
 			throw std::runtime_error("Could not initialize VideoStabilizer");
 
 		if (!encodeWindow->initialize(settings))

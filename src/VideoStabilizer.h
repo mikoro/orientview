@@ -3,10 +3,11 @@
 
 #pragma once
 
-#include <QString>
+#include "opencv2/opencv.hpp"
 
 namespace OrientView
 {
+	class Settings;
 	struct FrameData;
 
 	class VideoStabilizer
@@ -16,12 +17,14 @@ namespace OrientView
 
 		VideoStabilizer();
 
-		bool initialize();
+		bool initialize(Settings* settings);
 		void shutdown();
 
 		void processFrame(FrameData* frameDataGrayscale);
 
 	private:
 
+		bool isFirstImage = true;
+		cv::Mat previousImage;
 	};
 }
