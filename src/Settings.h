@@ -41,6 +41,13 @@ namespace OrientView
 
 		} appearance;
 
+		struct Decoder
+		{
+			int frameCountDivisor = 0;
+			int frameDurationDivisor = 0;
+
+		} decoder;
+
 		struct Encoder
 		{
 			QString preset;

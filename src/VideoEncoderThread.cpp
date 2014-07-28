@@ -45,7 +45,7 @@ void VideoEncoderThread::run()
 
 			emit progressUpdate(renderedFrameData.number, totalFrameCount);
 
-			if (renderedFrameData.number == totalFrameCount)
+			if (renderedFrameData.number >= totalFrameCount)
 				break;
 		}
 	}

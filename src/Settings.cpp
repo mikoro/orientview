@@ -36,6 +36,9 @@ bool Settings::initialize(const QString& fileName)
 	appearance.mapPanelWidth = settings.value("appearance/mapPanelWidth", 0.3f).toFloat();
 	appearance.showInfoPanel = settings.value("appearance/showInfoPanel", false).toBool();
 
+	decoder.frameCountDivisor = settings.value("decoder/frameCountDivisor", 1).toInt();
+	decoder.frameDurationDivisor = settings.value("decoder/frameDurationDivisor", 1).toInt();
+
 	encoder.preset = settings.value("encoder/preset", "veryfast").toString();
 	encoder.profile = settings.value("encoder/profile", "high").toString();
 	encoder.constantRateFactor = settings.value("encoder/constantRateFactor", 23).toInt();

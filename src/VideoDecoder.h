@@ -14,6 +14,7 @@ extern "C"
 
 namespace OrientView
 {
+	class Settings;
 	struct FrameData;
 
 	struct VideoInfo
@@ -35,7 +36,7 @@ namespace OrientView
 
 		VideoDecoder();
 
-		bool initialize(const QString& fileName);
+		bool initialize(const QString& fileName, Settings* settings);
 		void shutdown();
 
 		bool getNextFrame(FrameData* frameData);
@@ -55,6 +56,8 @@ namespace OrientView
 		SwsContext* swsContext = nullptr;
 		AVPicture* convertedPicture = nullptr;
 		int64_t lastFrameTimestamp = 0;
+		int frameCountDivisor = 0;
+		int frameDurationDivisor = 0;
 		VideoInfo videoInfo;
 	};
 }

@@ -12,6 +12,7 @@ extern "C"
 }
 
 #include "VideoDecoder.h"
+#include "Settings.h"
 #include "FrameData.h"
 
 using namespace OrientView;
@@ -68,7 +69,7 @@ VideoDecoder::VideoDecoder()
 {
 }
 
-bool VideoDecoder::initialize(const QString& fileName)
+bool VideoDecoder::initialize(const QString& fileName, Settings* settings)
 {
 	qDebug("Initializing VideoDecoder (%s)", fileName.toLocal8Bit().constData());
 
@@ -115,12 +116,15 @@ bool VideoDecoder::initialize(const QString& fileName)
 		if (avpicture_alloc(convertedPicture, PIX_FMT_RGBA, videoInfo.frameWidth, videoInfo.frameHeight) < 0)
 			throw std::runtime_error("Could not allocate conversion picture");
 
+		frameCountDivisor = settings->decoder.frameCountDivisor;
+		frameDurationDivisor = settings->decoder.frameDurationDivisor;
+
 		videoInfo.frameDataLength = videoInfo.frameHeight * convertedPicture->linesize[0];
-		videoInfo.totalFrameCount = videoStream->nb_frames;
-		videoInfo.averageFrameDuration = (int)av_rescale(1000000, videoStream->avg_frame_rate.den, videoStream->avg_frame_rate.num);
-		videoInfo.averageFrameRateNum = videoStream->avg_frame_rate.num;
+		videoInfo.totalFrameCount = videoStream->nb_frames / frameCountDivisor;
+		videoInfo.averageFrameDuration = (int)av_rescale(1000000 * frameCountDivisor / frameDurationDivisor, videoStream->avg_frame_rate.den, videoStream->avg_frame_rate.num);
+		videoInfo.averageFrameRateNum = videoStream->avg_frame_rate.num / frameCountDivisor * frameDurationDivisor;
 		videoInfo.averageFrameRateDen = videoStream->avg_frame_rate.den;
-		videoInfo.averageFrameRate = (double)videoStream->avg_frame_rate.num / videoStream->avg_frame_rate.den;
+		videoInfo.averageFrameRate = (double)videoInfo.averageFrameRateNum / videoInfo.averageFrameRateDen;
 	}
 	catch (const std::exception& ex)
 	{
@@ -169,6 +173,8 @@ void VideoDecoder::shutdown()
 	videoStream = nullptr;
 	videoStreamIndex = -1;
 	lastFrameTimestamp = 0;
+	frameCountDivisor = 1;
+	int frameDurationDivisor = 1;
 	videoInfo = VideoInfo();
 
 	isInitialized = false;
@@ -179,6 +185,8 @@ bool VideoDecoder::getNextFrame(FrameData* frameData)
 	if (!isInitialized)
 		return false;
 
+	int framesRead = 0;
+
 	while (true)
 	{
 		if (av_read_frame(formatContext, &packet) >= 0)
@@ -187,6 +195,14 @@ bool VideoDecoder::getNextFrame(FrameData* frameData)
 			{
 				int gotPicture = 0;
 				int decodedBytes = avcodec_decode_video2(videoCodecContext, frame, &gotPicture, &packet);
+
+				if (++framesRead < frameCountDivisor)
+				{
+					av_free_packet(&packet);
+					continue;
+				}
+				
+				framesRead = 0;
 				videoInfo.currentFrameNumber++;
 
 				if (decodedBytes < 0)
@@ -205,7 +221,7 @@ bool VideoDecoder::getNextFrame(FrameData* frameData)
 					frameData->rowLength = convertedPicture->linesize[0];
 					frameData->width = videoCodecContext->width;
 					frameData->height = frame->height;
-					frameData->duration = (int)av_rescale((frame->best_effort_timestamp - lastFrameTimestamp) * 1000000, videoStream->time_base.num, videoStream->time_base.den);
+					frameData->duration = (int)av_rescale((frame->best_effort_timestamp - lastFrameTimestamp) * 1000000 / frameDurationDivisor, videoStream->time_base.num, videoStream->time_base.den);
 					frameData->number = videoInfo.currentFrameNumber;
 
 					lastFrameTimestamp = frame->best_effort_timestamp;

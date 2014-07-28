@@ -146,7 +146,7 @@ void MainWindow::on_pushButtonRun_clicked()
 		if (!settings->initialize(ui->lineEditSettingsFile->text()))
 			throw std::runtime_error("Could not initialize Settings");
 
-		if(!videoDecoder->initialize(ui->lineEditVideoFile->text()))
+		if(!videoDecoder->initialize(ui->lineEditVideoFile->text(), settings))
 			throw std::runtime_error("Could not initialize VideoDecoder");
 
 		if (!quickRouteJpegReader->initialize(ui->lineEditMapFile->text()))
@@ -198,7 +198,7 @@ void MainWindow::on_pushButtonEncode_clicked()
 		if (!settings->initialize(ui->lineEditSettingsFile->text()))
 			throw std::runtime_error("Could not initialize Settings");
 
-		if (!videoDecoder->initialize(ui->lineEditVideoFile->text()))
+		if (!videoDecoder->initialize(ui->lineEditVideoFile->text(), settings))
 			throw std::runtime_error("Could not initialize VideoDecoder");
 
 		if (!videoEncoder->initialize(ui->lineEditOutputVideoFile->text(), videoDecoder, settings))
