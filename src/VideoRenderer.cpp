@@ -135,6 +135,17 @@ void VideoRenderer::shutdown()
 		delete shaderProgram;
 		shaderProgram = nullptr;
 	}
+
+	videoFrameWidth = 0;
+	videoFrameHeight = 0;
+	mapImageWidth = 0;
+	mapImageHeight = 0;
+	flipOutput = false;
+	vertexMatrixUniform = 0;
+	textureMatrixUniform = 0;
+	textureSamplerUniform = 0;
+	vertexCoordAttribute = 0;
+	textureCoordAttribute = 0;
 }
 
 void VideoRenderer::update(int windowWidth, int windowHeight)
@@ -210,14 +221,24 @@ void VideoRenderer::update(int windowWidth, int windowHeight)
 	mapPanelBuffer->release();
 
 	videoVertexMatrix.setToIdentity();
-	videoTextureMatrix.setToIdentity();
 	mapVertexMatrix.setToIdentity();
+	videoTextureMatrix.setToIdentity();
 	mapTextureMatrix.setToIdentity();
 
-	videoVertexMatrix.ortho(0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f);
-	mapVertexMatrix.ortho(0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f);
-
-	mapTextureMatrix.scale(5.0f);
+	if (!flipOutput)
+	{
+		videoVertexMatrix.ortho(0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f);
+		mapVertexMatrix.ortho(0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f);
+		videoTextureMatrix.setToIdentity();
+		mapTextureMatrix.setToIdentity();
+	}
+	else
+	{
+		videoVertexMatrix.ortho(0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f);
+		mapVertexMatrix.ortho(0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f);
+		videoTextureMatrix.setToIdentity();
+		mapTextureMatrix.setToIdentity();
+	}
 }
 
 void VideoRenderer::render()
@@ -264,6 +285,11 @@ void VideoRenderer::render()
 	mapPanelTexture->release();
 
 	shaderProgram->release();
+}
+
+void VideoRenderer::setFlipOutput(bool value)
+{
+	flipOutput = value;
 }
 
 QOpenGLTexture* VideoRenderer::getVideoPanelTexture()

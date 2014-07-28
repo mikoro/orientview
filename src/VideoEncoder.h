@@ -17,6 +17,7 @@ namespace OrientView
 	class VideoDecoder;
 	class Settings;
 	class FrameData;
+	class MP4File;
 
 	class VideoEncoder
 	{
@@ -36,5 +37,7 @@ namespace OrientView
 		x264_t* encoder = nullptr;
 		x264_picture_t* convertedPicture = nullptr;
 		SwsContext* swsContext = nullptr;
+		MP4File* mp4File = nullptr;
+		int64_t frameNumber = 0;
 	};
 }

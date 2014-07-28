@@ -27,6 +27,8 @@ namespace OrientView
 		void update(int windowWidth, int windowHeight);
 		void render();
 
+		void setFlipOutput(bool value);
+
 		QOpenGLTexture* getVideoPanelTexture();
 
 	private:
@@ -35,6 +37,7 @@ namespace OrientView
 		int videoFrameHeight = 0;
 		int mapImageWidth = 0;
 		int mapImageHeight = 0;
+		bool flipOutput = false;
 
 		QOpenGLShaderProgram* shaderProgram = nullptr;
 		QOpenGLBuffer* videoPanelBuffer = nullptr;

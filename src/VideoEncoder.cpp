@@ -5,6 +5,7 @@
 #include "VideoDecoder.h"
 #include "Settings.h"
 #include "FrameData.h"
+#include "MP4File.h"
 
 namespace
 {
@@ -61,8 +62,8 @@ bool VideoEncoder::initialize(const QString& fileName, VideoDecoder* videoDecode
 	param.i_csp = X264_CSP_I420;
 	param.rc.i_rc_method = X264_RC_CRF;
 	param.rc.f_rf_constant = settings->encoder.constantRateFactor;
-	//param.pf_log = x264_log;
-	param.i_log_level = X264_LOG_DEBUG;
+	//param.pf_log = x264_log; // enabling log makes things unstable
+	param.i_log_level = X264_LOG_NONE;
 	
 	x264_param_apply_fastfirstpass(&param);
 
@@ -96,7 +97,30 @@ bool VideoEncoder::initialize(const QString& fileName, VideoDecoder* videoDecode
 	swsContext = sws_getContext(settings->display.width, settings->display.height, PIX_FMT_RGBA, settings->display.width, settings->display.height, PIX_FMT_YUV420P, SWS_BILINEAR, nullptr, nullptr, nullptr);
 
 	if (!swsContext)
-		throw std::runtime_error("Could not get sws context");
+	{
+		qWarning("Could not get sws context");
+		return false;
+	}
+
+	mp4File = new MP4File();
+
+	if (!mp4File->initialize(fileName))
+		return false;
+
+	if (!mp4File->setParam(&param))
+		return false;
+
+	x264_nal_t* nal;
+	int nalCount;
+
+	if (x264_encoder_headers(encoder, &nal, &nalCount) < 0)
+	{
+		qWarning("Could not get encoder headers");
+		return false;
+	}
+
+	if (!mp4File->writeHeaders(nal))
+		return false;
 
 	return true;
 }
@@ -104,6 +128,14 @@ bool VideoEncoder::initialize(const QString& fileName, VideoDecoder* videoDecode
 void VideoEncoder::shutdown()
 {
 	qDebug("Shutting down VideoEncoder");
+
+	if (mp4File != nullptr)
+	{
+		mp4File->finalize(frameNumber);
+		mp4File->shutdown();
+		delete mp4File;
+		mp4File = nullptr;
+	}
 
 	if (swsContext != nullptr)
 	{
@@ -123,6 +155,8 @@ void VideoEncoder::shutdown()
 		x264_encoder_close(encoder);
 		encoder = nullptr;
 	}
+
+	frameNumber = 0;
 }
 
 void VideoEncoder::loadFrameData(FrameData* frameData)
@@ -135,10 +169,13 @@ void VideoEncoder::encodeFrame()
 	x264_picture_t encodedPicture;
 	x264_nal_t* nal;
 	int nalCount;
+
+	convertedPicture->i_pts = frameNumber++;
+
 	int frameSize = x264_encoder_encode(encoder, &nal, &nalCount, convertedPicture, &encodedPicture);
 	
-	if (frameSize < 0)
-	{
+	if (frameSize > 0)
+		mp4File->writeFrame(nal[0].p_payload, frameSize, &encodedPicture);
+	else
 		qWarning("Could not encode frame");
-	}
 }

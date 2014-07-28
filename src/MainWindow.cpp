@@ -169,6 +169,8 @@ void MainWindow::on_pushButtonRun_clicked()
 		videoWindow->getContext()->doneCurrent();
 		videoWindow->getContext()->moveToThread(renderOnScreenThread);
 
+		videoRenderer->setFlipOutput(false);
+
 		videoDecoderThread->start();
 		renderOnScreenThread->start();
 
@@ -225,6 +227,8 @@ void MainWindow::on_pushButtonEncode_clicked()
 
 		encodeWindow->getContext()->doneCurrent();
 		encodeWindow->getContext()->moveToThread(renderOffScreenThread);
+
+		videoRenderer->setFlipOutput(true);
 
 		videoDecoderThread->start();
 		renderOffScreenThread->start();
