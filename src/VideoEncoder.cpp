@@ -7,34 +7,6 @@
 #include "FrameData.h"
 #include "MP4File.h"
 
-namespace
-{
-	void x264_log(void* unused, int level, const char* format, va_list args)
-	{
-		char buffer[1024];
-		vsnprintf(buffer, sizeof(buffer), format, args);
-		
-		switch (level)
-		{
-			case X264_LOG_ERROR:
-				qCritical(buffer);
-				break;
-			case X264_LOG_WARNING:
-				qWarning(buffer);
-				break;
-			case X264_LOG_INFO:
-				qDebug(buffer);
-				break;
-			case X264_LOG_DEBUG:
-				qDebug(buffer);
-				break;
-			default:
-				qDebug(buffer);
-				break;
-		}
-	}
-}
-
 using namespace OrientView;
 
 VideoEncoder::VideoEncoder()
@@ -57,12 +29,11 @@ bool VideoEncoder::initialize(const QString& fileName, VideoDecoder* videoDecode
 	param.i_height = settings->display.height;
 	param.i_fps_num = videoDecoder->getVideoInfo().averageFrameRateNum;
 	param.i_fps_den = videoDecoder->getVideoInfo().averageFrameRateDen;
-	param.i_timebase_num = videoDecoder->getVideoInfo().averageFrameRateDen;
-	param.i_timebase_den = videoDecoder->getVideoInfo().averageFrameRateNum;
+	param.i_timebase_num = param.i_fps_den;
+	param.i_timebase_den = param.i_fps_num;
 	param.i_csp = X264_CSP_I420;
 	param.rc.i_rc_method = X264_RC_CRF;
 	param.rc.f_rf_constant = settings->encoder.constantRateFactor;
-	//param.pf_log = x264_log; // enabling log makes things unstable
 	param.i_log_level = X264_LOG_NONE;
 	
 	x264_param_apply_fastfirstpass(&param);

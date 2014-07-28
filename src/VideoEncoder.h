@@ -16,7 +16,7 @@ namespace OrientView
 {
 	class VideoDecoder;
 	class Settings;
-	class FrameData;
+	struct FrameData;
 	class MP4File;
 
 	class VideoEncoder

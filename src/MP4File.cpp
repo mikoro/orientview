@@ -183,10 +183,10 @@ bool MP4File::writeHeaders(x264_nal_t* nal)
 	mp4Handle->sampleEntry = lsmash_add_sample_entry(mp4Handle->root, mp4Handle->track, mp4Handle->summary);
 	RETURN_IF_ERR(!mp4Handle->sampleEntry, "Failed to add sample entry for video");
 
-	mp4Handle->seiBuffer = (uint8_t*)malloc(seiSize);
+	mp4Handle->seiBuffer = (uint8_t*)malloc((size_t)seiSize);
 	RETURN_IF_ERR(!mp4Handle->seiBuffer, "Failed to allocate sei transition buffer");
 
-	memcpy(mp4Handle->seiBuffer, sei, seiSize);
+	memcpy(mp4Handle->seiBuffer, sei, (size_t)seiSize);
 	mp4Handle->seiSize = seiSize;
 
 	return true;
@@ -205,12 +205,12 @@ bool MP4File::writeFrame(uint8_t* payload, int size, x264_picture_t* picture)
 
 	if (mp4Handle->seiBuffer)
 	{
-		memcpy(p_sample->data, mp4Handle->seiBuffer, mp4Handle->seiSize);
+		memcpy(p_sample->data, mp4Handle->seiBuffer, (size_t)mp4Handle->seiSize);
 		free(mp4Handle->seiBuffer);
 		mp4Handle->seiBuffer = nullptr;
 	}
 
-	memcpy(p_sample->data + mp4Handle->seiSize, payload, size);
+	memcpy(p_sample->data + (size_t)mp4Handle->seiSize, payload, (size_t)size);
 	mp4Handle->seiSize = 0;
 
 	p_sample->dts = (picture->i_dts + mp4Handle->startOffset) * mp4Handle->timeIncrement;

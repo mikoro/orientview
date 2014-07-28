@@ -11,6 +11,8 @@
 #include "VideoDecoderThread.h"
 #include "FrameData.h"
 
+#define BYTES_PER_PIXEL 4
+
 using namespace OrientView;
 
 RenderOnScreenThread::RenderOnScreenThread()
@@ -58,7 +60,7 @@ void RenderOnScreenThread::run()
 
 		if (videoDecoderThread->getNextFrame(&frameData))
 		{
-			options.setRowLength(frameData.rowLength / 4);
+			options.setRowLength(frameData.rowLength / BYTES_PER_PIXEL);
 			options.setImageHeight(frameData.height);
 			options.setAlignment(1);
 

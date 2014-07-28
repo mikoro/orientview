@@ -300,12 +300,12 @@ void MainWindow::encodeWindowClosing()
 
 void MainWindow::readSettings()
 {
-	QSettings settings;
+	QSettings tempSettings;
 
-	ui->lineEditVideoFile->setText(settings.value("mainWindow/videoFile", "").toString());
-	ui->lineEditMapFile->setText(settings.value("mainWindow/mapFile", "").toString());
-	ui->lineEditSettingsFile->setText(settings.value("mainWindow/settingsFile", "").toString());
-	ui->lineEditOutputVideoFile->setText(settings.value("mainWindow/outputVideoFile", "").toString());
+	ui->lineEditVideoFile->setText(tempSettings.value("mainWindow/videoFile", "").toString());
+	ui->lineEditMapFile->setText(tempSettings.value("mainWindow/mapFile", "").toString());
+	ui->lineEditSettingsFile->setText(tempSettings.value("mainWindow/settingsFile", "").toString());
+	ui->lineEditOutputVideoFile->setText(tempSettings.value("mainWindow/outputVideoFile", "").toString());
 
 	if (ui->lineEditSettingsFile->text().isEmpty())
 		ui->lineEditSettingsFile->setText("data/settings/default.ini");
@@ -313,12 +313,12 @@ void MainWindow::readSettings()
 
 void MainWindow::writeSettings()
 {
-	QSettings settings;
+	QSettings tempSettings;
 
-	settings.setValue("mainWindow/videoFile", ui->lineEditVideoFile->text());
-	settings.setValue("mainWindow/mapFile", ui->lineEditMapFile->text());
-	settings.setValue("mainWindow/settingsFile", ui->lineEditSettingsFile->text());
-	settings.setValue("mainWindow/outputVideoFile", ui->lineEditOutputVideoFile->text());
+	tempSettings.setValue("mainWindow/videoFile", ui->lineEditVideoFile->text());
+	tempSettings.setValue("mainWindow/mapFile", ui->lineEditMapFile->text());
+	tempSettings.setValue("mainWindow/settingsFile", ui->lineEditSettingsFile->text());
+	tempSettings.setValue("mainWindow/outputVideoFile", ui->lineEditOutputVideoFile->text());
 }
 
 void MainWindow::closeEvent(QCloseEvent* event)

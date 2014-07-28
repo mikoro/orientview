@@ -12,6 +12,8 @@
 #include "Settings.h"
 #include "FrameData.h"
 
+#define BYTES_PER_PIXEL 4
+
 using namespace OrientView;
 
 RenderOffScreenThread::RenderOffScreenThread()
@@ -55,9 +57,9 @@ bool RenderOffScreenThread::initialize(MainWindow* mainWindow, EncodeWindow* enc
 	}
 
 	renderedFrameData = FrameData();
-	renderedFrameData.dataLength = framebufferWidth * framebufferHeight * 4;
-	renderedFrameData.rowLength = framebufferWidth * 4;
-	renderedFrameData.data = new uint8_t[renderedFrameData.dataLength];
+	renderedFrameData.dataLength = framebufferWidth * framebufferHeight * BYTES_PER_PIXEL;
+	renderedFrameData.rowLength = framebufferWidth * BYTES_PER_PIXEL;
+	renderedFrameData.data = new uint8_t[(size_t)renderedFrameData.dataLength];
 	renderedFrameData.width = framebufferWidth;
 	renderedFrameData.height = framebufferHeight;
 
@@ -120,7 +122,7 @@ void RenderOffScreenThread::run()
 
 		if (videoDecoderThread->getNextFrame(&decodedFrameData))
 		{
-			options.setRowLength(decodedFrameData.rowLength / 4);
+			options.setRowLength(decodedFrameData.rowLength / BYTES_PER_PIXEL);
 			options.setImageHeight(decodedFrameData.height);
 			options.setAlignment(1);
 

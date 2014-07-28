@@ -42,7 +42,7 @@ namespace
 		}
 		else
 		{
-			AVCodecContext* codecContext = formatContext->streams[*streamIndex]->codec;
+			AVCodecContext* codecContext = formatContext->streams[(size_t)*streamIndex]->codec;
 			AVCodec* codec = avcodec_find_decoder(codecContext->codec_id);
 
 			if (!codec)
@@ -91,7 +91,7 @@ bool VideoDecoder::initialize(const QString& fileName)
 		if (!openCodecContext(&videoStreamIndex, formatContext, AVMEDIA_TYPE_VIDEO))
 			throw std::runtime_error("Could not open video codec context");
 
-		videoStream = formatContext->streams[videoStreamIndex];
+		videoStream = formatContext->streams[(size_t)videoStreamIndex];
 		videoCodecContext = videoStream->codec;
 		videoInfo.frameWidth = videoCodecContext->width;
 		videoInfo.frameHeight = videoCodecContext->height;
