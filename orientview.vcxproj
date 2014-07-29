@@ -257,10 +257,11 @@
       <OutputFile>$(OutDir)\$(ProjectName).exe</OutputFile>
       <AdditionalLibraryDirectories>$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>qtmaind.lib;Qt5Cored.lib;Qt5Guid.lib;Qt5Multimediad.lib;Qt5OpenGLd.lib;Qt5Widgetsd.lib;opengl32.lib;avformat.lib;avutil.lib;avcodec.lib;swscale.lib;opencv_core300.lib;opencv_imgcodecs300.lib;opencv_imgproc300.lib;opencv_video300.lib;opencv_videostab300.lib;libx264.dll.lib;liblsmash.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;qtmaind.lib;Qt5Cored.lib;Qt5Guid.lib;Qt5Multimediad.lib;Qt5OpenGLd.lib;Qt5Widgetsd.lib;opencv_core249d.lib;opencv_imgproc249d.lib;opencv_photo249d.lib;opencv_video249d.lib;avformat.lib;avutil.lib;avcodec.lib;swscale.lib;libx264.dll.lib;liblsmash.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>misc\post-build.bat $(Configuration)</Command>
+      <Command>call misc\post-build.bat $(Configuration)
+call misc\post-build-debug.bat</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -281,7 +282,7 @@
       <OutputFile>$(OutDir)\$(ProjectName).exe</OutputFile>
       <AdditionalLibraryDirectories>$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>false</GenerateDebugInformation>
-      <AdditionalDependencies>qtmain.lib;Qt5Core.lib;Qt5Gui.lib;Qt5OpenGL.lib;Qt5Widgets.lib;opengl32.lib;avformat.lib;avutil.lib;avcodec.lib;swscale.lib;opencv_core300.lib;opencv_imgcodecs300.lib;opencv_imgproc300.lib;opencv_video300.lib;opencv_videostab300.lib;libx264.dll.lib;liblsmash.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;qtmain.lib;Qt5Core.lib;Qt5Gui.lib;Qt5Multimedia.lib;Qt5OpenGL.lib;Qt5Widgets.lib;opencv_core249.lib;opencv_imgproc249.lib;opencv_photo249.lib;opencv_video249.lib;avformat.lib;avutil.lib;avcodec.lib;swscale.lib;libx264.dll.lib;liblsmash.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>misc\post-build.bat $(Configuration)</Command>
