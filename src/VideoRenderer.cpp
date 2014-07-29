@@ -4,6 +4,7 @@
 #include "VideoRenderer.h"
 #include "VideoDecoder.h"
 #include "QuickRouteJpegReader.h"
+#include "VideoStabilizer.h"
 #include "Settings.h"
 
 using namespace OrientView;
@@ -12,7 +13,7 @@ VideoRenderer::VideoRenderer()
 {
 }
 
-bool VideoRenderer::initialize(VideoDecoder* videoDecoder, QuickRouteJpegReader* quickRouteJpegReader, Settings* settings)
+bool VideoRenderer::initialize(VideoDecoder* videoDecoder, QuickRouteJpegReader* quickRouteJpegReader, VideoStabilizer* videoStabilizer, Settings* settings)
 {
 	qDebug("Initializing VideoRenderer");
 
@@ -20,7 +21,7 @@ bool VideoRenderer::initialize(VideoDecoder* videoDecoder, QuickRouteJpegReader*
 	this->videoFrameHeight = videoDecoder->getVideoInfo().frameHeight;
 	this->mapImageWidth = quickRouteJpegReader->getMapImage().width();
 	this->mapImageHeight = quickRouteJpegReader->getMapImage().height();
-
+	this->videoStabilizer = videoStabilizer;
 	this->mapPanelWidth = settings->appearance.mapPanelWidth;
 
 	initializeOpenGLFunctions();
@@ -221,25 +222,28 @@ void VideoRenderer::update(int windowWidth, int windowHeight)
 	mapPanelBuffer->write(0, mapPanelBufferData, sizeof(GLfloat) * 16);
 	mapPanelBuffer->release();
 
-	videoVertexMatrix.setToIdentity();
-	mapVertexMatrix.setToIdentity();
-	videoTextureMatrix.setToIdentity();
-	mapTextureMatrix.setToIdentity();
+	videoPanelVertexMatrix.setToIdentity();
+	mapPanelVertexMatrix.setToIdentity();
+	videoPanelTextureMatrix.setToIdentity();
+	mapPanelTextureMatrix.setToIdentity();
 
 	if (!flipOutput)
 	{
-		videoVertexMatrix.ortho(0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f);
-		mapVertexMatrix.ortho(0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f);
-		videoTextureMatrix.setToIdentity();
-		mapTextureMatrix.setToIdentity();
+		videoPanelVertexMatrix.ortho(0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f);
+		mapPanelVertexMatrix.ortho(0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f);
+		videoPanelTextureMatrix.setToIdentity();
+		mapPanelTextureMatrix.setToIdentity();
 	}
 	else
 	{
-		videoVertexMatrix.ortho(0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f);
-		mapVertexMatrix.ortho(0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f);
-		videoTextureMatrix.setToIdentity();
-		mapTextureMatrix.setToIdentity();
+		videoPanelVertexMatrix.ortho(0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f);
+		mapPanelVertexMatrix.ortho(0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f);
+		videoPanelTextureMatrix.setToIdentity();
+		mapPanelTextureMatrix.setToIdentity();
 	}
+
+	videoPanelVertexMatrix.translate(-videoStabilizer->getX(), videoStabilizer->getY(), 0);
+	//videoPanelVertexMatrix.rotate(90.0, 0, 0, 1);
 }
 
 void VideoRenderer::render()
@@ -249,8 +253,8 @@ void VideoRenderer::render()
 
 	// VIDEO
 
-	shaderProgram->setUniformValue(vertexMatrixUniform, videoVertexMatrix);
-	shaderProgram->setUniformValue(textureMatrixUniform, videoTextureMatrix);
+	shaderProgram->setUniformValue(vertexMatrixUniform, videoPanelVertexMatrix);
+	shaderProgram->setUniformValue(textureMatrixUniform, videoPanelTextureMatrix);
 
 	videoPanelBuffer->bind();
 	videoPanelTexture->bind();
@@ -268,8 +272,8 @@ void VideoRenderer::render()
 
 	// MAP
 
-	shaderProgram->setUniformValue(vertexMatrixUniform, mapVertexMatrix);
-	shaderProgram->setUniformValue(textureMatrixUniform, mapTextureMatrix);
+	shaderProgram->setUniformValue(vertexMatrixUniform, mapPanelVertexMatrix);
+	shaderProgram->setUniformValue(textureMatrixUniform, mapPanelTextureMatrix);
 
 	mapPanelBuffer->bind();
 	mapPanelTexture->bind();

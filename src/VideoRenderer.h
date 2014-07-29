@@ -12,6 +12,7 @@ namespace OrientView
 {
 	class VideoDecoder;
 	class QuickRouteJpegReader;
+	class VideoStabilizer;
 	class Settings;
 
 	class VideoRenderer : protected QOpenGLFunctions
@@ -21,7 +22,7 @@ namespace OrientView
 
 		VideoRenderer();
 
-		bool initialize(VideoDecoder* videoDecoder, QuickRouteJpegReader* quickRouteJpegReader, Settings* settings);
+		bool initialize(VideoDecoder* videoDecoder, QuickRouteJpegReader* quickRouteJpegReader, VideoStabilizer* videoStabilizer, Settings* settings);
 		void shutdown();
 
 		void update(int windowWidth, int windowHeight);
@@ -42,16 +43,18 @@ namespace OrientView
 
 		bool flipOutput = false;
 
+		VideoStabilizer* videoStabilizer = nullptr;
+
 		QOpenGLShaderProgram* shaderProgram = nullptr;
 		QOpenGLBuffer* videoPanelBuffer = nullptr;
 		QOpenGLTexture* videoPanelTexture = nullptr;
 		QOpenGLBuffer* mapPanelBuffer = nullptr;
 		QOpenGLTexture* mapPanelTexture = nullptr;
 		
-		QMatrix4x4 videoVertexMatrix;
-		QMatrix4x4 videoTextureMatrix;
-		QMatrix4x4 mapVertexMatrix;
-		QMatrix4x4 mapTextureMatrix;
+		QMatrix4x4 videoPanelVertexMatrix;
+		QMatrix4x4 videoPanelTextureMatrix;
+		QMatrix4x4 mapPanelVertexMatrix;
+		QMatrix4x4 mapPanelTextureMatrix;
 
 		GLuint vertexMatrixUniform = 0;
 		GLuint textureMatrixUniform = 0;

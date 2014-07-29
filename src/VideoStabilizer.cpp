@@ -18,12 +18,17 @@ bool VideoStabilizer::initialize(Settings* settings)
 
 	isFirstImage = true;
 
+	output.setFileName("data.txt");
+	output.open(QIODevice::ReadWrite);
+
 	return true;
 }
 
 void VideoStabilizer::shutdown()
 {
 	qDebug("Shutting down VideoStabilizer");
+
+	output.close();
 }
 
 void VideoStabilizer::processFrame(FrameData* frameDataGrayscale)
@@ -35,27 +40,18 @@ void VideoStabilizer::processFrame(FrameData* frameDataGrayscale)
 		previousImage = cv::Mat(frameDataGrayscale->height, frameDataGrayscale->width, CV_8UC1);
 		currentImage.copyTo(previousImage);
 		isFirstImage = false;
+
 		return;
 	}
 
-	//cv::imshow("Display window", previousImage);
-	//cv::waitKey(0);
-
-	std::vector<cv::Point2f> previousCorners;
-	std::vector<cv::Point2f> currentCorners;
-	std::vector<cv::Point2f> previousCornersFiltered;
-	std::vector<cv::Point2f> currentCornersFiltered;
-	std::vector<uchar> status;
-	std::vector<float> error;
-
 	cv::goodFeaturesToTrack(previousImage, previousCorners, 200, 0.01, 30.0);
-	cv::calcOpticalFlowPyrLK(previousImage, currentImage, previousCorners, currentCorners, status, error);
+	cv::calcOpticalFlowPyrLK(previousImage, currentImage, previousCorners, currentCorners, opticalFlowStatus, opticalFlowError);
 
 	currentImage.copyTo(previousImage);
 
-	for (size_t i = 0; i < status.size(); i++)
+	for (size_t i = 0; i < opticalFlowStatus.size(); i++)
 	{
-		if (status[i])
+		if (opticalFlowStatus[i])
 		{
 			previousCornersFiltered.push_back(previousCorners[i]);
 			currentCornersFiltered.push_back(currentCorners[i]);
@@ -64,9 +60,40 @@ void VideoStabilizer::processFrame(FrameData* frameDataGrayscale)
 
 	cv::Mat transform = cv::estimateRigidTransform(previousCornersFiltered, currentCornersFiltered, false);
 	
-	double dx = transform.at<double>(0, 2);
-	double dy = transform.at<double>(1, 2);
-	double da = atan2(transform.at<double>(1, 0), transform.at<double>(0, 0));
+	deltaX = transform.at<double>(0, 2) / frameDataGrayscale->width;
+	deltaY = transform.at<double>(1, 2) / frameDataGrayscale->height;
+	deltaAngle = atan2(transform.at<double>(1, 0), transform.at<double>(0, 0));
 
-	qDebug("dx: %f dy: %f da: %f", dx, dy, da);
+	accumulatedX += deltaX;
+	accumulatedY += deltaY;
+	accumulatedAngle += deltaAngle;
+
+	accumulatedX -= accumulatedX / 10;
+	accumulatedY -= accumulatedY / 10;
+	accumulatedAngle -= accumulatedAngle / 10;
+
+	previousCorners.clear();
+	currentCorners.clear();
+	previousCornersFiltered.clear();
+	currentCornersFiltered.clear();
+	opticalFlowStatus.clear();
+	opticalFlowError.clear();
+
+	//output.write(QString::number(da).toLocal8Bit().constData());
+	//output.write("\n");
+}
+
+double VideoStabilizer::getX() const
+{
+	return accumulatedX;
+}
+
+double VideoStabilizer::getY() const
+{
+	return accumulatedY;
+}
+
+double VideoStabilizer::getAngle() const
+{
+	return accumulatedAngle;
 }
