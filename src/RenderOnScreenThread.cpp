@@ -2,17 +2,15 @@
 // License: GPLv3, see the LICENSE file.
 
 #include <QElapsedTimer>
-#include <QOpenGLPixelTransferOptions>
 
 #include "RenderOnScreenThread.h"
 #include "MainWindow.h"
 #include "VideoWindow.h"
+#include "VideoDecoder.h"
 #include "VideoDecoderThread.h"
 #include "VideoStabilizer.h"
 #include "VideoRenderer.h"
-#include "FrameData.h"
-
-#define BYTES_PER_PIXEL 4
+#include "Settings.h"
 
 using namespace OrientView;
 
@@ -20,15 +18,18 @@ RenderOnScreenThread::RenderOnScreenThread()
 {
 }
 
-bool RenderOnScreenThread::initialize(MainWindow* mainWindow, VideoWindow* videoWindow, VideoDecoderThread* videoDecoderThread, VideoStabilizer* videoStabilizer, VideoRenderer* videoRenderer)
+bool RenderOnScreenThread::initialize(MainWindow* mainWindow, VideoWindow* videoWindow, VideoDecoder* videoDecoder, VideoDecoderThread* videoDecoderThread, VideoStabilizer* videoStabilizer, VideoRenderer* videoRenderer, Settings* settings)
 {
 	qDebug("Initializing RenderOnScreenThread");
 
 	this->mainWindow = mainWindow;
 	this->videoWindow = videoWindow;
+	this->videoDecoder = videoDecoder;
 	this->videoDecoderThread = videoDecoderThread;
 	this->videoStabilizer = videoStabilizer;
 	this->videoRenderer = videoRenderer;
+
+	stabilizationEnabled = settings->stabilization.enabled;
 
 	return true;
 }
@@ -42,10 +43,15 @@ void RenderOnScreenThread::run()
 {
 	FrameData frameData;
 	FrameData frameDataGrayscale;
-	QOpenGLPixelTransferOptions options;
-	QElapsedTimer displayTimer;
 
-	displayTimer.start();
+	QElapsedTimer displaySyncTimer;
+	QElapsedTimer spareTimer;
+
+	double frameDuration = 0.0;
+	double spareTime = 0.0;
+
+	displaySyncTimer.start();
+	spareTimer.start();
 
 	while (!isInterruptionRequested())
 	{
@@ -55,43 +61,47 @@ void RenderOnScreenThread::run()
 			continue;
 		}
 
-		videoWindow->getContext()->makeCurrent(videoWindow);
+		bool gotFrame = videoDecoderThread->tryGetNextFrame(&frameData, &frameDataGrayscale);
 
-		glViewport(0, 0, videoWindow->width(), videoWindow->height());
-		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-		if (videoDecoderThread->getNextFrame(&frameData, &frameDataGrayscale))
-		{
-			options.setRowLength(frameData.rowLength / BYTES_PER_PIXEL);
-			options.setImageHeight(frameData.height);
-			options.setAlignment(1);
-
-			videoRenderer->getVideoPanelTexture()->setData(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, frameData.data, &options);
+		if (gotFrame && stabilizationEnabled)
 			videoStabilizer->processFrame(&frameDataGrayscale);
+
+		videoWindow->getContext()->makeCurrent(videoWindow);
+		videoRenderer->startRendering(videoWindow->width(), videoWindow->height());
+
+		if (gotFrame)
+		{
+			videoRenderer->uploadFrameData(&frameData);
 			videoDecoderThread->signalFrameRead();
-
-			videoRenderer->update(videoWindow->width(), videoWindow->height());
-			videoRenderer->render();
-
-			// use combination of normal and spinning wait to sync the frame rate accurately
-			while (true)
-			{
-				int64_t timeToSleep = frameData.duration - (displayTimer.nsecsElapsed() / 1000);
-
-				if (timeToSleep > 2000)
-				{
-					QThread::msleep(1);
-					continue;
-				}
-				else if (timeToSleep > 0)
-					continue;
-				else
-					break;
-			}
+			videoRenderer->renderVideoPanel(videoWindow->width(), videoWindow->height());
 		}
 
-		displayTimer.restart();
+		videoRenderer->renderMapPanel(videoWindow->width(), videoWindow->height());
+		videoRenderer->renderInfoPanel(videoWindow->width(), videoWindow->height(), frameDuration, spareTime);
+		videoRenderer->stopRendering();
+
+		spareTime = videoDecoder->getVideoInfo().averageFrameDuration - (spareTimer.nsecsElapsed() / 1000000.0);
+
+		// use combination of normal and spinning wait to sync the frame rate accurately
+		while (true)
+		{
+			int64_t timeToSleep = frameData.duration - (displaySyncTimer.nsecsElapsed() / 1000);
+
+			if (timeToSleep > 2000)
+			{
+				QThread::msleep(1);
+				continue;
+			}
+			else if (timeToSleep > 0)
+				continue;
+			else
+				break;
+		}
+
+		frameDuration = displaySyncTimer.nsecsElapsed() / 1000000.0;
+		displaySyncTimer.restart();
+		spareTimer.restart();
+
 		videoWindow->getContext()->swapBuffers(videoWindow);
 	}
 

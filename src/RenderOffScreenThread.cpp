@@ -1,18 +1,17 @@
 // Copyright © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
 // License: GPLv3, see the LICENSE file.
 
+#include <QElapsedTimer>
 #include <QOpenGLFramebufferObjectFormat>
-#include <QOpenGLPixelTransferOptions>
 
 #include "RenderOffScreenThread.h"
 #include "MainWindow.h"
 #include "EncodeWindow.h"
 #include "VideoDecoderThread.h"
+#include "VideoStabilizer.h"
 #include "VideoRenderer.h"
 #include "Settings.h"
 #include "FrameData.h"
-
-#define BYTES_PER_PIXEL 4
 
 using namespace OrientView;
 
@@ -20,17 +19,19 @@ RenderOffScreenThread::RenderOffScreenThread()
 {
 }
 
-bool RenderOffScreenThread::initialize(MainWindow* mainWindow, EncodeWindow* encodeWindow, VideoDecoderThread* videoDecoderThread, VideoRenderer* videoRenderer, Settings* settings)
+bool RenderOffScreenThread::initialize(MainWindow* mainWindow, EncodeWindow* encodeWindow, VideoDecoderThread* videoDecoderThread, VideoStabilizer* videoStabilizer, VideoRenderer* videoRenderer, Settings* settings)
 {
 	qDebug("Initializing RenderOffScreenThread");
 
 	this->mainWindow = mainWindow;
 	this->encodeWindow = encodeWindow;
 	this->videoDecoderThread = videoDecoderThread;
+	this->videoStabilizer = videoStabilizer;
 	this->videoRenderer = videoRenderer;
 
 	framebufferWidth = settings->display.width;
 	framebufferHeight = settings->display.height;
+	stabilizationEnabled = settings->stabilization.enabled;
 
 	QOpenGLFramebufferObjectFormat mainFboFormat;
 	mainFboFormat.setSamples(settings->display.multisamples);
@@ -57,8 +58,8 @@ bool RenderOffScreenThread::initialize(MainWindow* mainWindow, EncodeWindow* enc
 	}
 
 	renderedFrameData = FrameData();
-	renderedFrameData.dataLength = framebufferWidth * framebufferHeight * BYTES_PER_PIXEL;
-	renderedFrameData.rowLength = framebufferWidth * BYTES_PER_PIXEL;
+	renderedFrameData.dataLength = framebufferWidth * framebufferHeight * 4;
+	renderedFrameData.rowLength = framebufferWidth * 4;
 	renderedFrameData.data = new uint8_t[(size_t)renderedFrameData.dataLength];
 	renderedFrameData.width = framebufferWidth;
 	renderedFrameData.height = framebufferHeight;
@@ -73,16 +74,16 @@ void RenderOffScreenThread::shutdown()
 {
 	qDebug("Shutting down RenderOffScreenThread");
 
-	if (frameReadSemaphore != nullptr)
-	{
-		delete frameReadSemaphore;
-		frameReadSemaphore = nullptr;
-	}
-
 	if (frameAvailableSemaphore != nullptr)
 	{
 		delete frameAvailableSemaphore;
 		frameAvailableSemaphore = nullptr;
+	}
+
+	if (frameReadSemaphore != nullptr)
+	{
+		delete frameReadSemaphore;
+		frameReadSemaphore = nullptr;
 	}
 
 	if (renderedFrameData.data)
@@ -108,30 +109,29 @@ void RenderOffScreenThread::run()
 {
 	FrameData decodedFrameData;
 	FrameData decodedFrameDataGrayscale;
-	QOpenGLPixelTransferOptions options;
+	QElapsedTimer frameDurationTimer;
 
+	frameDurationTimer.start();
 	frameReadSemaphore->release(1);
 
 	while (!isInterruptionRequested())
 	{
-		encodeWindow->getContext()->makeCurrent(encodeWindow->getSurface());
-		mainFramebuffer->bind();
-
-		glViewport(0, 0, framebufferWidth, framebufferHeight);
-		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-		if (videoDecoderThread->getNextFrame(&decodedFrameData, &decodedFrameDataGrayscale))
+		if (videoDecoderThread->tryGetNextFrame(&decodedFrameData, &decodedFrameDataGrayscale))
 		{
-			options.setRowLength(decodedFrameData.rowLength / BYTES_PER_PIXEL);
-			options.setImageHeight(decodedFrameData.height);
-			options.setAlignment(1);
+			if (stabilizationEnabled)
+				videoStabilizer->processFrame(&decodedFrameDataGrayscale);
 
-			videoRenderer->getVideoPanelTexture()->setData(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, decodedFrameData.data, &options);
+			encodeWindow->getContext()->makeCurrent(encodeWindow->getSurface());
+			mainFramebuffer->bind();
+
+			videoRenderer->startRendering(framebufferWidth, framebufferHeight);
+			videoRenderer->uploadFrameData(&decodedFrameData);
 			videoDecoderThread->signalFrameRead();
-
-			videoRenderer->update(framebufferWidth, framebufferHeight);
-			videoRenderer->render();
+			videoRenderer->renderVideoPanel(framebufferWidth, framebufferHeight);
+			videoRenderer->renderMapPanel(framebufferWidth, framebufferHeight);
+			videoRenderer->renderInfoPanel(framebufferWidth, framebufferHeight, frameDurationTimer.nsecsElapsed() / 1000000.0, 0.0);
+			frameDurationTimer.restart();
+			videoRenderer->stopRendering();
 
 			while (!frameReadSemaphore->tryAcquire(1, 20) && !isInterruptionRequested()) {}
 
@@ -150,7 +150,7 @@ void RenderOffScreenThread::run()
 	encodeWindow->getContext()->moveToThread(mainWindow->thread());
 }
 
-bool RenderOffScreenThread::getNextFrame(FrameData* frameData)
+bool RenderOffScreenThread::tryGetNextFrame(FrameData* frameData)
 {
 	if (frameAvailableSemaphore->tryAcquire(1, 20))
 	{

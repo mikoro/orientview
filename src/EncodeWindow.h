@@ -31,7 +31,7 @@ namespace OrientView
 
 		QOffscreenSurface* getSurface() const;
 		QOpenGLContext* getContext() const;
-		bool getIsInitialized() const;
+		bool isInitialized() const;
 
 	signals:
 
@@ -56,6 +56,6 @@ namespace OrientView
 		QOffscreenSurface* surface = nullptr;
 		QOpenGLContext* context = nullptr;
 
-		bool isInitialized = false;
+		bool initialized = false;
 	};
 }

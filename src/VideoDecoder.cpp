@@ -4,6 +4,7 @@
 #include <windows.h>
 
 #include <QtGlobal>
+#include <QElapsedTimer>
 
 extern "C"
 {
@@ -16,8 +17,6 @@ extern "C"
 #include "FrameData.h"
 
 using namespace OrientView;
-
-bool VideoDecoder::isRegistered = false;
 
 namespace
 {
@@ -73,79 +72,93 @@ bool VideoDecoder::initialize(const QString& fileName, Settings* settings)
 {
 	qDebug("Initializing VideoDecoder (%s)", fileName.toLocal8Bit().constData());
 
-	if (!isRegistered)
+	av_log_set_callback(ffmpegLogCallback);
+	av_register_all();
+
+	if (avformat_open_input(&formatContext, fileName.toLocal8Bit().constData(), nullptr, nullptr) < 0)
 	{
-		av_log_set_callback(ffmpegLogCallback);
-		av_register_all();
-
-		isRegistered = true;
-	}
-
-	try
-	{
-		if (avformat_open_input(&formatContext, fileName.toLocal8Bit().constData(), nullptr, nullptr) < 0)
-			throw std::runtime_error("Could not open source file");
-
-		if (avformat_find_stream_info(formatContext, nullptr) < 0)
-			throw std::runtime_error("Could not find stream information");
-
-		if (!openCodecContext(&videoStreamIndex, formatContext, AVMEDIA_TYPE_VIDEO))
-			throw std::runtime_error("Could not open video codec context");
-
-		videoStream = formatContext->streams[(size_t)videoStreamIndex];
-		videoCodecContext = videoStream->codec;
-		videoInfo.frameWidth = videoCodecContext->width;
-		videoInfo.frameHeight = videoCodecContext->height;
-
-		frame = av_frame_alloc();
-
-		if (!frame)
-			throw std::runtime_error("Could not allocate frame");
-
-		av_init_packet(&packet);
-		packet.data = nullptr;
-		packet.size = 0;
-
-		swsContext = sws_getContext(videoInfo.frameWidth, videoInfo.frameHeight, videoCodecContext->pix_fmt, videoInfo.frameWidth, videoInfo.frameHeight, PIX_FMT_RGBA, SWS_BILINEAR, nullptr, nullptr, nullptr);
-
-		if (!swsContext)
-			throw std::runtime_error("Could not get sws context");
-
-		convertedPicture = new AVPicture();
-
-		if (avpicture_alloc(convertedPicture, PIX_FMT_RGBA, videoInfo.frameWidth, videoInfo.frameHeight) < 0)
-			throw std::runtime_error("Could not allocate conversion picture");
-
-		stabilizationEnabled = settings->stabilization.enabled;
-		imageSizeDivisor = settings->stabilization.imageSizeDivisor;
-		
-		swsContextGrayscale = sws_getContext(videoInfo.frameWidth, videoInfo.frameHeight, videoCodecContext->pix_fmt, videoInfo.frameWidth / imageSizeDivisor, videoInfo.frameHeight / imageSizeDivisor, PIX_FMT_GRAY8, SWS_BILINEAR, nullptr, nullptr, nullptr);
-
-		if (!swsContextGrayscale)
-			throw std::runtime_error("Could not get sws grayscale context");
-
-		convertedPictureGrayscale = new AVPicture();
-
-		if (avpicture_alloc(convertedPictureGrayscale, PIX_FMT_GRAY8, videoInfo.frameWidth / imageSizeDivisor, videoInfo.frameHeight / imageSizeDivisor) < 0)
-			throw std::runtime_error("Could not allocate grayscale conversion picture");
-
-		frameCountDivisor = settings->decoder.frameCountDivisor;
-		frameDurationDivisor = settings->decoder.frameDurationDivisor;
-
-		videoInfo.frameDataLength = videoInfo.frameHeight * convertedPicture->linesize[0];
-		videoInfo.totalFrameCount = videoStream->nb_frames / frameCountDivisor;
-		videoInfo.averageFrameDuration = (int)av_rescale(1000000 * frameCountDivisor / frameDurationDivisor, videoStream->avg_frame_rate.den, videoStream->avg_frame_rate.num);
-		videoInfo.averageFrameRateNum = videoStream->avg_frame_rate.num / frameCountDivisor * frameDurationDivisor;
-		videoInfo.averageFrameRateDen = videoStream->avg_frame_rate.den;
-		videoInfo.averageFrameRate = (double)videoInfo.averageFrameRateNum / videoInfo.averageFrameRateDen;
-	}
-	catch (const std::exception& ex)
-	{
-		qWarning("Could not initialize VideoDecoder: %s", ex.what());
+		qWarning("Could not open source file");
 		return false;
 	}
 
-	isInitialized = true;
+	if (avformat_find_stream_info(formatContext, nullptr) < 0)
+	{
+		qWarning("Could not find stream information");
+		return false;
+	}
+
+	if (!openCodecContext(&videoStreamIndex, formatContext, AVMEDIA_TYPE_VIDEO))
+	{
+		qWarning("Could not open video codec context");
+		return false;
+	}
+
+	videoStream = formatContext->streams[(size_t)videoStreamIndex];
+	videoCodecContext = videoStream->codec;
+
+	videoInfo = VideoInfo();
+	videoInfo.frameWidth = videoCodecContext->width;
+	videoInfo.frameHeight = videoCodecContext->height;
+
+	frame = av_frame_alloc();
+
+	if (!frame)
+	{
+		qWarning("Could not allocate frame");
+		return false;
+	}
+
+	av_init_packet(&packet);
+	packet.data = nullptr;
+	packet.size = 0;
+
+	swsContext = sws_getContext(videoInfo.frameWidth, videoInfo.frameHeight, videoCodecContext->pix_fmt, videoInfo.frameWidth, videoInfo.frameHeight, PIX_FMT_RGBA, SWS_BILINEAR, nullptr, nullptr, nullptr);
+
+	if (!swsContext)
+	{
+		qWarning("Could not get sws context");
+		return false;
+	}
+
+	convertedPicture = new AVPicture();
+
+	if (avpicture_alloc(convertedPicture, PIX_FMT_RGBA, videoInfo.frameWidth, videoInfo.frameHeight) < 0)
+	{
+		qWarning("Could not allocate conversion picture");
+		return false;
+	}
+
+	generateGrayscalePicture = settings->stabilization.enabled;
+	grayscalePictureSizeDivisor = settings->stabilization.imageSizeDivisor;
+
+	swsContextGrayscale = sws_getContext(videoInfo.frameWidth, videoInfo.frameHeight, videoCodecContext->pix_fmt, videoInfo.frameWidth / grayscalePictureSizeDivisor, videoInfo.frameHeight / grayscalePictureSizeDivisor, PIX_FMT_GRAY8, SWS_BILINEAR, nullptr, nullptr, nullptr);
+
+	if (!swsContextGrayscale)
+	{
+		qWarning("Could not get sws grayscale context");
+		return false;
+	}
+
+	convertedPictureGrayscale = new AVPicture();
+
+	if (avpicture_alloc(convertedPictureGrayscale, PIX_FMT_GRAY8, videoInfo.frameWidth / grayscalePictureSizeDivisor, videoInfo.frameHeight / grayscalePictureSizeDivisor) < 0)
+	{
+		qWarning("Could not allocate grayscale conversion picture");
+		return false;
+	}
+
+	frameCountDivisor = settings->decoder.frameCountDivisor;
+	frameDurationDivisor = settings->decoder.frameDurationDivisor;
+
+	videoInfo.frameDataLength = videoInfo.frameHeight * convertedPicture->linesize[0];
+	videoInfo.totalFrameCount = videoStream->nb_frames / frameCountDivisor;
+	videoInfo.averageFrameRateNum = videoStream->avg_frame_rate.num / frameCountDivisor * frameDurationDivisor;
+	videoInfo.averageFrameRateDen = videoStream->avg_frame_rate.den;
+	videoInfo.averageFrameDuration = (double)videoInfo.averageFrameRateDen / videoInfo.averageFrameRateNum * 1000.0;
+	videoInfo.averageFrameRate = (double)videoInfo.averageFrameRateNum / videoInfo.averageFrameRateDen;
+
+	averageDecodeTime = 0.0;
+
 	return true;
 }
 
@@ -194,28 +207,18 @@ void VideoDecoder::shutdown()
 		avpicture_free(convertedPicture);
 		convertedPicture = nullptr;
 	}
-	
-	videoStream = nullptr;
-	videoStreamIndex = -1;
-	lastFrameTimestamp = 0;
-	frameCountDivisor = 0;
-	int frameDurationDivisor = 0;
-	stabilizationEnabled = false;
-	imageSizeDivisor = 0;
-	videoInfo = VideoInfo();
-
-	isInitialized = false;
 }
 
 bool VideoDecoder::getNextFrame(FrameData* frameData, FrameData* frameDataGrayscale)
 {
-	if (!isInitialized)
-		return false;
-
+	QElapsedTimer decodeTimer;
 	int framesRead = 0;
+	bool result = true;
 
 	while (true)
 	{
+		decodeTimer.restart();
+
 		if (av_read_frame(formatContext, &packet) >= 0)
 		{
 			if (packet.stream_index == videoStreamIndex)
@@ -228,7 +231,7 @@ bool VideoDecoder::getNextFrame(FrameData* frameData, FrameData* frameDataGraysc
 					av_free_packet(&packet);
 					continue;
 				}
-				
+
 				framesRead = 0;
 				videoInfo.currentFrameNumber++;
 
@@ -236,7 +239,8 @@ bool VideoDecoder::getNextFrame(FrameData* frameData, FrameData* frameDataGraysc
 				{
 					qWarning("Could not decode video frame");
 					av_free_packet(&packet);
-					return false;
+					result = false;
+					break;
 				}
 
 				if (gotPicture)
@@ -254,34 +258,46 @@ bool VideoDecoder::getNextFrame(FrameData* frameData, FrameData* frameDataGraysc
 					lastFrameTimestamp = frame->best_effort_timestamp;
 
 					if (frameData->duration <= 0 || frameData->duration > 1000000)
-						frameData->duration = videoInfo.averageFrameDuration;
+						frameData->duration = (int)(videoInfo.averageFrameDuration * 1000);
 
-					if (stabilizationEnabled && frameDataGrayscale != nullptr)
+					if (generateGrayscalePicture && frameDataGrayscale != nullptr)
 					{
 						sws_scale(swsContextGrayscale, frame->data, frame->linesize, 0, frame->height, convertedPictureGrayscale->data, convertedPictureGrayscale->linesize);
 
 						frameDataGrayscale->data = convertedPictureGrayscale->data[0];
-						frameDataGrayscale->dataLength = videoInfo.frameHeight / imageSizeDivisor * convertedPictureGrayscale->linesize[0];
+						frameDataGrayscale->dataLength = videoInfo.frameHeight / grayscalePictureSizeDivisor * convertedPictureGrayscale->linesize[0];
 						frameDataGrayscale->rowLength = convertedPictureGrayscale->linesize[0];
-						frameDataGrayscale->width = videoInfo.frameWidth / imageSizeDivisor;
-						frameDataGrayscale->height = videoInfo.frameHeight / imageSizeDivisor;
+						frameDataGrayscale->width = videoInfo.frameWidth / grayscalePictureSizeDivisor;
+						frameDataGrayscale->height = videoInfo.frameHeight / grayscalePictureSizeDivisor;
 						frameDataGrayscale->duration = frameData->duration;
 						frameDataGrayscale->number = frameData->number;
 					}
 
+					averageDecodeTime = decodeTimer.nsecsElapsed() / 1000000.0;
+
 					av_free_packet(&packet);
-					return true;
+					break;
 				}
 			}
 
 			av_free_packet(&packet);
 		}
 		else
-			return false;
+		{
+			result = false;
+			break;
+		}
 	}
+
+	return result;
 }
 
 VideoInfo VideoDecoder::getVideoInfo() const
 {
 	return videoInfo;
+}
+
+double VideoDecoder::getAverageDecodeTime() const
+{
+	return averageDecodeTime;
 }

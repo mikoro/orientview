@@ -28,16 +28,16 @@ void VideoDecoderThread::shutdown()
 {
 	qDebug("Shutting down VideoDecoderThread");
 
-	if (frameReadSemaphore != nullptr)
-	{
-		delete frameReadSemaphore;
-		frameReadSemaphore = nullptr;
-	}
-
 	if (frameAvailableSemaphore != nullptr)
 	{
 		delete frameAvailableSemaphore;
 		frameAvailableSemaphore = nullptr;
+	}
+
+	if (frameReadSemaphore != nullptr)
+	{
+		delete frameReadSemaphore;
+		frameReadSemaphore = nullptr;
 	}
 }
 
@@ -59,7 +59,7 @@ void VideoDecoderThread::run()
 	}
 }
 
-bool VideoDecoderThread::getNextFrame(FrameData* frameData, FrameData* frameDataGrayscale)
+bool VideoDecoderThread::tryGetNextFrame(FrameData* frameData, FrameData* frameDataGrayscale)
 {
 	if (frameAvailableSemaphore->tryAcquire(1, 20))
 	{

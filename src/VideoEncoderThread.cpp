@@ -27,8 +27,6 @@ bool VideoEncoderThread::initialize(VideoDecoder* videoDecoder, VideoEncoder* vi
 void VideoEncoderThread::shutdown()
 {
 	qDebug("Shutting down VideoEncoderThread");
-
-	totalFrameCount = 0;
 }
 
 void VideoEncoderThread::run()
@@ -37,7 +35,7 @@ void VideoEncoderThread::run()
 
 	while (!isInterruptionRequested())
 	{
-		if (renderOffScreenThread->getNextFrame(&renderedFrameData))
+		if (renderOffScreenThread->tryGetNextFrame(&renderedFrameData))
 		{
 			videoEncoder->loadFrameData(&renderedFrameData);
 			renderOffScreenThread->signalFrameRead();

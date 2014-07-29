@@ -23,7 +23,7 @@ namespace OrientView
 		bool initialize(VideoDecoder* videoDecoder);
 		void shutdown();
 
-		bool getNextFrame(FrameData* frameData, FrameData* frameDataGrayscale);
+		bool tryGetNextFrame(FrameData* frameData, FrameData* frameDataGrayscale);
 		void signalFrameRead();
 
 	protected:

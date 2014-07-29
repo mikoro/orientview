@@ -60,7 +60,7 @@ bool EncodeWindow::initialize(Settings* settings)
 
 	startTime.restart();
 
-	isInitialized = true;
+	initialized = true;
 
 	return true;
 }
@@ -82,7 +82,7 @@ void EncodeWindow::shutdown()
 		surface = nullptr;
 	}
 
-	isInitialized = false;
+	initialized = false;
 }
 
 QOffscreenSurface* EncodeWindow::getSurface() const
@@ -95,9 +95,9 @@ QOpenGLContext* EncodeWindow::getContext() const
 	return context;
 }
 
-bool EncodeWindow::getIsInitialized() const
+bool EncodeWindow::isInitialized() const
 {
-	return isInitialized;
+	return initialized;
 }
 
 void EncodeWindow::progressUpdate(int currentFrame, int totalFrames)

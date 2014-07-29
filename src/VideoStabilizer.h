@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <QFile>
-
 #include "opencv2/opencv.hpp"
 
 namespace OrientView
@@ -27,19 +25,11 @@ namespace OrientView
 		double getX() const;
 		double getY() const;
 		double getAngle() const;
+		double getAverageProcessTime() const;
 
 	private:
 
 		bool isFirstImage = true;
-
-		cv::Mat previousImage;
-
-		std::vector<cv::Point2f> previousCorners;
-		std::vector<cv::Point2f> currentCorners;
-		std::vector<cv::Point2f> previousCornersFiltered;
-		std::vector<cv::Point2f> currentCornersFiltered;
-		std::vector<uchar> opticalFlowStatus;
-		std::vector<float> opticalFlowError;
 
 		double deltaX = 0.0;
 		double deltaY = 0.0;
@@ -49,6 +39,15 @@ namespace OrientView
 		double accumulatedY = 0.0;
 		double accumulatedAngle = 0.0;
 
-		QFile output;
+		double averageProcessTime = 0.0;
+
+		cv::Mat previousImage;
+
+		std::vector<cv::Point2f> previousCorners;
+		std::vector<cv::Point2f> currentCorners;
+		std::vector<cv::Point2f> previousCornersFiltered;
+		std::vector<cv::Point2f> currentCornersFiltered;
+		std::vector<uchar> opticalFlowStatus;
+		std::vector<float> opticalFlowError;
 	};
 }

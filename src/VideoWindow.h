@@ -22,7 +22,7 @@ namespace OrientView
 		void shutdown();
 
 		QOpenGLContext* getContext() const;
-		bool getIsInitialized() const;
+		bool isInitialized() const;
 
 	signals:
 
@@ -36,6 +36,6 @@ namespace OrientView
 
 		QOpenGLContext* context = nullptr;
 
-		bool isInitialized = false;
+		bool initialized = false;
 	};
 }

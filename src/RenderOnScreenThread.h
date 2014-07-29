@@ -9,9 +9,11 @@ namespace OrientView
 {
 	class MainWindow;
 	class VideoWindow;
+	class VideoDecoder;
 	class VideoDecoderThread;
 	class VideoStabilizer;
 	class VideoRenderer;
+	class Settings;
 	
 	class RenderOnScreenThread : public QThread
 	{
@@ -21,7 +23,7 @@ namespace OrientView
 
 		RenderOnScreenThread();
 
-		bool initialize(MainWindow* mainWindow, VideoWindow* videoWindow, VideoDecoderThread* videoDecoderThread, VideoStabilizer* videoStabilizer, VideoRenderer* videoRenderer);
+		bool initialize(MainWindow* mainWindow, VideoWindow* videoWindow, VideoDecoder* videoDecoder, VideoDecoderThread* videoDecoderThread, VideoStabilizer* videoStabilizer, VideoRenderer* videoRenderer, Settings* settings);
 		void shutdown();
 
 	protected:
@@ -32,8 +34,11 @@ namespace OrientView
 
 		MainWindow* mainWindow = nullptr;
 		VideoWindow* videoWindow = nullptr;
+		VideoDecoder* videoDecoder = nullptr;
 		VideoDecoderThread* videoDecoderThread = nullptr;
 		VideoStabilizer* videoStabilizer = nullptr;
 		VideoRenderer* videoRenderer = nullptr;
+
+		bool stabilizationEnabled = false;
 	};
 }

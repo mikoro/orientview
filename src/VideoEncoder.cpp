@@ -93,6 +93,9 @@ bool VideoEncoder::initialize(const QString& fileName, VideoDecoder* videoDecode
 	if (!mp4File->writeHeaders(nal))
 		return false;
 
+	frameNumber = 0;
+	averageEncodeTime = 0.0;
+
 	return true;
 }
 
@@ -113,7 +116,7 @@ void VideoEncoder::shutdown()
 		swsContext = nullptr;
 	}
 
-	if (swsContext != nullptr)
+	if (convertedPicture != nullptr)
 	{
 		x264_picture_clean(convertedPicture);
 		delete convertedPicture;
@@ -125,12 +128,12 @@ void VideoEncoder::shutdown()
 		x264_encoder_close(encoder);
 		encoder = nullptr;
 	}
-
-	frameNumber = 0;
 }
 
 void VideoEncoder::loadFrameData(FrameData* frameData)
 {
+	encodeTimer.restart();
+
 	sws_scale(swsContext, &frameData->data, &frameData->rowLength, 0, frameData->height, convertedPicture->img.plane, convertedPicture->img.i_stride);
 }
 
@@ -148,9 +151,16 @@ void VideoEncoder::encodeFrame()
 		mp4File->writeFrame(nal[0].p_payload, frameSize, &encodedPicture);
 	else
 		qWarning("Could not encode frame");
+
+	averageEncodeTime = encodeTimer.nsecsElapsed() / 1000000.0;
 }
 
 void VideoEncoder::close()
 {
 	mp4File->close(frameNumber);
+}
+
+double VideoEncoder::getAverageEncodeTime() const
+{
+	return averageEncodeTime;
 }

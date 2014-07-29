@@ -1,7 +1,7 @@
 // Copyright © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
 // License: GPLv3, see the LICENSE file.
 
-#include <QImage>
+#include <QElapsedTimer>
 
 #include "VideoStabilizer.h"
 #include "FrameData.h"
@@ -18,8 +18,15 @@ bool VideoStabilizer::initialize(Settings* settings)
 
 	isFirstImage = true;
 
-	output.setFileName("data.txt");
-	output.open(QIODevice::ReadWrite);
+	deltaX = 0.0;
+	deltaY = 0.0;
+	deltaAngle = 0.0;
+
+	accumulatedX = 0.0;
+	accumulatedY = 0.0;
+	accumulatedAngle = 0.0;
+
+	averageProcessTime = 0.0;
 
 	return true;
 }
@@ -27,12 +34,13 @@ bool VideoStabilizer::initialize(Settings* settings)
 void VideoStabilizer::shutdown()
 {
 	qDebug("Shutting down VideoStabilizer");
-
-	output.close();
 }
 
 void VideoStabilizer::processFrame(FrameData* frameDataGrayscale)
 {
+	QElapsedTimer processTimer;
+	processTimer.start();
+
 	cv::Mat currentImage(frameDataGrayscale->height, frameDataGrayscale->width, CV_8UC1, frameDataGrayscale->data);
 
 	if (isFirstImage)
@@ -79,8 +87,7 @@ void VideoStabilizer::processFrame(FrameData* frameDataGrayscale)
 	opticalFlowStatus.clear();
 	opticalFlowError.clear();
 
-	//output.write(QString::number(da).toLocal8Bit().constData());
-	//output.write("\n");
+	averageProcessTime = processTimer.nsecsElapsed() / 1000000.0;
 }
 
 double VideoStabilizer::getX() const
@@ -96,4 +103,9 @@ double VideoStabilizer::getY() const
 double VideoStabilizer::getAngle() const
 {
 	return accumulatedAngle;
+}
+
+double VideoStabilizer::getAverageProcessTime() const
+{
+	return averageProcessTime;
 }

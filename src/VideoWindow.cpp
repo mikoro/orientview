@@ -48,7 +48,7 @@ bool VideoWindow::initialize(Settings* settings)
 		return false;
 	}
 
-	isInitialized = true;
+	initialized = true;
 
 	return true;
 }
@@ -57,15 +57,13 @@ void VideoWindow::shutdown()
 {
 	qDebug("Shutting down VideoWindow");
 
-	QApplication::restoreOverrideCursor();
-
 	if (context != nullptr)
 	{
 		delete context;
 		context = nullptr;
 	}
 
-	isInitialized = false;
+	initialized = false;
 }
 
 QOpenGLContext* VideoWindow::getContext() const
@@ -73,9 +71,9 @@ QOpenGLContext* VideoWindow::getContext() const
 	return context;
 }
 
-bool VideoWindow::getIsInitialized() const
+bool VideoWindow::isInitialized() const
 {
-	return isInitialized;
+	return initialized;
 }
 
 bool VideoWindow::event(QEvent* event)

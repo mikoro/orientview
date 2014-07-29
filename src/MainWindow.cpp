@@ -160,13 +160,13 @@ void MainWindow::on_pushButtonRun_clicked()
 		if (!videoWindow->initialize(settings))
 			throw std::runtime_error("Could not initialize VideoWindow");
 
-		if (!videoRenderer->initialize(videoDecoder, quickRouteJpegReader, videoStabilizer, settings))
+		if (!videoRenderer->initialize(videoDecoder, quickRouteJpegReader, videoStabilizer, videoEncoder, settings))
 			throw std::runtime_error("Could not initialize VideoRenderer");
 
 		if (!videoDecoderThread->initialize(videoDecoder))
 			throw std::runtime_error("Could not initialize VideoDecoderThread");
 
-		if (!renderOnScreenThread->initialize(this, videoWindow, videoDecoderThread, videoStabilizer, videoRenderer))
+		if (!renderOnScreenThread->initialize(this, videoWindow, videoDecoder, videoDecoderThread, videoStabilizer, videoRenderer, settings))
 			throw std::runtime_error("Could not initialize RenderOnScreenThread");
 
 		videoWindow->getContext()->doneCurrent();
@@ -216,13 +216,13 @@ void MainWindow::on_pushButtonEncode_clicked()
 		if (!encodeWindow->initialize(settings))
 			throw std::runtime_error("Could not initialize EncodeWindow");
 
-		if (!videoRenderer->initialize(videoDecoder, quickRouteJpegReader, videoStabilizer, settings))
+		if (!videoRenderer->initialize(videoDecoder, quickRouteJpegReader, videoStabilizer, videoEncoder, settings))
 			throw std::runtime_error("Could not initialize VideoRenderer");
 
 		if (!videoDecoderThread->initialize(videoDecoder))
 			throw std::runtime_error("Could not initialize VideoDecoderThread");
 
-		if (!renderOffScreenThread->initialize(this, encodeWindow, videoDecoderThread, videoRenderer, settings))
+		if (!renderOffScreenThread->initialize(this, encodeWindow, videoDecoderThread, videoStabilizer, videoRenderer, settings))
 			throw std::runtime_error("Could not initialize RenderOffScreenThread");
 
 		if (!videoEncoderThread->initialize(videoDecoder, videoEncoder, renderOffScreenThread))
@@ -264,7 +264,7 @@ void MainWindow::videoWindowClosing()
 	renderOnScreenThread->shutdown();
 	videoDecoderThread->shutdown();
 
-	if (videoWindow->getIsInitialized())
+	if (videoWindow->isInitialized())
 		videoWindow->getContext()->makeCurrent(videoWindow);
 
 	videoRenderer->shutdown();
@@ -294,7 +294,7 @@ void MainWindow::encodeWindowClosing()
 	renderOffScreenThread->shutdown();
 	videoDecoderThread->shutdown();
 
-	if (encodeWindow->getIsInitialized())
+	if (encodeWindow->isInitialized())
 		encodeWindow->getContext()->makeCurrent(encodeWindow->getSurface());
 
 	videoRenderer->shutdown();

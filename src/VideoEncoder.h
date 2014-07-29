@@ -4,6 +4,7 @@
 #pragma once
 
 #include <QString>
+#include <QElapsedTimer>
 
 extern "C"
 {
@@ -33,6 +34,8 @@ namespace OrientView
 		void encodeFrame();
 		void close();
 
+		double getAverageEncodeTime() const;
+
 	private:
 
 		x264_t* encoder = nullptr;
@@ -40,5 +43,8 @@ namespace OrientView
 		SwsContext* swsContext = nullptr;
 		MP4File* mp4File = nullptr;
 		int64_t frameNumber = 0;
+
+		QElapsedTimer encodeTimer;
+		double averageEncodeTime = 0.0;
 	};
 }

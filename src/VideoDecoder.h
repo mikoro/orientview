@@ -24,9 +24,9 @@ namespace OrientView
 		int frameDataLength = 0;
 		int totalFrameCount = 0;
 		int currentFrameNumber = 0;
-		int averageFrameDuration = 0; // ms
 		int averageFrameRateNum = 0;
 		int averageFrameRateDen = 0;
+		double averageFrameDuration = 0.0;
 		double averageFrameRate = 0.0;
 	};
 
@@ -40,28 +40,27 @@ namespace OrientView
 		void shutdown();
 
 		bool getNextFrame(FrameData* frameData, FrameData* frameDataGrayscale);
-
 		VideoInfo getVideoInfo() const;
+		double getAverageDecodeTime() const;
 
 	private:
 
-		static bool isRegistered;
-		bool isInitialized = false;
 		AVFormatContext* formatContext = nullptr;
 		AVCodecContext* videoCodecContext = nullptr;
 		AVStream* videoStream = nullptr;
-		int videoStreamIndex = -1;
+		int videoStreamIndex = 0;
 		AVFrame* frame = nullptr;
 		AVPacket packet;
 		SwsContext* swsContext = nullptr;
 		SwsContext* swsContextGrayscale = nullptr;
 		AVPicture* convertedPicture = nullptr;
 		AVPicture* convertedPictureGrayscale = nullptr;
+		bool generateGrayscalePicture = false;
+		int grayscalePictureSizeDivisor = 0;
 		int64_t lastFrameTimestamp = 0;
 		int frameCountDivisor = 0;
 		int frameDurationDivisor = 0;
-		bool stabilizationEnabled = false;
-		int imageSizeDivisor = 0;
+		double averageDecodeTime = 0.0;
 		VideoInfo videoInfo;
 	};
 }

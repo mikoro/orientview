@@ -2,6 +2,7 @@
 // License: GPLv3, see the LICENSE file.
 
 #include <QApplication>
+#include <QFontDatabase>
 
 #include "MainWindow.h"
 #include "SimpleLogger.h"
@@ -28,6 +29,12 @@ int main(int argc, char *argv[])
 		QCoreApplication::addLibraryPath("data/plugins");
 
 		QApplication app(argc, argv);
+
+		QFontDatabase::addApplicationFont("data/fonts/dejavu-sans.ttf");
+		QFontDatabase::addApplicationFont("data/fonts/dejavu-sans-bold.ttf");
+		QFontDatabase::addApplicationFont("data/fonts/dejavu-sans-mono.ttf");
+		QFontDatabase::addApplicationFont("data/fonts/dejavu-sans-mono-bold.ttf");
+		
 		OrientView::MainWindow mainWindow;
 		mainWindow.show();
 		app.exec();
