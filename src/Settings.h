@@ -29,8 +29,8 @@ namespace OrientView
 
 		struct Shaders
 		{
-			QString vertexShaderPath;
-			QString fragmentShaderPath;
+			QString videoPanelShader;
+			QString mapPanelShader;
 
 		} shaders;
 

@@ -1,13 +1,13 @@
-#version 120
+#version 330
 
 uniform mat4 vertexMatrix;
 uniform float texelWidth;
 uniform float texelHeight;
 
-attribute vec3 vertexPosition;
-attribute vec2 vertexTextureCoordinate;
+in vec3 vertexPosition;
+in vec2 vertexTextureCoordinate;
 
-varying vec2 textureCoordinate;
+out vec2 textureCoordinate;
 
 void main()
 {

@@ -30,8 +30,8 @@ bool Settings::initialize(const QString& fileName)
 	display.fullscreen = settings.value("display/fullscreen", false).toBool();
 	display.hideCursor = settings.value("display/hideCursor", false).toBool();
 
-	shaders.vertexShaderPath = settings.value("shaders/vertexShaderPath", "data/shaders/basic120.vert").toString();
-	shaders.fragmentShaderPath = settings.value("shaders/fragmentShaderPath", "data/shaders/basic120.frag").toString();
+	shaders.videoPanelShader = settings.value("shaders/videoPanelShader", "basic").toString();
+	shaders.mapPanelShader = settings.value("shaders/mapPanelShader", "basic").toString();
 
 	appearance.mapPanelWidth = settings.value("appearance/mapPanelWidth", 0.3).toDouble();
 	appearance.showInfoPanel = settings.value("appearance/showInfoPanel", false).toBool();

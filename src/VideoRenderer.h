@@ -21,6 +21,27 @@ namespace OrientView
 	class Settings;
 	struct FrameData;
 
+	struct Panel
+	{
+		QOpenGLShaderProgram* program = nullptr;
+		QOpenGLBuffer* buffer = nullptr;
+		QOpenGLTexture* texture = nullptr;
+
+		QMatrix4x4 vertexMatrix;
+
+		double textureWidth = 0.0;
+		double textureHeight = 0.0;
+		double texelWidth = 0.0;
+		double texelHeight = 0.0;
+
+		GLuint vertexMatrixUniform = 0;
+		GLuint texelWidthUniform = 0;
+		GLuint texelHeightUniform = 0;
+		GLuint vertexPositionAttribute = 0;
+		GLuint vertexTextureCoordinateAttribute = 0;
+		GLuint textureSamplerUniform = 0;
+	};
+
 	class VideoRenderer : protected QOpenGLFunctions
 	{
 
@@ -42,6 +63,10 @@ namespace OrientView
 
 	private:
 
+		bool loadShaders(Panel* panel, const QString& shaderName);
+		void loadBuffer(Panel* panel, GLfloat* buffer, int size);
+		void renderPanel(Panel* panel);
+
 		VideoDecoder* videoDecoder = nullptr;
 		VideoStabilizer* videoStabilizer = nullptr;
 		VideoEncoder* videoEncoder = nullptr;
@@ -49,10 +74,6 @@ namespace OrientView
 
 		bool flipOutput = false;
 
-		double videoFrameWidth = 0.0;
-		double videoFrameHeight = 0.0;
-		double mapImageWidth = 0.0;
-		double mapImageHeight = 0.0;
 		double mapPanelRelativeWidth = 0.0;
 		double mapPanelScale = 0.0;
 		double windowWidth = 0.0;
@@ -62,20 +83,10 @@ namespace OrientView
 		QElapsedTimer renderTimer;
 		double averageRenderTime = 0.0;
 
-		QOpenGLShaderProgram* shaderProgram = nullptr;
-		QOpenGLBuffer* videoPanelBuffer = nullptr;
-		QOpenGLTexture* videoPanelTexture = nullptr;
-		QOpenGLBuffer* mapPanelBuffer = nullptr;
-		QOpenGLTexture* mapPanelTexture = nullptr;
 		QOpenGLPaintDevice* paintDevice = nullptr;
 		QPainter* painter = nullptr;
-		
-		QMatrix4x4 videoPanelVertexMatrix;
-		QMatrix4x4 mapPanelVertexMatrix;
 
-		GLuint vertexMatrixUniform = 0;
-		GLuint vertexPositionAttribute = 0;
-		GLuint vertexTextureCoordinateAttribute = 0;
-		GLuint textureSamplerUniform = 0;
+		Panel videoPanel;
+		Panel mapPanel;
 	};
 }

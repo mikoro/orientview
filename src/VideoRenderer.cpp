@@ -28,55 +28,28 @@ bool VideoRenderer::initialize(VideoDecoder* videoDecoder, QuickRouteJpegReader*
 	this->videoEncoder = videoEncoder;
 	this->videoWindow = videoWindow;
 
-	this->videoFrameWidth = videoDecoder->getVideoInfo().frameWidth;
-	this->videoFrameHeight = videoDecoder->getVideoInfo().frameHeight;
-	this->mapImageWidth = quickRouteJpegReader->getMapImage().width();
-	this->mapImageHeight = quickRouteJpegReader->getMapImage().height();
-	this->mapPanelRelativeWidth = settings->appearance.mapPanelWidth;
+	videoPanel.textureWidth = videoDecoder->getVideoInfo().frameWidth;
+	videoPanel.textureHeight = videoDecoder->getVideoInfo().frameHeight;
+	videoPanel.texelWidth = 1.0 / videoPanel.textureWidth;
+	videoPanel.texelHeight = 1.0 / videoPanel.textureHeight;
+	mapPanel.textureWidth = quickRouteJpegReader->getMapImage().width();
+	mapPanel.textureHeight = quickRouteJpegReader->getMapImage().height();
+	mapPanel.texelWidth = 1.0 / mapPanel.textureWidth;
+	mapPanel.texelHeight = 1.0 / mapPanel.textureHeight;
 
+	mapPanelRelativeWidth = settings->appearance.mapPanelWidth;
 	mapPanelScale = 1.0;
 	averageRenderTime = 0.0;
 
 	initializeOpenGLFunctions();
 
-	qDebug("Compiling shaders");
-
-	shaderProgram = new QOpenGLShaderProgram();
-
-	if (!shaderProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, settings->shaders.vertexShaderPath))
+	if (!loadShaders(&videoPanel, settings->shaders.videoPanelShader))
 		return false;
 
-	if (!shaderProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, settings->shaders.fragmentShaderPath))
+	if (!loadShaders(&mapPanel, settings->shaders.mapPanelShader))
 		return false;
 
-	if (!shaderProgram->link())
-		return false;
-
-	if ((vertexMatrixUniform = shaderProgram->uniformLocation("vertexMatrix")) == -1)
-	{
-		qWarning("Could not find vertexMatrix uniform");
-		return false;
-	}
-
-	if ((vertexPositionAttribute = shaderProgram->attributeLocation("vertexPosition")) == -1)
-	{
-		qWarning("Could not find vertexPosition attribute");
-		return false;
-	}
-
-	if ((vertexTextureCoordinateAttribute = shaderProgram->attributeLocation("vertexTextureCoordinate")) == -1)
-	{
-		qWarning("Could not find vertexTextureCoordinate attribute");
-		return false;
-	}
-
-	if ((textureSamplerUniform = shaderProgram->uniformLocation("textureSampler")) == -1)
-	{
-		qWarning("Could not find textureSampler uniform");
-		return false;
-	}
-
-	GLfloat videoPanelBufferData[] =
+	GLfloat videoPanelBuffer[] =
 	{
 		0.0f, 0.0f, 0.0f,
 		1.0f, 0.0f, 0.0f,
@@ -89,30 +62,12 @@ bool VideoRenderer::initialize(VideoDecoder* videoDecoder, QuickRouteJpegReader*
 		0.0f, 0.0f
 	};
 
-	videoPanelBuffer = new QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
-	videoPanelBuffer->setUsagePattern(QOpenGLBuffer::StaticDraw);
-	videoPanelBuffer->create();
-	videoPanelBuffer->bind();
-	videoPanelBuffer->allocate(videoPanelBufferData, sizeof(GLfloat) * 20);
-	videoPanelBuffer->release();
-
-	videoPanelTexture = new QOpenGLTexture(QOpenGLTexture::Target2D);
-	videoPanelTexture->create();
-	videoPanelTexture->bind();
-	videoPanelTexture->setSize(videoFrameWidth, videoFrameHeight);
-	videoPanelTexture->setFormat(QOpenGLTexture::RGBA8_UNorm);
-	videoPanelTexture->setMinificationFilter(QOpenGLTexture::Linear);
-	videoPanelTexture->setMagnificationFilter(QOpenGLTexture::Linear);
-	videoPanelTexture->setWrapMode(QOpenGLTexture::ClampToEdge);
-	videoPanelTexture->allocateStorage();
-	videoPanelTexture->release();
-
-	GLfloat mapPanelBufferData[] =
+	GLfloat mapPanelBuffer[] =
 	{
-		-(float)mapImageWidth / 2.0f, -(float)mapImageHeight / 2.0f, 0.0f,
-		(float)mapImageWidth / 2.0f, -(float)mapImageHeight / 2.0f, 0.0f,
-		(float)mapImageWidth / 2.0f, (float)mapImageHeight / 2.0f, 0.0f,
-		-(float)mapImageWidth / 2.0f, (float)mapImageHeight / 2.0f, 0.0f,
+		-(float)mapPanel.textureWidth / 2, -(float)mapPanel.textureHeight / 2, 0.0f,
+		(float)mapPanel.textureWidth / 2, -(float)mapPanel.textureHeight / 2, 0.0f,
+		(float)mapPanel.textureWidth / 2, (float)mapPanel.textureHeight / 2, 0.0f,
+		-(float)mapPanel.textureWidth / 2, (float)mapPanel.textureHeight / 2, 0.0f,
 
 		0.0f, 1.0f,
 		1.0f, 1.0f,
@@ -120,25 +75,76 @@ bool VideoRenderer::initialize(VideoDecoder* videoDecoder, QuickRouteJpegReader*
 		0.0f, 0.0f
 	};
 
-	mapPanelBuffer = new QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
-	mapPanelBuffer->setUsagePattern(QOpenGLBuffer::StaticDraw);
-	mapPanelBuffer->create();
-	mapPanelBuffer->bind();
-	mapPanelBuffer->allocate(mapPanelBufferData, sizeof(GLfloat) * 20);
-	mapPanelBuffer->release();
+	loadBuffer(&videoPanel, videoPanelBuffer, 20);
+	loadBuffer(&mapPanel, mapPanelBuffer, 20);
 
-	mapPanelTexture = new QOpenGLTexture(quickRouteJpegReader->getMapImage());
-	mapPanelTexture->bind();
-	mapPanelTexture->setMinificationFilter(QOpenGLTexture::Linear);
-	mapPanelTexture->setMagnificationFilter(QOpenGLTexture::Linear);
-	mapPanelTexture->setBorderColor(1.0f, 1.0f, 1.0f, 1.0f);
-	mapPanelTexture->setWrapMode(QOpenGLTexture::ClampToBorder);
-	mapPanelTexture->release();
+	videoPanel.texture = new QOpenGLTexture(QOpenGLTexture::Target2D);
+	videoPanel.texture->create();
+	videoPanel.texture->bind();
+	videoPanel.texture->setSize(videoPanel.textureWidth, videoPanel.textureHeight);
+	videoPanel.texture->setFormat(QOpenGLTexture::RGBA8_UNorm);
+	videoPanel.texture->setMinificationFilter(QOpenGLTexture::Linear);
+	videoPanel.texture->setMagnificationFilter(QOpenGLTexture::Linear);
+	videoPanel.texture->setWrapMode(QOpenGLTexture::ClampToEdge);
+	videoPanel.texture->allocateStorage();
+	videoPanel.texture->release();
+
+	mapPanel.texture = new QOpenGLTexture(quickRouteJpegReader->getMapImage());
+	mapPanel.texture->bind();
+	mapPanel.texture->setMinificationFilter(QOpenGLTexture::Linear);
+	mapPanel.texture->setMagnificationFilter(QOpenGLTexture::Linear);
+	mapPanel.texture->setBorderColor(1.0f, 1.0f, 1.0f, 1.0f);
+	mapPanel.texture->setWrapMode(QOpenGLTexture::ClampToBorder);
+	mapPanel.texture->release();
 
 	paintDevice = new QOpenGLPaintDevice();
 	painter = new QPainter();
 
 	return true;
+}
+
+bool VideoRenderer::loadShaders(Panel* panel, const QString& shaderName)
+{
+	panel->program = new QOpenGLShaderProgram();
+
+	if (!panel->program->addShaderFromSourceFile(QOpenGLShader::Vertex, QString("data/shaders/%1.vert").arg(shaderName)))
+		return false;
+
+	if (!panel->program->addShaderFromSourceFile(QOpenGLShader::Fragment, QString("data/shaders/%1.frag").arg(shaderName)))
+		return false;
+
+	if (!panel->program->link())
+		return false;
+
+	if ((panel->vertexMatrixUniform = panel->program->uniformLocation("vertexMatrix")) == -1)
+		qWarning("Could not find vertexMatrix uniform");
+
+	if ((panel->texelWidthUniform = panel->program->uniformLocation("texelWidth")) == -1)
+		qWarning("Could not find texelWidth uniform");
+
+	if ((panel->texelHeightUniform = panel->program->uniformLocation("texelHeight")) == -1)
+		qWarning("Could not find texelHeight uniform");
+
+	if ((panel->vertexPositionAttribute = panel->program->attributeLocation("vertexPosition")) == -1)
+		qWarning("Could not find vertexPosition attribute");
+
+	if ((panel->vertexTextureCoordinateAttribute = panel->program->attributeLocation("vertexTextureCoordinate")) == -1)
+		qWarning("Could not find vertexTextureCoordinate attribute");
+
+	if ((panel->textureSamplerUniform = panel->program->uniformLocation("textureSampler")) == -1)
+		qWarning("Could not find textureSampler uniform");
+
+	return true;
+}
+
+void VideoRenderer::loadBuffer(Panel* panel, GLfloat* buffer, int size)
+{
+	panel->buffer = new QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
+	panel->buffer->setUsagePattern(QOpenGLBuffer::StaticDraw);
+	panel->buffer->create();
+	panel->buffer->bind();
+	panel->buffer->allocate(buffer, sizeof(GLfloat) * size);
+	panel->buffer->release();
 }
 
 void VideoRenderer::shutdown()
@@ -157,34 +163,40 @@ void VideoRenderer::shutdown()
 		paintDevice = nullptr;
 	}
 
-	if (mapPanelTexture != nullptr)
+	if (mapPanel.texture != nullptr)
 	{
-		delete mapPanelTexture;
-		mapPanelTexture = nullptr;
+		delete mapPanel.texture;
+		mapPanel.texture = nullptr;
 	}
 
-	if (mapPanelBuffer != nullptr)
+	if (videoPanel.texture != nullptr)
 	{
-		delete mapPanelBuffer;
-		mapPanelBuffer = nullptr;
+		delete videoPanel.texture;
+		videoPanel.texture = nullptr;
 	}
 
-	if (videoPanelTexture != nullptr)
+	if (mapPanel.buffer != nullptr)
 	{
-		delete videoPanelTexture;
-		videoPanelTexture = nullptr;
+		delete mapPanel.buffer;
+		mapPanel.buffer = nullptr;
 	}
 
-	if (videoPanelBuffer != nullptr)
+	if (videoPanel.buffer != nullptr)
 	{
-		delete videoPanelBuffer;
-		videoPanelBuffer = nullptr;
+		delete videoPanel.buffer;
+		videoPanel.buffer = nullptr;
 	}
 
-	if (shaderProgram != nullptr)
+	if (mapPanel.program != nullptr)
 	{
-		delete shaderProgram;
-		shaderProgram = nullptr;
+		delete mapPanel.program;
+		mapPanel.program = nullptr;
+	}
+
+	if (videoPanel.program != nullptr)
+	{
+		delete videoPanel.program;
+		videoPanel.program = nullptr;
 	}
 }
 
@@ -209,56 +221,36 @@ void VideoRenderer::uploadFrameData(FrameData* frameData)
 	options.setImageHeight(frameData->height);
 	options.setAlignment(1);
 
-	videoPanelTexture->setData(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, frameData->data, &options);
+	videoPanel.texture->setData(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, frameData->data, &options);
 }
 
 void VideoRenderer::renderVideoPanel()
 {
-	videoPanelVertexMatrix.setToIdentity();
+	videoPanel.vertexMatrix.setToIdentity();
 
 	if (!flipOutput)
 	{
-		videoPanelVertexMatrix.ortho(0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f);
+		videoPanel.vertexMatrix.ortho(0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f);
 	}
 	else
 	{
-		videoPanelVertexMatrix.ortho(0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f);
+		videoPanel.vertexMatrix.ortho(0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f);
 	}
 
-	//videoPanelVertexMatrix.translate(-videoStabilizer->getX(), videoStabilizer->getY(), 0);
-	//videoPanelVertexMatrix.rotate(90.0, 0, 0, 1);
-
-	shaderProgram->bind();
-	shaderProgram->setUniformValue(textureSamplerUniform, 0);
-	shaderProgram->setUniformValue(vertexMatrixUniform, videoPanelVertexMatrix);
-
-	videoPanelBuffer->bind();
-	videoPanelTexture->bind();
-
-	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(vertexPositionAttribute, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	glVertexAttribPointer(vertexTextureCoordinateAttribute, 2, GL_FLOAT, GL_FALSE, 0, (void*)(sizeof(GLfloat) * 12));
-	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-	glDisableVertexAttribArray(0);
-	glDisableVertexAttribArray(1);
-
-	videoPanelBuffer->release();
-	videoPanelTexture->release();
-	shaderProgram->release();
+	renderPanel(&videoPanel);
 }
 
 void VideoRenderer::renderMapPanel()
 {	
-	mapPanelVertexMatrix.setToIdentity();
+	mapPanel.vertexMatrix.setToIdentity();
 
 	if (!flipOutput)
 	{
-		mapPanelVertexMatrix.ortho(-windowWidth / 2, windowWidth / 2, -windowHeight / 2, windowHeight / 2, 0.0f, 1.0f);
+		mapPanel.vertexMatrix.ortho(-windowWidth / 2, windowWidth / 2, -windowHeight / 2, windowHeight / 2, 0.0f, 1.0f);
 	}
 	else
 	{
-		mapPanelVertexMatrix.ortho(-windowWidth / 2, windowWidth / 2, windowHeight / 2, -windowHeight / 2, 0.0f, 1.0f);
+		mapPanel.vertexMatrix.ortho(-windowWidth / 2, windowWidth / 2, windowHeight / 2, -windowHeight / 2, 0.0f, 1.0f);
 	}
 
 	if (videoWindow->keyIsDown(Qt::Key_Q))
@@ -267,26 +259,33 @@ void VideoRenderer::renderMapPanel()
 	if (videoWindow->keyIsDown(Qt::Key_A))
 		mapPanelScale *= (1.0 - frameTime / 500);
 
-	mapPanelVertexMatrix.scale(mapPanelScale);
+	mapPanel.vertexMatrix.scale(mapPanelScale);
 
-	shaderProgram->bind();
-	shaderProgram->setUniformValue(textureSamplerUniform, 0);
-	shaderProgram->setUniformValue(vertexMatrixUniform, mapPanelVertexMatrix);
+	renderPanel(&mapPanel);
+}
 
-	mapPanelBuffer->bind();
-	mapPanelTexture->bind();
+void VideoRenderer::renderPanel(Panel* panel)
+{
+	panel->program->bind();
+	panel->program->setUniformValue(panel->vertexMatrixUniform, panel->vertexMatrix);
+	panel->program->setUniformValue(panel->texelWidthUniform, (float)panel->texelWidth);
+	panel->program->setUniformValue(panel->texelHeightUniform, (float)panel->texelHeight);
+	panel->program->setUniformValue(panel->textureSamplerUniform, 0);
+
+	panel->buffer->bind();
+	panel->texture->bind();
 
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(vertexPositionAttribute, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	glVertexAttribPointer(vertexTextureCoordinateAttribute, 2, GL_FLOAT, GL_FALSE, 0, (void*)(sizeof(GLfloat) * 12));
+	glVertexAttribPointer(panel->vertexPositionAttribute, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glVertexAttribPointer(panel->vertexTextureCoordinateAttribute, 2, GL_FLOAT, GL_FALSE, 0, (void*)(sizeof(GLfloat) * 12));
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
 
-	mapPanelBuffer->release();
-	mapPanelTexture->release();
-	shaderProgram->release();
+	panel->texture->release();
+	panel->buffer->release();
+	panel->program->release();
 }
 
 void VideoRenderer::renderInfoPanel(double spareTime)
