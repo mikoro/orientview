@@ -76,6 +76,14 @@ bool VideoWindow::isInitialized() const
 	return initialized;
 }
 
+bool VideoWindow::keyIsDown(int key)
+{
+	if (keyMap.count(key) == 0)
+		return false;
+
+	return keyMap[key];
+}
+
 bool VideoWindow::event(QEvent* event)
 {
 	if (event->type() == QEvent::Close)
@@ -84,12 +92,19 @@ bool VideoWindow::event(QEvent* event)
 	if (event->type() == QEvent::KeyPress)
 	{
 		QKeyEvent* ke = (QKeyEvent*)event;
+		keyMap[ke->key()] = true;
 
 		if (ke->key() == Qt::Key_Escape)
 		{
 			emit closing();
 			this->close();
 		}
+	}
+
+	if (event->type() == QEvent::KeyRelease)
+	{
+		QKeyEvent* ke = (QKeyEvent*)event;
+		keyMap[ke->key()] = false;
 	}
 
 	return QWindow::event(event);

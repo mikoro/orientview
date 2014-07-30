@@ -23,6 +23,7 @@ namespace OrientView
 
 		QOpenGLContext* getContext() const;
 		bool isInitialized() const;
+		bool keyIsDown(int key);
 
 	signals:
 
@@ -35,7 +36,7 @@ namespace OrientView
 	private:
 
 		QOpenGLContext* context = nullptr;
-
 		bool initialized = false;
+		std::map<int, bool> keyMap;
 	};
 }

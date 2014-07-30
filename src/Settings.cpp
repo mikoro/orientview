@@ -33,7 +33,7 @@ bool Settings::initialize(const QString& fileName)
 	shaders.vertexShaderPath = settings.value("shaders/vertexShaderPath", "data/shaders/basic120.vert").toString();
 	shaders.fragmentShaderPath = settings.value("shaders/fragmentShaderPath", "data/shaders/basic120.frag").toString();
 
-	appearance.mapPanelWidth = settings.value("appearance/mapPanelWidth", 0.3f).toFloat();
+	appearance.mapPanelWidth = settings.value("appearance/mapPanelWidth", 0.3).toDouble();
 	appearance.showInfoPanel = settings.value("appearance/showInfoPanel", false).toBool();
 
 	stabilization.enabled = settings.value("stabilization/enabled", true).toBool();

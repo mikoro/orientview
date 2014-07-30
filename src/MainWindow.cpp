@@ -160,7 +160,7 @@ void MainWindow::on_pushButtonRun_clicked()
 		if (!videoWindow->initialize(settings))
 			throw std::runtime_error("Could not initialize VideoWindow");
 
-		if (!videoRenderer->initialize(videoDecoder, quickRouteJpegReader, videoStabilizer, videoEncoder, settings))
+		if (!videoRenderer->initialize(videoDecoder, quickRouteJpegReader, videoStabilizer, videoEncoder, videoWindow, settings))
 			throw std::runtime_error("Could not initialize VideoRenderer");
 
 		if (!videoDecoderThread->initialize(videoDecoder))
@@ -216,7 +216,7 @@ void MainWindow::on_pushButtonEncode_clicked()
 		if (!encodeWindow->initialize(settings))
 			throw std::runtime_error("Could not initialize EncodeWindow");
 
-		if (!videoRenderer->initialize(videoDecoder, quickRouteJpegReader, videoStabilizer, videoEncoder, settings))
+		if (!videoRenderer->initialize(videoDecoder, quickRouteJpegReader, videoStabilizer, videoEncoder, videoWindow, settings))
 			throw std::runtime_error("Could not initialize VideoRenderer");
 
 		if (!videoDecoderThread->initialize(videoDecoder))

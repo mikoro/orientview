@@ -67,17 +67,17 @@ void RenderOnScreenThread::run()
 			videoStabilizer->processFrame(&frameDataGrayscale);
 
 		videoWindow->getContext()->makeCurrent(videoWindow);
-		videoRenderer->startRendering(videoWindow->width(), videoWindow->height());
+		videoRenderer->startRendering(videoWindow->width(), videoWindow->height(), frameDuration);
 
 		if (gotFrame)
 		{
 			videoRenderer->uploadFrameData(&frameData);
 			videoDecoderThread->signalFrameRead();
-			videoRenderer->renderVideoPanel(videoWindow->width(), videoWindow->height());
+			//videoRenderer->renderVideoPanel();
 		}
 
-		videoRenderer->renderMapPanel(videoWindow->width(), videoWindow->height());
-		videoRenderer->renderInfoPanel(videoWindow->width(), videoWindow->height(), frameDuration, spareTime);
+		videoRenderer->renderMapPanel();
+		videoRenderer->renderInfoPanel(spareTime);
 		videoRenderer->stopRendering();
 
 		spareTime = videoDecoder->getVideoInfo().averageFrameDuration - (spareTimer.nsecsElapsed() / 1000000.0);

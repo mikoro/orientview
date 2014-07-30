@@ -109,7 +109,9 @@ void RenderOffScreenThread::run()
 {
 	FrameData decodedFrameData;
 	FrameData decodedFrameDataGrayscale;
+	
 	QElapsedTimer frameDurationTimer;
+	double frameDuration = 0.0;
 
 	frameDurationTimer.start();
 	frameReadSemaphore->release(1);
@@ -124,13 +126,12 @@ void RenderOffScreenThread::run()
 			encodeWindow->getContext()->makeCurrent(encodeWindow->getSurface());
 			mainFramebuffer->bind();
 
-			videoRenderer->startRendering(framebufferWidth, framebufferHeight);
+			videoRenderer->startRendering(framebufferWidth, framebufferHeight, frameDuration);
 			videoRenderer->uploadFrameData(&decodedFrameData);
 			videoDecoderThread->signalFrameRead();
-			videoRenderer->renderVideoPanel(framebufferWidth, framebufferHeight);
-			videoRenderer->renderMapPanel(framebufferWidth, framebufferHeight);
-			videoRenderer->renderInfoPanel(framebufferWidth, framebufferHeight, frameDurationTimer.nsecsElapsed() / 1000000.0, 0.0);
-			frameDurationTimer.restart();
+			videoRenderer->renderVideoPanel();
+			videoRenderer->renderMapPanel();
+			videoRenderer->renderInfoPanel(0);
 			videoRenderer->stopRendering();
 
 			while (!frameReadSemaphore->tryAcquire(1, 20) && !isInterruptionRequested()) {}
@@ -143,6 +144,9 @@ void RenderOffScreenThread::run()
 			renderedFrameData.number = decodedFrameData.number;
 
 			frameAvailableSemaphore->release(1);
+
+			frameDuration = frameDurationTimer.nsecsElapsed() / 1000000.0;
+			frameDurationTimer.restart();
 		}
 	}
 
