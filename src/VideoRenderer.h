@@ -35,11 +35,13 @@ namespace OrientView
 		double texelHeight = 0.0;
 
 		GLuint vertexMatrixUniform = 0;
-		GLuint texelWidthUniform = 0;
-		GLuint texelHeightUniform = 0;
 		GLuint vertexPositionAttribute = 0;
 		GLuint vertexTextureCoordinateAttribute = 0;
 		GLuint textureSamplerUniform = 0;
+		GLuint textureWidthUniform = 0;
+		GLuint textureHeightUniform = 0;
+		GLuint texelWidthUniform = 0;
+		GLuint texelHeightUniform = 0;
 	};
 
 	class VideoRenderer : protected QOpenGLFunctions
@@ -76,6 +78,8 @@ namespace OrientView
 
 		double mapPanelRelativeWidth = 0.0;
 		double mapPanelScale = 0.0;
+		double mapPanelX = 0.0;
+		double mapPanelY = 0.0;
 		double windowWidth = 0.0;
 		double windowHeight = 0.0;
 		double frameTime = 0.0;
