@@ -1,8 +1,6 @@
 #version 120
 
 uniform mat4 vertexMatrix;
-uniform float texelWidth;
-uniform float texelHeight;
 
 attribute vec3 vertexPosition;
 attribute vec2 vertexTextureCoordinate;
