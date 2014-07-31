@@ -25,8 +25,8 @@ bool VideoEncoder::initialize(const QString& fileName, VideoDecoder* videoDecode
 		return false;
 	}
 
-	param.i_width = settings->display.width;
-	param.i_height = settings->display.height;
+	param.i_width = settings->window.width;
+	param.i_height = settings->window.height;
 	param.i_fps_num = videoDecoder->getVideoInfo().averageFrameRateNum;
 	param.i_fps_den = videoDecoder->getVideoInfo().averageFrameRateDen;
 	param.i_timebase_num = param.i_fps_den;
@@ -59,13 +59,13 @@ bool VideoEncoder::initialize(const QString& fileName, VideoDecoder* videoDecode
 
 	convertedPicture = new x264_picture_t();
 
-	if (x264_picture_alloc(convertedPicture, X264_CSP_I420, settings->display.width, settings->display.height) < 0)
+	if (x264_picture_alloc(convertedPicture, X264_CSP_I420, settings->window.width, settings->window.height) < 0)
 	{
 		qWarning("Could not allocate encoder picture");
 		return false;
 	}
 
-	swsContext = sws_getContext(settings->display.width, settings->display.height, PIX_FMT_RGBA, settings->display.width, settings->display.height, PIX_FMT_YUV420P, SWS_BILINEAR, nullptr, nullptr, nullptr);
+	swsContext = sws_getContext(settings->window.width, settings->window.height, PIX_FMT_RGBA, settings->window.width, settings->window.height, PIX_FMT_YUV420P, SWS_BILINEAR, nullptr, nullptr, nullptr);
 
 	if (!swsContext)
 	{

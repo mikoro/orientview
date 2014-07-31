@@ -24,7 +24,7 @@ bool EncodeWindow::initialize(Settings* settings)
 	setWindowFlags(Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::Dialog | Qt::WindowSystemMenuHint);
 
 	QSurfaceFormat surfaceFormat;
-	surfaceFormat.setSamples(settings->display.multisamples);
+	surfaceFormat.setSamples(settings->window.multisamples);
 
 	qDebug("Creating offscreen surface");
 

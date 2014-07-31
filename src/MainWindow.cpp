@@ -64,89 +64,48 @@ MainWindow::~MainWindow()
 	delete videoEncoderThread;
 }
 
-void MainWindow::on_pushButtonBrowseVideoFile_clicked()
+void MainWindow::on_actionOpen_triggered()
 {
 	QFileDialog fileDialog(this);
 	fileDialog.setFileMode(QFileDialog::ExistingFile);
-	fileDialog.setWindowTitle(tr("Open video file"));
-	fileDialog.setNameFilter(tr("Video files (*.mp4 *.avi);;All files (*.*)"));
-	QStringList fileNames;
+	fileDialog.setWindowTitle(tr("Open OrientView settings"));
+	fileDialog.setNameFilter(tr("OrientView settings files (*.orv)"));
 
 	if (fileDialog.exec())
 	{
-		fileNames = fileDialog.selectedFiles();
-		ui->lineEditVideoFile->setText(fileNames.at(0));
+		QSettings userSettings(fileDialog.selectedFiles().at(0), QSettings::IniFormat);
+		settings->read(&userSettings);
+		settings->apply(ui);
 	}
 }
 
-void MainWindow::on_pushButtonBrowseMapFile_clicked()
-{
-	QFileDialog fileDialog(this);
-	fileDialog.setFileMode(QFileDialog::ExistingFile);
-	fileDialog.setWindowTitle(tr("Open QuickRoute JPEG file"));
-	fileDialog.setNameFilter(tr("QuickRoute JPEG files (*.jpg);;All files (*.*)"));
-	QStringList fileNames;
-
-	if (fileDialog.exec())
-	{
-		fileNames = fileDialog.selectedFiles();
-		ui->lineEditMapFile->setText(fileNames.at(0));
-	}
-}
-
-void MainWindow::on_pushButtonBrowseSettingsFile_clicked()
-{
-	QFileDialog fileDialog(this);
-	fileDialog.setFileMode(QFileDialog::ExistingFile);
-	fileDialog.setWindowTitle(tr("Open settings file"));
-	fileDialog.setNameFilter(tr("Settings files (*.ini);;All files (*.*)"));
-	QStringList fileNames;
-
-	if (fileDialog.exec())
-	{
-		fileNames = fileDialog.selectedFiles();
-		ui->lineEditSettingsFile->setText(fileNames.at(0));
-	}
-}
-
-void MainWindow::on_pushButtonEditSettingsFile_clicked()
-{
-	QString fileName = ui->lineEditSettingsFile->text();
-
-	if (QFile::exists(fileName))
-	{
-		QFileInfo fileInfo(fileName);
-		QDesktopServices::openUrl(QUrl(QString("file:///%1").arg(fileInfo.absoluteFilePath())));
-	}
-}
-
-void MainWindow::on_pushButtonBrowseOutputVideoFile_clicked()
+void MainWindow::on_actionSaveAs_triggered()
 {
 	QFileDialog fileDialog(this);
 	fileDialog.setFileMode(QFileDialog::AnyFile);
-	fileDialog.setWindowTitle(tr("Save video file"));
-	fileDialog.setNameFilter(tr("Video files (*.mp4)"));
-	fileDialog.setDefaultSuffix(tr("mp4"));
+	fileDialog.setWindowTitle(tr("Save OrientView settings"));
+	fileDialog.setNameFilter(tr("OrientView settings files (*.orv)"));
+	fileDialog.setDefaultSuffix(tr("orv"));
 	fileDialog.setAcceptMode(QFileDialog::AcceptSave);
 	QStringList fileNames;
 
 	if (fileDialog.exec())
 	{
-		fileNames = fileDialog.selectedFiles();
-		ui->lineEditOutputVideoFile->setText(fileNames.at(0));
+		QSettings userSettings(fileDialog.selectedFiles().at(0), QSettings::IniFormat);
+		settings->update(ui);
+		settings->write(&userSettings);
 	}
 }
 
-void MainWindow::on_pushButtonRun_clicked()
+void MainWindow::on_actionPlayVideo_triggered()
 {
 	this->setCursor(Qt::WaitCursor);
 
 	try
 	{
-		if (!settings->initialize(ui->lineEditSettingsFile->text()))
-			throw std::runtime_error("Could not initialize Settings");
+		settings->update(ui);
 
-		if(!videoDecoder->initialize(ui->lineEditVideoFile->text(), settings))
+		if (!videoDecoder->initialize(ui->lineEditVideoFile->text(), settings))
 			throw std::runtime_error("Could not initialize VideoDecoder");
 
 		if (!quickRouteJpegReader->initialize(ui->lineEditMapFile->text()))
@@ -192,19 +151,18 @@ void MainWindow::on_pushButtonRun_clicked()
 	this->setCursor(Qt::ArrowCursor);
 }
 
-void MainWindow::on_pushButtonEncode_clicked()
+void MainWindow::on_actionEncodeVideo_triggered()
 {
 	this->setCursor(Qt::WaitCursor);
 
 	try
 	{
-		if (!settings->initialize(ui->lineEditSettingsFile->text()))
-			throw std::runtime_error("Could not initialize Settings");
+		settings->update(ui);
 
 		if (!videoDecoder->initialize(ui->lineEditVideoFile->text(), settings))
 			throw std::runtime_error("Could not initialize VideoDecoder");
 
-		if (!videoEncoder->initialize(ui->lineEditOutputVideoFile->text(), videoDecoder, settings))
+		if (!videoEncoder->initialize(ui->lineEditOutputFile->text(), videoDecoder, settings))
 			throw std::runtime_error("Could not initialize VideoEncoder");
 
 		if (!quickRouteJpegReader->initialize(ui->lineEditMapFile->text()))
@@ -253,6 +211,11 @@ void MainWindow::on_pushButtonEncode_clicked()
 	this->setCursor(Qt::ArrowCursor);
 }
 
+void MainWindow::on_actionExit_triggered()
+{
+	close();
+}
+
 void MainWindow::videoWindowClosing()
 {
 	renderOnScreenThread->requestInterruption();
@@ -272,7 +235,6 @@ void MainWindow::videoWindowClosing()
 	videoStabilizer->shutdown();
 	quickRouteJpegReader->shutdown();
 	videoDecoder->shutdown();
-	settings->shutdown();
 
 	this->show();
 	this->activateWindow();
@@ -303,30 +265,78 @@ void MainWindow::encodeWindowClosing()
 	quickRouteJpegReader->shutdown();
 	videoEncoder->shutdown();
 	videoDecoder->shutdown();
-	settings->shutdown();
+}
+
+void MainWindow::on_pushButtonBrowseVideoFile_clicked()
+{
+	QFileDialog fileDialog(this);
+	fileDialog.setFileMode(QFileDialog::ExistingFile);
+	fileDialog.setWindowTitle(tr("Select video file"));
+	fileDialog.setNameFilter(tr("Video files (*.mp4 *.avi *.mkv);;All files (*.*)"));
+
+	if (fileDialog.exec())
+		ui->lineEditVideoFile->setText(fileDialog.selectedFiles().at(0));
+}
+
+void MainWindow::on_pushButtonBrowseMapFile_clicked()
+{
+	QFileDialog fileDialog(this);
+	fileDialog.setFileMode(QFileDialog::ExistingFile);
+	fileDialog.setWindowTitle(tr("Select map image file"));
+	fileDialog.setNameFilter(tr("Map image files (*.jpg *.png *.tiff);;All files (*.*)"));
+	
+	if (fileDialog.exec())
+		ui->lineEditMapFile->setText(fileDialog.selectedFiles().at(0));
+}
+
+void MainWindow::on_pushButtonBrowseGpxFile_clicked()
+{
+	QFileDialog fileDialog(this);
+	fileDialog.setFileMode(QFileDialog::ExistingFile);
+	fileDialog.setWindowTitle(tr("Select GPX file"));
+	fileDialog.setNameFilter(tr("GPX files (*.gpx);;All files (*.*)"));
+
+	if (fileDialog.exec())
+		ui->lineEditGpxFile->setText(fileDialog.selectedFiles().at(0));
+}
+
+void MainWindow::on_pushButtonBrowseOutputFile_clicked()
+{
+	QFileDialog fileDialog(this);
+	fileDialog.setFileMode(QFileDialog::AnyFile);
+	fileDialog.setWindowTitle(tr("Select output file"));
+	fileDialog.setNameFilter(tr("Video files (*.mp4)"));
+	fileDialog.setDefaultSuffix(tr("mp4"));
+	fileDialog.setAcceptMode(QFileDialog::AcceptSave);
+
+	if (fileDialog.exec())
+		ui->lineEditOutputFile->setText(fileDialog.selectedFiles().at(0));
+}
+
+void MainWindow::on_pushButtonLoadCalibrationData_clicked()
+{
+	QFileDialog fileDialog(this);
+	fileDialog.setFileMode(QFileDialog::ExistingFile);
+	fileDialog.setWindowTitle(tr("Open QuickRoute file"));
+	fileDialog.setNameFilter(tr("QuickRoute files (*.qrt *.jpg);;All files (*.*)"));
+
+	if (fileDialog.exec())
+	{
+	}
 }
 
 void MainWindow::readSettings()
 {
-	QSettings tempSettings;
-
-	ui->lineEditVideoFile->setText(tempSettings.value("mainWindow/videoFile", "").toString());
-	ui->lineEditMapFile->setText(tempSettings.value("mainWindow/mapFile", "").toString());
-	ui->lineEditSettingsFile->setText(tempSettings.value("mainWindow/settingsFile", "").toString());
-	ui->lineEditOutputVideoFile->setText(tempSettings.value("mainWindow/outputVideoFile", "").toString());
-
-	if (ui->lineEditSettingsFile->text().isEmpty())
-		ui->lineEditSettingsFile->setText("data/settings/default.ini");
+	QSettings localSettings;
+	settings->read(&localSettings);
+	settings->apply(ui);
 }
 
 void MainWindow::writeSettings()
 {
-	QSettings tempSettings;
-
-	tempSettings.setValue("mainWindow/videoFile", ui->lineEditVideoFile->text());
-	tempSettings.setValue("mainWindow/mapFile", ui->lineEditMapFile->text());
-	tempSettings.setValue("mainWindow/settingsFile", ui->lineEditSettingsFile->text());
-	tempSettings.setValue("mainWindow/outputVideoFile", ui->lineEditOutputVideoFile->text());
+	QSettings localSettings;
+	settings->update(ui);
+	settings->write(&localSettings);
 }
 
 void MainWindow::closeEvent(QCloseEvent* event)

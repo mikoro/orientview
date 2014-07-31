@@ -29,12 +29,12 @@ bool RenderOffScreenThread::initialize(MainWindow* mainWindow, EncodeWindow* enc
 	this->videoStabilizer = videoStabilizer;
 	this->videoRenderer = videoRenderer;
 
-	framebufferWidth = settings->display.width;
-	framebufferHeight = settings->display.height;
+	framebufferWidth = settings->window.width;
+	framebufferHeight = settings->window.height;
 	stabilizationEnabled = settings->stabilization.enabled;
 
 	QOpenGLFramebufferObjectFormat mainFboFormat;
-	mainFboFormat.setSamples(settings->display.multisamples);
+	mainFboFormat.setSamples(settings->window.multisamples);
 	mainFboFormat.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
 
 	mainFramebuffer = new QOpenGLFramebufferObject(framebufferWidth, framebufferHeight, mainFboFormat);

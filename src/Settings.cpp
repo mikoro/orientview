@@ -5,52 +5,130 @@
 #include <QSettings>
 
 #include "Settings.h"
+#include "ui_MainWindow.h"
 
 using namespace OrientView;
 
-Settings::Settings()
+void Settings::read(QSettings* settings)
 {
+	files.videoFilePath = settings->value("files/videoFilePath", "").toString();
+	files.mapFilePath = settings->value("files/mapFilePath", "").toString();
+	files.gpxFilePath = settings->value("files/gpxFilePath", "").toString();
+	files.outputFilePath = settings->value("files/outputFilePath", "").toString();
+
+	window.width = settings->value("window/width", 1280).toInt();
+	window.height = settings->value("window/height", 720).toInt();
+	window.multisamples = settings->value("window/multisamples", 0).toInt();
+	window.fullscreen = settings->value("window/fullscreen", false).toBool();
+	window.hideCursor = settings->value("window/hideCursor", false).toBool();
+
+	appearance.showInfoPanel = settings->value("appearance/showInfoPanel", false).toBool();
+	appearance.mapPanelWidth = settings->value("appearance/mapPanelWidth", 0.3).toDouble();
+	appearance.mapHeaderCrop = settings->value("appearance/mapHeaderCrop", 0).toInt();
+	
+	decoder.frameCountDivisor = settings->value("decoder/frameCountDivisor", 1).toInt();
+	decoder.frameDurationDivisor = settings->value("decoder/frameDurationDivisor", 1).toInt();
+
+	stabilization.enabled = settings->value("stabilization/enabled", true).toBool();
+	stabilization.imageSizeDivisor = settings->value("stabilization/imageSizeDivisor", 8).toInt();
+
+	shaders.videoPanelShader = settings->value("shaders/videoPanelShader", "default").toString();
+	shaders.mapPanelShader = settings->value("shaders/mapPanelShader", "default").toString();
+
+	encoder.preset = settings->value("encoder/preset", "veryfast").toString();
+	encoder.profile = settings->value("encoder/profile", "high").toString();
+	encoder.constantRateFactor = settings->value("encoder/constantRateFactor", 23).toInt();
 }
 
-bool Settings::initialize(const QString& fileName)
+void Settings::write(QSettings* settings)
 {
-	qDebug("Initializing Settings (%s)", fileName.toLocal8Bit().constData());
+	settings->setValue("files/videoFilePath", files.videoFilePath);
+	settings->setValue("files/mapFilePath", files.mapFilePath);
+	settings->setValue("files/gpxFilePath", files.gpxFilePath);
+	settings->setValue("files/outputFilePath", files.outputFilePath);
 
-	if (!QFile::exists(fileName))
-	{
-		qWarning("Settings file doesn't exist");
-		return false;
-	}
+	settings->setValue("window/width", window.width);
+	settings->setValue("window/height", window.height);
+	settings->setValue("window/multisamples", window.multisamples);
+	settings->setValue("window/fullscreen", window.fullscreen);
+	settings->setValue("window/hideCursor", window.hideCursor);
 
-	QSettings settings(fileName, QSettings::IniFormat);
+	settings->setValue("appearance/showInfoPanel", appearance.showInfoPanel);
+	settings->setValue("appearance/mapPanelWidth", appearance.mapPanelWidth);
+	settings->setValue("appearance/mapHeaderCrop", appearance.mapHeaderCrop);
 
-	display.width = settings.value("display/width", 1280).toInt();
-	display.height = settings.value("display/height", 720).toInt();
-	display.multisamples = settings.value("display/multisamples", 0).toInt();
-	display.fullscreen = settings.value("display/fullscreen", false).toBool();
-	display.hideCursor = settings.value("display/hideCursor", false).toBool();
+	settings->setValue("decoder/frameCountDivisor", decoder.frameCountDivisor);
+	settings->setValue("decoder/frameDurationDivisor", decoder.frameDurationDivisor);
 
-	shaders.videoPanelShader = settings.value("shaders/videoPanelShader", "basic").toString();
-	shaders.mapPanelShader = settings.value("shaders/mapPanelShader", "basic").toString();
+	settings->setValue("stabilization/enabled", stabilization.enabled);
+	settings->setValue("stabilization/imageSizeDivisor", stabilization.imageSizeDivisor);
 
-	appearance.mapImageHeaderCrop = settings.value("appearance/mapImageHeaderCrop", 0).toInt();
-	appearance.mapPanelWidth = settings.value("appearance/mapPanelWidth", 0.3).toDouble();
-	appearance.showInfoPanel = settings.value("appearance/showInfoPanel", false).toBool();
+	settings->setValue("shaders/videoPanelShader", shaders.videoPanelShader);
+	settings->setValue("shaders/mapPanelShader", shaders.mapPanelShader);
 
-	stabilization.enabled = settings.value("stabilization/enabled", true).toBool();
-	stabilization.imageSizeDivisor = settings.value("stabilization/imageSizeDivisor", 1).toInt();
-
-	decoder.frameCountDivisor = settings.value("decoder/frameCountDivisor", 1).toInt();
-	decoder.frameDurationDivisor = settings.value("decoder/frameDurationDivisor", 1).toInt();
-
-	encoder.preset = settings.value("encoder/preset", "veryfast").toString();
-	encoder.profile = settings.value("encoder/profile", "high").toString();
-	encoder.constantRateFactor = settings.value("encoder/constantRateFactor", 23).toInt();
-
-	return true;
+	settings->setValue("encoder/preset", encoder.preset);
+	settings->setValue("encoder/profile", encoder.profile);
+	settings->setValue("encoder/constantRateFactor", encoder.constantRateFactor);
 }
 
-void Settings::shutdown()
+void Settings::update(Ui::MainWindow* ui)
 {
-	qDebug("Shutting down Settings");
+	files.videoFilePath = ui->lineEditVideoFile->text();
+	files.mapFilePath = ui->lineEditMapFile->text();
+	files.gpxFilePath = ui->lineEditGpxFile->text();
+	files.outputFilePath = ui->lineEditOutputFile->text();
+
+	window.width = ui->spinBoxWindowWidth->value();
+	window.height = ui->spinBoxWindowHeight->value();
+	window.multisamples = ui->comboBoxMultisamples->currentText().toInt();
+	window.fullscreen = ui->checkBoxFullscreen->isChecked();
+	window.hideCursor = ui->checkBoxHideCursor->isChecked();
+
+	appearance.showInfoPanel = ui->checkBoxShowInfoPanel->isChecked();
+	appearance.mapPanelWidth = ui->doubleSpinBoxMapPanelWidth->value();
+	appearance.mapHeaderCrop = ui->spinBoxMapHeaderCrop->value();
+
+	decoder.frameCountDivisor = ui->spinBoxFrameCountDivisor->value();
+	decoder.frameDurationDivisor = ui->spinBoxFrameDurationDivisor->value();
+
+	stabilization.enabled = ui->checkBoxStabilizationEnabled->isChecked();
+	stabilization.imageSizeDivisor = ui->spinBoxStabilizationImageSizeDivisor->value();
+
+	shaders.videoPanelShader = ui->comboBoxVideoPanelShader->currentText();
+	shaders.mapPanelShader = ui->comboBoxMapPanelShader->currentText();
+
+	encoder.preset = ui->comboBoxEncoderPreset->currentText();
+	encoder.profile = ui->comboBoxEncoderProfile->currentText();
+	encoder.constantRateFactor = ui->spinBoxConstantRateFactor->value();
+}
+
+void Settings::apply(Ui::MainWindow* ui)
+{
+	ui->lineEditVideoFile->setText(files.videoFilePath);
+	ui->lineEditMapFile->setText(files.mapFilePath);
+	ui->lineEditGpxFile->setText(files.gpxFilePath);
+	ui->lineEditOutputFile->setText(files.outputFilePath);
+
+	ui->spinBoxWindowWidth->setValue(window.width);
+	ui->spinBoxWindowHeight->setValue(window.height);
+	ui->comboBoxMultisamples->setCurrentText(QString::number(window.multisamples));
+	ui->checkBoxFullscreen->setChecked(window.fullscreen);
+	ui->checkBoxHideCursor->setChecked(window.hideCursor);
+
+	ui->checkBoxShowInfoPanel->setChecked(appearance.showInfoPanel);
+	ui->doubleSpinBoxMapPanelWidth->setValue(appearance.mapPanelWidth);
+	ui->spinBoxMapHeaderCrop->setValue(appearance.mapHeaderCrop);
+
+	ui->spinBoxFrameCountDivisor->setValue(decoder.frameCountDivisor);
+	ui->spinBoxFrameDurationDivisor->setValue(decoder.frameDurationDivisor);
+
+	ui->checkBoxStabilizationEnabled->setChecked(stabilization.enabled);
+	ui->spinBoxStabilizationImageSizeDivisor->setValue(stabilization.imageSizeDivisor);
+
+	ui->comboBoxVideoPanelShader->setCurrentText(shaders.videoPanelShader);
+	ui->comboBoxMapPanelShader->setCurrentText(shaders.mapPanelShader);
+
+	ui->comboBoxEncoderPreset->setCurrentText(encoder.preset);
+	ui->comboBoxEncoderProfile->setCurrentText(encoder.profile);
+	ui->spinBoxConstantRateFactor->setValue(encoder.constantRateFactor);
 }

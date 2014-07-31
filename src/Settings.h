@@ -4,6 +4,12 @@
 #pragma once
 
 #include <QString>
+#include <QSettings>
+
+namespace Ui
+{
+	class MainWindow;
+}
 
 namespace OrientView
 {
@@ -12,12 +18,21 @@ namespace OrientView
 
 	public:
 
-		Settings();
+		void read(QSettings* settings);
+		void write(QSettings* settings);
+		void update(Ui::MainWindow* ui);
+		void apply(Ui::MainWindow* ui);
 
-		bool initialize(const QString& fileName);
-		void shutdown();
+		struct Files
+		{
+			QString videoFilePath;
+			QString mapFilePath;
+			QString gpxFilePath;
+			QString outputFilePath;
 
-		struct Display
+		} files;
+
+		struct Window
 		{
 			int width = 0;
 			int height = 0;
@@ -25,22 +40,22 @@ namespace OrientView
 			bool fullscreen = false;
 			bool hideCursor = false;
 
-		} display;
-
-		struct Shaders
-		{
-			QString videoPanelShader;
-			QString mapPanelShader;
-
-		} shaders;
+		} window;
 
 		struct Appearance
 		{
-			int mapImageHeaderCrop = 0;
-			double mapPanelWidth = 0.0;
 			bool showInfoPanel = false;
+			double mapPanelWidth = 0.0;
+			int mapHeaderCrop = 0;
 
 		} appearance;
+
+		struct Decoder
+		{
+			int frameCountDivisor = 0;
+			int frameDurationDivisor = 0;
+
+		} decoder;
 
 		struct Stabilization
 		{
@@ -49,12 +64,12 @@ namespace OrientView
 
 		} stabilization;
 
-		struct Decoder
+		struct Shaders
 		{
-			int frameCountDivisor = 0;
-			int frameDurationDivisor = 0;
+			QString videoPanelShader;
+			QString mapPanelShader;
 
-		} decoder;
+		} shaders;
 
 		struct Encoder
 		{

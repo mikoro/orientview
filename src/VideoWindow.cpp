@@ -25,15 +25,15 @@ bool VideoWindow::initialize(RenderOnScreenThread* renderOnScreenThread, Setting
 	setSurfaceType(QWindow::OpenGLSurface);
 	setIcon(QIcon(":/MainView/misc/orientview.ico"));
 	setTitle("OrientView - Video");
-	resize(settings->display.width, settings->display.height);
+	resize(settings->window.width, settings->window.height);
 	setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, size(), QApplication::desktop()->availableGeometry()));
-	setWindowState(settings->display.fullscreen ? Qt::WindowFullScreen : Qt::WindowNoState);
-	setCursor(settings->display.hideCursor ? Qt::BlankCursor : Qt::ArrowCursor);
+	setWindowState(settings->window.fullscreen ? Qt::WindowFullScreen : Qt::WindowNoState);
+	setCursor(settings->window.hideCursor ? Qt::BlankCursor : Qt::ArrowCursor);
 	
 	qDebug("Creating OpenGL context");
 
 	QSurfaceFormat surfaceFormat;
-	surfaceFormat.setSamples(settings->display.multisamples);
+	surfaceFormat.setSamples(settings->window.multisamples);
 	this->setFormat(surfaceFormat);
 
 	context = new QOpenGLContext();
