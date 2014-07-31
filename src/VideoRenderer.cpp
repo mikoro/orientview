@@ -241,7 +241,9 @@ void VideoRenderer::renderVideoPanel()
 		//videoPanel.vertexMatrix.ortho(-windowWidth / 2, windowWidth / 2, windowHeight / 2, -windowHeight / 2, 0.0f, 1.0f);
 	}
 
-	videoPanel.vertexMatrix.scale(2.0f);
+	videoPanel.vertexMatrix.rotate(-videoStabilizer->getAngle(), 0.0f, 0.0f, 1.0f);
+	videoPanel.vertexMatrix.translate(-videoStabilizer->getX() * videoPanel.textureWidth, videoStabilizer->getY() * videoPanel.textureHeight, 0.0f);
+	//videoPanel.vertexMatrix.scale(2.0f);
 
 	renderPanel(&videoPanel);
 }

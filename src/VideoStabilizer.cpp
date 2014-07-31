@@ -76,9 +76,9 @@ void VideoStabilizer::processFrame(FrameData* frameDataGrayscale)
 	accumulatedY += deltaY;
 	accumulatedAngle += deltaAngle;
 
-	accumulatedX -= accumulatedX / 10;
-	accumulatedY -= accumulatedY / 10;
-	accumulatedAngle -= accumulatedAngle / 10;
+	accumulatedX -= accumulatedX / 100 * 2;
+	accumulatedY -= accumulatedY / 100 * 2;
+	accumulatedAngle -= accumulatedAngle / 100 * 2;
 
 	previousCorners.clear();
 	currentCorners.clear();
