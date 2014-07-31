@@ -157,7 +157,7 @@ void MainWindow::on_pushButtonRun_clicked()
 
 		videoWindow->show();
 
-		if (!videoWindow->initialize(settings))
+		if (!videoWindow->initialize(renderOnScreenThread, settings))
 			throw std::runtime_error("Could not initialize VideoWindow");
 
 		if (!videoRenderer->initialize(videoDecoder, quickRouteJpegReader, videoStabilizer, videoEncoder, videoWindow, settings))

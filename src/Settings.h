@@ -36,6 +36,7 @@ namespace OrientView
 
 		struct Appearance
 		{
+			int mapImageHeaderCrop = 0;
 			double mapPanelWidth = 0.0;
 			bool showInfoPanel = false;
 

@@ -26,6 +26,8 @@ namespace OrientView
 		bool initialize(MainWindow* mainWindow, VideoWindow* videoWindow, VideoDecoder* videoDecoder, VideoDecoderThread* videoDecoderThread, VideoStabilizer* videoStabilizer, VideoRenderer* videoRenderer, Settings* settings);
 		void shutdown();
 
+		void toggleRenderInfoPanel();
+
 	protected:
 
 		void run();
@@ -40,5 +42,6 @@ namespace OrientView
 		VideoRenderer* videoRenderer = nullptr;
 
 		bool stabilizationEnabled = false;
+		bool renderInfoPanel = false;
 	};
 }

@@ -7,6 +7,7 @@
 #include <QKeyEvent>
 
 #include "VideoWindow.h"
+#include "RenderOnScreenThread.h"
 #include "Settings.h"
 
 using namespace OrientView;
@@ -15,9 +16,11 @@ VideoWindow::VideoWindow(QWindow* parent) : QWindow(parent)
 {
 }
 
-bool VideoWindow::initialize(Settings* settings)
+bool VideoWindow::initialize(RenderOnScreenThread* renderOnScreenThread, Settings* settings)
 {
 	qDebug("Initializing VideoWindow");
+
+	this->renderOnScreenThread = renderOnScreenThread;
 
 	setSurfaceType(QWindow::OpenGLSurface);
 	setIcon(QIcon(":/MainView/misc/orientview.ico"));
@@ -99,6 +102,9 @@ bool VideoWindow::event(QEvent* event)
 			emit closing();
 			this->close();
 		}
+
+		if (ke->key() == Qt::Key_F1)
+			renderOnScreenThread->toggleRenderInfoPanel();
 	}
 
 	if (event->type() == QEvent::KeyRelease)

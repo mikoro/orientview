@@ -33,6 +33,7 @@ bool Settings::initialize(const QString& fileName)
 	shaders.videoPanelShader = settings.value("shaders/videoPanelShader", "basic").toString();
 	shaders.mapPanelShader = settings.value("shaders/mapPanelShader", "basic").toString();
 
+	appearance.mapImageHeaderCrop = settings.value("appearance/mapImageHeaderCrop", 0).toInt();
 	appearance.mapPanelWidth = settings.value("appearance/mapPanelWidth", 0.3).toDouble();
 	appearance.showInfoPanel = settings.value("appearance/showInfoPanel", false).toBool();
 

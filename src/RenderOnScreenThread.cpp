@@ -30,6 +30,7 @@ bool RenderOnScreenThread::initialize(MainWindow* mainWindow, VideoWindow* video
 	this->videoRenderer = videoRenderer;
 
 	stabilizationEnabled = settings->stabilization.enabled;
+	renderInfoPanel = settings->appearance.showInfoPanel;
 
 	return true;
 }
@@ -37,6 +38,11 @@ bool RenderOnScreenThread::initialize(MainWindow* mainWindow, VideoWindow* video
 void RenderOnScreenThread::shutdown()
 {
 	qDebug("Shutting down RenderOnScreenThread");
+}
+
+void RenderOnScreenThread::toggleRenderInfoPanel()
+{
+	renderInfoPanel = !renderInfoPanel;
 }
 
 void RenderOnScreenThread::run()
@@ -77,7 +83,10 @@ void RenderOnScreenThread::run()
 		}
 
 		//videoRenderer->renderMapPanel();
-		videoRenderer->renderInfoPanel(spareTime);
+
+		if (renderInfoPanel)
+			videoRenderer->renderInfoPanel(spareTime);
+
 		videoRenderer->stopRendering();
 
 		spareTime = videoDecoder->getVideoInfo().averageFrameDuration - (spareTimer.nsecsElapsed() / 1000000.0);
