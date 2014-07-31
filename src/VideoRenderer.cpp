@@ -234,12 +234,14 @@ void VideoRenderer::renderVideoPanel()
 
 	if (!flipOutput)
 	{
-		videoPanel.vertexMatrix.ortho(0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f);
+		videoPanel.vertexMatrix.ortho(-windowWidth / 2, windowWidth / 2, -windowHeight / 2, windowHeight / 2, 0.0f, 1.0f);
 	}
 	else
 	{
-		//videoPanel.vertexMatrix.ortho(0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f);
+		//videoPanel.vertexMatrix.ortho(-windowWidth / 2, windowWidth / 2, windowHeight / 2, -windowHeight / 2, 0.0f, 1.0f);
 	}
+
+	videoPanel.vertexMatrix.scale(2.0f);
 
 	renderPanel(&videoPanel);
 }

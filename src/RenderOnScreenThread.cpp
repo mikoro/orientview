@@ -73,10 +73,10 @@ void RenderOnScreenThread::run()
 		{
 			videoRenderer->uploadFrameData(&frameData);
 			videoDecoderThread->signalFrameRead();
-			//videoRenderer->renderVideoPanel();
+			videoRenderer->renderVideoPanel();
 		}
 
-		videoRenderer->renderMapPanel();
+		//videoRenderer->renderMapPanel();
 		videoRenderer->renderInfoPanel(spareTime);
 		videoRenderer->stopRendering();
 
