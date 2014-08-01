@@ -13,6 +13,7 @@ namespace OrientView
 		void setAlpha(double value);
 		void addMeasurement(double value);
 		double getAverage() const;
+		void reset();
 
 	private:
 

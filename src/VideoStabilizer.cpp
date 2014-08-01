@@ -4,6 +4,7 @@
 #include <QElapsedTimer>
 
 #include "VideoStabilizer.h"
+#include "Settings.h"
 #include "FrameData.h"
 
 #define PI 3.14159265358979323846
@@ -21,11 +22,16 @@ bool VideoStabilizer::initialize(Settings* settings)
 
 	isFirstImage = true;
 
-	dxCum = 0.0;
-	dyCum = 0.0;
-	dsxCum = 1.0;
-	dsyCum = 1.0;
-	daCum = 0.0;
+	currentX = 0.0;
+	currentY = 0.0;
+	currentAngle = 0.0;
+
+	currentXAverage.reset();
+	currentXAverage.setAlpha(settings->stabilization.averagingFactor);
+	currentYAverage.reset();
+	currentYAverage.setAlpha(settings->stabilization.averagingFactor);
+	currentAngleAverage.reset();
+	currentAngleAverage.setAlpha(settings->stabilization.averagingFactor);
 
 	lastProcessTime = 0.0;
 
@@ -35,7 +41,7 @@ bool VideoStabilizer::initialize(Settings* settings)
 	{
 		dataOutputFile.setFileName("stabilizer.txt");
 		dataOutputFile.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text);
-		dataOutputFile.write("dx;dy;da;dsx;dsy;dxCum;dyCum;daCum;dsxCum;dsyCum\n");
+		dataOutputFile.write("currentX;currentXAverage;normalizedX;currentY;currentYAverage;normalizedY;currentAngle;currentAngleAverage;normalizedAngle\n");
 	}
 
 	return true;
@@ -99,7 +105,7 @@ void VideoStabilizer::processFrame(FrameData* frameDataGrayscale)
 	}
 
 	cv::Mat transform;
-	
+
 	try
 	{
 		transform = cv::estimateRigidTransform(previousCornersFiltered, currentCornersFiltered, false);
@@ -112,7 +118,7 @@ void VideoStabilizer::processFrame(FrameData* frameDataGrayscale)
 
 	if (transform.data == nullptr)
 		failed = true;
-		
+
 	if (failed)
 		previousTransform.copyTo(transform);
 
@@ -130,19 +136,24 @@ void VideoStabilizer::processFrame(FrameData* frameDataGrayscale)
 	double dx = tx / frameDataGrayscale->width;
 	double dy = ty / frameDataGrayscale->height;
 	double da = atan2(c, d) * 180.0 / PI;
-	double dsx = sign(a) * sqrt(a * a + b * b);
-	double dsy = sign(d) * sqrt(c * c + d * d);
+	double ds = sign(a) * sqrt(a * a + b * b);
 
-	dxCum += dx;
-	dyCum += dy;
-	daCum += da;
-	dsxCum *= dsx;
-	dsyCum *= dsy;
+	currentX += dx;
+	currentY += dy;
+	currentAngle += da;
+
+	normalizedX =  currentXAverage.getAverage() - currentX;
+	normalizedY = currentYAverage.getAverage() - currentY;
+	normalizedAngle =  currentAngleAverage.getAverage() - currentAngle;
+
+	currentXAverage.addMeasurement(currentX);
+	currentYAverage.addMeasurement(currentY);
+	currentAngleAverage.addMeasurement(currentAngle);
 
 	if (outputData)
 	{
 		char buffer[1024];
-		sprintf(buffer, "%f;%f;%f;%f;%f;%f;%f;%f;%f;%f\n", dx, dy, da, dsx, dsy, dxCum, dyCum, daCum, dsxCum, dsyCum);
+		sprintf(buffer, "%f;%f;%f;%f;%f;%f;%f;%f;%f;\n", currentX, currentXAverage.getAverage(), normalizedX, currentY, currentYAverage.getAverage(), normalizedY, currentAngle, currentAngleAverage.getAverage(), normalizedAngle);
 		dataOutputFile.write(buffer);
 	}
 
@@ -158,27 +169,17 @@ void VideoStabilizer::processFrame(FrameData* frameDataGrayscale)
 
 double VideoStabilizer::getX() const
 {
-	return 0;
+	return normalizedX;
 }
 
 double VideoStabilizer::getY() const
 {
-	return 0;
+	return normalizedY;
 }
 
 double VideoStabilizer::getAngle() const
 {
-	return daCum;
-}
-
-double VideoStabilizer::getScaleX() const
-{
-	return dsxCum;
-}
-
-double VideoStabilizer::getScaleY() const
-{
-	return dsyCum;
+	return normalizedAngle;
 }
 
 double VideoStabilizer::getLastProcessTime() const

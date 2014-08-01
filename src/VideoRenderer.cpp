@@ -43,13 +43,19 @@ bool VideoRenderer::initialize(VideoDecoder* videoDecoder, QuickRouteJpegReader*
 	mapPanelY = 0.0;
 
 	const double movingAverageAlpha = 0.1;
-
+	averageFps.reset();
 	averageFps.setAlpha(movingAverageAlpha);
+	averageFrameTime.reset();
 	averageFrameTime.setAlpha(movingAverageAlpha);
+	averageDecodeTime.reset();
 	averageDecodeTime.setAlpha(movingAverageAlpha);
+	averageStabilizeTime.reset();
 	averageStabilizeTime.setAlpha(movingAverageAlpha);
+	averageRenderTime.reset();
 	averageRenderTime.setAlpha(movingAverageAlpha);
+	averageEncodeTime.reset();
 	averageEncodeTime.setAlpha(movingAverageAlpha);
+	averageSpareTime.reset();
 	averageSpareTime.setAlpha(movingAverageAlpha);
 
 	initializeOpenGLFunctions();
@@ -250,10 +256,9 @@ void VideoRenderer::renderVideoPanel()
 		videoPanel.vertexMatrix.ortho(-windowWidth / 2, windowWidth / 2, windowHeight / 2, -windowHeight / 2, 0.0f, 1.0f);
 	}
 
-	//videoPanel.vertexMatrix.rotate(videoStabilizer->getAngle(), 0.0f, 0.0f, 1.0f);
-	//videoPanel.vertexMatrix.translate(-videoStabilizer->getX() * videoPanel.textureWidth, videoStabilizer->getY() * videoPanel.textureHeight, 0.0f);
-	//videoPanel.vertexMatrix.scale(videoStabilizer->getScaleX(), videoStabilizer->getScaleY());
-	videoPanel.vertexMatrix.scale(1.0f / videoStabilizer->getScaleX(), 1.0f / videoStabilizer->getScaleY());
+	videoPanel.vertexMatrix.rotate(-videoStabilizer->getAngle(), 0.0f, 0.0f, 1.0f);
+	videoPanel.vertexMatrix.translate(videoStabilizer->getX() * videoPanel.textureWidth, -videoStabilizer->getY() * videoPanel.textureHeight, 0.0f);
+	//videoPanel.vertexMatrix.scale(1.5f);
 
 	renderPanel(&videoPanel);
 }

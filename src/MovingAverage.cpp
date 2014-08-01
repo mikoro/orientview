@@ -20,3 +20,8 @@ double MovingAverage::getAverage() const
 {
 	return smoothValue;
 }
+
+void MovingAverage::reset()
+{
+	smoothValue = previousSmoothValue = 0.0;
+}

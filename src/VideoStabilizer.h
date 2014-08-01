@@ -7,6 +7,8 @@
 
 #include "opencv2/opencv.hpp"
 
+#include "MovingAverage.h"
+
 namespace OrientView
 {
 	class Settings;
@@ -27,19 +29,23 @@ namespace OrientView
 		double getX() const;
 		double getY() const;
 		double getAngle() const;
-		double getScaleX() const;
-		double getScaleY() const;
+		double getScale() const;
 		double getLastProcessTime() const;
 
 	private:
 
 		bool isFirstImage = true;
 
-		double dxCum = 0.0;
-		double dyCum = 0.0;
-		double daCum = 0.0;
-		double dsxCum = 1.0;
-		double dsyCum = 1.0;
+		double currentX = 0.0;
+		double currentY = 0.0;
+		double currentAngle = 0.0;
+		double normalizedX = 0.0;
+		double normalizedY = 0.0;
+		double normalizedAngle = 0.0;
+
+		MovingAverage currentXAverage;
+		MovingAverage currentYAverage;
+		MovingAverage currentAngleAverage;
 
 		double lastProcessTime = 0.0;
 
@@ -54,6 +60,6 @@ namespace OrientView
 		cv::Mat previousTransform;
 
 		QFile dataOutputFile;
-		bool outputData = true;
+		bool outputData = false;
 	};
 }

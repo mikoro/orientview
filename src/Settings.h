@@ -76,6 +76,7 @@ namespace OrientView
 		{
 			bool enabled = false;
 			int imageSizeDivisor = 0;
+			double averagingFactor = 0.1;
 
 		} stabilization;
 

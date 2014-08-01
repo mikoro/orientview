@@ -283,7 +283,7 @@ void MainWindow::on_pushButtonBrowseMapFile_clicked()
 	QFileDialog fileDialog(this);
 	fileDialog.setFileMode(QFileDialog::ExistingFile);
 	fileDialog.setWindowTitle(tr("Select map image file"));
-	fileDialog.setNameFilter(tr("Map image files (*.jpg *.png *.tiff);;All files (*.*)"));
+	fileDialog.setNameFilter(tr("Map image files (*.jpg *.png *.tiff *.tif);;All files (*.*)"));
 	
 	if (fileDialog.exec())
 		ui->lineEditMapFile->setText(fileDialog.selectedFiles().at(0));
