@@ -25,6 +25,9 @@ bool VideoStabilizer::initialize(Settings* settings)
 	currentX = 0.0;
 	currentY = 0.0;
 	currentAngle = 0.0;
+	normalizedX = 0.0;
+	normalizedY = 0.0;
+	normalizedAngle = 0.0;
 
 	currentXAverage.reset();
 	currentXAverage.setAlpha(settings->stabilization.averagingFactor);

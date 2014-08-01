@@ -82,7 +82,7 @@ void RenderOnScreenThread::run()
 			videoRenderer->renderVideoPanel();
 		}
 
-		//videoRenderer->renderMapPanel();
+		videoRenderer->renderMapPanel();
 
 		if (renderInfoPanel)
 			videoRenderer->renderInfoPanel(spareTime);

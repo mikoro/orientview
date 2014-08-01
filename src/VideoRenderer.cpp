@@ -227,6 +227,8 @@ void VideoRenderer::startRendering(double windowWidth, double windowHeight, doub
 	this->windowHeight = windowHeight;
 	this->frameTime = frameTime;
 
+	paintDevice->setSize(QSize(windowWidth, windowHeight));
+
 	glViewport(0, 0, windowWidth, windowHeight);
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -251,6 +253,14 @@ void VideoRenderer::startRendering(double windowWidth, double windowHeight, doub
 
 			default: break;
 		}
+	}
+
+	if (videoWindow->keyIsDown(Qt::Key_R))
+	{
+		selectedPanelPtr->userX = 0.0;
+		selectedPanelPtr->userY = 0.0;
+		selectedPanelPtr->userAngle = 0.0;
+		selectedPanelPtr->userScale = 1.0;
 	}
 
 	if (videoWindow->keyIsDown(Qt::Key_Q))
@@ -292,9 +302,21 @@ void VideoRenderer::renderVideoPanel()
 	else
 		videoPanel.vertexMatrix.ortho(-windowWidth / 2, windowWidth / 2, windowHeight / 2, -windowHeight / 2, 0.0f, 1.0f);
 
-	videoPanel.vertexMatrix.scale(videoPanel.scale * videoPanel.userScale);
+	// do rotations while centered on the window
 	videoPanel.vertexMatrix.rotate(videoPanel.angle + videoPanel.userAngle - videoStabilizer->getAngle(), 0.0f, 0.0f, 1.0f);
 
+	// center the video on the right side
+	videoPanel.vertexMatrix.translate(((windowWidth / 2.0) - (((1.0 - mapPanelRelativeWidth) * windowWidth) / 2.0)), 0.0f);
+
+	// resize the video to fit the right side
+	videoPanel.scale = ((1.0 - mapPanelRelativeWidth) * windowWidth) / videoPanel.textureWidth;
+
+	// prevent clipping if window height is too small
+	if (videoPanel.scale * videoPanel.textureHeight > windowHeight)
+		videoPanel.scale = windowHeight / videoPanel.textureHeight;
+
+	videoPanel.vertexMatrix.scale(videoPanel.scale * videoPanel.userScale);
+	
 	videoPanel.vertexMatrix.translate(
 		videoPanel.x + videoPanel.userX + videoStabilizer->getX() * videoPanel.textureWidth,
 		videoPanel.y + videoPanel.userY - videoStabilizer->getY() * videoPanel.textureHeight,
@@ -312,10 +334,23 @@ void VideoRenderer::renderMapPanel()
 	else
 		mapPanel.vertexMatrix.ortho(-windowWidth / 2, windowWidth / 2, windowHeight / 2, -windowHeight / 2, 0.0f, 1.0f);
 
+	mapPanel.vertexMatrix.translate(-((windowWidth / 2.0) - ((mapPanelRelativeWidth * windowWidth) / 2.0)), 0.0f);
 	mapPanel.vertexMatrix.scale(mapPanel.scale * mapPanel.userScale);
 	mapPanel.vertexMatrix.translate(mapPanel.x - mapPanel.userX, mapPanel.y - mapPanel.userY);
 
+	int mapBorderX = (int)(mapPanelRelativeWidth * windowWidth + 0.5);
+
+	glEnable(GL_SCISSOR_TEST);
+	glScissor(0, 0, mapBorderX, (int)windowHeight);
+	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
 	renderPanel(&mapPanel);
+	glDisable(GL_SCISSOR_TEST);
+
+	painter->begin(paintDevice);
+	painter->setPen(QColor(0, 0, 0));
+	painter->drawLine(mapBorderX, 0, mapBorderX, (int)windowHeight);
+	painter->end();
 }
 
 void VideoRenderer::renderPanel(Panel* panel)
@@ -354,15 +389,13 @@ void VideoRenderer::renderInfoPanel(double spareTime)
 	averageEncodeTime.addMeasurement(videoEncoder->getLastEncodeTime());
 	averageSpareTime.addMeasurement(spareTime);
 
-	paintDevice->setSize(QSize(windowWidth, windowHeight));
-	painter->begin(paintDevice);
-
 	int textX = 10;
 	int textY = 6;
 	int lineHeight = 17;
 	int textWidth = 175;
 	int textHeight = 141;
 
+	painter->begin(paintDevice);
 	painter->setPen(QColor(0, 0, 0));
 	painter->setBrush(QBrush(QColor(20, 20, 20, 220)));
 	painter->drawRoundedRect(-10, -10, textWidth, textHeight, 10, 10);
