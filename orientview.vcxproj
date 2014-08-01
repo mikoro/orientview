@@ -62,6 +62,7 @@
     <ClCompile Include="src\EncodeWindow.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\MainWindow.cpp" />
+    <ClCompile Include="src\MovingAverage.cpp" />
     <ClCompile Include="src\MP4File.cpp" />
     <ClCompile Include="src\QuickRouteJpegReader.cpp" />
     <ClCompile Include="src\RenderOffScreenThread.cpp" />
@@ -91,6 +92,7 @@
     <ClInclude Include="build\GeneratedFiles\ui_EncodeWindow.h" />
     <ClInclude Include="build\GeneratedFiles\ui_MainWindow.h" />
     <ClInclude Include="src\FrameData.h" />
+    <ClInclude Include="src\MovingAverage.h" />
     <ClInclude Include="src\MP4File.h" />
     <ClInclude Include="src\VideoStabilizer.h" />
     <CustomBuild Include="src\EncodeWindow.h">

@@ -41,7 +41,7 @@ namespace OrientView
 
 		bool getNextFrame(FrameData* frameData, FrameData* frameDataGrayscale);
 		VideoInfo getVideoInfo() const;
-		double getAverageDecodeTime() const;
+		double getLastDecodeTime() const;
 
 	private:
 
@@ -60,7 +60,7 @@ namespace OrientView
 		int64_t lastFrameTimestamp = 0;
 		int frameCountDivisor = 0;
 		int frameDurationDivisor = 0;
-		double averageDecodeTime = 0.0;
+		double lastDecodeTime = 0.0;
 		VideoInfo videoInfo;
 	};
 }

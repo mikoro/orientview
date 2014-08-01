@@ -53,7 +53,7 @@ void RenderOnScreenThread::run()
 	QElapsedTimer displaySyncTimer;
 	QElapsedTimer spareTimer;
 
-	double frameDuration = 0.0;
+	double frameDuration = 0.1;
 	double spareTime = 0.0;
 
 	displaySyncTimer.start();

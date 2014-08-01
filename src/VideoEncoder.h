@@ -34,7 +34,7 @@ namespace OrientView
 		int encodeFrame();
 		void close();
 
-		double getAverageEncodeTime() const;
+		double getLastEncodeTime() const;
 
 	private:
 
@@ -45,6 +45,6 @@ namespace OrientView
 		int64_t frameNumber = 0;
 
 		QElapsedTimer encodeTimer;
-		double averageEncodeTime = 0.0;
+		double lastEncodeTime = 0.0;
 	};
 }

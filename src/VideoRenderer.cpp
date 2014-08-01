@@ -41,7 +41,16 @@ bool VideoRenderer::initialize(VideoDecoder* videoDecoder, QuickRouteJpegReader*
 	mapPanelScale = 1.0;
 	mapPanelX = 0.0;
 	mapPanelY = 0.0;
-	averageRenderTime = 0.0;
+
+	const double movingAverageAlpha = 0.1;
+
+	averageFps.setAlpha(movingAverageAlpha);
+	averageFrameTime.setAlpha(movingAverageAlpha);
+	averageDecodeTime.setAlpha(movingAverageAlpha);
+	averageStabilizeTime.setAlpha(movingAverageAlpha);
+	averageRenderTime.setAlpha(movingAverageAlpha);
+	averageEncodeTime.setAlpha(movingAverageAlpha);
+	averageSpareTime.setAlpha(movingAverageAlpha);
 
 	initializeOpenGLFunctions();
 
@@ -314,13 +323,21 @@ void VideoRenderer::renderPanel(Panel* panel)
 
 void VideoRenderer::renderInfoPanel(double spareTime)
 {
+	averageFps.addMeasurement(1000.0 / frameTime);
+	averageFrameTime.addMeasurement(frameTime);
+	averageDecodeTime.addMeasurement(videoDecoder->getLastDecodeTime());
+	averageStabilizeTime.addMeasurement(videoStabilizer->getLastProcessTime());
+	averageRenderTime.addMeasurement(lastRenderTime);
+	averageEncodeTime.addMeasurement(videoEncoder->getLastEncodeTime());
+	averageSpareTime.addMeasurement(spareTime);
+
 	paintDevice->setSize(QSize(windowWidth, windowHeight));
 	painter->begin(paintDevice);
 
 	int textX = 10;
 	int textY = 6;
 	int lineHeight = 17;
-	int textWidth = 170;
+	int textWidth = 175;
 	int textHeight = 141;
 
 	painter->setPen(QColor(0, 0, 0));
@@ -337,28 +354,28 @@ void VideoRenderer::renderInfoPanel(double spareTime)
 	painter->drawText(textX, textY += lineHeight, textWidth, textHeight, 0, "encode:");
 	painter->drawText(textX, textY += lineHeight, textWidth, textHeight, 0, "spare:");
 
-	textX = 80;
+	textX = 85;
 	textY = 6;
 
-	painter->drawText(textX, textY, textWidth, textHeight, 0, QString::number(1000.0 / frameTime, 'f', 2));
-	painter->drawText(textX, textY += lineHeight, textWidth, textHeight, 0, QString("%1 ms").arg(QString::number(frameTime, 'f', 2)));
-	painter->drawText(textX, textY += lineHeight, textWidth, textHeight, 0, QString("%1 ms").arg(QString::number(videoDecoder->getAverageDecodeTime(), 'f', 2)));
-	painter->drawText(textX, textY += lineHeight, textWidth, textHeight, 0, QString("%1 ms").arg(QString::number(videoStabilizer->getAverageProcessTime(), 'f', 2)));
-	painter->drawText(textX, textY += lineHeight, textWidth, textHeight, 0, QString("%1 ms").arg(QString::number(averageRenderTime, 'f', 2)));
-	painter->drawText(textX, textY += lineHeight, textWidth, textHeight, 0, QString("%1 ms").arg(QString::number(videoEncoder->getAverageEncodeTime(), 'f', 2)));
+	painter->drawText(textX, textY, textWidth, textHeight, 0, QString::number(averageFps.getAverage(), 'f', 2));
+	painter->drawText(textX, textY += lineHeight, textWidth, textHeight, 0, QString("%1 ms").arg(QString::number(averageFrameTime.getAverage(), 'f', 2)));
+	painter->drawText(textX, textY += lineHeight, textWidth, textHeight, 0, QString("%1 ms").arg(QString::number(averageDecodeTime.getAverage(), 'f', 2)));
+	painter->drawText(textX, textY += lineHeight, textWidth, textHeight, 0, QString("%1 ms").arg(QString::number(averageStabilizeTime.getAverage(), 'f', 2)));
+	painter->drawText(textX, textY += lineHeight, textWidth, textHeight, 0, QString("%1 ms").arg(QString::number(averageRenderTime.getAverage(), 'f', 2)));
+	painter->drawText(textX, textY += lineHeight, textWidth, textHeight, 0, QString("%1 ms").arg(QString::number(averageEncodeTime.getAverage(), 'f', 2)));
 
 	if (spareTime < 0)
 		painter->setPen(QColor(255, 0, 0, 200));
 	else if (spareTime > 0)
 		painter->setPen(QColor(0, 255, 0, 200));
 
-	painter->drawText(textX, textY += lineHeight, textWidth, textHeight, 0, QString("%1 ms").arg(QString::number(spareTime, 'f', 2)));
+	painter->drawText(textX, textY += lineHeight, textWidth, textHeight, 0, QString("%1 ms").arg(QString::number(averageSpareTime.getAverage(), 'f', 2)));
 	painter->end();
 }
 
 void VideoRenderer::stopRendering()
 {
-	averageRenderTime = renderTimer.nsecsElapsed() / 1000000.0;
+	lastRenderTime = renderTimer.nsecsElapsed() / 1000000.0;
 }
 
 void VideoRenderer::setFlipOutput(bool value)

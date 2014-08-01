@@ -11,6 +11,8 @@
 #include <QOpenGLBuffer>
 #include <QOpenGLTexture>
 
+#include "MovingAverage.h"
+
 namespace OrientView
 {
 	class VideoDecoder;
@@ -83,9 +85,17 @@ namespace OrientView
 		double windowWidth = 0.0;
 		double windowHeight = 0.0;
 		double frameTime = 0.0;
+		double lastRenderTime = 0.0;
 
 		QElapsedTimer renderTimer;
-		double averageRenderTime = 0.0;
+
+		MovingAverage averageFps;
+		MovingAverage averageFrameTime;
+		MovingAverage averageDecodeTime;
+		MovingAverage averageStabilizeTime;
+		MovingAverage averageRenderTime;
+		MovingAverage averageEncodeTime;
+		MovingAverage averageSpareTime;
 
 		QOpenGLPaintDevice* paintDevice = nullptr;
 		QPainter* painter = nullptr;

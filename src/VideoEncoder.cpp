@@ -94,7 +94,7 @@ bool VideoEncoder::initialize(const QString& fileName, VideoDecoder* videoDecode
 		return false;
 
 	frameNumber = 0;
-	averageEncodeTime = 0.0;
+	lastEncodeTime = 0.0;
 
 	return true;
 }
@@ -152,7 +152,7 @@ int VideoEncoder::encodeFrame()
 	else
 		qWarning("Could not encode frame");
 
-	averageEncodeTime = encodeTimer.nsecsElapsed() / 1000000.0;
+	lastEncodeTime = encodeTimer.nsecsElapsed() / 1000000.0;
 
 	return frameSize;
 }
@@ -162,7 +162,7 @@ void VideoEncoder::close()
 	mp4File->close(frameNumber);
 }
 
-double VideoEncoder::getAverageEncodeTime() const
+double VideoEncoder::getLastEncodeTime() const
 {
-	return averageEncodeTime;
+	return lastEncodeTime;
 }

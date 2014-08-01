@@ -27,7 +27,7 @@ bool VideoStabilizer::initialize(Settings* settings)
 	dsyCum = 1.0;
 	daCum = 0.0;
 
-	averageProcessTime = 0.0;
+	lastProcessTime = 0.0;
 
 	previousTransform = cv::Mat::eye(2, 3, CV_64F);
 
@@ -153,7 +153,7 @@ void VideoStabilizer::processFrame(FrameData* frameDataGrayscale)
 	opticalFlowStatus.clear();
 	opticalFlowError.clear();
 
-	averageProcessTime = processTimer.nsecsElapsed() / 1000000.0;
+	lastProcessTime = processTimer.nsecsElapsed() / 1000000.0;
 }
 
 double VideoStabilizer::getX() const
@@ -181,7 +181,7 @@ double VideoStabilizer::getScaleY() const
 	return dsyCum;
 }
 
-double VideoStabilizer::getAverageProcessTime() const
+double VideoStabilizer::getLastProcessTime() const
 {
-	return averageProcessTime;
+	return lastProcessTime;
 }

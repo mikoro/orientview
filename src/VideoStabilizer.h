@@ -29,7 +29,7 @@ namespace OrientView
 		double getAngle() const;
 		double getScaleX() const;
 		double getScaleY() const;
-		double getAverageProcessTime() const;
+		double getLastProcessTime() const;
 
 	private:
 
@@ -41,7 +41,7 @@ namespace OrientView
 		double dsxCum = 1.0;
 		double dsyCum = 1.0;
 
-		double averageProcessTime = 0.0;
+		double lastProcessTime = 0.0;
 
 		cv::Mat previousImage;
 

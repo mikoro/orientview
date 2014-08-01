@@ -157,7 +157,7 @@ bool VideoDecoder::initialize(const QString& fileName, Settings* settings)
 	videoInfo.averageFrameDuration = (double)videoInfo.averageFrameRateDen / videoInfo.averageFrameRateNum * 1000.0;
 	videoInfo.averageFrameRate = (double)videoInfo.averageFrameRateNum / videoInfo.averageFrameRateDen;
 
-	averageDecodeTime = 0.0;
+	lastDecodeTime = 0.0;
 
 	return true;
 }
@@ -273,7 +273,7 @@ bool VideoDecoder::getNextFrame(FrameData* frameData, FrameData* frameDataGraysc
 						frameDataGrayscale->number = frameData->number;
 					}
 
-					averageDecodeTime = decodeTimer.nsecsElapsed() / 1000000.0;
+					lastDecodeTime = decodeTimer.nsecsElapsed() / 1000000.0;
 
 					av_free_packet(&packet);
 					break;
@@ -297,7 +297,7 @@ VideoInfo VideoDecoder::getVideoInfo() const
 	return videoInfo;
 }
 
-double VideoDecoder::getAverageDecodeTime() const
+double VideoDecoder::getLastDecodeTime() const
 {
-	return averageDecodeTime;
+	return lastDecodeTime;
 }
