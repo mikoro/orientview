@@ -87,6 +87,20 @@ bool VideoWindow::keyIsDown(int key)
 	return keyMap[key];
 }
 
+bool VideoWindow::keyIsDownOnce(int key)
+{
+	if (keyMap.count(key) == 0 || keyMapOnce[key])
+		return false;
+
+	if (keyMap[key])	
+	{
+		keyMapOnce[key] = true;
+		return true;
+	}
+
+	return false;
+}
+
 bool VideoWindow::event(QEvent* event)
 {
 	if (event->type() == QEvent::Close)
@@ -111,6 +125,7 @@ bool VideoWindow::event(QEvent* event)
 	{
 		QKeyEvent* ke = (QKeyEvent*)event;
 		keyMap[ke->key()] = false;
+		keyMapOnce[ke->key()] = false;
 	}
 
 	return QWindow::event(event);

@@ -78,14 +78,19 @@ namespace OrientView
 
 		bool flipOutput = false;
 
-		double mapPanelRelativeWidth = 0.0;
-		double mapPanelScale = 0.0;
+		double videoPanelX = 0.0;
+		double videoPanelY = 0.0;
+		double videoPanelScale = 0.0;
 		double mapPanelX = 0.0;
 		double mapPanelY = 0.0;
+		double mapPanelScale = 0.0;
+		double mapPanelRelativeWidth = 0.0;
 		double windowWidth = 0.0;
 		double windowHeight = 0.0;
 		double frameTime = 0.0;
 		double lastRenderTime = 0.0;
+
+		bool videoPanelSelected = true;
 
 		QElapsedTimer renderTimer;
 
