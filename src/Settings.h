@@ -42,6 +42,21 @@ namespace OrientView
 
 		} window;
 
+		struct MapCalibration
+		{
+			double topLeftLat = 0;
+			double topLeftLong = 0;
+			double bottomRightLat = 0;
+			double bottomRightLong = 0;
+
+		} mapCalibration;
+
+		struct VideoCalibration
+		{
+			double startOffset = 0;
+
+		} videoCalibration;
+
 		struct Appearance
 		{
 			bool showInfoPanel = false;
@@ -59,7 +74,7 @@ namespace OrientView
 
 		struct Stabilization
 		{
-			bool enabled = true;
+			bool enabled = false;
 			int imageSizeDivisor = 0;
 
 		} stabilization;

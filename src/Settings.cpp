@@ -18,9 +18,16 @@ void Settings::read(QSettings* settings)
 
 	window.width = settings->value("window/width", 1280).toInt();
 	window.height = settings->value("window/height", 720).toInt();
-	window.multisamples = settings->value("window/multisamples", 0).toInt();
+	window.multisamples = settings->value("window/multisamples", 4).toInt();
 	window.fullscreen = settings->value("window/fullscreen", false).toBool();
 	window.hideCursor = settings->value("window/hideCursor", false).toBool();
+
+	mapCalibration.topLeftLat = settings->value("mapCalibration/topLeftLat", 0.0).toDouble();
+	mapCalibration.topLeftLong = settings->value("mapCalibration/topLeftLong", 0.0).toDouble();
+	mapCalibration.bottomRightLat = settings->value("mapCalibration/bottomRightLat", 0.0).toDouble();
+	mapCalibration.bottomRightLong = settings->value("mapCalibration/bottomRightLong", 0.0).toDouble();
+
+	videoCalibration.startOffset = settings->value("videoCalibration/startOffset", 0.0).toDouble();
 
 	appearance.showInfoPanel = settings->value("appearance/showInfoPanel", false).toBool();
 	appearance.mapPanelWidth = settings->value("appearance/mapPanelWidth", 0.3).toDouble();
@@ -53,6 +60,13 @@ void Settings::write(QSettings* settings)
 	settings->setValue("window/fullscreen", window.fullscreen);
 	settings->setValue("window/hideCursor", window.hideCursor);
 
+	settings->setValue("mapCalibration/topLeftLat", mapCalibration.topLeftLat);
+	settings->setValue("mapCalibration/topLeftLong", mapCalibration.topLeftLong);
+	settings->setValue("mapCalibration/bottomRightLat", mapCalibration.bottomRightLat);
+	settings->setValue("mapCalibration/bottomRightLong", mapCalibration.bottomRightLong);
+
+	settings->setValue("videoCalibration/startOffset", videoCalibration.startOffset);
+
 	settings->setValue("appearance/showInfoPanel", appearance.showInfoPanel);
 	settings->setValue("appearance/mapPanelWidth", appearance.mapPanelWidth);
 	settings->setValue("appearance/mapHeaderCrop", appearance.mapHeaderCrop);
@@ -84,6 +98,13 @@ void Settings::update(Ui::MainWindow* ui)
 	window.fullscreen = ui->checkBoxFullscreen->isChecked();
 	window.hideCursor = ui->checkBoxHideCursor->isChecked();
 
+	mapCalibration.topLeftLat = ui->doubleSpinBoxTopLeftLat->value();
+	mapCalibration.topLeftLong = ui->doubleSpinBoxTopLeftLong->value();
+	mapCalibration.bottomRightLat = ui->doubleSpinBoxBottomRightLat->value();
+	mapCalibration.bottomRightLong = ui->doubleSpinBoxBottomRightLong->value();
+
+	videoCalibration.startOffset = ui->doubleSpinBoxVideoStartOffset->value();
+
 	appearance.showInfoPanel = ui->checkBoxShowInfoPanel->isChecked();
 	appearance.mapPanelWidth = ui->doubleSpinBoxMapPanelWidth->value();
 	appearance.mapHeaderCrop = ui->spinBoxMapHeaderCrop->value();
@@ -114,6 +135,13 @@ void Settings::apply(Ui::MainWindow* ui)
 	ui->comboBoxMultisamples->setCurrentText(QString::number(window.multisamples));
 	ui->checkBoxFullscreen->setChecked(window.fullscreen);
 	ui->checkBoxHideCursor->setChecked(window.hideCursor);
+
+	ui->doubleSpinBoxTopLeftLat->setValue(mapCalibration.topLeftLat);
+	ui->doubleSpinBoxTopLeftLong->setValue(mapCalibration.topLeftLong);
+	ui->doubleSpinBoxBottomRightLat->setValue(mapCalibration.bottomRightLat);
+	ui->doubleSpinBoxBottomRightLong->setValue(mapCalibration.bottomRightLong);
+
+	ui->doubleSpinBoxVideoStartOffset->setValue(videoCalibration.startOffset);
 
 	ui->checkBoxShowInfoPanel->setChecked(appearance.showInfoPanel);
 	ui->doubleSpinBoxMapPanelWidth->setValue(appearance.mapPanelWidth);
