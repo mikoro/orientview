@@ -32,6 +32,7 @@ bool RenderOffScreenThread::initialize(MainWindow* mainWindow, EncodeWindow* enc
 	framebufferWidth = settings->window.width;
 	framebufferHeight = settings->window.height;
 	stabilizationEnabled = settings->stabilization.enabled;
+	renderInfoPanel = settings->appearance.showInfoPanel;
 
 	QOpenGLFramebufferObjectFormat mainFboFormat;
 	mainFboFormat.setSamples(settings->window.multisamples);
@@ -130,8 +131,11 @@ void RenderOffScreenThread::run()
 			videoRenderer->uploadFrameData(&decodedFrameData);
 			videoDecoderThread->signalFrameRead();
 			videoRenderer->renderVideoPanel();
-			videoRenderer->renderMapPanel();
-			videoRenderer->renderInfoPanel(0);
+			//videoRenderer->renderMapPanel();
+
+			if (renderInfoPanel)
+				videoRenderer->renderInfoPanel(0);
+
 			videoRenderer->stopRendering();
 
 			while (!frameReadSemaphore->tryAcquire(1, 20) && !isInterruptionRequested()) {}

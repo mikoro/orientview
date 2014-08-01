@@ -47,6 +47,7 @@ namespace OrientView
 		VideoRenderer* videoRenderer = nullptr;
 
 		bool stabilizationEnabled = false;
+		bool renderInfoPanel = false;
 
 		QOpenGLFramebufferObject* mainFramebuffer = nullptr;
 		QOpenGLFramebufferObject* secondaryFramebuffer = nullptr;

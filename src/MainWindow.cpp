@@ -41,7 +41,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
 	connect(videoWindow, &VideoWindow::closing, this, &MainWindow::videoWindowClosing);
 	connect(encodeWindow, &EncodeWindow::closing, this, &MainWindow::encodeWindowClosing);
-	connect(videoEncoderThread, &VideoEncoderThread::progressUpdate, encodeWindow, &EncodeWindow::progressUpdate);
+	connect(videoEncoderThread, &VideoEncoderThread::frameProcessed, encodeWindow, &EncodeWindow::frameProcessed);
 	connect(videoEncoderThread, &VideoEncoderThread::encodingFinished, encodeWindow, &EncodeWindow::encodingFinished);
 
 	readSettings();
@@ -171,7 +171,7 @@ void MainWindow::on_actionEncodeVideo_triggered()
 		if (!videoStabilizer->initialize(settings))
 			throw std::runtime_error("Could not initialize VideoStabilizer");
 
-		if (!encodeWindow->initialize(settings))
+		if (!encodeWindow->initialize(videoDecoder, videoEncoderThread, settings))
 			throw std::runtime_error("Could not initialize EncodeWindow");
 
 		if (!videoRenderer->initialize(videoDecoder, quickRouteJpegReader, videoStabilizer, videoEncoder, videoWindow, settings))

@@ -15,6 +15,8 @@ namespace Ui
 
 namespace OrientView
 {
+	class VideoDecoder;
+	class VideoEncoderThread;
 	class Settings;
 
 	class EncodeWindow : public QDialog
@@ -26,7 +28,7 @@ namespace OrientView
 		explicit EncodeWindow(QWidget *parent = 0);
 		~EncodeWindow();
 
-		bool initialize(Settings* settings);
+		bool initialize(VideoDecoder* videoDecoder, VideoEncoderThread* videoEncoderThread, Settings* settings);
 		void shutdown();
 
 		QOffscreenSurface* getSurface() const;
@@ -39,16 +41,19 @@ namespace OrientView
 
 	public slots:
 
-		void progressUpdate(int currentFrame, int totalFrames);
+		void frameProcessed(int frameNumber, int frameSize);
 		void encodingFinished();
 
 	private slots:
 		
-		void on_pushButtonStop_clicked();
+		void on_pushButtonOpenVideo_clicked();
+		void on_pushButtonStopClose_clicked();
 
 	private:
 
 		bool event(QEvent* event);
+
+		VideoEncoderThread* videoEncoderThread;
 
 		Ui::EncodeWindow* ui = nullptr;
 		QTime startTime;
@@ -57,5 +62,9 @@ namespace OrientView
 		QOpenGLContext* context = nullptr;
 
 		bool initialized = false;
+		bool isRunning = false;
+		int totalFrameCount = 0;
+		double currentSize = 0.0;
+		QString videoFilePath;
 	};
 }

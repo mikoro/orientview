@@ -24,7 +24,7 @@ namespace OrientView
 
 	signals:
 
-		void progressUpdate(int currentFrame, int totalFrames);
+		void frameProcessed(int frameNumber, int frameSize);
 		void encodingFinished();
 
 	protected:

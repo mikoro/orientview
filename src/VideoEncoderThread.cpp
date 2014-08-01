@@ -39,9 +39,9 @@ void VideoEncoderThread::run()
 		{
 			videoEncoder->loadFrameData(&renderedFrameData);
 			renderOffScreenThread->signalFrameRead();
-			videoEncoder->encodeFrame();
+			int frameSize = videoEncoder->encodeFrame();
 
-			emit progressUpdate(renderedFrameData.number, totalFrameCount);
+			emit frameProcessed(renderedFrameData.number, frameSize);
 
 			if (renderedFrameData.number >= totalFrameCount)
 				break;

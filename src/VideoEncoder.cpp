@@ -137,7 +137,7 @@ void VideoEncoder::loadFrameData(FrameData* frameData)
 	sws_scale(swsContext, &frameData->data, &frameData->rowLength, 0, frameData->height, convertedPicture->img.plane, convertedPicture->img.i_stride);
 }
 
-void VideoEncoder::encodeFrame()
+int VideoEncoder::encodeFrame()
 {
 	x264_picture_t encodedPicture;
 	x264_nal_t* nal;
@@ -153,6 +153,8 @@ void VideoEncoder::encodeFrame()
 		qWarning("Could not encode frame");
 
 	averageEncodeTime = encodeTimer.nsecsElapsed() / 1000000.0;
+
+	return frameSize;
 }
 
 void VideoEncoder::close()

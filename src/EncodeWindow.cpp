@@ -1,8 +1,15 @@
 // Copyright © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
 // License: GPLv3, see the LICENSE file.
 
+#include <QFile>
+#include <QFileInfo>
+#include <QUrl>
+#include <QDesktopServices>
+
 #include "EncodeWindow.h"
 #include "ui_EncodeWindow.h"
+#include "VideoDecoder.h"
+#include "VideoEncoderThread.h"
 #include "Settings.h"
 
 using namespace OrientView;
@@ -17,11 +24,13 @@ EncodeWindow::~EncodeWindow()
 	delete ui;
 }
 
-bool EncodeWindow::initialize(Settings* settings)
+bool EncodeWindow::initialize(VideoDecoder* videoDecoder, VideoEncoderThread* videoEncoderThread, Settings* settings)
 {
 	qDebug("Initializing EncodeWindow");
 
-	setWindowFlags(Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::Dialog | Qt::WindowSystemMenuHint);
+	this->videoEncoderThread = videoEncoderThread;
+
+	setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
 	QSurfaceFormat surfaceFormat;
 	surfaceFormat.setSamples(settings->window.multisamples);
@@ -55,12 +64,17 @@ bool EncodeWindow::initialize(Settings* settings)
 		return false;
 	}
 
-	ui->progressBar->setValue(0);
-	ui->pushButtonStop->setText("Stop");
+	ui->progressBarMain->setValue(0);
+	ui->pushButtonOpenVideo->setEnabled(false);
+	ui->pushButtonStopClose->setText("Stop");
 
 	startTime.restart();
 
 	initialized = true;
+	isRunning = true;
+	totalFrameCount = videoDecoder->getVideoInfo().totalFrameCount;
+	currentSize = 0.0;
+	videoFilePath = settings->files.outputFilePath;
 
 	return true;
 }
@@ -100,14 +114,18 @@ bool EncodeWindow::isInitialized() const
 	return initialized;
 }
 
-void EncodeWindow::progressUpdate(int currentFrame, int totalFrames)
+void EncodeWindow::frameProcessed(int frameNumber, int frameSize)
 {
-	int value = (int)round((double)currentFrame / totalFrames * 1000.0);
-	ui->progressBar->setValue(value);
+	int value = (int)round((double)frameNumber / totalFrameCount * 1000.0);
+	ui->progressBarMain->setValue(value);
 
-	int elapsedTime = startTime.elapsed();
-	double timePerFrame = (double)elapsedTime / currentFrame;
-	int remainingTime1 = ((int)round(timePerFrame * totalFrames)) - elapsedTime;
+	int elapsedTime1 = startTime.elapsed();
+
+	QTime elapsedTime2(0, 0, 0, 0);
+	QTime elapsedTime3 = elapsedTime2.addMSecs(elapsedTime1);
+
+	double timePerFrame = (double)elapsedTime1 / frameNumber;
+	int remainingTime1 = ((int)round(timePerFrame * totalFrameCount)) - elapsedTime1;
 
 	if (remainingTime1 < 0)
 		remainingTime1 = 0;
@@ -115,21 +133,40 @@ void EncodeWindow::progressUpdate(int currentFrame, int totalFrames)
 	QTime remainingTime2(0, 0, 0, 0);
 	QTime remainingTime3 = remainingTime2.addMSecs(remainingTime1);
 
-	ui->labelRemaining->setText(QString("Remaining: %1").arg(remainingTime3.toString()));
+	currentSize += frameSize / 1000000.0;
+
+	ui->labelElapsed->setText(elapsedTime3.toString());
+	ui->labelRemaining->setText(remainingTime3.toString());
+	ui->labelFrame->setText(QString("%1/%2").arg(QString::number(frameNumber), QString::number(totalFrameCount)));
+	ui->labelSize->setText(QString("%1 MB").arg(QString::number(currentSize, 'f', 2)));
 }
 
 void EncodeWindow::encodingFinished()
 {
-	QTime elapsedTime1(0, 0, 0, 0);
-	QTime elapsedTime2 = elapsedTime1.addMSecs(startTime.elapsed());
+	ui->pushButtonOpenVideo->setEnabled(true);
+	ui->pushButtonStopClose->setText("Close");
 
-	ui->pushButtonStop->setText("Close");
-	ui->labelRemaining->setText(QString("Ready! (%1)").arg(elapsedTime2.toString()));
+	isRunning = false;
 }
 
-void EncodeWindow::on_pushButtonStop_clicked()
+void EncodeWindow::on_pushButtonOpenVideo_clicked()
 {
-	close();
+	if (QFile::exists(videoFilePath))
+	{
+		QFileInfo fileInfo(videoFilePath);
+		QDesktopServices::openUrl(QUrl(QString("file:///%1").arg(fileInfo.absoluteFilePath())));
+	}
+}
+
+void EncodeWindow::on_pushButtonStopClose_clicked()
+{
+	if (isRunning)
+	{
+		videoEncoderThread->requestInterruption();
+		videoEncoderThread->wait();
+	}
+	else
+		close();
 }
 
 bool EncodeWindow::event(QEvent* event)

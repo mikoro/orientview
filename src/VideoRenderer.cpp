@@ -238,7 +238,7 @@ void VideoRenderer::renderVideoPanel()
 	}
 	else
 	{
-		//videoPanel.vertexMatrix.ortho(-windowWidth / 2, windowWidth / 2, windowHeight / 2, -windowHeight / 2, 0.0f, 1.0f);
+		videoPanel.vertexMatrix.ortho(-windowWidth / 2, windowWidth / 2, windowHeight / 2, -windowHeight / 2, 0.0f, 1.0f);
 	}
 
 	videoPanel.vertexMatrix.rotate(-videoStabilizer->getAngle(), 0.0f, 0.0f, 1.0f);
@@ -258,7 +258,7 @@ void VideoRenderer::renderMapPanel()
 	}
 	else
 	{
-		//mapPanel.vertexMatrix.ortho(-windowWidth / 2, windowWidth / 2, windowHeight / 2, -windowHeight / 2, 0.0f, 1.0f);
+		mapPanel.vertexMatrix.ortho(-windowWidth / 2, windowWidth / 2, windowHeight / 2, -windowHeight / 2, 0.0f, 1.0f);
 	}
 
 	if (videoWindow->keyIsDown(Qt::Key_Q))

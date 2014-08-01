@@ -31,7 +31,7 @@ namespace OrientView
 		void shutdown();
 
 		void loadFrameData(FrameData* frameData);
-		void encodeFrame();
+		int encodeFrame();
 		void close();
 
 		double getAverageEncodeTime() const;
