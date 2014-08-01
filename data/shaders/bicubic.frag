@@ -14,7 +14,7 @@ out vec3 color;
 // triangle, bell, bspline, catmullrom, lanczos
 #define INTERPOLATION_FUNCTION lanczos
 
-// can be tuned
+// can be tuned (1.0f - 3.0f)
 #define LANCZOS_SIZE 2.0f
 
 // don't touch
