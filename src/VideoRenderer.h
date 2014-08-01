@@ -36,6 +36,15 @@ namespace OrientView
 		double texelWidth = 0.0;
 		double texelHeight = 0.0;
 
+		double x = 0.0;
+		double y = 0.0;
+		double angle = 0.0;
+		double scale = 1.0;
+		double userX = 0.0;
+		double userY = 0.0;
+		double userAngle = 0.0;
+		double userScale = 1.0;
+
 		GLuint vertexMatrixUniform = 0;
 		GLuint vertexPositionAttribute = 0;
 		GLuint vertexTextureCoordinateAttribute = 0;
@@ -45,6 +54,8 @@ namespace OrientView
 		GLuint texelWidthUniform = 0;
 		GLuint texelHeightUniform = 0;
 	};
+
+	enum class SelectedPanel { VIDEO, MAP };
 
 	class VideoRenderer : protected QOpenGLFunctions
 	{
@@ -78,19 +89,16 @@ namespace OrientView
 
 		bool flipOutput = false;
 
-		double videoPanelX = 0.0;
-		double videoPanelY = 0.0;
-		double videoPanelScale = 0.0;
-		double mapPanelX = 0.0;
-		double mapPanelY = 0.0;
-		double mapPanelScale = 0.0;
 		double mapPanelRelativeWidth = 0.0;
 		double windowWidth = 0.0;
 		double windowHeight = 0.0;
 		double frameTime = 0.0;
 		double lastRenderTime = 0.0;
 
-		bool videoPanelSelected = true;
+		Panel videoPanel;
+		Panel mapPanel;
+		SelectedPanel selectedPanel = SelectedPanel::VIDEO;
+		Panel* selectedPanelPtr = nullptr;
 
 		QElapsedTimer renderTimer;
 
@@ -104,8 +112,5 @@ namespace OrientView
 
 		QOpenGLPaintDevice* paintDevice = nullptr;
 		QPainter* painter = nullptr;
-
-		Panel videoPanel;
-		Panel mapPanel;
 	};
 }

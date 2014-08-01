@@ -28,6 +28,8 @@ bool VideoRenderer::initialize(VideoDecoder* videoDecoder, QuickRouteJpegReader*
 	this->videoEncoder = videoEncoder;
 	this->videoWindow = videoWindow;
 
+	videoPanel = Panel();
+	mapPanel = Panel();
 	videoPanel.textureWidth = videoDecoder->getVideoInfo().frameWidth;
 	videoPanel.textureHeight = videoDecoder->getVideoInfo().frameHeight;
 	videoPanel.texelWidth = 1.0 / videoPanel.textureWidth;
@@ -37,12 +39,7 @@ bool VideoRenderer::initialize(VideoDecoder* videoDecoder, QuickRouteJpegReader*
 	mapPanel.texelWidth = 1.0 / mapPanel.textureWidth;
 	mapPanel.texelHeight = 1.0 / mapPanel.textureHeight;
 
-	videoPanelX = 0.0;
-	videoPanelY = 0.0;
-	videoPanelScale = 1.0;
-	mapPanelX = 0.0;
-	mapPanelY = 0.0;
-	mapPanelScale = 1.0;
+	selectedPanelPtr = &videoPanel;
 	mapPanelRelativeWidth = settings->appearance.mapPanelWidth;
 
 	const double movingAverageAlpha = 0.1;
@@ -235,7 +232,44 @@ void VideoRenderer::startRendering(double windowWidth, double windowHeight, doub
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 	if (videoWindow->keyIsDownOnce(Qt::Key_F2))
-		videoPanelSelected = !videoPanelSelected;
+	{
+		switch (selectedPanel)
+		{
+			case SelectedPanel::VIDEO:
+			{
+				selectedPanel = SelectedPanel::MAP;
+				selectedPanelPtr = &mapPanel;
+				break;
+			}
+
+			case SelectedPanel::MAP:
+			{
+				selectedPanel = SelectedPanel::VIDEO;
+				selectedPanelPtr = &videoPanel;
+				break;
+			}
+
+			default: break;
+		}
+	}
+
+	if (videoWindow->keyIsDown(Qt::Key_Q))
+		selectedPanelPtr->userScale *= (1.0 + frameTime / 500);
+
+	if (videoWindow->keyIsDown(Qt::Key_A))
+		selectedPanelPtr->userScale *= (1.0 - frameTime / 500);
+
+	if (videoWindow->keyIsDown(Qt::Key_Left))
+		selectedPanelPtr->userX -= 1.0 * frameTime * (1.0 / (selectedPanelPtr->scale * selectedPanelPtr->userScale));
+
+	if (videoWindow->keyIsDown(Qt::Key_Right))
+		selectedPanelPtr->userX += 1.0 * frameTime * (1.0 / (selectedPanelPtr->scale * selectedPanelPtr->userScale));
+
+	if (videoWindow->keyIsDown(Qt::Key_Up))
+		selectedPanelPtr->userY += 1.0 * frameTime * (1.0 / (selectedPanelPtr->scale * selectedPanelPtr->userScale));
+
+	if (videoWindow->keyIsDown(Qt::Key_Down))
+		selectedPanelPtr->userY -= 1.0 * frameTime * (1.0 / (selectedPanelPtr->scale * selectedPanelPtr->userScale));
 }
 
 void VideoRenderer::uploadFrameData(FrameData* frameData)
@@ -254,38 +288,17 @@ void VideoRenderer::renderVideoPanel()
 	videoPanel.vertexMatrix.setToIdentity();
 
 	if (!flipOutput)
-	{
 		videoPanel.vertexMatrix.ortho(-windowWidth / 2, windowWidth / 2, -windowHeight / 2, windowHeight / 2, 0.0f, 1.0f);
-	}
 	else
-	{
 		videoPanel.vertexMatrix.ortho(-windowWidth / 2, windowWidth / 2, windowHeight / 2, -windowHeight / 2, 0.0f, 1.0f);
-	}
 
-	if (videoPanelSelected)
-	{
-		if (videoWindow->keyIsDown(Qt::Key_Q))
-			videoPanelScale *= (1.0 + frameTime / 500);
+	videoPanel.vertexMatrix.scale(videoPanel.scale * videoPanel.userScale);
+	videoPanel.vertexMatrix.rotate(videoPanel.angle + videoPanel.userAngle - videoStabilizer->getAngle(), 0.0f, 0.0f, 1.0f);
 
-		if (videoWindow->keyIsDown(Qt::Key_A))
-			videoPanelScale *= (1.0 - frameTime / 500);
-
-		if (videoWindow->keyIsDown(Qt::Key_Left))
-			videoPanelX -= 1.0 * frameTime * (1.0 / videoPanelScale);
-
-		if (videoWindow->keyIsDown(Qt::Key_Right))
-			videoPanelX += 1.0 * frameTime * (1.0 / videoPanelScale);
-
-		if (videoWindow->keyIsDown(Qt::Key_Up))
-			videoPanelY += 1.0 * frameTime * (1.0 / videoPanelScale);
-
-		if (videoWindow->keyIsDown(Qt::Key_Down))
-			videoPanelY -= 1.0 * frameTime * (1.0 / videoPanelScale);
-	}
-
-	videoPanel.vertexMatrix.scale(videoPanelScale);
-	videoPanel.vertexMatrix.rotate(-videoStabilizer->getAngle(), 0.0f, 0.0f, 1.0f);
-	videoPanel.vertexMatrix.translate(videoPanelX + videoStabilizer->getX() * videoPanel.textureWidth, videoPanelY - videoStabilizer->getY() * videoPanel.textureHeight, 0.0f);
+	videoPanel.vertexMatrix.translate(
+		videoPanel.x + videoPanel.userX + videoStabilizer->getX() * videoPanel.textureWidth,
+		videoPanel.y + videoPanel.userY - videoStabilizer->getY() * videoPanel.textureHeight,
+		0.0f);
 
 	renderPanel(&videoPanel);
 }
@@ -295,37 +308,12 @@ void VideoRenderer::renderMapPanel()
 	mapPanel.vertexMatrix.setToIdentity();
 
 	if (!flipOutput)
-	{
 		mapPanel.vertexMatrix.ortho(-windowWidth / 2, windowWidth / 2, -windowHeight / 2, windowHeight / 2, 0.0f, 1.0f);
-	}
 	else
-	{
 		mapPanel.vertexMatrix.ortho(-windowWidth / 2, windowWidth / 2, windowHeight / 2, -windowHeight / 2, 0.0f, 1.0f);
-	}
 
-	if (!videoPanelSelected)
-	{
-		if (videoWindow->keyIsDown(Qt::Key_Q))
-			mapPanelScale *= (1.0 + frameTime / 500);
-
-		if (videoWindow->keyIsDown(Qt::Key_A))
-			mapPanelScale *= (1.0 - frameTime / 500);
-
-		if (videoWindow->keyIsDown(Qt::Key_Left))
-			mapPanelX -= 1.0 * frameTime * (1.0 / mapPanelScale);
-
-		if (videoWindow->keyIsDown(Qt::Key_Right))
-			mapPanelX += 1.0 * frameTime * (1.0 / mapPanelScale);
-
-		if (videoWindow->keyIsDown(Qt::Key_Up))
-			mapPanelY += 1.0 * frameTime * (1.0 / mapPanelScale);
-
-		if (videoWindow->keyIsDown(Qt::Key_Down))
-			mapPanelY -= 1.0 * frameTime * (1.0 / mapPanelScale);
-	}
-
-	mapPanel.vertexMatrix.scale(mapPanelScale);
-	mapPanel.vertexMatrix.translate(-mapPanelX, -mapPanelY);
+	mapPanel.vertexMatrix.scale(mapPanel.scale * mapPanel.userScale);
+	mapPanel.vertexMatrix.translate(mapPanel.x - mapPanel.userX, mapPanel.y - mapPanel.userY);
 
 	renderPanel(&mapPanel);
 }
