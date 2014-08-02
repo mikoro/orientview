@@ -20,6 +20,7 @@
 #include "VideoEncoderThread.h"
 #include "VideoWindow.h"
 #include "EncodeWindow.h"
+#include "QuickRouteReader.h"
 
 using namespace OrientView;
 
@@ -45,6 +46,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	connect(encodeWindow, &EncodeWindow::closing, this, &MainWindow::encodeWindowClosing);
 	connect(videoEncoderThread, &VideoEncoderThread::frameProcessed, encodeWindow, &EncodeWindow::frameProcessed);
 	connect(videoEncoderThread, &VideoEncoderThread::encodingFinished, encodeWindow, &EncodeWindow::encodingFinished);
+
+	QuickRouteReaderResult r;
+	QuickRouteReader::read("C:\\Users\\Mikko\\Desktop\\2014-05-27 Pirttimaki 3DRerun - Copy.jpg", &r);
 
 	readSettings();
 }
@@ -336,6 +340,17 @@ void MainWindow::on_pushButtonLoadMapCalibrationData_clicked()
 
 	if (fileDialog.exec())
 	{
+		QuickRouteReaderResult result;
+
+		if (QuickRouteReader::read(fileDialog.selectedFiles().at(0), &result))
+		{
+			ui->doubleSpinBoxMapTopLeftLat->setValue(result.topLeftLat);
+			ui->doubleSpinBoxMapTopLeftLong->setValue(result.topLeftLong);
+			ui->doubleSpinBoxMapBottomRightLat->setValue(result.bottomRightLat);
+			ui->doubleSpinBoxMapBottomRightLong->setValue(result.bottomRightLong);
+		}
+		else
+			QMessageBox::critical(this, "OrientView - Error", QString("Could not load map calibration data.\n\nPlease check the application log for details."), QMessageBox::Ok);
 	}
 }
 

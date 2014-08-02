@@ -57,8 +57,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>454</width>
-             <height>475</height>
+             <width>173</width>
+             <height>290</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -198,7 +198,7 @@
            <property name="geometry">
             <rect>
              <x>0</x>
-             <y>-499</y>
+             <y>0</y>
              <width>437</width>
              <height>974</height>
             </rect>
@@ -555,6 +555,9 @@
                  <property name="toolTip">
                   <string>Bottom right longitude</string>
                  </property>
+                 <property name="decimals">
+                  <number>8</number>
+                 </property>
                  <property name="minimum">
                   <double>-180.000000000000000</double>
                  </property>
@@ -573,6 +576,9 @@
                  </property>
                  <property name="toolTip">
                   <string>Top left longitude</string>
+                 </property>
+                 <property name="decimals">
+                  <number>8</number>
                  </property>
                  <property name="minimum">
                   <double>-180.000000000000000</double>
@@ -593,6 +599,9 @@
                  <property name="toolTip">
                   <string>Top left latitude</string>
                  </property>
+                 <property name="decimals">
+                  <number>8</number>
+                 </property>
                  <property name="minimum">
                   <double>-90.000000000000000</double>
                  </property>
@@ -611,6 +620,9 @@
                  </property>
                  <property name="toolTip">
                   <string>Bottom right latitude</string>
+                 </property>
+                 <property name="decimals">
+                  <number>8</number>
                  </property>
                  <property name="minimum">
                   <double>-90.000000000000000</double>

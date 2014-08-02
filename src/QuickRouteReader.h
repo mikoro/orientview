@@ -25,6 +25,9 @@ namespace OrientView
 	private:
 
 		static bool readFromJpeg(const QString& fileName, QuickRouteReaderResult* result);
+		static bool extractDataFromJpeg(QFile& file, QByteArray& buffer);
+		static bool processDataFromJpeg(QByteArray& buffer, QuickRouteReaderResult* result);
+
 		static bool readFromQrt(const QString& fileName, QuickRouteReaderResult* result);
 	};
 }
