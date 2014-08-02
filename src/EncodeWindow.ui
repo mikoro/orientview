@@ -27,7 +27,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="MainView.qrc">
-    <normaloff>:/MainView/misc/orientview.ico</normaloff>:/MainView/misc/orientview.ico</iconset>
+    <normaloff>:/icons/misc/icons/orientview.ico</normaloff>:/icons/misc/icons/orientview.ico</iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="3" column="1">
