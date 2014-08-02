@@ -29,11 +29,13 @@ bool VideoRenderer::initialize(VideoDecoder* videoDecoder, QuickRouteJpegReader*
 	this->videoWindow = videoWindow;
 
 	videoPanel = Panel();
-	mapPanel = Panel();
 	videoPanel.textureWidth = videoDecoder->getVideoInfo().frameWidth;
 	videoPanel.textureHeight = videoDecoder->getVideoInfo().frameHeight;
 	videoPanel.texelWidth = 1.0 / videoPanel.textureWidth;
 	videoPanel.texelHeight = 1.0 / videoPanel.textureHeight;
+	videoPanel.userScale = settings->appearance.videoPanelScale;
+
+	mapPanel = Panel();
 	mapPanel.textureWidth = quickRouteJpegReader->getMapImage().width();
 	mapPanel.textureHeight = quickRouteJpegReader->getMapImage().height();
 	mapPanel.texelWidth = 1.0 / mapPanel.textureWidth;
@@ -313,25 +315,26 @@ void VideoRenderer::renderVideoPanel()
 
 	double offsetX = (windowWidth / 2.0) - (((1.0 - mapPanelRelativeWidth) * windowWidth) / 2.0);
 
-	videoPanel.vertexMatrix.translate(
-		offsetX + videoPanel.x + videoPanel.userX + videoStabilizer->getX() * videoPanel.textureWidth,
-		videoPanel.y + videoPanel.userY - videoStabilizer->getY() * videoPanel.textureHeight,
-		0.0f);
-
-	videoPanel.vertexMatrix.rotate(videoPanel.angle + videoPanel.userAngle - videoStabilizer->getAngle(), 0.0f, 0.0f, 1.0f);
-
 	videoPanel.scale = ((1.0 - mapPanelRelativeWidth) * windowWidth) / videoPanel.textureWidth;
 
 	if (videoPanel.scale * videoPanel.textureHeight > windowHeight)
 		videoPanel.scale = windowHeight / videoPanel.textureHeight;
 
-	videoPanel.vertexMatrix.scale(videoPanel.scale * videoPanel.userScale);
+	videoPanel.scale *= videoPanel.userScale;
+
+	videoPanel.vertexMatrix.translate(
+		offsetX + videoPanel.x + videoPanel.userX + videoStabilizer->getX() * videoPanel.textureWidth * videoPanel.scale,
+		videoPanel.y + videoPanel.userY - videoStabilizer->getY() * videoPanel.textureHeight * videoPanel.scale,
+		0.0f);
+
+	videoPanel.vertexMatrix.rotate(videoPanel.angle + videoPanel.userAngle - videoStabilizer->getAngle(), 0.0f, 0.0f, 1.0f);
+	videoPanel.vertexMatrix.scale(videoPanel.scale);
 
 	renderPanel(&videoPanel);
 }
 
 void VideoRenderer::renderMapPanel()
-{	
+{
 	mapPanel.vertexMatrix.setToIdentity();
 
 	if (!flipOutput)
@@ -342,7 +345,7 @@ void VideoRenderer::renderMapPanel()
 	mapPanel.vertexMatrix.translate(mapPanel.x + mapPanel.userX, mapPanel.y + mapPanel.userY);
 	mapPanel.vertexMatrix.rotate(mapPanel.angle + mapPanel.userAngle, 0.0f, 0.0f, 1.0f);
 	mapPanel.vertexMatrix.scale(mapPanel.scale * mapPanel.userScale);
-	
+
 	int mapBorderX = (int)(mapPanelRelativeWidth * windowWidth + 0.5);
 
 	glEnable(GL_SCISSOR_TEST);

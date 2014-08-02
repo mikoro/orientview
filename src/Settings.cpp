@@ -31,13 +31,17 @@ void Settings::read(QSettings* settings)
 
 	appearance.showInfoPanel = settings->value("appearance/showInfoPanel", false).toBool();
 	appearance.mapPanelWidth = settings->value("appearance/mapPanelWidth", 0.3).toDouble();
+	appearance.videoPanelScale = settings->value("appearance/videoPanelScale", 1.0).toDouble();
 	appearance.mapHeaderCrop = settings->value("appearance/mapHeaderCrop", 0).toInt();
 	
 	decoder.frameCountDivisor = settings->value("decoder/frameCountDivisor", 1).toInt();
 	decoder.frameDurationDivisor = settings->value("decoder/frameDurationDivisor", 1).toInt();
+	decoder.frameSizeDivisor = settings->value("decoder/frameSizeDivisor", 1).toInt();
 
-	stabilization.enabled = settings->value("stabilization/enabled", true).toBool();
-	stabilization.imageSizeDivisor = settings->value("stabilization/imageSizeDivisor", 8).toInt();
+	stabilizer.enabled = settings->value("stabilizer/enabled", true).toBool();
+	stabilizer.frameSizeDivisor = settings->value("stabilizer/frameSizeDivisor", 8).toInt();
+	stabilizer.averagingFactor = settings->value("stabilizer/averagingFactor", 0.1).toDouble();
+	stabilizer.dampingFactor = settings->value("stabilizer/dampingFactor", 1.0).toDouble();
 
 	shaders.videoPanelShader = settings->value("shaders/videoPanelShader", "default").toString();
 	shaders.mapPanelShader = settings->value("shaders/mapPanelShader", "default").toString();
@@ -69,13 +73,17 @@ void Settings::write(QSettings* settings)
 
 	settings->setValue("appearance/showInfoPanel", appearance.showInfoPanel);
 	settings->setValue("appearance/mapPanelWidth", appearance.mapPanelWidth);
+	settings->setValue("appearance/videoPanelScale", appearance.videoPanelScale);
 	settings->setValue("appearance/mapHeaderCrop", appearance.mapHeaderCrop);
 
 	settings->setValue("decoder/frameCountDivisor", decoder.frameCountDivisor);
 	settings->setValue("decoder/frameDurationDivisor", decoder.frameDurationDivisor);
+	settings->setValue("decoder/frameSizeDivisor", decoder.frameSizeDivisor);
 
-	settings->setValue("stabilization/enabled", stabilization.enabled);
-	settings->setValue("stabilization/imageSizeDivisor", stabilization.imageSizeDivisor);
+	settings->setValue("stabilizer/enabled", stabilizer.enabled);
+	settings->setValue("stabilizer/frameSizeDivisor", stabilizer.frameSizeDivisor);
+	settings->setValue("stabilizer/averagingFactor", stabilizer.averagingFactor);
+	settings->setValue("stabilizer/dampingFactor", stabilizer.dampingFactor);
 
 	settings->setValue("shaders/videoPanelShader", shaders.videoPanelShader);
 	settings->setValue("shaders/mapPanelShader", shaders.mapPanelShader);
@@ -98,29 +106,33 @@ void Settings::update(Ui::MainWindow* ui)
 	window.fullscreen = ui->checkBoxFullscreen->isChecked();
 	window.hideCursor = ui->checkBoxHideCursor->isChecked();
 
-	mapCalibration.topLeftLat = ui->doubleSpinBoxTopLeftLat->value();
-	mapCalibration.topLeftLong = ui->doubleSpinBoxTopLeftLong->value();
-	mapCalibration.bottomRightLat = ui->doubleSpinBoxBottomRightLat->value();
-	mapCalibration.bottomRightLong = ui->doubleSpinBoxBottomRightLong->value();
+	mapCalibration.topLeftLat = ui->doubleSpinBoxMapTopLeftLat->value();
+	mapCalibration.topLeftLong = ui->doubleSpinBoxMapTopLeftLong->value();
+	mapCalibration.bottomRightLat = ui->doubleSpinBoxMapBottomRightLat->value();
+	mapCalibration.bottomRightLong = ui->doubleSpinBoxMapBottomRightLong->value();
 
 	videoCalibration.startOffset = ui->doubleSpinBoxVideoStartOffset->value();
 
 	appearance.showInfoPanel = ui->checkBoxShowInfoPanel->isChecked();
 	appearance.mapPanelWidth = ui->doubleSpinBoxMapPanelWidth->value();
+	appearance.videoPanelScale = ui->doubleSpinBoxVideoPanelScale->value();
 	appearance.mapHeaderCrop = ui->spinBoxMapHeaderCrop->value();
 
-	decoder.frameCountDivisor = ui->spinBoxFrameCountDivisor->value();
-	decoder.frameDurationDivisor = ui->spinBoxFrameDurationDivisor->value();
+	decoder.frameCountDivisor = ui->spinBoxDecoderFrameCountDivisor->value();
+	decoder.frameDurationDivisor = ui->spinBoxDecoderFrameDurationDivisor->value();
+	decoder.frameSizeDivisor = ui->spinBoxDecoderFrameSizeDivisor->value();
 
-	stabilization.enabled = ui->checkBoxStabilizationEnabled->isChecked();
-	stabilization.imageSizeDivisor = ui->spinBoxStabilizationImageSizeDivisor->value();
+	stabilizer.enabled = ui->checkBoxStabilizerEnabled->isChecked();
+	stabilizer.frameSizeDivisor = ui->spinBoxStabilizerFrameSizeDivisor->value();
+	stabilizer.averagingFactor = ui->doubleSpinBoxStabilizerAveragingFactor->value();
+	stabilizer.dampingFactor = ui->doubleSpinBoxStabilizerDampingFactor->value();
 
 	shaders.videoPanelShader = ui->comboBoxVideoPanelShader->currentText();
 	shaders.mapPanelShader = ui->comboBoxMapPanelShader->currentText();
 
 	encoder.preset = ui->comboBoxEncoderPreset->currentText();
 	encoder.profile = ui->comboBoxEncoderProfile->currentText();
-	encoder.constantRateFactor = ui->spinBoxConstantRateFactor->value();
+	encoder.constantRateFactor = ui->spinBoxEncoderCrf->value();
 }
 
 void Settings::apply(Ui::MainWindow* ui)
@@ -136,27 +148,31 @@ void Settings::apply(Ui::MainWindow* ui)
 	ui->checkBoxFullscreen->setChecked(window.fullscreen);
 	ui->checkBoxHideCursor->setChecked(window.hideCursor);
 
-	ui->doubleSpinBoxTopLeftLat->setValue(mapCalibration.topLeftLat);
-	ui->doubleSpinBoxTopLeftLong->setValue(mapCalibration.topLeftLong);
-	ui->doubleSpinBoxBottomRightLat->setValue(mapCalibration.bottomRightLat);
-	ui->doubleSpinBoxBottomRightLong->setValue(mapCalibration.bottomRightLong);
+	ui->doubleSpinBoxMapTopLeftLat->setValue(mapCalibration.topLeftLat);
+	ui->doubleSpinBoxMapTopLeftLong->setValue(mapCalibration.topLeftLong);
+	ui->doubleSpinBoxMapBottomRightLat->setValue(mapCalibration.bottomRightLat);
+	ui->doubleSpinBoxMapBottomRightLong->setValue(mapCalibration.bottomRightLong);
 
 	ui->doubleSpinBoxVideoStartOffset->setValue(videoCalibration.startOffset);
 
 	ui->checkBoxShowInfoPanel->setChecked(appearance.showInfoPanel);
 	ui->doubleSpinBoxMapPanelWidth->setValue(appearance.mapPanelWidth);
+	ui->doubleSpinBoxVideoPanelScale->setValue(appearance.videoPanelScale);
 	ui->spinBoxMapHeaderCrop->setValue(appearance.mapHeaderCrop);
 
-	ui->spinBoxFrameCountDivisor->setValue(decoder.frameCountDivisor);
-	ui->spinBoxFrameDurationDivisor->setValue(decoder.frameDurationDivisor);
+	ui->spinBoxDecoderFrameCountDivisor->setValue(decoder.frameCountDivisor);
+	ui->spinBoxDecoderFrameDurationDivisor->setValue(decoder.frameDurationDivisor);
+	ui->spinBoxDecoderFrameSizeDivisor->setValue(decoder.frameSizeDivisor);
 
-	ui->checkBoxStabilizationEnabled->setChecked(stabilization.enabled);
-	ui->spinBoxStabilizationImageSizeDivisor->setValue(stabilization.imageSizeDivisor);
+	ui->checkBoxStabilizerEnabled->setChecked(stabilizer.enabled);
+	ui->spinBoxStabilizerFrameSizeDivisor->setValue(stabilizer.frameSizeDivisor);
+	ui->doubleSpinBoxStabilizerAveragingFactor->setValue(stabilizer.averagingFactor);
+	ui->doubleSpinBoxStabilizerDampingFactor->setValue(stabilizer.dampingFactor);
 
 	ui->comboBoxVideoPanelShader->setCurrentText(shaders.videoPanelShader);
 	ui->comboBoxMapPanelShader->setCurrentText(shaders.mapPanelShader);
 
 	ui->comboBoxEncoderPreset->setCurrentText(encoder.preset);
 	ui->comboBoxEncoderProfile->setCurrentText(encoder.profile);
-	ui->spinBoxConstantRateFactor->setValue(encoder.constantRateFactor);
+	ui->spinBoxEncoderCrf->setValue(encoder.constantRateFactor);
 }

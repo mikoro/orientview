@@ -30,12 +30,13 @@ bool VideoStabilizer::initialize(Settings* settings)
 	normalizedAngle = 0.0;
 
 	currentXAverage.reset();
-	currentXAverage.setAlpha(settings->stabilization.averagingFactor);
+	currentXAverage.setAlpha(settings->stabilizer.averagingFactor);
 	currentYAverage.reset();
-	currentYAverage.setAlpha(settings->stabilization.averagingFactor);
+	currentYAverage.setAlpha(settings->stabilizer.averagingFactor);
 	currentAngleAverage.reset();
-	currentAngleAverage.setAlpha(settings->stabilization.averagingFactor);
+	currentAngleAverage.setAlpha(settings->stabilizer.averagingFactor);
 
+	dampingFactor = settings->stabilizer.dampingFactor;
 	lastProcessTime = 0.0;
 
 	previousTransform = cv::Mat::eye(2, 3, CV_64F);
@@ -145,9 +146,9 @@ void VideoStabilizer::processFrame(FrameData* frameDataGrayscale)
 	currentY += dy;
 	currentAngle += da;
 
-	normalizedX =  currentXAverage.getAverage() - currentX;
-	normalizedY = currentYAverage.getAverage() - currentY;
-	normalizedAngle =  currentAngleAverage.getAverage() - currentAngle;
+	normalizedX = (currentXAverage.getAverage() - currentX) * dampingFactor;
+	normalizedY = (currentYAverage.getAverage() - currentY) * dampingFactor;
+	normalizedAngle = (currentAngleAverage.getAverage() - currentAngle) * dampingFactor;
 
 	currentXAverage.addMeasurement(currentX);
 	currentYAverage.addMeasurement(currentY);

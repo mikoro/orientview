@@ -128,8 +128,8 @@ bool VideoDecoder::initialize(const QString& fileName, Settings* settings)
 		return false;
 	}
 
-	generateGrayscalePicture = settings->stabilization.enabled;
-	grayscalePictureSizeDivisor = settings->stabilization.imageSizeDivisor;
+	generateGrayscalePicture = settings->stabilizer.enabled;
+	grayscalePictureSizeDivisor = settings->stabilizer.frameSizeDivisor;
 
 	swsContextGrayscale = sws_getContext(videoInfo.frameWidth, videoInfo.frameHeight, videoCodecContext->pix_fmt, videoInfo.frameWidth / grayscalePictureSizeDivisor, videoInfo.frameHeight / grayscalePictureSizeDivisor, PIX_FMT_GRAY8, SWS_BILINEAR, nullptr, nullptr, nullptr);
 

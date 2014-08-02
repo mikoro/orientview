@@ -64,11 +64,11 @@ MainWindow::~MainWindow()
 	delete videoEncoderThread;
 }
 
-void MainWindow::on_actionOpen_triggered()
+void MainWindow::on_actionLoadSettings_triggered()
 {
 	QFileDialog fileDialog(this);
 	fileDialog.setFileMode(QFileDialog::ExistingFile);
-	fileDialog.setWindowTitle(tr("Open OrientView settings"));
+	fileDialog.setWindowTitle(tr("Load OrientView settings"));
 	fileDialog.setNameFilter(tr("OrientView settings files (*.orv)"));
 
 	if (fileDialog.exec())
@@ -79,7 +79,7 @@ void MainWindow::on_actionOpen_triggered()
 	}
 }
 
-void MainWindow::on_actionSaveAs_triggered()
+void MainWindow::on_actionSaveSettings_triggered()
 {
 	QFileDialog fileDialog(this);
 	fileDialog.setFileMode(QFileDialog::AnyFile);
@@ -313,7 +313,7 @@ void MainWindow::on_pushButtonBrowseOutputFile_clicked()
 		ui->lineEditOutputFile->setText(fileDialog.selectedFiles().at(0));
 }
 
-void MainWindow::on_pushButtonLoadCalibrationData_clicked()
+void MainWindow::on_pushButtonLoadMapCalibrationData_clicked()
 {
 	QFileDialog fileDialog(this);
 	fileDialog.setFileMode(QFileDialog::ExistingFile);

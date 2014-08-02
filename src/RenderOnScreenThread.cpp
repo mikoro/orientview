@@ -29,7 +29,7 @@ bool RenderOnScreenThread::initialize(MainWindow* mainWindow, VideoWindow* video
 	this->videoStabilizer = videoStabilizer;
 	this->videoRenderer = videoRenderer;
 
-	stabilizationEnabled = settings->stabilization.enabled;
+	stabilizationEnabled = settings->stabilizer.enabled;
 	renderInfoPanel = settings->appearance.showInfoPanel;
 
 	return true;

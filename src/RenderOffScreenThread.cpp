@@ -31,7 +31,7 @@ bool RenderOffScreenThread::initialize(MainWindow* mainWindow, EncodeWindow* enc
 
 	framebufferWidth = settings->window.width;
 	framebufferHeight = settings->window.height;
-	stabilizationEnabled = settings->stabilization.enabled;
+	stabilizationEnabled = settings->stabilizer.enabled;
 	renderInfoPanel = settings->appearance.showInfoPanel;
 
 	QOpenGLFramebufferObjectFormat mainFboFormat;

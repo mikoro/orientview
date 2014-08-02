@@ -36,8 +36,8 @@ namespace OrientView
 
 	private slots:
 
-		void on_actionOpen_triggered();
-		void on_actionSaveAs_triggered();
+		void on_actionLoadSettings_triggered();
+		void on_actionSaveSettings_triggered();
 		void on_actionPlayVideo_triggered();
 		void on_actionEncodeVideo_triggered();
 		void on_actionExit_triggered();
@@ -46,7 +46,7 @@ namespace OrientView
 		void on_pushButtonBrowseMapFile_clicked();
 		void on_pushButtonBrowseGpxFile_clicked();
 		void on_pushButtonBrowseOutputFile_clicked();
-		void on_pushButtonLoadCalibrationData_clicked();
+		void on_pushButtonLoadMapCalibrationData_clicked();
 
 		void videoWindowClosing();
 		void encodeWindowClosing();

@@ -47,6 +47,7 @@ namespace OrientView
 		MovingAverage currentYAverage;
 		MovingAverage currentAngleAverage;
 
+		double dampingFactor = 0.0;
 		double lastProcessTime = 0.0;
 
 		cv::Mat previousImage;

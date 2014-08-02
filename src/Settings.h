@@ -61,6 +61,7 @@ namespace OrientView
 		{
 			bool showInfoPanel = false;
 			double mapPanelWidth = 0.0;
+			double videoPanelScale = 0.0;
 			int mapHeaderCrop = 0;
 
 		} appearance;
@@ -69,16 +70,18 @@ namespace OrientView
 		{
 			int frameCountDivisor = 0;
 			int frameDurationDivisor = 0;
+			int frameSizeDivisor = 0;
 
 		} decoder;
 
-		struct Stabilization
+		struct Stabilizer
 		{
 			bool enabled = false;
-			int imageSizeDivisor = 0;
-			double averagingFactor = 0.1;
+			int frameSizeDivisor = 0;
+			double averagingFactor = 0.0;
+			double dampingFactor = 0.0;
 
-		} stabilization;
+		} stabilizer;
 
 		struct Shaders
 		{
