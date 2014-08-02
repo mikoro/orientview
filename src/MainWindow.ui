@@ -198,7 +198,7 @@
            <property name="geometry">
             <rect>
              <x>0</x>
-             <y>0</y>
+             <y>-499</y>
              <width>437</width>
              <height>974</height>
             </rect>
@@ -1652,6 +1652,7 @@
   <tabstop>doubleSpinBoxVideoStartOffset</tabstop>
   <tabstop>checkBoxShowInfoPanel</tabstop>
   <tabstop>doubleSpinBoxMapPanelWidth</tabstop>
+  <tabstop>doubleSpinBoxVideoPanelScale</tabstop>
   <tabstop>spinBoxMapHeaderCrop</tabstop>
   <tabstop>spinBoxDecoderFrameCountDivisor</tabstop>
   <tabstop>spinBoxDecoderFrameDurationDivisor</tabstop>

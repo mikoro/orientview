@@ -16,6 +16,7 @@ namespace OrientView
 	class EncodeWindow;
 	class Settings;
 	class VideoDecoder;
+	class GpxReader;
 	class QuickRouteJpegReader;
 	class VideoStabilizer;
 	class VideoRenderer;
@@ -64,6 +65,7 @@ namespace OrientView
 		EncodeWindow* encodeWindow = nullptr;
 		Settings* settings = nullptr;
 		VideoDecoder* videoDecoder = nullptr;
+		GpxReader* gpxReader = nullptr;
 		QuickRouteJpegReader* quickRouteJpegReader = nullptr;
 		VideoStabilizer* videoStabilizer = nullptr;
 		VideoRenderer* videoRenderer = nullptr;

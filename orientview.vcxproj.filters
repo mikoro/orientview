@@ -128,6 +128,9 @@
     <ClCompile Include="src\MovingAverage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\GpxReader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="src\MainView.qrc">
@@ -196,6 +199,9 @@
       <Filter>Generated Files</Filter>
     </ClInclude>
     <ClInclude Include="src\MovingAverage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GpxReader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

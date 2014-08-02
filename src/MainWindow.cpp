@@ -11,6 +11,7 @@
 #include "EncodeWindow.h"
 #include "Settings.h"
 #include "VideoDecoder.h"
+#include "GpxReader.h"
 #include "QuickRouteJpegReader.h"
 #include "VideoStabilizer.h"
 #include "VideoRenderer.h"
@@ -30,6 +31,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	encodeWindow = new EncodeWindow(this);
 	settings = new Settings();
 	videoDecoder = new VideoDecoder();
+	gpxReader = new GpxReader();
 	quickRouteJpegReader = new QuickRouteJpegReader();
 	videoStabilizer = new VideoStabilizer();
 	videoRenderer = new VideoRenderer();
@@ -54,6 +56,7 @@ MainWindow::~MainWindow()
 	delete encodeWindow;
 	delete settings;
 	delete videoDecoder;
+	delete gpxReader;
 	delete quickRouteJpegReader;
 	delete videoStabilizer;
 	delete videoRenderer;
@@ -115,6 +118,9 @@ void MainWindow::on_actionPlayVideo_triggered()
 		if (!videoDecoder->initialize(ui->lineEditVideoFile->text(), settings))
 			throw std::runtime_error("Could not initialize VideoDecoder");
 
+		if (!gpxReader->initialize(ui->lineEditGpxFile->text()))
+			throw std::runtime_error("Could not initialize GpxReader");
+
 		if (!quickRouteJpegReader->initialize(ui->lineEditMapFile->text()))
 			throw std::runtime_error("Could not initialize QuickRouteJpegReader");
 
@@ -168,6 +174,9 @@ void MainWindow::on_actionEncodeVideo_triggered()
 
 		if (!videoDecoder->initialize(ui->lineEditVideoFile->text(), settings))
 			throw std::runtime_error("Could not initialize VideoDecoder");
+
+		if (!gpxReader->initialize(ui->lineEditGpxFile->text()))
+			throw std::runtime_error("Could not initialize GpxReader");
 
 		if (!videoEncoder->initialize(ui->lineEditOutputFile->text(), videoDecoder, settings))
 			throw std::runtime_error("Could not initialize VideoEncoder");
