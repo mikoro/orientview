@@ -18,7 +18,7 @@ void Settings::read(QSettings* settings)
 
 	window.width = settings->value("window/width", 1280).toInt();
 	window.height = settings->value("window/height", 720).toInt();
-	window.multisamples = settings->value("window/multisamples", 4).toInt();
+	window.multisamples = settings->value("window/multisamples", 16).toInt();
 	window.fullscreen = settings->value("window/fullscreen", false).toBool();
 	window.hideCursor = settings->value("window/hideCursor", false).toBool();
 

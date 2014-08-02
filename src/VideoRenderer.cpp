@@ -119,6 +119,9 @@ bool VideoRenderer::initialize(VideoDecoder* videoDecoder, QuickRouteJpegReader*
 
 	paintDevice = new QOpenGLPaintDevice();
 	painter = new QPainter();
+	painter->begin(paintDevice);
+	painter->setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform | QPainter::HighQualityAntialiasing);
+	painter->end();
 
 	return true;
 }
@@ -263,6 +266,12 @@ void VideoRenderer::startRendering(double windowWidth, double windowHeight, doub
 		selectedPanelPtr->userScale = 1.0;
 	}
 
+	if (videoWindow->keyIsDown(Qt::Key_W))
+		selectedPanelPtr->userAngle += 0.1 * frameTime;
+
+	if (videoWindow->keyIsDown(Qt::Key_S))
+		selectedPanelPtr->userAngle -= 0.1 * frameTime;
+
 	if (videoWindow->keyIsDown(Qt::Key_Q))
 		selectedPanelPtr->userScale *= (1.0 + frameTime / 500);
 
@@ -270,16 +279,16 @@ void VideoRenderer::startRendering(double windowWidth, double windowHeight, doub
 		selectedPanelPtr->userScale *= (1.0 - frameTime / 500);
 
 	if (videoWindow->keyIsDown(Qt::Key_Left))
-		selectedPanelPtr->userX -= 1.0 * frameTime * (1.0 / (selectedPanelPtr->scale * selectedPanelPtr->userScale));
+		selectedPanelPtr->userX -= 1.0 * frameTime;
 
 	if (videoWindow->keyIsDown(Qt::Key_Right))
-		selectedPanelPtr->userX += 1.0 * frameTime * (1.0 / (selectedPanelPtr->scale * selectedPanelPtr->userScale));
+		selectedPanelPtr->userX += 1.0 * frameTime;
 
 	if (videoWindow->keyIsDown(Qt::Key_Up))
-		selectedPanelPtr->userY += 1.0 * frameTime * (1.0 / (selectedPanelPtr->scale * selectedPanelPtr->userScale));
+		selectedPanelPtr->userY += 1.0 * frameTime;
 
 	if (videoWindow->keyIsDown(Qt::Key_Down))
-		selectedPanelPtr->userY -= 1.0 * frameTime * (1.0 / (selectedPanelPtr->scale * selectedPanelPtr->userScale));
+		selectedPanelPtr->userY -= 1.0 * frameTime;
 }
 
 void VideoRenderer::uploadFrameData(FrameData* frameData)
@@ -302,25 +311,21 @@ void VideoRenderer::renderVideoPanel()
 	else
 		videoPanel.vertexMatrix.ortho(-windowWidth / 2, windowWidth / 2, windowHeight / 2, -windowHeight / 2, 0.0f, 1.0f);
 
-	// do rotations while centered on the window
+	double offsetX = (windowWidth / 2.0) - (((1.0 - mapPanelRelativeWidth) * windowWidth) / 2.0);
+
+	videoPanel.vertexMatrix.translate(
+		offsetX + videoPanel.x + videoPanel.userX + videoStabilizer->getX() * videoPanel.textureWidth,
+		videoPanel.y + videoPanel.userY - videoStabilizer->getY() * videoPanel.textureHeight,
+		0.0f);
+
 	videoPanel.vertexMatrix.rotate(videoPanel.angle + videoPanel.userAngle - videoStabilizer->getAngle(), 0.0f, 0.0f, 1.0f);
 
-	// center the video on the right side
-	videoPanel.vertexMatrix.translate(((windowWidth / 2.0) - (((1.0 - mapPanelRelativeWidth) * windowWidth) / 2.0)), 0.0f);
-
-	// resize the video to fit the right side
 	videoPanel.scale = ((1.0 - mapPanelRelativeWidth) * windowWidth) / videoPanel.textureWidth;
 
-	// prevent clipping if window height is too small
 	if (videoPanel.scale * videoPanel.textureHeight > windowHeight)
 		videoPanel.scale = windowHeight / videoPanel.textureHeight;
 
 	videoPanel.vertexMatrix.scale(videoPanel.scale * videoPanel.userScale);
-	
-	videoPanel.vertexMatrix.translate(
-		videoPanel.x + videoPanel.userX + videoStabilizer->getX() * videoPanel.textureWidth,
-		videoPanel.y + videoPanel.userY - videoStabilizer->getY() * videoPanel.textureHeight,
-		0.0f);
 
 	renderPanel(&videoPanel);
 }
@@ -334,10 +339,10 @@ void VideoRenderer::renderMapPanel()
 	else
 		mapPanel.vertexMatrix.ortho(-windowWidth / 2, windowWidth / 2, windowHeight / 2, -windowHeight / 2, 0.0f, 1.0f);
 
-	mapPanel.vertexMatrix.translate(-((windowWidth / 2.0) - ((mapPanelRelativeWidth * windowWidth) / 2.0)), 0.0f);
+	mapPanel.vertexMatrix.translate(mapPanel.x + mapPanel.userX, mapPanel.y + mapPanel.userY);
+	mapPanel.vertexMatrix.rotate(mapPanel.angle + mapPanel.userAngle, 0.0f, 0.0f, 1.0f);
 	mapPanel.vertexMatrix.scale(mapPanel.scale * mapPanel.userScale);
-	mapPanel.vertexMatrix.translate(mapPanel.x - mapPanel.userX, mapPanel.y - mapPanel.userY);
-
+	
 	int mapBorderX = (int)(mapPanelRelativeWidth * windowWidth + 0.5);
 
 	glEnable(GL_SCISSOR_TEST);
