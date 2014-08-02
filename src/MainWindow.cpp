@@ -47,9 +47,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	connect(videoEncoderThread, &VideoEncoderThread::frameProcessed, encodeWindow, &EncodeWindow::frameProcessed);
 	connect(videoEncoderThread, &VideoEncoderThread::encodingFinished, encodeWindow, &EncodeWindow::encodingFinished);
 
-	QuickRouteReaderResult r;
-	QuickRouteReader::read("C:\\Users\\Mikko\\Desktop\\2014-05-27 Pirttimaki 3DRerun - Copy.jpg", &r);
-
 	readSettings();
 }
 
@@ -136,7 +133,7 @@ void MainWindow::on_actionPlayVideo_triggered()
 		if (!videoWindow->initialize(renderOnScreenThread, settings))
 			throw std::runtime_error("Could not initialize VideoWindow");
 
-		if (!renderer->initialize(videoDecoder, mapImageReader, videoStabilizer, videoEncoder, videoWindow, settings))
+		if (!renderer->initialize(videoDecoder, gpxReader, mapImageReader, videoStabilizer, videoEncoder, videoWindow, settings))
 			throw std::runtime_error("Could not initialize Renderer");
 
 		if (!videoDecoderThread->initialize(videoDecoder))
@@ -194,7 +191,7 @@ void MainWindow::on_actionEncodeVideo_triggered()
 		if (!encodeWindow->initialize(videoDecoder, videoEncoderThread, settings))
 			throw std::runtime_error("Could not initialize EncodeWindow");
 
-		if (!renderer->initialize(videoDecoder, mapImageReader, videoStabilizer, videoEncoder, videoWindow, settings))
+		if (!renderer->initialize(videoDecoder, gpxReader, mapImageReader, videoStabilizer, videoEncoder, videoWindow, settings))
 			throw std::runtime_error("Could not initialize Renderer");
 
 		if (!videoDecoderThread->initialize(videoDecoder))

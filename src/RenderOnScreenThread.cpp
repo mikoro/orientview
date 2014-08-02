@@ -79,7 +79,7 @@ void RenderOnScreenThread::run()
 		{
 			renderer->uploadFrameData(&frameData);
 			videoDecoderThread->signalFrameRead();
-			renderer->renderVideoPanel();
+			//renderer->renderVideoPanel();
 		}
 
 		renderer->renderMapPanel();

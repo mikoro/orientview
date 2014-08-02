@@ -6,6 +6,7 @@
 
 #include "Renderer.h"
 #include "VideoDecoder.h"
+#include "GpxReader.h"
 #include "MapImageReader.h"
 #include "VideoStabilizer.h"
 #include "VideoEncoder.h"
@@ -19,7 +20,7 @@ Renderer::Renderer()
 {
 }
 
-bool Renderer::initialize(VideoDecoder* videoDecoder, MapImageReader* mapImageReader, VideoStabilizer* videoStabilizer, VideoEncoder* videoEncoder, VideoWindow* videoWindow, Settings* settings)
+bool Renderer::initialize(VideoDecoder* videoDecoder, GpxReader* gpxReader, MapImageReader* mapImageReader, VideoStabilizer* videoStabilizer, VideoEncoder* videoEncoder, VideoWindow* videoWindow, Settings* settings)
 {
 	qDebug("Initializing Renderer");
 
@@ -87,10 +88,10 @@ bool Renderer::initialize(VideoDecoder* videoDecoder, MapImageReader* mapImageRe
 	// 4 3
 	GLfloat mapPanelBuffer[] =
 	{
-		-(float)mapPanel.textureWidth / 2, (float)mapPanel.textureHeight / 2, 0.0f, // 1
-		(float)mapPanel.textureWidth / 2, (float)mapPanel.textureHeight / 2, 0.0f, // 2
-		(float)mapPanel.textureWidth / 2, -(float)mapPanel.textureHeight / 2, 0.0f, // 3
-		-(float)mapPanel.textureWidth / 2, -(float)mapPanel.textureHeight / 2, 0.0f, // 4
+		0.0f, 0.0f, 0.0f, // 1
+		(float)mapPanel.textureWidth, 0.0f, 0.0f, // 2
+		(float)mapPanel.textureWidth, (float)mapPanel.textureHeight, 0.0f, // 3
+		0.0f, (float)mapPanel.textureHeight, 0.0f, // 4
 
 		0.0f, 0.0f, // 1
 		1.0f, 0.0f, // 2
@@ -124,6 +125,16 @@ bool Renderer::initialize(VideoDecoder* videoDecoder, MapImageReader* mapImageRe
 	painter->begin(paintDevice);
 	painter->setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform | QPainter::HighQualityAntialiasing);
 	painter->end();
+
+	trackPoints.clear();
+
+	for (const TrackPoint& trackPoint : gpxReader->getTrackPoints())
+	{
+		TrackPoint newTrackPoint = trackPoint;
+		newTrackPoint.x = ((trackPoint.longitude - settings->mapCalibration.topLeftLong) / (settings->mapCalibration.bottomRightLong - settings->mapCalibration.topLeftLong)) * mapPanel.textureWidth;
+		newTrackPoint.y = mapPanel.textureHeight - (((trackPoint.latitude - settings->mapCalibration.bottomRightLat) / (settings->mapCalibration.topLeftLat - settings->mapCalibration.bottomRightLat)) * mapPanel.textureHeight);
+		trackPoints.push_back(newTrackPoint);
+	}
 
 	return true;
 }
@@ -281,16 +292,16 @@ void Renderer::startRendering(double windowWidth, double windowHeight, double fr
 		selectedPanelPtr->userScale *= (1.0 - frameTime / 500);
 
 	if (videoWindow->keyIsDown(Qt::Key_Left))
-		selectedPanelPtr->userX -= 1.0 * frameTime;
+		selectedPanelPtr->userX -= 0.5 * frameTime;
 
 	if (videoWindow->keyIsDown(Qt::Key_Right))
-		selectedPanelPtr->userX += 1.0 * frameTime;
+		selectedPanelPtr->userX += 0.5 * frameTime;
 
 	if (videoWindow->keyIsDown(Qt::Key_Up))
-		selectedPanelPtr->userY += 1.0 * frameTime;
+		selectedPanelPtr->userY += 0.5 * frameTime;
 
 	if (videoWindow->keyIsDown(Qt::Key_Down))
-		selectedPanelPtr->userY -= 1.0 * frameTime;
+		selectedPanelPtr->userY -= 0.5 * frameTime;
 }
 
 void Renderer::uploadFrameData(FrameData* frameData)
@@ -338,9 +349,11 @@ void Renderer::renderMapPanel()
 	mapPanel.vertexMatrix.setToIdentity();
 
 	if (!flipOutput)
-		mapPanel.vertexMatrix.ortho(-windowWidth / 2, windowWidth / 2, -windowHeight / 2, windowHeight / 2, 0.0f, 1.0f);
+		mapPanel.vertexMatrix.ortho(0, windowWidth, windowHeight, 0, 0.0f, 1.0f);
 	else
 		mapPanel.vertexMatrix.ortho(-windowWidth / 2, windowWidth / 2, windowHeight / 2, -windowHeight / 2, 0.0f, 1.0f);
+
+	mapPanel.scale = windowWidth / mapPanel.textureWidth;
 
 	mapPanel.vertexMatrix.translate(mapPanel.x + mapPanel.userX, mapPanel.y + mapPanel.userY);
 	mapPanel.vertexMatrix.rotate(mapPanel.angle + mapPanel.userAngle, 0.0f, 0.0f, 1.0f);
@@ -348,43 +361,18 @@ void Renderer::renderMapPanel()
 
 	int mapBorderX = (int)(mapPanelRelativeWidth * windowWidth + 0.5);
 
-	glEnable(GL_SCISSOR_TEST);
+	//glEnable(GL_SCISSOR_TEST);
 	glScissor(0, 0, mapBorderX, (int)windowHeight);
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 	renderPanel(&mapPanel);
+	renderRoute();
 	glDisable(GL_SCISSOR_TEST);
 
 	painter->begin(paintDevice);
 	painter->setPen(QColor(0, 0, 0));
 	painter->drawLine(mapBorderX, 0, mapBorderX, (int)windowHeight);
 	painter->end();
-}
-
-void Renderer::renderPanel(Panel* panel)
-{
-	panel->program->bind();
-	panel->program->setUniformValue(panel->vertexMatrixUniform, panel->vertexMatrix);
-	panel->program->setUniformValue(panel->textureSamplerUniform, 0);
-	panel->program->setUniformValue(panel->textureWidthUniform, (float)panel->textureWidth);
-	panel->program->setUniformValue(panel->textureHeightUniform, (float)panel->textureHeight);
-	panel->program->setUniformValue(panel->texelWidthUniform, (float)panel->texelWidth);
-	panel->program->setUniformValue(panel->texelHeightUniform, (float)panel->texelHeight);
-
-	panel->buffer->bind();
-	panel->texture->bind();
-
-	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(panel->vertexPositionAttribute, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	glVertexAttribPointer(panel->vertexTextureCoordinateAttribute, 2, GL_FLOAT, GL_FALSE, 0, (void*)(sizeof(GLfloat) * 12));
-	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-	glDisableVertexAttribArray(0);
-	glDisableVertexAttribArray(1);
-
-	panel->texture->release();
-	panel->buffer->release();
-	panel->program->release();
 }
 
 void Renderer::renderInfoPanel(double spareTime)
@@ -446,4 +434,63 @@ void Renderer::setFlipOutput(bool value)
 {
 	paintDevice->setPaintFlipped(value);
 	flipOutput = value;
+}
+
+void Renderer::renderPanel(Panel* panel)
+{
+	panel->program->bind();
+	panel->program->setUniformValue(panel->vertexMatrixUniform, panel->vertexMatrix);
+	panel->program->setUniformValue(panel->textureSamplerUniform, 0);
+	panel->program->setUniformValue(panel->textureWidthUniform, (float)panel->textureWidth);
+	panel->program->setUniformValue(panel->textureHeightUniform, (float)panel->textureHeight);
+	panel->program->setUniformValue(panel->texelWidthUniform, (float)panel->texelWidth);
+	panel->program->setUniformValue(panel->texelHeightUniform, (float)panel->texelHeight);
+
+	panel->buffer->bind();
+	panel->texture->bind();
+
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(panel->vertexPositionAttribute, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glVertexAttribPointer(panel->vertexTextureCoordinateAttribute, 2, GL_FLOAT, GL_FALSE, 0, (void*)(sizeof(GLfloat) * 12));
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+	glDisableVertexAttribArray(0);
+	glDisableVertexAttribArray(1);
+
+	panel->texture->release();
+	panel->buffer->release();
+	panel->program->release();
+}
+
+void Renderer::renderRoute()
+{
+	QPen pen;
+	QBrush brush;
+
+	brush.setColor(QColor(0, 0, 255));
+	brush.setStyle(Qt::BrushStyle::CrossPattern);
+
+	pen.setColor(QColor(200, 0, 0));
+	pen.setWidth(15);
+	pen.setCapStyle(Qt::PenCapStyle::RoundCap);
+	pen.setJoinStyle(Qt::PenJoinStyle::RoundJoin);
+
+	QMatrix m;
+	m.translate(mapPanel.x + mapPanel.userX, mapPanel.y + mapPanel.userY);
+	m.rotate(mapPanel.angle + mapPanel.userAngle);
+	m.scale(mapPanel.scale * mapPanel.userScale, mapPanel.scale * mapPanel.userScale);
+
+	painter->begin(paintDevice);
+	painter->setPen(pen);
+	painter->setWorldMatrix(m);
+
+	for (int i = 0; i < trackPoints.size() - 1; ++i)
+	{
+		TrackPoint tp1 = trackPoints.at(i);
+		TrackPoint tp2 = trackPoints.at(i + 1);
+
+		painter->drawLine((int)(tp1.x + 0.5), (int)(tp1.y + 0.5), (int)(tp2.x + 0.5), (int)(tp2.y + 0.5));
+	}
+
+	painter->end();
 }

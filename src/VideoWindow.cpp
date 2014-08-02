@@ -23,7 +23,7 @@ bool VideoWindow::initialize(RenderOnScreenThread* renderOnScreenThread, Setting
 	this->renderOnScreenThread = renderOnScreenThread;
 
 	setSurfaceType(QWindow::OpenGLSurface);
-	setIcon(QIcon(":/MainView/misc/orientview.ico"));
+	setIcon(QIcon(":/icons/misc/icons/orientview.ico"));
 	setTitle("OrientView - Video");
 	resize(settings->window.width, settings->window.height);
 	setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, size(), QApplication::desktop()->availableGeometry()));
