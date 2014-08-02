@@ -9,7 +9,7 @@ namespace OrientView
 {
 	struct MP4Handle;
 
-	class MP4File
+	class MP44File
 	{
 
 	public:

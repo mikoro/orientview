@@ -5,7 +5,7 @@
 #include "VideoDecoder.h"
 #include "Settings.h"
 #include "FrameData.h"
-#include "MP4File.h"
+#include "MP44File.h"
 
 using namespace OrientView;
 
@@ -73,7 +73,7 @@ bool VideoEncoder::initialize(const QString& fileName, VideoDecoder* videoDecode
 		return false;
 	}
 
-	mp4File = new MP4File();
+	mp4File = new MP44File();
 
 	if (!mp4File->open(fileName))
 		return false;

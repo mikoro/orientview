@@ -18,7 +18,7 @@ namespace OrientView
 	class VideoDecoder;
 	class Settings;
 	struct FrameData;
-	class MP4File;
+	class MP44File;
 
 	class VideoEncoder
 	{
@@ -41,7 +41,7 @@ namespace OrientView
 		x264_t* encoder = nullptr;
 		x264_picture_t* convertedPicture = nullptr;
 		SwsContext* swsContext = nullptr;
-		MP4File* mp4File = nullptr;
+		MP44File* mp4File = nullptr;
 		int64_t frameNumber = 0;
 
 		QElapsedTimer encodeTimer;
