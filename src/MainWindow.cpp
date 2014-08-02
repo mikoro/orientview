@@ -7,19 +7,19 @@
 
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
-#include "VideoWindow.h"
-#include "EncodeWindow.h"
 #include "Settings.h"
 #include "VideoDecoder.h"
+#include "MapImageReader.h"
 #include "GpxReader.h"
-#include "QuickRouteJpegReader.h"
 #include "VideoStabilizer.h"
-#include "VideoRenderer.h"
+#include "Renderer.h"
 #include "VideoEncoder.h"
 #include "VideoDecoderThread.h"
 #include "RenderOnScreenThread.h"
 #include "RenderOffScreenThread.h"
 #include "VideoEncoderThread.h"
+#include "VideoWindow.h"
+#include "EncodeWindow.h"
 
 using namespace OrientView;
 
@@ -27,19 +27,19 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 {
 	ui->setupUi(this);
 
-	videoWindow = new VideoWindow();
-	encodeWindow = new EncodeWindow(this);
 	settings = new Settings();
 	videoDecoder = new VideoDecoder();
+	mapImageReader = new MapImageReader();
 	gpxReader = new GpxReader();
-	quickRouteJpegReader = new QuickRouteJpegReader();
 	videoStabilizer = new VideoStabilizer();
-	videoRenderer = new VideoRenderer();
+	renderer = new Renderer();
 	videoEncoder = new VideoEncoder();
 	videoDecoderThread = new VideoDecoderThread();
 	renderOnScreenThread = new RenderOnScreenThread();
 	renderOffScreenThread = new RenderOffScreenThread();
 	videoEncoderThread = new VideoEncoderThread();
+	videoWindow = new VideoWindow();
+	encodeWindow = new EncodeWindow(this);
 
 	connect(videoWindow, &VideoWindow::closing, this, &MainWindow::videoWindowClosing);
 	connect(encodeWindow, &EncodeWindow::closing, this, &MainWindow::encodeWindowClosing);
@@ -52,19 +52,19 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 MainWindow::~MainWindow()
 {
 	delete ui;
-	delete videoWindow;
-	delete encodeWindow;
 	delete settings;
 	delete videoDecoder;
+	delete mapImageReader;
 	delete gpxReader;
-	delete quickRouteJpegReader;
 	delete videoStabilizer;
-	delete videoRenderer;
+	delete renderer;
 	delete videoEncoder;
 	delete videoDecoderThread;
 	delete renderOnScreenThread;
 	delete renderOffScreenThread;
 	delete videoEncoderThread;
+	delete videoWindow;
+	delete encodeWindow;
 }
 
 void MainWindow::on_actionLoadSettings_triggered()
@@ -118,11 +118,11 @@ void MainWindow::on_actionPlayVideo_triggered()
 		if (!videoDecoder->initialize(ui->lineEditVideoFile->text(), settings))
 			throw std::runtime_error("Could not initialize VideoDecoder");
 
+		if (!mapImageReader->initialize(ui->lineEditMapFile->text(), settings))
+			throw std::runtime_error("Could not initialize MapImageReader");
+
 		if (!gpxReader->initialize(ui->lineEditGpxFile->text()))
 			throw std::runtime_error("Could not initialize GpxReader");
-
-		if (!quickRouteJpegReader->initialize(ui->lineEditMapFile->text()))
-			throw std::runtime_error("Could not initialize QuickRouteJpegReader");
 
 		if (!videoStabilizer->initialize(settings))
 			throw std::runtime_error("Could not initialize VideoStabilizer");
@@ -132,19 +132,19 @@ void MainWindow::on_actionPlayVideo_triggered()
 		if (!videoWindow->initialize(renderOnScreenThread, settings))
 			throw std::runtime_error("Could not initialize VideoWindow");
 
-		if (!videoRenderer->initialize(videoDecoder, quickRouteJpegReader, videoStabilizer, videoEncoder, videoWindow, settings))
-			throw std::runtime_error("Could not initialize VideoRenderer");
+		if (!renderer->initialize(videoDecoder, mapImageReader, videoStabilizer, videoEncoder, videoWindow, settings))
+			throw std::runtime_error("Could not initialize Renderer");
 
 		if (!videoDecoderThread->initialize(videoDecoder))
 			throw std::runtime_error("Could not initialize VideoDecoderThread");
 
-		if (!renderOnScreenThread->initialize(this, videoWindow, videoDecoder, videoDecoderThread, videoStabilizer, videoRenderer, settings))
+		if (!renderOnScreenThread->initialize(this, videoWindow, videoDecoder, videoDecoderThread, videoStabilizer, renderer, settings))
 			throw std::runtime_error("Could not initialize RenderOnScreenThread");
 
 		videoWindow->getContext()->doneCurrent();
 		videoWindow->getContext()->moveToThread(renderOnScreenThread);
 
-		videoRenderer->setFlipOutput(false);
+		renderer->setFlipOutput(false);
 
 		videoDecoderThread->start();
 		renderOnScreenThread->start();
@@ -175,14 +175,14 @@ void MainWindow::on_actionEncodeVideo_triggered()
 		if (!videoDecoder->initialize(ui->lineEditVideoFile->text(), settings))
 			throw std::runtime_error("Could not initialize VideoDecoder");
 
+		if (!mapImageReader->initialize(ui->lineEditMapFile->text(), settings))
+			throw std::runtime_error("Could not initialize MapImageReader");
+
 		if (!gpxReader->initialize(ui->lineEditGpxFile->text()))
 			throw std::runtime_error("Could not initialize GpxReader");
 
 		if (!videoEncoder->initialize(ui->lineEditOutputFile->text(), videoDecoder, settings))
 			throw std::runtime_error("Could not initialize VideoEncoder");
-
-		if (!quickRouteJpegReader->initialize(ui->lineEditMapFile->text()))
-			throw std::runtime_error("Could not initialize QuickRouteJpegReader");
 
 		if (!videoStabilizer->initialize(settings))
 			throw std::runtime_error("Could not initialize VideoStabilizer");
@@ -190,13 +190,13 @@ void MainWindow::on_actionEncodeVideo_triggered()
 		if (!encodeWindow->initialize(videoDecoder, videoEncoderThread, settings))
 			throw std::runtime_error("Could not initialize EncodeWindow");
 
-		if (!videoRenderer->initialize(videoDecoder, quickRouteJpegReader, videoStabilizer, videoEncoder, videoWindow, settings))
-			throw std::runtime_error("Could not initialize VideoRenderer");
+		if (!renderer->initialize(videoDecoder, mapImageReader, videoStabilizer, videoEncoder, videoWindow, settings))
+			throw std::runtime_error("Could not initialize Renderer");
 
 		if (!videoDecoderThread->initialize(videoDecoder))
 			throw std::runtime_error("Could not initialize VideoDecoderThread");
 
-		if (!renderOffScreenThread->initialize(this, encodeWindow, videoDecoderThread, videoStabilizer, videoRenderer, settings))
+		if (!renderOffScreenThread->initialize(this, encodeWindow, videoDecoderThread, videoStabilizer, renderer, settings))
 			throw std::runtime_error("Could not initialize RenderOffScreenThread");
 
 		if (!videoEncoderThread->initialize(videoDecoder, videoEncoder, renderOffScreenThread))
@@ -208,7 +208,7 @@ void MainWindow::on_actionEncodeVideo_triggered()
 		encodeWindow->getContext()->doneCurrent();
 		encodeWindow->getContext()->moveToThread(renderOffScreenThread);
 
-		videoRenderer->setFlipOutput(true);
+		renderer->setFlipOutput(true);
 
 		videoDecoderThread->start();
 		renderOffScreenThread->start();
@@ -246,10 +246,9 @@ void MainWindow::videoWindowClosing()
 	if (videoWindow->isInitialized())
 		videoWindow->getContext()->makeCurrent(videoWindow);
 
-	videoRenderer->shutdown();
+	renderer->shutdown();
 	videoWindow->shutdown();
 	videoStabilizer->shutdown();
-	quickRouteJpegReader->shutdown();
 	videoDecoder->shutdown();
 
 	this->show();
@@ -275,10 +274,9 @@ void MainWindow::encodeWindowClosing()
 	if (encodeWindow->isInitialized())
 		encodeWindow->getContext()->makeCurrent(encodeWindow->getSurface());
 
-	videoRenderer->shutdown();
+	renderer->shutdown();
 	encodeWindow->shutdown();
 	videoStabilizer->shutdown();
-	quickRouteJpegReader->shutdown();
 	videoEncoder->shutdown();
 	videoDecoder->shutdown();
 }

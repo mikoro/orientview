@@ -16,7 +16,7 @@
 namespace OrientView
 {
 	class VideoDecoder;
-	class QuickRouteJpegReader;
+	class MapImageReader;
 	class VideoStabilizer;
 	class VideoEncoder;
 	class VideoWindow;
@@ -57,14 +57,14 @@ namespace OrientView
 
 	enum class SelectedPanel { VIDEO, MAP };
 
-	class VideoRenderer : protected QOpenGLFunctions
+	class Renderer : protected QOpenGLFunctions
 	{
 
 	public:
 
-		VideoRenderer();
+		Renderer();
 
-		bool initialize(VideoDecoder* videoDecoder, QuickRouteJpegReader* quickRouteJpegReader, VideoStabilizer* videoStabilizer, VideoEncoder* videoEncoder, VideoWindow* videoWindow, Settings* settings);
+		bool initialize(VideoDecoder* videoDecoder, MapImageReader* mapImageReader, VideoStabilizer* videoStabilizer, VideoEncoder* videoEncoder, VideoWindow* videoWindow, Settings* settings);
 		void shutdown();
 
 		void startRendering(double windowWidth, double windowHeight, double frameTime);

@@ -9,7 +9,7 @@
 #include "EncodeWindow.h"
 #include "VideoDecoderThread.h"
 #include "VideoStabilizer.h"
-#include "VideoRenderer.h"
+#include "Renderer.h"
 #include "Settings.h"
 #include "FrameData.h"
 
@@ -19,7 +19,7 @@ RenderOffScreenThread::RenderOffScreenThread()
 {
 }
 
-bool RenderOffScreenThread::initialize(MainWindow* mainWindow, EncodeWindow* encodeWindow, VideoDecoderThread* videoDecoderThread, VideoStabilizer* videoStabilizer, VideoRenderer* videoRenderer, Settings* settings)
+bool RenderOffScreenThread::initialize(MainWindow* mainWindow, EncodeWindow* encodeWindow, VideoDecoderThread* videoDecoderThread, VideoStabilizer* videoStabilizer, Renderer* renderer, Settings* settings)
 {
 	qDebug("Initializing RenderOffScreenThread");
 
@@ -27,7 +27,7 @@ bool RenderOffScreenThread::initialize(MainWindow* mainWindow, EncodeWindow* enc
 	this->encodeWindow = encodeWindow;
 	this->videoDecoderThread = videoDecoderThread;
 	this->videoStabilizer = videoStabilizer;
-	this->videoRenderer = videoRenderer;
+	this->renderer = renderer;
 
 	framebufferWidth = settings->window.width;
 	framebufferHeight = settings->window.height;
@@ -127,16 +127,16 @@ void RenderOffScreenThread::run()
 			encodeWindow->getContext()->makeCurrent(encodeWindow->getSurface());
 			mainFramebuffer->bind();
 
-			videoRenderer->startRendering(framebufferWidth, framebufferHeight, frameDuration);
-			videoRenderer->uploadFrameData(&decodedFrameData);
+			renderer->startRendering(framebufferWidth, framebufferHeight, frameDuration);
+			renderer->uploadFrameData(&decodedFrameData);
 			videoDecoderThread->signalFrameRead();
-			videoRenderer->renderVideoPanel();
-			//videoRenderer->renderMapPanel();
+			renderer->renderVideoPanel();
+			//renderer->renderMapPanel();
 
 			if (renderInfoPanel)
-				videoRenderer->renderInfoPanel(0);
+				renderer->renderInfoPanel(0);
 
-			videoRenderer->stopRendering();
+			renderer->stopRendering();
 
 			while (!frameReadSemaphore->tryAcquire(1, 20) && !isInterruptionRequested()) {}
 

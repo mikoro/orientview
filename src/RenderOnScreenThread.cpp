@@ -9,7 +9,7 @@
 #include "VideoDecoder.h"
 #include "VideoDecoderThread.h"
 #include "VideoStabilizer.h"
-#include "VideoRenderer.h"
+#include "Renderer.h"
 #include "Settings.h"
 
 using namespace OrientView;
@@ -18,7 +18,7 @@ RenderOnScreenThread::RenderOnScreenThread()
 {
 }
 
-bool RenderOnScreenThread::initialize(MainWindow* mainWindow, VideoWindow* videoWindow, VideoDecoder* videoDecoder, VideoDecoderThread* videoDecoderThread, VideoStabilizer* videoStabilizer, VideoRenderer* videoRenderer, Settings* settings)
+bool RenderOnScreenThread::initialize(MainWindow* mainWindow, VideoWindow* videoWindow, VideoDecoder* videoDecoder, VideoDecoderThread* videoDecoderThread, VideoStabilizer* videoStabilizer, Renderer* renderer, Settings* settings)
 {
 	qDebug("Initializing RenderOnScreenThread");
 
@@ -27,7 +27,7 @@ bool RenderOnScreenThread::initialize(MainWindow* mainWindow, VideoWindow* video
 	this->videoDecoder = videoDecoder;
 	this->videoDecoderThread = videoDecoderThread;
 	this->videoStabilizer = videoStabilizer;
-	this->videoRenderer = videoRenderer;
+	this->renderer = renderer;
 
 	stabilizationEnabled = settings->stabilizer.enabled;
 	renderInfoPanel = settings->appearance.showInfoPanel;
@@ -73,21 +73,21 @@ void RenderOnScreenThread::run()
 			videoStabilizer->processFrame(&frameDataGrayscale);
 
 		videoWindow->getContext()->makeCurrent(videoWindow);
-		videoRenderer->startRendering(videoWindow->width(), videoWindow->height(), frameDuration);
+		renderer->startRendering(videoWindow->width(), videoWindow->height(), frameDuration);
 
 		if (gotFrame)
 		{
-			videoRenderer->uploadFrameData(&frameData);
+			renderer->uploadFrameData(&frameData);
 			videoDecoderThread->signalFrameRead();
-			videoRenderer->renderVideoPanel();
+			renderer->renderVideoPanel();
 		}
 
-		videoRenderer->renderMapPanel();
+		renderer->renderMapPanel();
 
 		if (renderInfoPanel)
-			videoRenderer->renderInfoPanel(spareTime);
+			renderer->renderInfoPanel(spareTime);
 
-		videoRenderer->stopRendering();
+		renderer->stopRendering();
 
 		spareTime = videoDecoder->getVideoInfo().averageFrameDuration - (spareTimer.nsecsElapsed() / 1000000.0);
 

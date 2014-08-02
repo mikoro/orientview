@@ -5,25 +5,22 @@
 
 #include <QString>
 #include <QImage>
-#include <QFile>
 
 namespace OrientView
 {
-	class QuickRouteJpegReader
+	struct Settings;
+
+	class MapImageReader
 	{
 
 	public:
 
-		QuickRouteJpegReader();
-
-		bool initialize(const QString& fileName);
-		void shutdown();
+		bool initialize(const QString& fileName, Settings* settings);
 
 		QImage getMapImage() const;
 
 	private:
 
 		QImage mapImage;
-		QFile mapFile;
 	};
 }

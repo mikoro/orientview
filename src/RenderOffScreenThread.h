@@ -15,7 +15,7 @@ namespace OrientView
 	class EncodeWindow;
 	class VideoDecoderThread;
 	class VideoStabilizer;
-	class VideoRenderer;
+	class Renderer;
 	class Settings;
 
 	class RenderOffScreenThread : public QThread
@@ -26,7 +26,7 @@ namespace OrientView
 
 		RenderOffScreenThread();
 
-		bool initialize(MainWindow* mainWindow, EncodeWindow* encodeWindow, VideoDecoderThread* videoDecoderThread, VideoStabilizer* videoStabilizer, VideoRenderer* videoRenderer, Settings* settings);
+		bool initialize(MainWindow* mainWindow, EncodeWindow* encodeWindow, VideoDecoderThread* videoDecoderThread, VideoStabilizer* videoStabilizer, Renderer* renderer, Settings* settings);
 		void shutdown();
 
 		bool tryGetNextFrame(FrameData* frameData);
@@ -44,7 +44,7 @@ namespace OrientView
 		EncodeWindow* encodeWindow = nullptr;
 		VideoDecoderThread* videoDecoderThread = nullptr;
 		VideoStabilizer* videoStabilizer = nullptr;
-		VideoRenderer* videoRenderer = nullptr;
+		Renderer* renderer = nullptr;
 
 		bool stabilizationEnabled = false;
 		bool renderInfoPanel = false;

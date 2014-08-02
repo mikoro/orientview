@@ -42,8 +42,8 @@ namespace OrientView
 					typeString = "Fatal";
 			}
 
-			std::string messageText = QString("%1: %2 (%3:%4, %5)\n").arg(typeString, message, QString::fromLatin1(context.file), QString::number(context.line), QString::fromLatin1(context.function)).toStdString();
-			//std::string messageText = QString("%1: %2\n").arg(typeString, message).toStdString();
+			//std::string messageText = QString("%1: %2 (%3:%4, %5)\n").arg(typeString, message, QString::fromLatin1(context.file), QString::number(context.line), QString::fromLatin1(context.function)).toStdString();
+			std::string messageText = QString("%1: %2\n").arg(typeString, message).toStdString();
 
 			if (logFile.is_open())
 			{

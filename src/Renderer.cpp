@@ -4,9 +4,9 @@
 #include <QOpenGLPixelTransferOptions>
 #include <QTime>
 
-#include "VideoRenderer.h"
+#include "Renderer.h"
 #include "VideoDecoder.h"
-#include "QuickRouteJpegReader.h"
+#include "MapImageReader.h"
 #include "VideoStabilizer.h"
 #include "VideoEncoder.h"
 #include "VideoWindow.h"
@@ -15,13 +15,13 @@
 
 using namespace OrientView;
 
-VideoRenderer::VideoRenderer()
+Renderer::Renderer()
 {
 }
 
-bool VideoRenderer::initialize(VideoDecoder* videoDecoder, QuickRouteJpegReader* quickRouteJpegReader, VideoStabilizer* videoStabilizer, VideoEncoder* videoEncoder, VideoWindow* videoWindow, Settings* settings)
+bool Renderer::initialize(VideoDecoder* videoDecoder, MapImageReader* mapImageReader, VideoStabilizer* videoStabilizer, VideoEncoder* videoEncoder, VideoWindow* videoWindow, Settings* settings)
 {
-	qDebug("Initializing VideoRenderer");
+	qDebug("Initializing Renderer");
 
 	this->videoDecoder = videoDecoder;
 	this->videoStabilizer = videoStabilizer;
@@ -36,8 +36,8 @@ bool VideoRenderer::initialize(VideoDecoder* videoDecoder, QuickRouteJpegReader*
 	videoPanel.userScale = settings->appearance.videoPanelScale;
 
 	mapPanel = Panel();
-	mapPanel.textureWidth = quickRouteJpegReader->getMapImage().width();
-	mapPanel.textureHeight = quickRouteJpegReader->getMapImage().height();
+	mapPanel.textureWidth = mapImageReader->getMapImage().width();
+	mapPanel.textureHeight = mapImageReader->getMapImage().height();
 	mapPanel.texelWidth = 1.0 / mapPanel.textureWidth;
 	mapPanel.texelHeight = 1.0 / mapPanel.textureHeight;
 
@@ -112,7 +112,7 @@ bool VideoRenderer::initialize(VideoDecoder* videoDecoder, QuickRouteJpegReader*
 	videoPanel.texture->allocateStorage();
 	videoPanel.texture->release();
 
-	mapPanel.texture = new QOpenGLTexture(quickRouteJpegReader->getMapImage());
+	mapPanel.texture = new QOpenGLTexture(mapImageReader->getMapImage());
 	mapPanel.texture->bind();
 	mapPanel.texture->setMinificationFilter(QOpenGLTexture::Linear);
 	mapPanel.texture->setMagnificationFilter(QOpenGLTexture::Linear);
@@ -128,7 +128,7 @@ bool VideoRenderer::initialize(VideoDecoder* videoDecoder, QuickRouteJpegReader*
 	return true;
 }
 
-bool VideoRenderer::loadShaders(Panel* panel, const QString& shaderName)
+bool Renderer::loadShaders(Panel* panel, const QString& shaderName)
 {
 	panel->program = new QOpenGLShaderProgram();
 
@@ -161,7 +161,7 @@ bool VideoRenderer::loadShaders(Panel* panel, const QString& shaderName)
 	return true;
 }
 
-void VideoRenderer::loadBuffer(Panel* panel, GLfloat* buffer, int size)
+void Renderer::loadBuffer(Panel* panel, GLfloat* buffer, int size)
 {
 	panel->buffer = new QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
 	panel->buffer->setUsagePattern(QOpenGLBuffer::StaticDraw);
@@ -171,9 +171,9 @@ void VideoRenderer::loadBuffer(Panel* panel, GLfloat* buffer, int size)
 	panel->buffer->release();
 }
 
-void VideoRenderer::shutdown()
+void Renderer::shutdown()
 {
-	qDebug("Shutting down VideoRenderer");
+	qDebug("Shutting down Renderer");
 
 	if (painter != nullptr)
 	{
@@ -224,7 +224,7 @@ void VideoRenderer::shutdown()
 	}
 }
 
-void VideoRenderer::startRendering(double windowWidth, double windowHeight, double frameTime)
+void Renderer::startRendering(double windowWidth, double windowHeight, double frameTime)
 {
 	renderTimer.restart();
 
@@ -293,7 +293,7 @@ void VideoRenderer::startRendering(double windowWidth, double windowHeight, doub
 		selectedPanelPtr->userY -= 1.0 * frameTime;
 }
 
-void VideoRenderer::uploadFrameData(FrameData* frameData)
+void Renderer::uploadFrameData(FrameData* frameData)
 {
 	QOpenGLPixelTransferOptions options;
 
@@ -304,7 +304,7 @@ void VideoRenderer::uploadFrameData(FrameData* frameData)
 	videoPanel.texture->setData(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, frameData->data, &options);
 }
 
-void VideoRenderer::renderVideoPanel()
+void Renderer::renderVideoPanel()
 {
 	videoPanel.vertexMatrix.setToIdentity();
 
@@ -333,7 +333,7 @@ void VideoRenderer::renderVideoPanel()
 	renderPanel(&videoPanel);
 }
 
-void VideoRenderer::renderMapPanel()
+void Renderer::renderMapPanel()
 {
 	mapPanel.vertexMatrix.setToIdentity();
 
@@ -361,7 +361,7 @@ void VideoRenderer::renderMapPanel()
 	painter->end();
 }
 
-void VideoRenderer::renderPanel(Panel* panel)
+void Renderer::renderPanel(Panel* panel)
 {
 	panel->program->bind();
 	panel->program->setUniformValue(panel->vertexMatrixUniform, panel->vertexMatrix);
@@ -387,7 +387,7 @@ void VideoRenderer::renderPanel(Panel* panel)
 	panel->program->release();
 }
 
-void VideoRenderer::renderInfoPanel(double spareTime)
+void Renderer::renderInfoPanel(double spareTime)
 {
 	averageFps.addMeasurement(1000.0 / frameTime);
 	averageFrameTime.addMeasurement(frameTime);
@@ -437,12 +437,12 @@ void VideoRenderer::renderInfoPanel(double spareTime)
 	painter->end();
 }
 
-void VideoRenderer::stopRendering()
+void Renderer::stopRendering()
 {
 	lastRenderTime = renderTimer.nsecsElapsed() / 1000000.0;
 }
 
-void VideoRenderer::setFlipOutput(bool value)
+void Renderer::setFlipOutput(bool value)
 {
 	paintDevice->setPaintFlipped(value);
 	flipOutput = value;

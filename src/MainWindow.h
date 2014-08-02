@@ -12,19 +12,19 @@ namespace Ui
 
 namespace OrientView
 {
-	class VideoWindow;
-	class EncodeWindow;
 	class Settings;
 	class VideoDecoder;
+	class MapImageReader;
 	class GpxReader;
-	class QuickRouteJpegReader;
 	class VideoStabilizer;
-	class VideoRenderer;
+	class Renderer;
 	class VideoEncoder;
 	class VideoDecoderThread;
 	class RenderOnScreenThread;
 	class RenderOffScreenThread;
 	class VideoEncoderThread;
+	class VideoWindow;
+	class EncodeWindow;
 
 	class MainWindow : public QMainWindow
 	{
@@ -61,18 +61,18 @@ namespace OrientView
 		void closeEvent(QCloseEvent* event);
 
 		Ui::MainWindow* ui = nullptr;
-		VideoWindow* videoWindow = nullptr;
-		EncodeWindow* encodeWindow = nullptr;
 		Settings* settings = nullptr;
 		VideoDecoder* videoDecoder = nullptr;
+		MapImageReader* mapImageReader = nullptr;
 		GpxReader* gpxReader = nullptr;
-		QuickRouteJpegReader* quickRouteJpegReader = nullptr;
 		VideoStabilizer* videoStabilizer = nullptr;
-		VideoRenderer* videoRenderer = nullptr;
+		Renderer* renderer = nullptr;
 		VideoEncoder* videoEncoder = nullptr;
 		VideoDecoderThread* videoDecoderThread = nullptr;
 		RenderOnScreenThread* renderOnScreenThread = nullptr;
 		RenderOffScreenThread* renderOffScreenThread = nullptr;
 		VideoEncoderThread* videoEncoderThread = nullptr;
+		VideoWindow* videoWindow = nullptr;
+		EncodeWindow* encodeWindow = nullptr;
 	};
 }
