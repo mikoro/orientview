@@ -65,7 +65,7 @@
     <ClCompile Include="src\MainWindow.cpp" />
     <ClCompile Include="src\MapImageReader.cpp" />
     <ClCompile Include="src\MovingAverage.cpp" />
-    <ClCompile Include="src\MP44File.cpp" />
+    <ClCompile Include="src\Mp4File.cpp" />
     <ClCompile Include="src\QuickRouteReader.cpp" />
     <ClCompile Include="src\RenderOffScreenThread.cpp" />
     <ClCompile Include="src\RenderOnScreenThread.cpp" />
@@ -97,7 +97,7 @@
     <ClInclude Include="src\GpxReader.h" />
     <ClInclude Include="src\MapImageReader.h" />
     <ClInclude Include="src\MovingAverage.h" />
-    <ClInclude Include="src\MP44File.h" />
+    <ClInclude Include="src\Mp4File.h" />
     <ClInclude Include="src\QuickRouteReader.h" />
     <ClInclude Include="src\VideoStabilizer.h" />
     <CustomBuild Include="src\EncodeWindow.h">

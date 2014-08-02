@@ -37,14 +37,14 @@ extern "C"
 #include "lsmash/lsmash.h"
 }
 
-#include "MP44File.h"
+#include "Mp4File.h"
 
 #define H264_NALU_LENGTH_SIZE 4
 #define RETURN_IF_ERR(cond, ...) if(cond) { qWarning(__VA_ARGS__); return false; }
 
 namespace OrientView
 {
-	struct MP4Handle
+	struct Mp4Handle
 	{
 		lsmash_root_t* root;
 		lsmash_video_summary_t* summary;
@@ -65,9 +65,9 @@ namespace OrientView
 
 using namespace OrientView;
 
-bool MP44File::open(const QString& fileName)
+bool Mp4File::open(const QString& fileName)
 {
-	mp4Handle = (MP4Handle*)calloc(1, sizeof(MP4Handle));
+	mp4Handle = (Mp4Handle*)calloc(1, sizeof(Mp4Handle));
 	RETURN_IF_ERR(!mp4Handle, "Failed to allocate memory for muxer information");
 
 	mp4Handle->root = lsmash_create_root();
@@ -83,7 +83,7 @@ bool MP44File::open(const QString& fileName)
 	return true;
 }
 
-bool MP44File::setParam(x264_param_t* param)
+bool Mp4File::setParam(x264_param_t* param)
 {
 	uint64_t mediaTimescale = (uint64_t)param->i_timebase_den;
 	mp4Handle->timeIncrement = (uint64_t)param->i_timebase_num;
@@ -154,7 +154,7 @@ bool MP44File::setParam(x264_param_t* param)
 	return true;
 }
 
-bool MP44File::writeHeaders(x264_nal_t* nal)
+bool Mp4File::writeHeaders(x264_nal_t* nal)
 {
 	uint8_t* sps = nal[0].p_payload + H264_NALU_LENGTH_SIZE;
 	uint8_t* pps = nal[1].p_payload + H264_NALU_LENGTH_SIZE;
@@ -192,7 +192,7 @@ bool MP44File::writeHeaders(x264_nal_t* nal)
 	return true;
 }
 
-bool MP44File::writeFrame(uint8_t* payload, int size, x264_picture_t* picture)
+bool Mp4File::writeFrame(uint8_t* payload, int size, x264_picture_t* picture)
 {
 	if (!mp4Handle->frameNumber)
 	{
@@ -225,7 +225,7 @@ bool MP44File::writeFrame(uint8_t* payload, int size, x264_picture_t* picture)
 	return true;
 }
 
-bool MP44File::close(int64_t lastPts)
+bool Mp4File::close(int64_t lastPts)
 {
 	if (mp4Handle != nullptr)
 	{

@@ -7,9 +7,9 @@
 
 namespace OrientView
 {
-	struct MP4Handle;
+	struct Mp4Handle;
 
-	class MP44File
+	class Mp4File
 	{
 
 	public:
@@ -22,6 +22,6 @@ namespace OrientView
 		
 	private:
 
-		MP4Handle* mp4Handle = nullptr;
+		Mp4Handle* mp4Handle = nullptr;
 	};
 }

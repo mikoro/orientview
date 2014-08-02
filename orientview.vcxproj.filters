@@ -131,7 +131,7 @@
     <ClCompile Include="src\Renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\MP44File.cpp">
+    <ClCompile Include="src\Mp4File.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -207,7 +207,7 @@
     <ClInclude Include="src\Renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\MP44File.h">
+    <ClInclude Include="src\Mp4File.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
