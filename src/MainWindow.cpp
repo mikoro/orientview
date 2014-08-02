@@ -97,6 +97,13 @@ void MainWindow::on_actionSaveSettings_triggered()
 	}
 }
 
+void MainWindow::on_actionDefaultSettings_triggered()
+{
+	delete settings;
+	settings = new Settings();
+	settings->apply(ui);
+}
+
 void MainWindow::on_actionPlayVideo_triggered()
 {
 	this->setCursor(Qt::WaitCursor);

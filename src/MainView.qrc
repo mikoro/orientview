@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="icons">
+    <file>../misc/icons/edit-clear.svg</file>
     <file>../misc/icons/orientview.ico</file>
     <file>../misc/icons/document-open.svg</file>
     <file>../misc/icons/document-save-as.svg</file>

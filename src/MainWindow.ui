@@ -198,7 +198,7 @@
            <property name="geometry">
             <rect>
              <x>0</x>
-             <y>-265</y>
+             <y>0</y>
              <width>437</width>
              <height>974</height>
             </rect>
@@ -1546,6 +1546,7 @@
    </attribute>
    <addaction name="actionLoadSettings"/>
    <addaction name="actionSaveSettings"/>
+   <addaction name="actionDefaultSettings"/>
    <addaction name="separator"/>
    <addaction name="actionPlayVideo"/>
    <addaction name="actionEncodeVideo"/>
@@ -1558,7 +1559,7 @@
      <normaloff>:/icons/misc/icons/document-open.svg</normaloff>:/icons/misc/icons/document-open.svg</iconset>
    </property>
    <property name="text">
-    <string>Load settings</string>
+    <string>Load</string>
    </property>
    <property name="toolTip">
     <string>Load settings</string>
@@ -1570,7 +1571,7 @@
      <normaloff>:/icons/misc/icons/document-save-as.svg</normaloff>:/icons/misc/icons/document-save-as.svg</iconset>
    </property>
    <property name="text">
-    <string>Save settings</string>
+    <string>Save</string>
    </property>
    <property name="toolTip">
     <string>Save settings</string>
@@ -1582,7 +1583,7 @@
      <normaloff>:/icons/misc/icons/media-playback-start.svg</normaloff>:/icons/misc/icons/media-playback-start.svg</iconset>
    </property>
    <property name="text">
-    <string>Play video</string>
+    <string>Play</string>
    </property>
    <property name="toolTip">
     <string>Play video</string>
@@ -1594,7 +1595,7 @@
      <normaloff>:/icons/misc/icons/video-x-generic.svg</normaloff>:/icons/misc/icons/video-x-generic.svg</iconset>
    </property>
    <property name="text">
-    <string>Encode video</string>
+    <string>Encode</string>
    </property>
    <property name="toolTip">
     <string>Encode video</string>
@@ -1610,6 +1611,18 @@
    </property>
    <property name="toolTip">
     <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionDefaultSettings">
+   <property name="icon">
+    <iconset resource="MainView.qrc">
+     <normaloff>:/icons/misc/icons/edit-clear.svg</normaloff>:/icons/misc/icons/edit-clear.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Defaults</string>
+   </property>
+   <property name="toolTip">
+    <string>Default settings</string>
    </property>
   </action>
  </widget>

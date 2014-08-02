@@ -25,18 +25,18 @@ namespace OrientView
 
 		struct Files
 		{
-			QString videoFilePath;
-			QString mapFilePath;
-			QString gpxFilePath;
-			QString outputFilePath;
+			QString videoFilePath = "";
+			QString mapFilePath = "";
+			QString gpxFilePath = "";
+			QString outputFilePath = "";
 
 		} files;
 
 		struct Window
 		{
-			int width = 0;
-			int height = 0;
-			int multisamples = 0;
+			int width = 1280;
+			int height = 720;
+			int multisamples = 16;
 			bool fullscreen = false;
 			bool hideCursor = false;
 
@@ -44,57 +44,57 @@ namespace OrientView
 
 		struct MapCalibration
 		{
-			double topLeftLat = 0;
-			double topLeftLong = 0;
-			double bottomRightLat = 0;
-			double bottomRightLong = 0;
+			double topLeftLat = 0.0;
+			double topLeftLong = 0.0;
+			double bottomRightLat = 0.0;
+			double bottomRightLong = 0.0;
 
 		} mapCalibration;
 
 		struct VideoCalibration
 		{
-			double startOffset = 0;
+			double startOffset = 0.0;
 
 		} videoCalibration;
 
 		struct Appearance
 		{
 			bool showInfoPanel = false;
-			double mapPanelWidth = 0.0;
-			double videoPanelScale = 0.0;
+			double mapPanelWidth = 0.3;
+			double videoPanelScale = 1.0;
 			int mapHeaderCrop = 0;
 
 		} appearance;
 
 		struct Decoder
 		{
-			int frameCountDivisor = 0;
-			int frameDurationDivisor = 0;
-			int frameSizeDivisor = 0;
+			int frameCountDivisor = 1;
+			int frameDurationDivisor = 1;
+			int frameSizeDivisor = 1;
 
 		} decoder;
 
 		struct Stabilizer
 		{
-			bool enabled = false;
-			int frameSizeDivisor = 0;
-			double averagingFactor = 0.0;
-			double dampingFactor = 0.0;
+			bool enabled = true;
+			int frameSizeDivisor = 8;
+			double averagingFactor = 0.1;
+			double dampingFactor = 1.0;
 
 		} stabilizer;
 
 		struct Shaders
 		{
-			QString videoPanelShader;
-			QString mapPanelShader;
+			QString videoPanelShader = "default";
+			QString mapPanelShader = "default";
 
 		} shaders;
 
 		struct Encoder
 		{
-			QString preset;
-			QString profile;
-			int constantRateFactor = 0;
+			QString preset = "veryfast";
+			QString profile = "high";
+			int constantRateFactor = 23;
 
 		} encoder;
 	};

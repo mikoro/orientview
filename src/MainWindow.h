@@ -38,6 +38,7 @@ namespace OrientView
 
 		void on_actionLoadSettings_triggered();
 		void on_actionSaveSettings_triggered();
+		void on_actionDefaultSettings_triggered();
 		void on_actionPlayVideo_triggered();
 		void on_actionEncodeVideo_triggered();
 		void on_actionExit_triggered();
