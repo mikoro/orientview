@@ -56,7 +56,8 @@ namespace OrientView
 		AVPicture* convertedPicture = nullptr;
 		AVPicture* convertedPictureGrayscale = nullptr;
 		bool generateGrayscalePicture = false;
-		int grayscalePictureSizeDivisor = 0;
+		int grayscalePictureWidth = 0;
+		int grayscalePictureHeight = 0;
 		int64_t lastFrameTimestamp = 0;
 		int frameCountDivisor = 0;
 		int frameDurationDivisor = 0;

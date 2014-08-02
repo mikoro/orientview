@@ -97,8 +97,8 @@ bool VideoDecoder::initialize(const QString& fileName, Settings* settings)
 	videoCodecContext = videoStream->codec;
 
 	videoInfo = VideoInfo();
-	videoInfo.frameWidth = videoCodecContext->width;
-	videoInfo.frameHeight = videoCodecContext->height;
+	videoInfo.frameWidth = videoCodecContext->width / settings->decoder.frameSizeDivisor;
+	videoInfo.frameHeight = videoCodecContext->height / settings->decoder.frameSizeDivisor;
 
 	frame = av_frame_alloc();
 
@@ -112,7 +112,7 @@ bool VideoDecoder::initialize(const QString& fileName, Settings* settings)
 	packet.data = nullptr;
 	packet.size = 0;
 
-	swsContext = sws_getContext(videoInfo.frameWidth, videoInfo.frameHeight, videoCodecContext->pix_fmt, videoInfo.frameWidth, videoInfo.frameHeight, PIX_FMT_RGBA, SWS_BILINEAR, nullptr, nullptr, nullptr);
+	swsContext = sws_getContext(videoCodecContext->width, videoCodecContext->height, videoCodecContext->pix_fmt, videoInfo.frameWidth, videoInfo.frameHeight, PIX_FMT_RGBA, SWS_BILINEAR, nullptr, nullptr, nullptr);
 
 	if (!swsContext)
 	{
@@ -129,9 +129,10 @@ bool VideoDecoder::initialize(const QString& fileName, Settings* settings)
 	}
 
 	generateGrayscalePicture = settings->stabilizer.enabled;
-	grayscalePictureSizeDivisor = settings->stabilizer.frameSizeDivisor;
+	grayscalePictureWidth = videoCodecContext->width / settings->stabilizer.frameSizeDivisor;
+	grayscalePictureHeight = videoCodecContext->height / settings->stabilizer.frameSizeDivisor;
 
-	swsContextGrayscale = sws_getContext(videoInfo.frameWidth, videoInfo.frameHeight, videoCodecContext->pix_fmt, videoInfo.frameWidth / grayscalePictureSizeDivisor, videoInfo.frameHeight / grayscalePictureSizeDivisor, PIX_FMT_GRAY8, SWS_BILINEAR, nullptr, nullptr, nullptr);
+	swsContextGrayscale = sws_getContext(videoCodecContext->width, videoCodecContext->height, videoCodecContext->pix_fmt, grayscalePictureWidth, grayscalePictureHeight, PIX_FMT_GRAY8, SWS_BILINEAR, nullptr, nullptr, nullptr);
 
 	if (!swsContextGrayscale)
 	{
@@ -141,7 +142,7 @@ bool VideoDecoder::initialize(const QString& fileName, Settings* settings)
 
 	convertedPictureGrayscale = new AVPicture();
 
-	if (avpicture_alloc(convertedPictureGrayscale, PIX_FMT_GRAY8, videoInfo.frameWidth / grayscalePictureSizeDivisor, videoInfo.frameHeight / grayscalePictureSizeDivisor) < 0)
+	if (avpicture_alloc(convertedPictureGrayscale, PIX_FMT_GRAY8, grayscalePictureWidth, grayscalePictureHeight) < 0)
 	{
 		qWarning("Could not allocate grayscale conversion picture");
 		return false;
@@ -265,10 +266,10 @@ bool VideoDecoder::getNextFrame(FrameData* frameData, FrameData* frameDataGraysc
 						sws_scale(swsContextGrayscale, frame->data, frame->linesize, 0, frame->height, convertedPictureGrayscale->data, convertedPictureGrayscale->linesize);
 
 						frameDataGrayscale->data = convertedPictureGrayscale->data[0];
-						frameDataGrayscale->dataLength = videoInfo.frameHeight / grayscalePictureSizeDivisor * convertedPictureGrayscale->linesize[0];
+						frameDataGrayscale->dataLength = grayscalePictureHeight * convertedPictureGrayscale->linesize[0];
 						frameDataGrayscale->rowLength = convertedPictureGrayscale->linesize[0];
-						frameDataGrayscale->width = videoInfo.frameWidth / grayscalePictureSizeDivisor;
-						frameDataGrayscale->height = videoInfo.frameHeight / grayscalePictureSizeDivisor;
+						frameDataGrayscale->width = grayscalePictureWidth;
+						frameDataGrayscale->height = grayscalePictureHeight;
 						frameDataGrayscale->duration = frameData->duration;
 						frameDataGrayscale->number = frameData->number;
 					}
