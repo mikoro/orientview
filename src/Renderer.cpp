@@ -273,61 +273,74 @@ void Renderer::handleInput()
 {
 	if (videoWindow->keyIsDownOnce(Qt::Key_F2))
 	{
-		switch (selectedPanel)
+		if (selectedPanel == SelectedPanel::NONE)
 		{
-			case SelectedPanel::VIDEO:
-			{
-				selectedPanel = SelectedPanel::MAP;
-				selectedPanelPtr = &mapPanel;
-				break;
-			}
-
-			case SelectedPanel::MAP:
-			{
-				selectedPanel = SelectedPanel::VIDEO;
-				selectedPanelPtr = &videoPanel;
-				break;
-			}
-
-			default: break;
+			selectedPanel = SelectedPanel::VIDEO;
+			selectedPanelPtr = &videoPanel;
+		}
+		else if (selectedPanel == SelectedPanel::VIDEO)
+		{
+			selectedPanel = SelectedPanel::MAP;
+			selectedPanelPtr = &mapPanel;
+		}
+		else if (selectedPanel == SelectedPanel::MAP)
+		{
+			selectedPanel = SelectedPanel::NONE;
+			selectedPanelPtr = nullptr;
 		}
 	}
 
-	if (videoWindow->keyIsDown(Qt::Key_R))
+	if (videoWindow->keyIsDownOnce(Qt::Key_F3))
 	{
-		selectedPanelPtr->userX = 0.0;
-		selectedPanelPtr->userY = 0.0;
-		selectedPanelPtr->userAngle = 0.0;
-		selectedPanelPtr->userScale = 1.0;
+		if (renderMode == RenderMode::BOTH)
+			renderMode = RenderMode::VIDEO;
+		else if (renderMode == RenderMode::VIDEO)
+			renderMode = RenderMode::MAP;
+		else if (renderMode == RenderMode::MAP)
+			renderMode = RenderMode::BOTH;
 	}
 
-	if (videoWindow->keyIsDown(Qt::Key_W))
-		selectedPanelPtr->userAngle += 0.1 * frameTime;
+	if (selectedPanel != SelectedPanel::NONE)
+	{
+		if (videoWindow->keyIsDown(Qt::Key_R))
+		{
+			selectedPanelPtr->userX = 0.0;
+			selectedPanelPtr->userY = 0.0;
+			selectedPanelPtr->userAngle = 0.0;
+			selectedPanelPtr->userScale = 1.0;
+		}
 
-	if (videoWindow->keyIsDown(Qt::Key_S))
-		selectedPanelPtr->userAngle -= 0.1 * frameTime;
+		if (videoWindow->keyIsDown(Qt::Key_W))
+			selectedPanelPtr->userAngle += 0.1 * frameTime;
 
-	if (videoWindow->keyIsDown(Qt::Key_Q))
-		selectedPanelPtr->userScale *= (1.0 + frameTime / 500);
+		if (videoWindow->keyIsDown(Qt::Key_S))
+			selectedPanelPtr->userAngle -= 0.1 * frameTime;
 
-	if (videoWindow->keyIsDown(Qt::Key_A))
-		selectedPanelPtr->userScale *= (1.0 - frameTime / 500);
+		if (videoWindow->keyIsDown(Qt::Key_Q))
+			selectedPanelPtr->userScale *= (1.0 + frameTime / 500);
 
-	if (videoWindow->keyIsDown(Qt::Key_Left))
-		selectedPanelPtr->userX -= 0.5 * frameTime;
+		if (videoWindow->keyIsDown(Qt::Key_A))
+			selectedPanelPtr->userScale *= (1.0 - frameTime / 500);
 
-	if (videoWindow->keyIsDown(Qt::Key_Right))
-		selectedPanelPtr->userX += 0.5 * frameTime;
+		if (videoWindow->keyIsDown(Qt::Key_Left))
+			selectedPanelPtr->userX -= 0.5 * frameTime;
 
-	if (videoWindow->keyIsDown(Qt::Key_Up))
-		selectedPanelPtr->userY += 0.5 * frameTime;
+		if (videoWindow->keyIsDown(Qt::Key_Right))
+			selectedPanelPtr->userX += 0.5 * frameTime;
 
-	if (videoWindow->keyIsDown(Qt::Key_Down))
-		selectedPanelPtr->userY -= 0.5 * frameTime;
+		if (videoWindow->keyIsDown(Qt::Key_Up))
+			selectedPanelPtr->userY += 0.5 * frameTime;
+
+		if (videoWindow->keyIsDown(Qt::Key_Down))
+			selectedPanelPtr->userY -= 0.5 * frameTime;
+	}
 }
 
 void Renderer::renderVideoPanel()
 {
+	if (renderMode != RenderMode::BOTH && renderMode != RenderMode::VIDEO)
+		return;
+
 	videoPanel.vertexMatrix.setToIdentity();
 
 	if (!flipOutput)
@@ -335,7 +348,10 @@ void Renderer::renderVideoPanel()
 	else
 		videoPanel.vertexMatrix.ortho(-windowWidth / 2, windowWidth / 2, windowHeight / 2, -windowHeight / 2, 0.0f, 1.0f);
 
-	double offsetX = (windowWidth / 2.0) - (((1.0 - mapPanelRelativeWidth) * windowWidth) / 2.0);
+	double offsetX = 0.0;
+
+	if (renderMode != RenderMode::VIDEO)
+		offsetX += (windowWidth / 2.0) - (((1.0 - mapPanelRelativeWidth) * windowWidth) / 2.0);
 
 	videoPanel.scale = ((1.0 - mapPanelRelativeWidth) * windowWidth) / videoPanel.textureWidth;
 
@@ -357,6 +373,9 @@ void Renderer::renderVideoPanel()
 
 void Renderer::renderMapPanel()
 {
+	if (renderMode != RenderMode::BOTH && renderMode != RenderMode::MAP)
+		return;
+
 	mapPanel.vertexMatrix.setToIdentity();
 
 	if (!flipOutput)
@@ -369,13 +388,17 @@ void Renderer::renderMapPanel()
 	if (mapPanel.scale * mapPanel.textureHeight > windowHeight)
 		mapPanel.scale = windowHeight / mapPanel.textureHeight;
 
+	mapPanel.scale *= mapPanel.userScale;
+
 	mapPanel.vertexMatrix.translate(mapPanel.x + mapPanel.userX, mapPanel.y + mapPanel.userY);
 	mapPanel.vertexMatrix.rotate(mapPanel.angle + mapPanel.userAngle, 0.0f, 0.0f, 1.0f);
-	mapPanel.vertexMatrix.scale(mapPanel.scale * mapPanel.userScale);
+	mapPanel.vertexMatrix.scale(mapPanel.scale);
 
 	int mapBorderX = (int)(mapPanelRelativeWidth * windowWidth + 0.5);
 
-	//glEnable(GL_SCISSOR_TEST);
+	if (renderMode != RenderMode::MAP)
+		glEnable(GL_SCISSOR_TEST);
+
 	glScissor(0, 0, mapBorderX, (int)windowHeight);
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -399,55 +422,120 @@ void Renderer::renderInfoPanel(double spareTime)
 	averageEncodeTime.addMeasurement(videoEncoder->getLastEncodeTime());
 	averageSpareTime.addMeasurement(spareTime);
 
+	QFont font = QFont("DejaVu Sans", 8, QFont::Bold);
+	QFontMetrics metrics(font);
+
 	int textX = 10;
 	int textY = 6;
-	int lineHeight = 17;
-	int textWidth = 175;
-	int textHeight = 141;
+	int lineHeight = metrics.height();
+	int lineSpacing = metrics.lineSpacing() + 1;
+	int lineWidth1 = metrics.boundingRect("stabilize:").width();
+	int lineWidth2 = metrics.boundingRect("999.99 ms").width();
+	int rightPartMargin = 12;
+	int backgroundRadius = 10;
+	int backgroundWidth = textX + backgroundRadius + lineWidth1 + rightPartMargin + lineWidth2 + 2;
+	int backgroundHeight = lineSpacing * 11 + textY + 3;
+
+	QColor textColor = QColor(255, 255, 255, 200);
+	QColor textGreenColor = QColor(0, 255, 0, 200);
+	QColor textRedColor = QColor(255, 0, 0, 200);
 
 	painter->begin(paintDevice);
 	painter->setPen(QColor(0, 0, 0));
 	painter->setBrush(QBrush(QColor(20, 20, 20, 220)));
-	painter->drawRoundedRect(-10, -10, textWidth, textHeight, 10, 10);
+	painter->drawRoundedRect(-backgroundRadius, -backgroundRadius, backgroundWidth, backgroundHeight, backgroundRadius, backgroundRadius);
 
-	painter->setPen(QColor(255, 255, 255, 200));
-	painter->setFont(QFont("DejaVu Sans", 10, QFont::Normal));
-	painter->drawText(textX, textY, textWidth, textHeight, 0, "fps:");
-	painter->drawText(textX, textY += lineHeight, textWidth, textHeight, 0, "frame:");
-	painter->drawText(textX, textY += lineHeight, textWidth, textHeight, 0, "decode:");
-	painter->drawText(textX, textY += lineHeight, textWidth, textHeight, 0, "stabilize:");
-	painter->drawText(textX, textY += lineHeight, textWidth, textHeight, 0, "render:");
-	painter->drawText(textX, textY += lineHeight, textWidth, textHeight, 0, "encode:");
-	painter->drawText(textX, textY += lineHeight, textWidth, textHeight, 0, "spare:");
+	painter->setPen(textColor);
+	painter->setFont(font);
+	painter->drawText(textX, textY, lineWidth1, lineHeight, 0, "fps:");
+	painter->drawText(textX, textY += lineSpacing, lineWidth1, lineHeight, 0, "frame:");
+	painter->drawText(textX, textY += lineSpacing, lineWidth1, lineHeight, 0, "decode:");
+	painter->drawText(textX, textY += lineSpacing, lineWidth1, lineHeight, 0, "stabilize:");
+	painter->drawText(textX, textY += lineSpacing, lineWidth1, lineHeight, 0, "render:");
+	painter->drawText(textX, textY += lineSpacing, lineWidth1, lineHeight, 0, "encode:");
+	painter->drawText(textX, textY += lineSpacing, lineWidth1, lineHeight, 0, "spare:");
 
-	textX = 85;
+	textY += lineSpacing;
+
+	painter->drawText(textX, textY += lineSpacing, lineWidth1, lineHeight, 0, "selected:");
+	painter->drawText(textX, textY += lineSpacing, lineWidth1, lineHeight, 0, "render:");
+
+	textX += lineWidth1 + rightPartMargin;
 	textY = 6;
 
-	painter->drawText(textX, textY, textWidth, textHeight, 0, QString::number(averageFps.getAverage(), 'f', 2));
-	painter->drawText(textX, textY += lineHeight, textWidth, textHeight, 0, QString("%1 ms").arg(QString::number(averageFrameTime.getAverage(), 'f', 2)));
-	painter->drawText(textX, textY += lineHeight, textWidth, textHeight, 0, QString("%1 ms").arg(QString::number(averageDecodeTime.getAverage(), 'f', 2)));
-	painter->drawText(textX, textY += lineHeight, textWidth, textHeight, 0, QString("%1 ms").arg(QString::number(averageStabilizeTime.getAverage(), 'f', 2)));
-	painter->drawText(textX, textY += lineHeight, textWidth, textHeight, 0, QString("%1 ms").arg(QString::number(averageRenderTime.getAverage(), 'f', 2)));
-	painter->drawText(textX, textY += lineHeight, textWidth, textHeight, 0, QString("%1 ms").arg(QString::number(averageEncodeTime.getAverage(), 'f', 2)));
+	painter->drawText(textX, textY, lineWidth2, lineHeight, 0, QString::number(averageFps.getAverage(), 'f', 2));
+	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString("%1 ms").arg(QString::number(averageFrameTime.getAverage(), 'f', 2)));
+	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString("%1 ms").arg(QString::number(averageDecodeTime.getAverage(), 'f', 2)));
+	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString("%1 ms").arg(QString::number(averageStabilizeTime.getAverage(), 'f', 2)));
+	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString("%1 ms").arg(QString::number(averageRenderTime.getAverage(), 'f', 2)));
+	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString("%1 ms").arg(QString::number(averageEncodeTime.getAverage(), 'f', 2)));
 
 	if (spareTime < 0)
-		painter->setPen(QColor(255, 0, 0, 200));
+		painter->setPen(textRedColor);
 	else if (spareTime > 0)
-		painter->setPen(QColor(0, 255, 0, 200));
+		painter->setPen(textGreenColor);
 
-	painter->drawText(textX, textY += lineHeight, textWidth, textHeight, 0, QString("%1 ms").arg(QString::number(averageSpareTime.getAverage(), 'f', 2)));
+	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString("%1 ms").arg(QString::number(averageSpareTime.getAverage(), 'f', 2)));
+	
+	QString selectedText;
+	QString renderText;
+
+	switch (selectedPanel)
+	{
+		case SelectedPanel::NONE: selectedText = "none"; break;
+		case SelectedPanel::VIDEO: selectedText = "video"; break;
+		case SelectedPanel::MAP: selectedText = "map"; break;
+		default: selectedText = "unknown"; break;
+	}
+
+	switch (renderMode)
+	{
+		case RenderMode::BOTH: renderText = "both"; break;
+		case RenderMode::VIDEO: renderText = "video"; break;
+		case RenderMode::MAP: renderText = "map"; break;
+		default: renderText = "unknown"; break;
+	}
+
+	textY += lineSpacing;
+
+	painter->setPen(textColor);
+	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, selectedText);
+	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, renderText);
+
 	painter->end();
 }
 
-void Renderer::stopRendering()
+void Renderer::renderRoute()
 {
-	lastRenderTime = renderTimer.nsecsElapsed() / 1000000.0;
-}
+	QPen pen;
+	QBrush brush;
 
-void Renderer::setFlipOutput(bool value)
-{
-	paintDevice->setPaintFlipped(value);
-	flipOutput = value;
+	brush.setColor(QColor(0, 0, 255));
+	brush.setStyle(Qt::BrushStyle::CrossPattern);
+
+	pen.setColor(QColor(200, 0, 0));
+	pen.setWidth(15);
+	pen.setCapStyle(Qt::PenCapStyle::RoundCap);
+	pen.setJoinStyle(Qt::PenJoinStyle::RoundJoin);
+
+	QMatrix m;
+	m.translate(windowWidth / 2.0 + mapPanel.x + mapPanel.userX, windowHeight / 2.0 - mapPanel.y - mapPanel.userY);
+	m.scale(mapPanel.scale, mapPanel.scale);
+	m.rotate(-(mapPanel.angle + mapPanel.userAngle));
+
+	painter->begin(paintDevice);
+	painter->setPen(pen);
+	painter->setWorldMatrix(m);
+
+	for (int i = 0; i < trackPoints.size() - 1; ++i)
+	{
+		TrackPoint tp1 = trackPoints.at(i);
+		TrackPoint tp2 = trackPoints.at(i + 1);
+
+		painter->drawLine((int)(tp1.x + 0.5), (int)(tp1.y + 0.5), (int)(tp2.x + 0.5), (int)(tp2.y + 0.5));
+	}
+
+	painter->end();
 }
 
 void Renderer::renderPanel(Panel* panel)
@@ -476,36 +564,13 @@ void Renderer::renderPanel(Panel* panel)
 	panel->program->release();
 }
 
-void Renderer::renderRoute()
+void Renderer::stopRendering()
 {
-	QPen pen;
-	QBrush brush;
+	lastRenderTime = renderTimer.nsecsElapsed() / 1000000.0;
+}
 
-	brush.setColor(QColor(0, 0, 255));
-	brush.setStyle(Qt::BrushStyle::CrossPattern);
-
-	pen.setColor(QColor(200, 0, 0));
-	pen.setWidth(15);
-	pen.setCapStyle(Qt::PenCapStyle::RoundCap);
-	pen.setJoinStyle(Qt::PenJoinStyle::RoundJoin);
-
-	QMatrix m;
-	m.translate(windowWidth / 2.0 + mapPanel.x + mapPanel.userX, windowHeight / 2.0 - mapPanel.y - mapPanel.userY);
-	m.scale(mapPanel.scale * mapPanel.userScale, mapPanel.scale * mapPanel.userScale);
-	m.rotate(-(mapPanel.angle + mapPanel.userAngle));
-	
-
-	painter->begin(paintDevice);
-	painter->setPen(pen);
-	painter->setWorldMatrix(m);
-
-	for (int i = 0; i < trackPoints.size() - 1; ++i)
-	{
-		TrackPoint tp1 = trackPoints.at(i);
-		TrackPoint tp2 = trackPoints.at(i + 1);
-
-		painter->drawLine((int)(tp1.x + 0.5), (int)(tp1.y + 0.5), (int)(tp2.x + 0.5), (int)(tp2.y + 0.5));
-	}
-
-	painter->end();
+void Renderer::setFlipOutput(bool value)
+{
+	paintDevice->setPaintFlipped(value);
+	flipOutput = value;
 }
