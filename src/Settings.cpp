@@ -23,11 +23,17 @@ void Settings::read(QSettings* settings)
 	window.hideCursor = settings->value("window/hideCursor", false).toBool();
 
 	mapCalibration.topLeftLat = settings->value("mapCalibration/topLeftLat", 0.0).toDouble();
-	mapCalibration.topLeftLong = settings->value("mapCalibration/topLeftLong", 0.0).toDouble();
+	mapCalibration.topLeftLon = settings->value("mapCalibration/topLeftLon", 0.0).toDouble();
+	mapCalibration.topRightLat = settings->value("mapCalibration/topRightLat", 0.0).toDouble();
+	mapCalibration.topRightLon = settings->value("mapCalibration/topRightLon", 0.0).toDouble();
 	mapCalibration.bottomRightLat = settings->value("mapCalibration/bottomRightLat", 0.0).toDouble();
-	mapCalibration.bottomRightLong = settings->value("mapCalibration/bottomRightLong", 0.0).toDouble();
+	mapCalibration.bottomRightLon = settings->value("mapCalibration/bottomRightLon", 0.0).toDouble();
+	mapCalibration.bottomLeftLat = settings->value("mapCalibration/bottomLeftLat", 0.0).toDouble();
+	mapCalibration.bottomLeftLon = settings->value("mapCalibration/bottomLeftLon", 0.0).toDouble();
+	mapCalibration.projectionOriginLat = settings->value("mapCalibration/projectionOriginLat", 0.0).toDouble();
+	mapCalibration.projectionOriginLon = settings->value("mapCalibration/projectionOriginLon", 0.0).toDouble();
 
-	videoCalibration.startOffset = settings->value("videoCalibration/startOffset", 0.0).toDouble();
+	timing.splitTimes = settings->value("timing/splitTimes", "").toString();
 
 	appearance.showInfoPanel = settings->value("appearance/showInfoPanel", false).toBool();
 	appearance.mapPanelWidth = settings->value("appearance/mapPanelWidth", 0.3).toDouble();
@@ -65,11 +71,17 @@ void Settings::write(QSettings* settings)
 	settings->setValue("window/hideCursor", window.hideCursor);
 
 	settings->setValue("mapCalibration/topLeftLat", mapCalibration.topLeftLat);
-	settings->setValue("mapCalibration/topLeftLong", mapCalibration.topLeftLong);
+	settings->setValue("mapCalibration/topLeftLon", mapCalibration.topLeftLon);
+	settings->setValue("mapCalibration/topRightLat", mapCalibration.topRightLat);
+	settings->setValue("mapCalibration/topRightLon", mapCalibration.topRightLon);
 	settings->setValue("mapCalibration/bottomRightLat", mapCalibration.bottomRightLat);
-	settings->setValue("mapCalibration/bottomRightLong", mapCalibration.bottomRightLong);
+	settings->setValue("mapCalibration/bottomRightLon", mapCalibration.bottomRightLon);
+	settings->setValue("mapCalibration/bottomLeftLat", mapCalibration.bottomLeftLat);
+	settings->setValue("mapCalibration/bottomLeftLon", mapCalibration.bottomLeftLon);
+	settings->setValue("mapCalibration/projectionOriginLat", mapCalibration.projectionOriginLat);
+	settings->setValue("mapCalibration/projectionOriginLon", mapCalibration.projectionOriginLon);
 
-	settings->setValue("videoCalibration/startOffset", videoCalibration.startOffset);
+	settings->setValue("timing/splitTimes", timing.splitTimes);
 
 	settings->setValue("appearance/showInfoPanel", appearance.showInfoPanel);
 	settings->setValue("appearance/mapPanelWidth", appearance.mapPanelWidth);
@@ -107,11 +119,17 @@ void Settings::update(Ui::MainWindow* ui)
 	window.hideCursor = ui->checkBoxHideCursor->isChecked();
 
 	mapCalibration.topLeftLat = ui->doubleSpinBoxMapTopLeftLat->value();
-	mapCalibration.topLeftLong = ui->doubleSpinBoxMapTopLeftLong->value();
+	mapCalibration.topLeftLon = ui->doubleSpinBoxMapTopLeftLon->value();
+	mapCalibration.topRightLat = ui->doubleSpinBoxMapTopRightLat->value();
+	mapCalibration.topRightLon = ui->doubleSpinBoxMapTopRightLon->value();
 	mapCalibration.bottomRightLat = ui->doubleSpinBoxMapBottomRightLat->value();
-	mapCalibration.bottomRightLong = ui->doubleSpinBoxMapBottomRightLong->value();
+	mapCalibration.bottomRightLon = ui->doubleSpinBoxMapBottomRightLon->value();
+	mapCalibration.bottomLeftLat = ui->doubleSpinBoxMapBottomLeftLat->value();
+	mapCalibration.bottomLeftLon = ui->doubleSpinBoxMapBottomLeftLon->value();
+	mapCalibration.projectionOriginLat = ui->doubleSpinBoxMapProjectionOriginLat->value();
+	mapCalibration.projectionOriginLon = ui->doubleSpinBoxMapProjectionOriginLon->value();
 
-	videoCalibration.startOffset = ui->doubleSpinBoxVideoStartOffset->value();
+	timing.splitTimes = ui->lineEditSplitTimes->text();
 
 	appearance.showInfoPanel = ui->checkBoxShowInfoPanel->isChecked();
 	appearance.mapPanelWidth = ui->doubleSpinBoxMapPanelWidth->value();
@@ -149,11 +167,17 @@ void Settings::apply(Ui::MainWindow* ui)
 	ui->checkBoxHideCursor->setChecked(window.hideCursor);
 
 	ui->doubleSpinBoxMapTopLeftLat->setValue(mapCalibration.topLeftLat);
-	ui->doubleSpinBoxMapTopLeftLong->setValue(mapCalibration.topLeftLong);
+	ui->doubleSpinBoxMapTopLeftLon->setValue(mapCalibration.topLeftLon);
+	ui->doubleSpinBoxMapTopRightLat->setValue(mapCalibration.topRightLat);
+	ui->doubleSpinBoxMapTopRightLon->setValue(mapCalibration.topRightLon);
 	ui->doubleSpinBoxMapBottomRightLat->setValue(mapCalibration.bottomRightLat);
-	ui->doubleSpinBoxMapBottomRightLong->setValue(mapCalibration.bottomRightLong);
+	ui->doubleSpinBoxMapBottomRightLon->setValue(mapCalibration.bottomRightLon);
+	ui->doubleSpinBoxMapBottomLeftLat->setValue(mapCalibration.bottomLeftLat);
+	ui->doubleSpinBoxMapBottomLeftLon->setValue(mapCalibration.bottomLeftLon);
+	ui->doubleSpinBoxMapProjectionOriginLat->setValue(mapCalibration.projectionOriginLat);
+	ui->doubleSpinBoxMapProjectionOriginLon->setValue(mapCalibration.projectionOriginLon);
 
-	ui->doubleSpinBoxVideoStartOffset->setValue(videoCalibration.startOffset);
+	ui->lineEditSplitTimes->setText(timing.splitTimes);
 
 	ui->checkBoxShowInfoPanel->setChecked(appearance.showInfoPanel);
 	ui->doubleSpinBoxMapPanelWidth->setValue(appearance.mapPanelWidth);

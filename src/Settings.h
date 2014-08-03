@@ -45,17 +45,23 @@ namespace OrientView
 		struct MapCalibration
 		{
 			double topLeftLat = 0.0;
-			double topLeftLong = 0.0;
+			double topLeftLon = 0.0;
+			double topRightLat = 0.0;
+			double topRightLon = 0.0;
 			double bottomRightLat = 0.0;
-			double bottomRightLong = 0.0;
+			double bottomRightLon = 0.0;
+			double bottomLeftLat = 0.0;
+			double bottomLeftLon = 0.0;
+			double projectionOriginLat = 0.0;
+			double projectionOriginLon = 0.0;
 
 		} mapCalibration;
 
-		struct VideoCalibration
+		struct Timing
 		{
-			double startOffset = 0.0;
+			QString splitTimes = "";
 
-		} videoCalibration;
+		} timing;
 
 		struct Appearance
 		{

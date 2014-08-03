@@ -4,9 +4,10 @@
 #include <cstdint>
 
 #include <QFile>
-#include <QFileInfo>
 
 #include "QuickRouteReader.h"
+
+using namespace OrientView;
 
 namespace
 {
@@ -66,26 +67,213 @@ namespace
 
 		return true;
 	}
-}
 
-using namespace OrientView;
-
-bool QuickRouteReader::read(const QString& fileName, QuickRouteReaderResult* result)
-{
-	QFileInfo fileInfo(fileName);
-
-	if (fileInfo.completeSuffix() == "jpg")
-		return readFromJpeg(fileName, result);
-	else if (fileInfo.completeSuffix() == "qrt")
-		return readFromQrt(fileName, result);
-	else
+	bool readAllCornerCoordinates(QByteArray& buffer, int* index, QuickRouteReaderResult* result)
 	{
-		qWarning("Only QuickRoute .qrt and .jpg files are supported");
+		if (!readCoordinate(buffer, index, &result->bottomLeftLon))
+			return false;
+
+		if (!readCoordinate(buffer, index, &result->bottomLeftLat))
+			return false;
+
+		if (!readCoordinate(buffer, index, &result->topLeftLon))
+			return false;
+
+		if (!readCoordinate(buffer, index, &result->topLeftLat))
+			return false;
+
+		if (!readCoordinate(buffer, index, &result->topRightLon))
+			return false;
+
+		if (!readCoordinate(buffer, index, &result->topRightLat))
+			return false;
+
+		if (!readCoordinate(buffer, index, &result->bottomRightLon))
+			return false;
+
+		if (!readCoordinate(buffer, index, &result->bottomRightLat))
+			return false;
+
+		return true;
+	}
+
+	bool extractDataFromJpeg(QFile& file, QByteArray& buffer)
+	{
+		int bytesRead = 0;
+		const int quickRouteIdLength = 10;
+		uint8_t quickRouteId[quickRouteIdLength] { 0x51, 0x75, 0x69, 0x63, 0x6b, 0x52, 0x6f, 0x75, 0x74, 0x65 };
+
+		if (!readBytes(file, buffer, 2, &bytesRead))
+			return false;
+
+		if ((uint8_t)buffer.at(0) != 0xff || (uint8_t)buffer.at(1) != 0xd8)
+		{
+			qWarning("Not a supported JPEG file format");
+			return false;
+		}
+
+		while (bytesRead < file.size())
+		{
+			if (!readBytes(file, buffer, 2, &bytesRead))
+				return false;
+
+			if ((uint8_t)buffer.at(0) != 0xff)
+			{
+				qWarning("Could not find QuickRoute Jpeg Extension Data");
+				return false;
+			}
+
+			if ((uint8_t)buffer.at(1) == 0xe0)
+			{
+				if (!readBytes(file, buffer, 2, &bytesRead))
+					return false;
+
+				uint32_t length = (uint32_t)buffer.at(1) + 256 * (uint32_t)buffer.at(0);
+
+				if (length >= quickRouteIdLength + 2)
+				{
+					if (!readBytes(file, buffer, quickRouteIdLength, &bytesRead))
+						return false;
+
+					bool match = true;
+
+					for (int i = 0; i < quickRouteIdLength; i++)
+					{
+						if ((uint8_t)buffer.at(i) != quickRouteId[i])
+						{
+							match = false;
+							break;
+						}
+					}
+
+					if (!readBytes(file, buffer, length - 2 - quickRouteIdLength, &bytesRead))
+						return false;
+
+					if (match)
+						return true;
+				}
+				else
+				{
+					if (!readBytes(file, buffer, length - 2, &bytesRead))
+						return false;
+				}
+			}
+		}
+
+		qWarning("Could not find QuickRoute Jpeg Extension Data");
+		return false;
+	}
+
+	bool processExtractedData(QByteArray& buffer, QuickRouteReaderResult* result, bool includeBorders)
+	{
+		int index = 0;
+		bool coordinatesRead = false;
+		bool projectionOriginRead = false;
+
+		while (index < buffer.size())
+		{
+			uint8_t tag1;
+			uint32_t tagLength1;
+
+			if (!readUint8(buffer, &index, &tag1))
+				return false;
+
+			if (!readUint32(buffer, &index, &tagLength1))
+				return false;
+
+			bool tagRead1 = false;
+
+			// map corner coordinates without borders
+			if (tag1 == 2 && !includeBorders)
+			{
+				if (!readAllCornerCoordinates(buffer, &index, result))
+					return false;
+
+				coordinatesRead = true;
+				tagRead1 = true;
+			}
+
+			// map corner coordinates with borders
+			if (tag1 == 3 && includeBorders)
+			{
+				if (!readAllCornerCoordinates(buffer, &index, result))
+					return false;
+
+				coordinatesRead = true;
+				tagRead1 = true;
+			}
+
+			// sessions
+			if (tag1 == 5)
+			{
+				uint32_t sessionCount;
+				uint8_t tag2;
+				uint32_t tagLength2;
+
+				if (!readUint32(buffer, &index, &sessionCount))
+					return false;
+
+				for (int i = 0; i < sessionCount; i++)
+				{
+					if (!readUint8(buffer, &index, &tag2))
+						return false;
+
+					if (!readUint32(buffer, &index, &tagLength2))
+						return false;
+
+					// session
+					if (tag2 == 6)
+					{
+						while (index < buffer.size())
+						{
+							uint8_t tag3;
+							uint32_t tagLength3;
+
+							if (!readUint8(buffer, &index, &tag3))
+								return false;
+
+							if (!readUint32(buffer, &index, &tagLength3))
+								return false;
+
+							// projection origin
+							if (tag3 == 9)
+							{
+								if (!readCoordinate(buffer, &index, &result->projectionOriginLon))
+									return false;
+
+								if (!readCoordinate(buffer, &index, &result->projectionOriginLat))
+									return false;
+
+								projectionOriginRead = true;
+								break;
+							}
+							else
+								index += tagLength3;
+						}
+					}
+					else
+						index += tagLength2;
+
+					if (projectionOriginRead)
+						break;
+				}
+
+				tagRead1 = true;
+			}
+			
+			if (!tagRead1)
+				index += tagLength1;
+
+			if (coordinatesRead && projectionOriginRead)
+				return true;
+		}
+
+		qWarning("Could not find coordinate values");
 		return false;
 	}
 }
 
-bool QuickRouteReader::readFromJpeg(const QString& fileName, QuickRouteReaderResult* result)
+bool QuickRouteReader::readFromJpeg(const QString& fileName, QuickRouteReaderResult* result, bool includeBorders)
 {
 	QFile file(fileName);
 
@@ -100,134 +288,8 @@ bool QuickRouteReader::readFromJpeg(const QString& fileName, QuickRouteReaderRes
 	if (!extractDataFromJpeg(file, buffer))
 		return false;
 
-	if (!processDataFromJpeg(buffer, result))
+	if (!processExtractedData(buffer, result, includeBorders))
 		return false;
 
 	return true;
-}
-
-bool QuickRouteReader::extractDataFromJpeg(QFile& file, QByteArray& buffer)
-{
-	int bytesRead = 0;
-	const int quickRouteIdLength = 10;
-	uint8_t quickRouteId[quickRouteIdLength] { 0x51, 0x75, 0x69, 0x63, 0x6b, 0x52, 0x6f, 0x75, 0x74, 0x65 };
-
-	if (!readBytes(file, buffer, 2, &bytesRead))
-		return false;
-
-	if ((uint8_t)buffer.at(0) != 0xff || (uint8_t)buffer.at(1) != 0xd8)
-	{
-		qWarning("Not a supported JPEG file format");
-		return false;
-	}
-
-	while (bytesRead < file.size())
-	{
-		if (!readBytes(file, buffer, 2, &bytesRead))
-			return false;
-
-		if ((uint8_t)buffer.at(0) != 0xff)
-		{
-			qWarning("Could not find QuickRoute Jpeg Extension Data");
-			return false;
-		}
-
-		if ((uint8_t)buffer.at(1) == 0xe0)
-		{
-			if (!readBytes(file, buffer, 2, &bytesRead))
-				return false;
-
-			uint32_t length = (uint32_t)buffer.at(1) + 256 * (uint32_t)buffer.at(0);
-
-			if (length >= quickRouteIdLength + 2)
-			{
-				if (!readBytes(file, buffer, quickRouteIdLength, &bytesRead))
-					return false;
-
-				bool match = true;
-
-				for (int i = 0; i < quickRouteIdLength; i++)
-				{
-					if ((uint8_t)buffer.at(i) != quickRouteId[i])
-					{
-						match = false;
-						break;
-					}
-				}
-
-				if (!readBytes(file, buffer, length - 2 - quickRouteIdLength, &bytesRead))
-					return false;
-
-				if (match)
-					return true;
-			}
-			else
-			{
-				if (!readBytes(file, buffer, length - 2, &bytesRead))
-					return false;
-			}
-		}
-	}
-
-	qWarning("Could not find QuickRoute Jpeg Extension Data");
-	return false;
-}
-
-bool QuickRouteReader::processDataFromJpeg(QByteArray& buffer, QuickRouteReaderResult* result)
-{
-	int index = 0;
-
-	while (index < buffer.size())
-	{
-		uint8_t tag;
-		uint32_t tagLength;
-
-		if (!readUint8(buffer, &index, &tag))
-			return false;
-
-		if (!readUint32(buffer, &index, &tagLength))
-			return false;
-
-		if (tag == 3)
-		{
-			double tempValue;
-
-			if (!readCoordinate(buffer, &index, &tempValue))
-				return false;
-
-			if (!readCoordinate(buffer, &index, &tempValue))
-				return false;
-
-			if (!readCoordinate(buffer, &index, &result->topLeftLong))
-				return false;
-
-			if (!readCoordinate(buffer, &index, &result->topLeftLat))
-				return false;
-
-			if (!readCoordinate(buffer, &index, &tempValue))
-				return false;
-
-			if (!readCoordinate(buffer, &index, &tempValue))
-				return false;
-
-			if (!readCoordinate(buffer, &index, &result->bottomRightLong))
-				return false;
-
-			if (!readCoordinate(buffer, &index, &result->bottomRightLat))
-				return false;
-
-			return true;
-		}
-		else
-			index += tagLength;
-	}
-
-	qWarning("Could not find coordinate values");
-	return false;
-}
-
-bool QuickRouteReader::readFromQrt(const QString& fileName, QuickRouteReaderResult* result)
-{
-	qWarning("Reading from QuickRoute .qrt files is not implemented yet");
-	return false;
 }

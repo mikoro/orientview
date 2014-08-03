@@ -335,19 +335,25 @@ void MainWindow::on_pushButtonLoadMapCalibrationData_clicked()
 {
 	QFileDialog fileDialog(this);
 	fileDialog.setFileMode(QFileDialog::ExistingFile);
-	fileDialog.setWindowTitle(tr("Open QuickRoute file"));
-	fileDialog.setNameFilter(tr("QuickRoute files (*.qrt *.jpg);;All files (*.*)"));
+	fileDialog.setWindowTitle(tr("Open QuickRoute JPEG map file"));
+	fileDialog.setNameFilter(tr("QuickRoute JPEG map files (*.jpg);;All files (*.*)"));
 
 	if (fileDialog.exec())
 	{
 		QuickRouteReaderResult result;
 
-		if (QuickRouteReader::read(fileDialog.selectedFiles().at(0), &result))
+		if (QuickRouteReader::readFromJpeg(fileDialog.selectedFiles().at(0), &result, false))
 		{
 			ui->doubleSpinBoxMapTopLeftLat->setValue(result.topLeftLat);
-			ui->doubleSpinBoxMapTopLeftLong->setValue(result.topLeftLong);
+			ui->doubleSpinBoxMapTopLeftLon->setValue(result.topLeftLon);
+			ui->doubleSpinBoxMapTopRightLat->setValue(result.topRightLat);
+			ui->doubleSpinBoxMapTopRightLon->setValue(result.topRightLon);
 			ui->doubleSpinBoxMapBottomRightLat->setValue(result.bottomRightLat);
-			ui->doubleSpinBoxMapBottomRightLong->setValue(result.bottomRightLong);
+			ui->doubleSpinBoxMapBottomRightLon->setValue(result.bottomRightLon);
+			ui->doubleSpinBoxMapBottomLeftLat->setValue(result.bottomLeftLat);
+			ui->doubleSpinBoxMapBottomLeftLon->setValue(result.bottomLeftLon);
+			ui->doubleSpinBoxMapProjectionOriginLat->setValue(result.projectionOriginLat);
+			ui->doubleSpinBoxMapProjectionOriginLon->setValue(result.projectionOriginLat);
 		}
 		else
 			QMessageBox::critical(this, "OrientView - Error", QString("Could not load map calibration data.\n\nPlease check the application log for details."), QMessageBox::Ok);

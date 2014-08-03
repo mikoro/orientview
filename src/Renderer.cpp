@@ -186,7 +186,7 @@ void Renderer::loadTrackPoints(const std::vector<TrackPoint>& newTrackPoints)
 	for (const TrackPoint& trackPoint : newTrackPoints)
 	{
 		TrackPoint newTrackPoint = trackPoint;
-		newTrackPoint.x = (((trackPoint.longitude - settings->mapCalibration.topLeftLong) / (settings->mapCalibration.bottomRightLong - settings->mapCalibration.topLeftLong)) * mapPanel.textureWidth) - mapPanel.textureWidth / 2.0;
+		newTrackPoint.x = (((trackPoint.longitude - settings->mapCalibration.topLeftLon) / (settings->mapCalibration.bottomRightLon - settings->mapCalibration.topLeftLon)) * mapPanel.textureWidth) - mapPanel.textureWidth / 2.0;
 		newTrackPoint.y = (mapPanel.textureHeight - (((trackPoint.latitude - settings->mapCalibration.bottomRightLat) / (settings->mapCalibration.topLeftLat - settings->mapCalibration.bottomRightLat)) * mapPanel.textureHeight)) - mapPanel.textureHeight / 2.0;
 		trackPoints.push_back(newTrackPoint);
 	}

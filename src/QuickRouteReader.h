@@ -10,9 +10,15 @@ namespace OrientView
 	struct QuickRouteReaderResult
 	{
 		double topLeftLat = 0.0;
-		double topLeftLong = 0.0;
+		double topLeftLon = 0.0;
+		double topRightLat = 0.0;
+		double topRightLon = 0.0;
 		double bottomRightLat = 0.0;
-		double bottomRightLong = 0.0;
+		double bottomRightLon = 0.0;
+		double bottomLeftLat = 0.0;
+		double bottomLeftLon = 0.0;
+		double projectionOriginLat = 0.0;
+		double projectionOriginLon = 0.0;
 	};
 
 	class QuickRouteReader
@@ -20,14 +26,6 @@ namespace OrientView
 
 	public:
 
-		static bool read(const QString& fileName, QuickRouteReaderResult* result);
-
-	private:
-
-		static bool readFromJpeg(const QString& fileName, QuickRouteReaderResult* result);
-		static bool extractDataFromJpeg(QFile& file, QByteArray& buffer);
-		static bool processDataFromJpeg(QByteArray& buffer, QuickRouteReaderResult* result);
-
-		static bool readFromQrt(const QString& fileName, QuickRouteReaderResult* result);
+		static bool readFromJpeg(const QString& fileName, QuickRouteReaderResult* result, bool includeBorders);
 	};
 }
