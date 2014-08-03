@@ -35,6 +35,7 @@ namespace OrientView
 	private:
 
 		bool isFirstImage = true;
+		bool isEnabled = true;
 
 		double currentX = 0.0;
 		double currentY = 0.0;

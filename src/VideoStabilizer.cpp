@@ -21,6 +21,7 @@ bool VideoStabilizer::initialize(Settings* settings)
 	qDebug("Initializing VideoStabilizer");
 
 	isFirstImage = true;
+	isEnabled = settings->stabilizer.enabled;
 
 	currentX = 0.0;
 	currentY = 0.0;
@@ -61,6 +62,9 @@ void VideoStabilizer::shutdown()
 
 void VideoStabilizer::processFrame(FrameData* frameDataGrayscale)
 {
+	if (!isEnabled)
+		return;
+
 	QElapsedTimer processTimer;
 	processTimer.start();
 
