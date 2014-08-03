@@ -58,7 +58,7 @@ namespace OrientView
 	};
 
 	enum class SelectedPanel { NONE, VIDEO, MAP };
-	enum class RenderMode { BOTH, VIDEO, MAP };
+	enum class RenderMode { ALL, VIDEO, MAP };
 
 	class Renderer : protected QOpenGLFunctions
 	{
@@ -108,7 +108,7 @@ namespace OrientView
 		Panel videoPanel;
 		Panel mapPanel;
 		SelectedPanel selectedPanel = SelectedPanel::NONE;
-		RenderMode renderMode = RenderMode::BOTH;
+		RenderMode renderMode = RenderMode::ALL;
 		Panel* selectedPanelPtr = nullptr;
 
 		QElapsedTimer renderTimer;

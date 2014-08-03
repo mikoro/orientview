@@ -42,7 +42,9 @@ bool Renderer::initialize(VideoDecoder* videoDecoder, GpxReader* gpxReader, MapI
 	mapPanel.texelWidth = 1.0 / mapPanel.textureWidth;
 	mapPanel.texelHeight = 1.0 / mapPanel.textureHeight;
 
-	selectedPanelPtr = &videoPanel;
+	selectedPanel = SelectedPanel::NONE;
+	renderMode = RenderMode::ALL;
+	selectedPanelPtr = nullptr;
 	mapPanelRelativeWidth = settings->appearance.mapPanelWidth;
 	windowWidth = videoWindow->width();
 	windowHeight = videoWindow->height();
@@ -280,12 +282,12 @@ void Renderer::handleInput()
 
 	if (videoWindow->keyIsDownOnce(Qt::Key_F3))
 	{
-		if (renderMode == RenderMode::BOTH)
+		if (renderMode == RenderMode::ALL)
 			renderMode = RenderMode::VIDEO;
 		else if (renderMode == RenderMode::VIDEO)
 			renderMode = RenderMode::MAP;
 		else if (renderMode == RenderMode::MAP)
-			renderMode = RenderMode::BOTH;
+			renderMode = RenderMode::ALL;
 	}
 
 	if (selectedPanel != SelectedPanel::NONE)
@@ -361,10 +363,10 @@ void Renderer::uploadFrameData(FrameData* frameData)
 
 void Renderer::renderAll()
 {
-	if (renderMode == RenderMode::BOTH || renderMode == RenderMode::VIDEO)
+	if (renderMode == RenderMode::ALL || renderMode == RenderMode::VIDEO)
 		renderVideoPanel();
 
-	if (renderMode == RenderMode::BOTH || renderMode == RenderMode::MAP)
+	if (renderMode == RenderMode::ALL || renderMode == RenderMode::MAP)
 		renderMapPanel();
 
 	if (showInfoPanel)
@@ -511,7 +513,7 @@ void Renderer::renderInfoPanel()
 
 	switch (renderMode)
 	{
-		case RenderMode::BOTH: renderText = "both"; break;
+		case RenderMode::ALL: renderText = "both"; break;
 		case RenderMode::VIDEO: renderText = "video"; break;
 		case RenderMode::MAP: renderText = "map"; break;
 		default: renderText = "unknown"; break;
@@ -540,6 +542,15 @@ void Renderer::renderRoute()
 	m.rotate(-(mapPanel.angle + mapPanel.userAngle));
 
 	painter->begin(paintDevice);
+
+	if (renderMode != RenderMode::MAP)	
+	{
+		painter->setClipping(true);
+		painter->setClipRect(0, 0, (int)(mapPanelRelativeWidth * windowWidth + 0.5), (int)windowHeight);
+	}
+	else
+		painter->setClipping(false);
+	
 	painter->setPen(pen);
 	painter->setWorldMatrix(m);
 	painter->drawPath(*routePath);
