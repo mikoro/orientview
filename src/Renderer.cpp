@@ -28,7 +28,6 @@ bool Renderer::initialize(VideoDecoder* videoDecoder, GpxReader* gpxReader, MapI
 	this->videoStabilizer = videoStabilizer;
 	this->videoEncoder = videoEncoder;
 	this->videoWindow = videoWindow;
-	this->settings = settings;
 
 	videoPanel = Panel();
 	videoPanel.textureWidth = videoDecoder->getVideoInfo().frameWidth;
@@ -131,7 +130,24 @@ bool Renderer::initialize(VideoDecoder* videoDecoder, GpxReader* gpxReader, MapI
 	painter->setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform | QPainter::HighQualityAntialiasing);
 	painter->end();
 
-	loadTrackPoints(gpxReader->getTrackPoints());
+	routePath = new QPainterPath();
+	int trackPointCount = gpxReader->getTrackPoints().size();
+
+	if (trackPointCount >= 2)
+	{
+		for (int i = 0; i < trackPointCount; ++i)
+		{
+			TrackPoint tp = gpxReader->getTrackPoints().at(i);
+
+			double x = (((tp.longitude - settings->mapCalibration.topLeftLon) / (settings->mapCalibration.bottomRightLon - settings->mapCalibration.topLeftLon)) * mapPanel.textureWidth) - mapPanel.textureWidth / 2.0;
+			double y = (mapPanel.textureHeight - (((tp.latitude - settings->mapCalibration.bottomRightLat) / (settings->mapCalibration.topLeftLat - settings->mapCalibration.bottomRightLat)) * mapPanel.textureHeight)) - mapPanel.textureHeight / 2.0;
+
+			if (i == 0)
+				routePath->moveTo(x, y);
+			else
+				routePath->lineTo(x, y);
+		}
+	}
 
 	return true;
 }
@@ -179,22 +195,15 @@ void Renderer::loadBuffer(Panel* panel, GLfloat* buffer, int size)
 	panel->buffer->release();
 }
 
-void Renderer::loadTrackPoints(const std::vector<TrackPoint>& newTrackPoints)
-{
-	trackPoints.clear();
-
-	for (const TrackPoint& trackPoint : newTrackPoints)
-	{
-		TrackPoint newTrackPoint = trackPoint;
-		newTrackPoint.x = (((trackPoint.longitude - settings->mapCalibration.topLeftLon) / (settings->mapCalibration.bottomRightLon - settings->mapCalibration.topLeftLon)) * mapPanel.textureWidth) - mapPanel.textureWidth / 2.0;
-		newTrackPoint.y = (mapPanel.textureHeight - (((trackPoint.latitude - settings->mapCalibration.bottomRightLat) / (settings->mapCalibration.topLeftLat - settings->mapCalibration.bottomRightLat)) * mapPanel.textureHeight)) - mapPanel.textureHeight / 2.0;
-		trackPoints.push_back(newTrackPoint);
-	}
-}
-
 void Renderer::shutdown()
 {
 	qDebug("Shutting down Renderer");
+
+	if (routePath != nullptr)
+	{
+		delete routePath;
+		routePath = nullptr;
+	}
 
 	if (painter != nullptr)
 	{
@@ -520,12 +529,7 @@ void Renderer::renderInfoPanel()
 void Renderer::renderRoute()
 {
 	QPen pen;
-	QBrush brush;
-
-	brush.setColor(QColor(0, 0, 255));
-	brush.setStyle(Qt::BrushStyle::CrossPattern);
-
-	pen.setColor(QColor(200, 0, 0));
+	pen.setColor(QColor(200, 0, 0, 128));
 	pen.setWidth(15);
 	pen.setCapStyle(Qt::PenCapStyle::RoundCap);
 	pen.setJoinStyle(Qt::PenJoinStyle::RoundJoin);
@@ -538,15 +542,7 @@ void Renderer::renderRoute()
 	painter->begin(paintDevice);
 	painter->setPen(pen);
 	painter->setWorldMatrix(m);
-
-	for (int i = 0; i < trackPoints.size() - 1; ++i)
-	{
-		TrackPoint tp1 = trackPoints.at(i);
-		TrackPoint tp2 = trackPoints.at(i + 1);
-
-		painter->drawLine((int)(tp1.x + 0.5), (int)(tp1.y + 0.5), (int)(tp2.x + 0.5), (int)(tp2.y + 0.5));
-	}
-
+	painter->drawPath(*routePath);
 	painter->end();
 }
 

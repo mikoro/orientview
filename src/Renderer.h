@@ -94,7 +94,6 @@ namespace OrientView
 		VideoStabilizer* videoStabilizer = nullptr;
 		VideoEncoder* videoEncoder = nullptr;
 		VideoWindow* videoWindow = nullptr;
-		Settings* settings = nullptr;
 
 		bool flipOutput = false;
 		bool showInfoPanel = false;
@@ -124,7 +123,6 @@ namespace OrientView
 
 		QOpenGLPaintDevice* paintDevice = nullptr;
 		QPainter* painter = nullptr;
-
-		std::vector<TrackPoint> trackPoints;
+		QPainterPath* routePath = nullptr;
 	};
 }
