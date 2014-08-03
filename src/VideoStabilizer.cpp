@@ -1,13 +1,16 @@
 // Copyright © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
 // License: GPLv3, see the LICENSE file.
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 #include <QElapsedTimer>
 
 #include "VideoStabilizer.h"
 #include "Settings.h"
 #include "FrameData.h"
 
-#define PI 3.14159265358979323846
+//#define PI 3.14159265358979323846
 #define sign(a) (((a) < 0) ? -1 : ((a) > 0))
 
 using namespace OrientView;
@@ -143,7 +146,7 @@ void VideoStabilizer::processFrame(FrameData* frameDataGrayscale)
 
 	double dx = tx / frameDataGrayscale->width;
 	double dy = ty / frameDataGrayscale->height;
-	double da = atan2(c, d) * 180.0 / PI;
+	double da = atan2(c, d) * 180.0 / M_PI;
 	double ds = sign(a) * sqrt(a * a + b * b);
 
 	currentX += dx;

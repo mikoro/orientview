@@ -70,6 +70,7 @@
     <ClCompile Include="src\RenderOffScreenThread.cpp" />
     <ClCompile Include="src\RenderOnScreenThread.cpp" />
     <ClCompile Include="src\Settings.cpp" />
+    <ClCompile Include="src\SimpleLogger.cpp" />
     <ClCompile Include="src\VideoDecoder.cpp" />
     <ClCompile Include="src\VideoDecoderThread.cpp" />
     <ClCompile Include="src\VideoEncoder.cpp" />

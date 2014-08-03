@@ -1,6 +1,7 @@
 // Copyright © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
 // License: GPLv3, see the LICENSE file.
 
+#include <QDebug>
 #include <QFile>
 #include <QXmlStreamReader>
 
@@ -10,7 +11,7 @@ using namespace OrientView;
 
 bool GpxReader::initialize(const QString& fileName)
 {
-	qDebug("Initializing GpxReader (%s)", fileName.toLocal8Bit().constData());
+	qDebug("Initializing GpxReader (%s)", qPrintable(fileName));
 
 	QFile file(fileName);
 
@@ -72,7 +73,7 @@ bool GpxReader::initialize(const QString& fileName)
 	}
 
 	if (xmlStream.hasError())
-		qWarning("There was an error while parsing GPX: %s", xmlStream.errorString().toLocal8Bit().constData());
+		qWarning("There was an error while parsing GPX: %s", qPrintable(xmlStream.errorString()));
 
 	return true;
 }

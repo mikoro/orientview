@@ -8,7 +8,7 @@ using namespace OrientView;
 
 bool MapImageReader::initialize(const QString& fileName, Settings* settings)
 {
-	qDebug("Initializing MapImageReader (%s)", fileName.toLocal8Bit().constData());
+	qDebug("Initializing MapImageReader (%s)", qPrintable(fileName));
 
 	QImage tempImage;
 

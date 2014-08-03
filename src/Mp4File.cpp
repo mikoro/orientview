@@ -28,11 +28,12 @@
 * For more information, contact us at licensing@x264.com.
 *****************************************************************************/
 
+#include <cstdint>
+
 #include <QtGlobal>
 
 extern "C"
 {
-#include <stdint.h>
 #include "x264/x264.h"
 #include "lsmash/lsmash.h"
 }
@@ -73,7 +74,7 @@ bool Mp4File::open(const QString& fileName)
 	mp4Handle->root = lsmash_create_root();
 	RETURN_IF_ERR(!mp4Handle->root, "Failed to create root");
 
-	RETURN_IF_ERR(lsmash_open_file(fileName.toLocal8Bit().constData(), 0, &mp4Handle->fileParameters) < 0, "Failed to open an output file");
+	RETURN_IF_ERR(lsmash_open_file(fileName.toUtf8().constData(), 0, &mp4Handle->fileParameters) < 0, "Failed to open an output file");
 
 	mp4Handle->summary = (lsmash_video_summary_t*)lsmash_create_summary(LSMASH_SUMMARY_TYPE_VIDEO);
 	RETURN_IF_ERR(!mp4Handle->summary, "Failed to allocate memory for summary information of video");

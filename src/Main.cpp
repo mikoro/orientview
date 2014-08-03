@@ -11,7 +11,7 @@ namespace
 {
 	OrientView::SimpleLogger logger("orientview.log");
 
-	void messageHandler(QtMsgType type, const QMessageLogContext &context, const QString &message)
+	void messageHandler(QtMsgType type, const QMessageLogContext& context, const QString& message)
 	{
 		logger.handleMessage(type, context, message);
 	}

@@ -15,11 +15,11 @@ VideoEncoder::VideoEncoder()
 
 bool VideoEncoder::initialize(const QString& fileName, VideoDecoder* videoDecoder, Settings* settings)
 {
-	qDebug("Initializing VideoEncoder (%s)", fileName.toLocal8Bit().constData());
+	qDebug("Initializing VideoEncoder (%s)", qPrintable(fileName));
 
 	x264_param_t param;
 	
-	if (x264_param_default_preset(&param, settings->encoder.preset.toLocal8Bit().constData(), "zerolatency") < 0)
+	if (x264_param_default_preset(&param, qPrintable(settings->encoder.preset), "zerolatency") < 0)
 	{
 		qWarning("Could not apply presets");
 		return false;
@@ -38,7 +38,7 @@ bool VideoEncoder::initialize(const QString& fileName, VideoDecoder* videoDecode
 	
 	x264_param_apply_fastfirstpass(&param);
 
-	if (x264_param_apply_profile(&param, settings->encoder.profile.toLocal8Bit().constData()) < 0)
+	if (x264_param_apply_profile(&param, qPrintable(settings->encoder.profile)) < 0)
 	{
 		qWarning("Could not apply profile");
 		return false;
