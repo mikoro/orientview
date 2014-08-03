@@ -18,7 +18,7 @@ RenderOnScreenThread::RenderOnScreenThread()
 {
 }
 
-bool RenderOnScreenThread::initialize(MainWindow* mainWindow, VideoWindow* videoWindow, VideoDecoder* videoDecoder, VideoDecoderThread* videoDecoderThread, VideoStabilizer* videoStabilizer, Renderer* renderer, Settings* settings)
+bool RenderOnScreenThread::initialize(MainWindow* mainWindow, VideoWindow* videoWindow, VideoDecoder* videoDecoder, VideoDecoderThread* videoDecoderThread, VideoStabilizer* videoStabilizer, Renderer* renderer)
 {
 	qDebug("Initializing RenderOnScreenThread");
 
@@ -29,20 +29,12 @@ bool RenderOnScreenThread::initialize(MainWindow* mainWindow, VideoWindow* video
 	this->videoStabilizer = videoStabilizer;
 	this->renderer = renderer;
 
-	stabilizationEnabled = settings->stabilizer.enabled;
-	renderInfoPanel = settings->appearance.showInfoPanel;
-
 	return true;
 }
 
 void RenderOnScreenThread::shutdown()
 {
 	qDebug("Shutting down RenderOnScreenThread");
-}
-
-void RenderOnScreenThread::toggleRenderInfoPanel()
-{
-	renderInfoPanel = !renderInfoPanel;
 }
 
 void RenderOnScreenThread::run()
@@ -69,25 +61,20 @@ void RenderOnScreenThread::run()
 
 		bool gotFrame = videoDecoderThread->tryGetNextFrame(&frameData, &frameDataGrayscale);
 
-		if (gotFrame && stabilizationEnabled)
+		if (gotFrame)
 			videoStabilizer->processFrame(&frameDataGrayscale);
 
-		videoWindow->getContext()->makeCurrent(videoWindow);
-		renderer->startRendering(videoWindow->width(), videoWindow->height(), frameDuration);
 		renderer->handleInput();
+		videoWindow->getContext()->makeCurrent(videoWindow);
+		renderer->startRendering(videoWindow->width(), videoWindow->height(), frameDuration, spareTime);
 
 		if (gotFrame)
 		{
 			renderer->uploadFrameData(&frameData);
 			videoDecoderThread->signalFrameRead();
-			renderer->renderVideoPanel();
 		}
 
-		renderer->renderMapPanel();
-
-		if (renderInfoPanel)
-			renderer->renderInfoPanel(spareTime);
-
+		renderer->renderAll();
 		renderer->stopRendering();
 
 		spareTime = videoDecoder->getVideoInfo().averageFrameDuration - (spareTimer.nsecsElapsed() / 1000000.0);

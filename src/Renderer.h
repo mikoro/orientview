@@ -70,12 +70,11 @@ namespace OrientView
 		bool initialize(VideoDecoder* videoDecoder, GpxReader* gpxReader, MapImageReader* mapImageReader, VideoStabilizer* videoStabilizer, VideoEncoder* videoEncoder, VideoWindow* videoWindow, Settings* settings);
 		void shutdown();
 
-		void startRendering(double windowWidth, double windowHeight, double frameTime);
-		void uploadFrameData(FrameData* frameData);
 		void handleInput();
-		void renderVideoPanel();
-		void renderMapPanel();
-		void renderInfoPanel(double spareTime);
+
+		void startRendering(double windowWidth, double windowHeight, double frameTime, double spareTime);
+		void uploadFrameData(FrameData* frameData);
+		void renderAll();
 		void stopRendering();
 
 		void setFlipOutput(bool value);
@@ -85,6 +84,9 @@ namespace OrientView
 		bool loadShaders(Panel* panel, const QString& shaderName);
 		void loadBuffer(Panel* panel, GLfloat* buffer, int size);
 		void loadTrackPoints(const std::vector<TrackPoint>& newTrackPoints);
+		void renderVideoPanel();
+		void renderMapPanel();
+		void renderInfoPanel();
 		void renderPanel(Panel* panel);
 		void renderRoute();
 
@@ -95,11 +97,13 @@ namespace OrientView
 		Settings* settings = nullptr;
 
 		bool flipOutput = false;
+		bool showInfoPanel = false;
 
 		double mapPanelRelativeWidth = 0.0;
 		double windowWidth = 0.0;
 		double windowHeight = 0.0;
 		double frameTime = 0.0;
+		double spareTime = 0.0;
 		double lastRenderTime = 0.0;
 
 		Panel videoPanel;

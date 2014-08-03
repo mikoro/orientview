@@ -130,7 +130,7 @@ void MainWindow::on_actionPlayVideo_triggered()
 
 		videoWindow->show();
 
-		if (!videoWindow->initialize(renderOnScreenThread, settings))
+		if (!videoWindow->initialize(settings))
 			throw std::runtime_error("Could not initialize VideoWindow");
 
 		if (!renderer->initialize(videoDecoder, gpxReader, mapImageReader, videoStabilizer, videoEncoder, videoWindow, settings))
@@ -139,7 +139,7 @@ void MainWindow::on_actionPlayVideo_triggered()
 		if (!videoDecoderThread->initialize(videoDecoder))
 			throw std::runtime_error("Could not initialize VideoDecoderThread");
 
-		if (!renderOnScreenThread->initialize(this, videoWindow, videoDecoder, videoDecoderThread, videoStabilizer, renderer, settings))
+		if (!renderOnScreenThread->initialize(this, videoWindow, videoDecoder, videoDecoderThread, videoStabilizer, renderer))
 			throw std::runtime_error("Could not initialize RenderOnScreenThread");
 
 		videoWindow->getContext()->doneCurrent();

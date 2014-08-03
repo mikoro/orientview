@@ -36,18 +36,15 @@ namespace OrientView
 
 		void run();
 
-		void readDataFromFramebuffer(QOpenGLFramebufferObject* sourceFbo);
-
 	private:
+
+		void readDataFromFramebuffer(QOpenGLFramebufferObject* sourceFbo);
 
 		MainWindow* mainWindow = nullptr;
 		EncodeWindow* encodeWindow = nullptr;
 		VideoDecoderThread* videoDecoderThread = nullptr;
 		VideoStabilizer* videoStabilizer = nullptr;
 		Renderer* renderer = nullptr;
-
-		bool stabilizationEnabled = false;
-		bool renderInfoPanel = false;
 
 		QOpenGLFramebufferObject* mainFramebuffer = nullptr;
 		QOpenGLFramebufferObject* secondaryFramebuffer = nullptr;

@@ -8,7 +8,6 @@
 
 namespace OrientView
 {
-	class RenderOnScreenThread;
 	class Settings;
 
 	class VideoWindow : public QWindow
@@ -19,7 +18,7 @@ namespace OrientView
 
 		explicit VideoWindow(QWindow* parent = 0);
 
-		bool initialize(RenderOnScreenThread* renderOnScreenThread, Settings* settings);
+		bool initialize(Settings* settings);
 		void shutdown();
 
 		QOpenGLContext* getContext() const;
@@ -36,8 +35,6 @@ namespace OrientView
 		bool event(QEvent* event);
 
 	private:
-
-		RenderOnScreenThread* renderOnScreenThread = nullptr;
 
 		QOpenGLContext* context = nullptr;
 		bool initialized = false;

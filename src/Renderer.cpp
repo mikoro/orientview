@@ -48,6 +48,8 @@ bool Renderer::initialize(VideoDecoder* videoDecoder, GpxReader* gpxReader, MapI
 	windowWidth = videoWindow->width();
 	windowHeight = videoWindow->height();
 
+	showInfoPanel = settings->appearance.showInfoPanel;
+
 	const double movingAverageAlpha = 0.1;
 	averageFps.reset();
 	averageFps.setAlpha(movingAverageAlpha);
@@ -243,34 +245,11 @@ void Renderer::shutdown()
 	}
 }
 
-void Renderer::startRendering(double windowWidth, double windowHeight, double frameTime)
-{
-	renderTimer.restart();
-
-	this->windowWidth = windowWidth;
-	this->windowHeight = windowHeight;
-	this->frameTime = frameTime;
-
-	paintDevice->setSize(QSize(windowWidth, windowHeight));
-
-	glViewport(0, 0, windowWidth, windowHeight);
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-}
-
-void Renderer::uploadFrameData(FrameData* frameData)
-{
-	QOpenGLPixelTransferOptions options;
-
-	options.setRowLength(frameData->rowLength / 4);
-	options.setImageHeight(frameData->height);
-	options.setAlignment(1);
-
-	videoPanel.texture->setData(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, frameData->data, &options);
-}
-
 void Renderer::handleInput()
 {
+	if (videoWindow->keyIsDownOnce(Qt::Key_F1))
+		showInfoPanel = !showInfoPanel;
+
 	if (videoWindow->keyIsDownOnce(Qt::Key_F2))
 	{
 		if (selectedPanel == SelectedPanel::NONE)
@@ -336,11 +315,55 @@ void Renderer::handleInput()
 	}
 }
 
+void Renderer::startRendering(double windowWidth, double windowHeight, double frameTime, double spareTime)
+{
+	renderTimer.restart();
+
+	this->windowWidth = windowWidth;
+	this->windowHeight = windowHeight;
+	this->frameTime = frameTime;
+	this->spareTime = spareTime;
+
+	averageFps.addMeasurement(1000.0 / frameTime);
+	averageFrameTime.addMeasurement(frameTime);
+	averageDecodeTime.addMeasurement(videoDecoder->getLastDecodeTime());
+	averageStabilizeTime.addMeasurement(videoStabilizer->getLastProcessTime());
+	averageRenderTime.addMeasurement(lastRenderTime);
+	averageEncodeTime.addMeasurement(videoEncoder->getLastEncodeTime());
+	averageSpareTime.addMeasurement(spareTime);
+
+	paintDevice->setSize(QSize(windowWidth, windowHeight));
+
+	glViewport(0, 0, windowWidth, windowHeight);
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+}
+
+void Renderer::uploadFrameData(FrameData* frameData)
+{
+	QOpenGLPixelTransferOptions options;
+
+	options.setRowLength(frameData->rowLength / 4);
+	options.setImageHeight(frameData->height);
+	options.setAlignment(1);
+
+	videoPanel.texture->setData(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, frameData->data, &options);
+}
+
+void Renderer::renderAll()
+{
+	if (renderMode == RenderMode::BOTH || renderMode == RenderMode::VIDEO)
+		renderVideoPanel();
+
+	if (renderMode == RenderMode::BOTH || renderMode == RenderMode::MAP)
+		renderMapPanel();
+
+	if (showInfoPanel)
+		renderInfoPanel();
+}
+
 void Renderer::renderVideoPanel()
 {
-	if (renderMode != RenderMode::BOTH && renderMode != RenderMode::VIDEO)
-		return;
-
 	videoPanel.vertexMatrix.setToIdentity();
 
 	if (!flipOutput)
@@ -373,9 +396,6 @@ void Renderer::renderVideoPanel()
 
 void Renderer::renderMapPanel()
 {
-	if (renderMode != RenderMode::BOTH && renderMode != RenderMode::MAP)
-		return;
-
 	mapPanel.vertexMatrix.setToIdentity();
 
 	if (!flipOutput)
@@ -412,16 +432,8 @@ void Renderer::renderMapPanel()
 	painter->end();
 }
 
-void Renderer::renderInfoPanel(double spareTime)
+void Renderer::renderInfoPanel()
 {
-	averageFps.addMeasurement(1000.0 / frameTime);
-	averageFrameTime.addMeasurement(frameTime);
-	averageDecodeTime.addMeasurement(videoDecoder->getLastDecodeTime());
-	averageStabilizeTime.addMeasurement(videoStabilizer->getLastProcessTime());
-	averageRenderTime.addMeasurement(lastRenderTime);
-	averageEncodeTime.addMeasurement(videoEncoder->getLastEncodeTime());
-	averageSpareTime.addMeasurement(spareTime);
-
 	QFont font = QFont("DejaVu Sans", 8, QFont::Bold);
 	QFontMetrics metrics(font);
 
