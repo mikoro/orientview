@@ -59,9 +59,9 @@ void VideoDecoderThread::run()
 	}
 }
 
-bool VideoDecoderThread::tryGetNextFrame(FrameData* frameData, FrameData* frameDataGrayscale)
+bool VideoDecoderThread::tryGetNextFrame(FrameData* frameData, FrameData* frameDataGrayscale, int timeout)
 {
-	if (frameAvailableSemaphore->tryAcquire(1, 20))
+	if (frameAvailableSemaphore->tryAcquire(1, timeout))
 	{
 		frameData->data = decodedFrameData.data;
 		frameData->dataLength = decodedFrameData.dataLength;

@@ -59,7 +59,7 @@ void RenderOnScreenThread::run()
 			continue;
 		}
 
-		bool gotFrame = videoDecoderThread->tryGetNextFrame(&frameData, &frameDataGrayscale);
+		bool gotFrame = videoDecoderThread->tryGetNextFrame(&frameData, &frameDataGrayscale, 0);
 
 		if (gotFrame)
 			videoStabilizer->processFrame(&frameDataGrayscale);

@@ -29,7 +29,7 @@ namespace OrientView
 		bool initialize(MainWindow* mainWindow, EncodeWindow* encodeWindow, VideoDecoderThread* videoDecoderThread, VideoStabilizer* videoStabilizer, Renderer* renderer, Settings* settings);
 		void shutdown();
 
-		bool tryGetNextFrame(FrameData* frameData);
+		bool tryGetNextFrame(FrameData* frameData, int timeout);
 		void signalFrameRead();
 
 	protected:

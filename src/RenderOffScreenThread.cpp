@@ -117,7 +117,7 @@ void RenderOffScreenThread::run()
 
 	while (!isInterruptionRequested())
 	{
-		if (videoDecoderThread->tryGetNextFrame(&decodedFrameData, &decodedFrameDataGrayscale))
+		if (videoDecoderThread->tryGetNextFrame(&decodedFrameData, &decodedFrameDataGrayscale, 100))
 		{
 			videoStabilizer->processFrame(&decodedFrameDataGrayscale);
 
@@ -149,9 +149,9 @@ void RenderOffScreenThread::run()
 	encodeWindow->getContext()->moveToThread(mainWindow->thread());
 }
 
-bool RenderOffScreenThread::tryGetNextFrame(FrameData* frameData)
+bool RenderOffScreenThread::tryGetNextFrame(FrameData* frameData, int timeout)
 {
-	if (frameAvailableSemaphore->tryAcquire(1, 20))
+	if (frameAvailableSemaphore->tryAcquire(1, timeout))
 	{
 		frameData->data = renderedFrameData.data;
 		frameData->dataLength = renderedFrameData.dataLength;

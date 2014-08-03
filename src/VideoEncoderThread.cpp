@@ -35,7 +35,7 @@ void VideoEncoderThread::run()
 
 	while (!isInterruptionRequested())
 	{
-		if (renderOffScreenThread->tryGetNextFrame(&renderedFrameData))
+		if (renderOffScreenThread->tryGetNextFrame(&renderedFrameData, 100))
 		{
 			videoEncoder->loadFrameData(&renderedFrameData);
 			renderOffScreenThread->signalFrameRead();
