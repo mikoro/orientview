@@ -74,6 +74,7 @@ void RenderOnScreenThread::run()
 
 		videoWindow->getContext()->makeCurrent(videoWindow);
 		renderer->startRendering(videoWindow->width(), videoWindow->height(), frameDuration);
+		renderer->handleInput();
 
 		if (gotFrame)
 		{

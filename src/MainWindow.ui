@@ -556,7 +556,7 @@
                   <string>Bottom right longitude</string>
                  </property>
                  <property name="decimals">
-                  <number>8</number>
+                  <number>10</number>
                  </property>
                  <property name="minimum">
                   <double>-180.000000000000000</double>
@@ -578,7 +578,7 @@
                   <string>Top left longitude</string>
                  </property>
                  <property name="decimals">
-                  <number>8</number>
+                  <number>10</number>
                  </property>
                  <property name="minimum">
                   <double>-180.000000000000000</double>
@@ -600,7 +600,7 @@
                   <string>Top left latitude</string>
                  </property>
                  <property name="decimals">
-                  <number>8</number>
+                  <number>10</number>
                  </property>
                  <property name="minimum">
                   <double>-90.000000000000000</double>
@@ -622,7 +622,7 @@
                   <string>Bottom right latitude</string>
                  </property>
                  <property name="decimals">
-                  <number>8</number>
+                  <number>10</number>
                  </property>
                  <property name="minimum">
                   <double>-90.000000000000000</double>

@@ -28,6 +28,7 @@ bool Renderer::initialize(VideoDecoder* videoDecoder, GpxReader* gpxReader, MapI
 	this->videoStabilizer = videoStabilizer;
 	this->videoEncoder = videoEncoder;
 	this->videoWindow = videoWindow;
+	this->settings = settings;
 
 	videoPanel = Panel();
 	videoPanel.textureWidth = videoDecoder->getVideoInfo().frameWidth;
@@ -44,6 +45,8 @@ bool Renderer::initialize(VideoDecoder* videoDecoder, GpxReader* gpxReader, MapI
 
 	selectedPanelPtr = &videoPanel;
 	mapPanelRelativeWidth = settings->appearance.mapPanelWidth;
+	windowWidth = videoWindow->width();
+	windowHeight = videoWindow->height();
 
 	const double movingAverageAlpha = 0.1;
 	averageFps.reset();
@@ -88,10 +91,10 @@ bool Renderer::initialize(VideoDecoder* videoDecoder, GpxReader* gpxReader, MapI
 	// 4 3
 	GLfloat mapPanelBuffer[] =
 	{
-		0.0f, 0.0f, 0.0f, // 1
-		(float)mapPanel.textureWidth, 0.0f, 0.0f, // 2
-		(float)mapPanel.textureWidth, (float)mapPanel.textureHeight, 0.0f, // 3
-		0.0f, (float)mapPanel.textureHeight, 0.0f, // 4
+		-(float)mapPanel.textureWidth / 2, (float)mapPanel.textureHeight / 2, 0.0f, // 1
+		(float)mapPanel.textureWidth / 2, (float)mapPanel.textureHeight / 2, 0.0f, // 2
+		(float)mapPanel.textureWidth / 2, -(float)mapPanel.textureHeight / 2, 0.0f, // 3
+		-(float)mapPanel.textureWidth / 2, -(float)mapPanel.textureHeight / 2, 0.0f, // 4
 
 		0.0f, 0.0f, // 1
 		1.0f, 0.0f, // 2
@@ -126,15 +129,7 @@ bool Renderer::initialize(VideoDecoder* videoDecoder, GpxReader* gpxReader, MapI
 	painter->setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform | QPainter::HighQualityAntialiasing);
 	painter->end();
 
-	trackPoints.clear();
-
-	for (const TrackPoint& trackPoint : gpxReader->getTrackPoints())
-	{
-		TrackPoint newTrackPoint = trackPoint;
-		newTrackPoint.x = ((trackPoint.longitude - settings->mapCalibration.topLeftLong) / (settings->mapCalibration.bottomRightLong - settings->mapCalibration.topLeftLong)) * mapPanel.textureWidth;
-		newTrackPoint.y = mapPanel.textureHeight - (((trackPoint.latitude - settings->mapCalibration.bottomRightLat) / (settings->mapCalibration.topLeftLat - settings->mapCalibration.bottomRightLat)) * mapPanel.textureHeight);
-		trackPoints.push_back(newTrackPoint);
-	}
+	loadTrackPoints(gpxReader->getTrackPoints());
 
 	return true;
 }
@@ -180,6 +175,19 @@ void Renderer::loadBuffer(Panel* panel, GLfloat* buffer, int size)
 	panel->buffer->bind();
 	panel->buffer->allocate(buffer, sizeof(GLfloat) * size);
 	panel->buffer->release();
+}
+
+void Renderer::loadTrackPoints(const std::vector<TrackPoint>& newTrackPoints)
+{
+	trackPoints.clear();
+
+	for (const TrackPoint& trackPoint : newTrackPoints)
+	{
+		TrackPoint newTrackPoint = trackPoint;
+		newTrackPoint.x = (((trackPoint.longitude - settings->mapCalibration.topLeftLong) / (settings->mapCalibration.bottomRightLong - settings->mapCalibration.topLeftLong)) * mapPanel.textureWidth) - mapPanel.textureWidth / 2.0;
+		newTrackPoint.y = (mapPanel.textureHeight - (((trackPoint.latitude - settings->mapCalibration.bottomRightLat) / (settings->mapCalibration.topLeftLat - settings->mapCalibration.bottomRightLat)) * mapPanel.textureHeight)) - mapPanel.textureHeight / 2.0;
+		trackPoints.push_back(newTrackPoint);
+	}
 }
 
 void Renderer::shutdown()
@@ -248,7 +256,21 @@ void Renderer::startRendering(double windowWidth, double windowHeight, double fr
 	glViewport(0, 0, windowWidth, windowHeight);
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+}
 
+void Renderer::uploadFrameData(FrameData* frameData)
+{
+	QOpenGLPixelTransferOptions options;
+
+	options.setRowLength(frameData->rowLength / 4);
+	options.setImageHeight(frameData->height);
+	options.setAlignment(1);
+
+	videoPanel.texture->setData(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, frameData->data, &options);
+}
+
+void Renderer::handleInput()
+{
 	if (videoWindow->keyIsDownOnce(Qt::Key_F2))
 	{
 		switch (selectedPanel)
@@ -304,17 +326,6 @@ void Renderer::startRendering(double windowWidth, double windowHeight, double fr
 		selectedPanelPtr->userY -= 0.5 * frameTime;
 }
 
-void Renderer::uploadFrameData(FrameData* frameData)
-{
-	QOpenGLPixelTransferOptions options;
-
-	options.setRowLength(frameData->rowLength / 4);
-	options.setImageHeight(frameData->height);
-	options.setAlignment(1);
-
-	videoPanel.texture->setData(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, frameData->data, &options);
-}
-
 void Renderer::renderVideoPanel()
 {
 	videoPanel.vertexMatrix.setToIdentity();
@@ -349,11 +360,14 @@ void Renderer::renderMapPanel()
 	mapPanel.vertexMatrix.setToIdentity();
 
 	if (!flipOutput)
-		mapPanel.vertexMatrix.ortho(0, windowWidth, windowHeight, 0, 0.0f, 1.0f);
+		mapPanel.vertexMatrix.ortho(-windowWidth / 2, windowWidth / 2, -windowHeight / 2, windowHeight / 2, 0.0f, 1.0f);
 	else
 		mapPanel.vertexMatrix.ortho(-windowWidth / 2, windowWidth / 2, windowHeight / 2, -windowHeight / 2, 0.0f, 1.0f);
 
 	mapPanel.scale = windowWidth / mapPanel.textureWidth;
+
+	if (mapPanel.scale * mapPanel.textureHeight > windowHeight)
+		mapPanel.scale = windowHeight / mapPanel.textureHeight;
 
 	mapPanel.vertexMatrix.translate(mapPanel.x + mapPanel.userX, mapPanel.y + mapPanel.userY);
 	mapPanel.vertexMatrix.rotate(mapPanel.angle + mapPanel.userAngle, 0.0f, 0.0f, 1.0f);
@@ -476,9 +490,10 @@ void Renderer::renderRoute()
 	pen.setJoinStyle(Qt::PenJoinStyle::RoundJoin);
 
 	QMatrix m;
-	m.translate(mapPanel.x + mapPanel.userX, mapPanel.y + mapPanel.userY);
-	m.rotate(mapPanel.angle + mapPanel.userAngle);
+	m.translate(windowWidth / 2.0 + mapPanel.x + mapPanel.userX, windowHeight / 2.0 - mapPanel.y - mapPanel.userY);
 	m.scale(mapPanel.scale * mapPanel.userScale, mapPanel.scale * mapPanel.userScale);
+	m.rotate(-(mapPanel.angle + mapPanel.userAngle));
+	
 
 	painter->begin(paintDevice);
 	painter->setPen(pen);
