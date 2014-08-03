@@ -103,9 +103,12 @@ void MainWindow::on_actionSaveSettings_triggered()
 
 void MainWindow::on_actionDefaultSettings_triggered()
 {
-	delete settings;
-	settings = new Settings();
-	settings->apply(ui);
+	if (QMessageBox::warning(this, "OrientView - Warning", QString("Do you really want reset all settings to defaults?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
+	{
+		delete settings;
+		settings = new Settings();
+		settings->apply(ui);
+	}
 }
 
 void MainWindow::on_actionPlayVideo_triggered()
