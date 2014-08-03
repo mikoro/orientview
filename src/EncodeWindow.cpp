@@ -74,7 +74,7 @@ bool EncodeWindow::initialize(VideoDecoder* videoDecoder, VideoEncoderThread* vi
 	isRunning = true;
 	totalFrameCount = videoDecoder->getVideoInfo().totalFrameCount;
 	currentSize = 0.0;
-	videoFilePath = settings->files.outputFilePath;
+	videoFilePath = settings->files.outputVideoFilePath;
 
 	return true;
 }

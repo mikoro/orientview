@@ -25,10 +25,10 @@ namespace OrientView
 
 		struct Files
 		{
-			QString videoFilePath = "";
-			QString mapFilePath = "";
-			QString gpxFilePath = "";
-			QString outputFilePath = "";
+			QString inputVideoFilePath = "";
+			QString quickRouteJpegMapImageFilePath = "";
+			QString alternativeMapImageFilePath = "";
+			QString outputVideoFilePath = "";
 
 		} files;
 
@@ -42,21 +42,6 @@ namespace OrientView
 
 		} window;
 
-		struct MapCalibration
-		{
-			double topLeftLat = 0.0;
-			double topLeftLon = 0.0;
-			double topRightLat = 0.0;
-			double topRightLon = 0.0;
-			double bottomRightLat = 0.0;
-			double bottomRightLon = 0.0;
-			double bottomLeftLat = 0.0;
-			double bottomLeftLon = 0.0;
-			double projectionOriginLat = 0.0;
-			double projectionOriginLon = 0.0;
-
-		} mapCalibration;
-
 		struct Timing
 		{
 			QString splitTimes = "";
@@ -68,7 +53,6 @@ namespace OrientView
 			bool showInfoPanel = false;
 			double mapPanelWidth = 0.3;
 			double videoPanelScale = 1.0;
-			int mapHeaderCrop = 0;
 
 		} appearance;
 

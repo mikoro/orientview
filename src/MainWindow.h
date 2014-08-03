@@ -14,8 +14,8 @@ namespace OrientView
 {
 	class Settings;
 	class VideoDecoder;
+	class QuickRouteReader;
 	class MapImageReader;
-	class GpxReader;
 	class VideoStabilizer;
 	class Renderer;
 	class VideoEncoder;
@@ -44,11 +44,10 @@ namespace OrientView
 		void on_actionEncodeVideo_triggered();
 		void on_actionExit_triggered();
 
-		void on_pushButtonBrowseVideoFile_clicked();
-		void on_pushButtonBrowseMapFile_clicked();
-		void on_pushButtonBrowseGpxFile_clicked();
-		void on_pushButtonBrowseOutputFile_clicked();
-		void on_pushButtonLoadMapCalibrationData_clicked();
+		void on_pushButtonBrowseInputVideoFile_clicked();
+		void on_pushButtonBrowseQuickRouteJpegMapImageFile_clicked();
+		void on_pushButtonBrowseAlternativeMapImageFile_clicked();
+		void on_pushButtonBrowseOutputVideoFile_clicked();
 
 		void videoWindowClosing();
 		void encodeWindowClosing();
@@ -63,8 +62,8 @@ namespace OrientView
 		Ui::MainWindow* ui = nullptr;
 		Settings* settings = nullptr;
 		VideoDecoder* videoDecoder = nullptr;
+		QuickRouteReader* quickRouteReader = nullptr;
 		MapImageReader* mapImageReader = nullptr;
-		GpxReader* gpxReader = nullptr;
 		VideoStabilizer* videoStabilizer = nullptr;
 		Renderer* renderer = nullptr;
 		VideoEncoder* videoEncoder = nullptr;

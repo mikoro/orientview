@@ -6,7 +6,7 @@
 
 #include "Renderer.h"
 #include "VideoDecoder.h"
-#include "GpxReader.h"
+#include "QuickRouteReader.h"
 #include "MapImageReader.h"
 #include "VideoStabilizer.h"
 #include "VideoEncoder.h"
@@ -20,7 +20,7 @@ Renderer::Renderer()
 {
 }
 
-bool Renderer::initialize(VideoDecoder* videoDecoder, GpxReader* gpxReader, MapImageReader* mapImageReader, VideoStabilizer* videoStabilizer, VideoEncoder* videoEncoder, VideoWindow* videoWindow, Settings* settings)
+bool Renderer::initialize(VideoDecoder* videoDecoder, QuickRouteReader* quickRouteReader, MapImageReader* mapImageReader, VideoStabilizer* videoStabilizer, VideoEncoder* videoEncoder, VideoWindow* videoWindow, Settings* settings)
 {
 	qDebug("Initializing Renderer");
 
@@ -133,16 +133,16 @@ bool Renderer::initialize(VideoDecoder* videoDecoder, GpxReader* gpxReader, MapI
 	painter->end();
 
 	routePath = new QPainterPath();
-	int trackPointCount = gpxReader->getTrackPoints().size();
+	int routePointCount = quickRouteReader->getRouteData().routePoints.size();
 
-	if (trackPointCount >= 2)
+	if (routePointCount >= 2)
 	{
-		for (int i = 0; i < trackPointCount; ++i)
+		for (int i = 0; i < routePointCount; ++i)
 		{
-			TrackPoint tp = gpxReader->getTrackPoints().at(i);
+			RoutePoint rp = quickRouteReader->getRouteData().routePoints.at(i);
 
-			double x = (((tp.longitude - settings->mapCalibration.topLeftLon) / (settings->mapCalibration.bottomRightLon - settings->mapCalibration.topLeftLon)) * mapPanel.textureWidth) - mapPanel.textureWidth / 2.0;
-			double y = (mapPanel.textureHeight - (((tp.latitude - settings->mapCalibration.bottomRightLat) / (settings->mapCalibration.topLeftLat - settings->mapCalibration.bottomRightLat)) * mapPanel.textureHeight)) - mapPanel.textureHeight / 2.0;
+			double x = rp.position.x() * 10000.0;
+			double y = rp.position.y() * 10000.0;
 
 			if (i == 0)
 				routePath->moveTo(x, y);

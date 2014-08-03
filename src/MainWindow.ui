@@ -66,7 +66,7 @@
              <number>12</number>
             </property>
             <item>
-             <widget class="QGroupBox" name="groupBoxVideoFile">
+             <widget class="QGroupBox" name="groupBoxInputVideoFile">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
                 <horstretch>0</horstretch>
@@ -74,14 +74,14 @@
                </sizepolicy>
               </property>
               <property name="title">
-               <string>Video file</string>
+               <string>Input video file</string>
               </property>
               <layout class="QHBoxLayout" name="horizontalLayout">
                <item>
-                <widget class="QLineEdit" name="lineEditVideoFile"/>
+                <widget class="QLineEdit" name="lineEditInputVideoFile"/>
                </item>
                <item>
-                <widget class="QPushButton" name="pushButtonBrowseVideoFile">
+                <widget class="QPushButton" name="pushButtonBrowseInputVideoFile">
                  <property name="text">
                   <string>Browse</string>
                  </property>
@@ -91,7 +91,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QGroupBox" name="groupBoxMapFile">
+             <widget class="QGroupBox" name="groupBoxQuickRouteJpegMapImageFile">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
                 <horstretch>0</horstretch>
@@ -99,39 +99,14 @@
                </sizepolicy>
               </property>
               <property name="title">
-               <string>Map file</string>
-              </property>
-              <layout class="QHBoxLayout" name="horizontalLayout_2">
-               <item>
-                <widget class="QLineEdit" name="lineEditMapFile"/>
-               </item>
-               <item>
-                <widget class="QPushButton" name="pushButtonBrowseMapFile">
-                 <property name="text">
-                  <string>Browse</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </widget>
-            </item>
-            <item>
-             <widget class="QGroupBox" name="groupBoxGpxFile">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="title">
-               <string>GPX file</string>
+               <string>QuickRoute JPEG map image file</string>
               </property>
               <layout class="QHBoxLayout" name="horizontalLayout_3">
                <item>
-                <widget class="QLineEdit" name="lineEditGpxFile"/>
+                <widget class="QLineEdit" name="lineEditQuickRouteJpegMapImageFile"/>
                </item>
                <item>
-                <widget class="QPushButton" name="pushButtonBrowseGpxFile">
+                <widget class="QPushButton" name="pushButtonBrowseQuickRouteJpegMapImageFile">
                  <property name="text">
                   <string>Browse</string>
                  </property>
@@ -141,7 +116,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QGroupBox" name="groupBoxOutputFile">
+             <widget class="QGroupBox" name="groupBoxAlternativeMapImageFile">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
                 <horstretch>0</horstretch>
@@ -149,14 +124,39 @@
                </sizepolicy>
               </property>
               <property name="title">
-               <string>Output file</string>
+               <string>Alternative map image file (optional)</string>
+              </property>
+              <layout class="QHBoxLayout" name="horizontalLayout_2">
+               <item>
+                <widget class="QLineEdit" name="lineEditAlternativeMapImageFile"/>
+               </item>
+               <item>
+                <widget class="QPushButton" name="pushButtonBrowseAlternativeMapImageFile">
+                 <property name="text">
+                  <string>Browse</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="groupBoxOutputVideoFile">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="title">
+               <string>Output video file (when encoding)</string>
               </property>
               <layout class="QHBoxLayout" name="horizontalLayout_4">
                <item>
-                <widget class="QLineEdit" name="lineEditOutputFile"/>
+                <widget class="QLineEdit" name="lineEditOutputVideoFile"/>
                </item>
                <item>
-                <widget class="QPushButton" name="pushButtonBrowseOutputFile">
+                <widget class="QPushButton" name="pushButtonBrowseOutputVideoFile">
                  <property name="text">
                   <string>Browse</string>
                  </property>
@@ -200,7 +200,7 @@
              <x>0</x>
              <y>0</y>
              <width>437</width>
-             <height>1052</height>
+             <height>809</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -444,387 +444,6 @@
              </widget>
             </item>
             <item>
-             <widget class="QGroupBox" name="groupBoxMapCalibration">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="title">
-               <string>Map calibration</string>
-              </property>
-              <layout class="QGridLayout" name="gridLayout">
-               <item row="1" column="2">
-                <widget class="QDoubleSpinBox" name="doubleSpinBoxMapTopLeftLon">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="toolTip">
-                  <string>Top left longitude</string>
-                 </property>
-                 <property name="decimals">
-                  <number>10</number>
-                 </property>
-                 <property name="minimum">
-                  <double>-180.000000000000000</double>
-                 </property>
-                 <property name="maximum">
-                  <double>180.000000000000000</double>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="1">
-                <widget class="QLabel" name="label_3">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="text">
-                  <string>Latitude</string>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignCenter</set>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="0">
-                <widget class="QLabel" name="label_2">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>100</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string>Top right</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="2">
-                <widget class="QLabel" name="label_4">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="text">
-                  <string>Longitude</string>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignCenter</set>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="0">
-                <widget class="QLabel" name="label">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>100</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string>Top left</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="1">
-                <widget class="QDoubleSpinBox" name="doubleSpinBoxMapTopLeftLat">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="toolTip">
-                  <string>Top left latitude</string>
-                 </property>
-                 <property name="decimals">
-                  <number>10</number>
-                 </property>
-                 <property name="minimum">
-                  <double>-90.000000000000000</double>
-                 </property>
-                 <property name="maximum">
-                  <double>90.000000000000000</double>
-                 </property>
-                </widget>
-               </item>
-               <item row="3" column="2">
-                <widget class="QDoubleSpinBox" name="doubleSpinBoxMapBottomRightLon">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="toolTip">
-                  <string>Bottom right longitude</string>
-                 </property>
-                 <property name="decimals">
-                  <number>10</number>
-                 </property>
-                 <property name="minimum">
-                  <double>-180.000000000000000</double>
-                 </property>
-                 <property name="maximum">
-                  <double>180.000000000000000</double>
-                 </property>
-                </widget>
-               </item>
-               <item row="3" column="0">
-                <widget class="QLabel" name="label_5">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>100</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string>Bottom right</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="3" column="1">
-                <widget class="QDoubleSpinBox" name="doubleSpinBoxMapBottomRightLat">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="toolTip">
-                  <string>Bottom right latitude</string>
-                 </property>
-                 <property name="decimals">
-                  <number>10</number>
-                 </property>
-                 <property name="minimum">
-                  <double>-90.000000000000000</double>
-                 </property>
-                 <property name="maximum">
-                  <double>90.000000000000000</double>
-                 </property>
-                </widget>
-               </item>
-               <item row="4" column="0">
-                <widget class="QLabel" name="label_27">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>100</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string>Bottom left</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="4" column="1">
-                <widget class="QDoubleSpinBox" name="doubleSpinBoxMapBottomLeftLat">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="toolTip">
-                  <string>Top left latitude</string>
-                 </property>
-                 <property name="decimals">
-                  <number>10</number>
-                 </property>
-                 <property name="minimum">
-                  <double>-90.000000000000000</double>
-                 </property>
-                 <property name="maximum">
-                  <double>90.000000000000000</double>
-                 </property>
-                </widget>
-               </item>
-               <item row="4" column="2">
-                <widget class="QDoubleSpinBox" name="doubleSpinBoxMapBottomLeftLon">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="toolTip">
-                  <string>Top left longitude</string>
-                 </property>
-                 <property name="decimals">
-                  <number>10</number>
-                 </property>
-                 <property name="minimum">
-                  <double>-180.000000000000000</double>
-                 </property>
-                 <property name="maximum">
-                  <double>180.000000000000000</double>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="1">
-                <widget class="QDoubleSpinBox" name="doubleSpinBoxMapTopRightLat">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="toolTip">
-                  <string>Top left latitude</string>
-                 </property>
-                 <property name="decimals">
-                  <number>10</number>
-                 </property>
-                 <property name="minimum">
-                  <double>-90.000000000000000</double>
-                 </property>
-                 <property name="maximum">
-                  <double>90.000000000000000</double>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="2">
-                <widget class="QDoubleSpinBox" name="doubleSpinBoxMapTopRightLon">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="toolTip">
-                  <string>Top left longitude</string>
-                 </property>
-                 <property name="decimals">
-                  <number>10</number>
-                 </property>
-                 <property name="minimum">
-                  <double>-180.000000000000000</double>
-                 </property>
-                 <property name="maximum">
-                  <double>180.000000000000000</double>
-                 </property>
-                </widget>
-               </item>
-               <item row="5" column="0">
-                <widget class="QLabel" name="label_28">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>100</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string>Projection origin</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="5" column="1">
-                <widget class="QDoubleSpinBox" name="doubleSpinBoxMapProjectionOriginLat">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="toolTip">
-                  <string>Top left latitude</string>
-                 </property>
-                 <property name="decimals">
-                  <number>10</number>
-                 </property>
-                 <property name="minimum">
-                  <double>-90.000000000000000</double>
-                 </property>
-                 <property name="maximum">
-                  <double>90.000000000000000</double>
-                 </property>
-                </widget>
-               </item>
-               <item row="5" column="2">
-                <widget class="QDoubleSpinBox" name="doubleSpinBoxMapProjectionOriginLon">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="toolTip">
-                  <string>Top left longitude</string>
-                 </property>
-                 <property name="decimals">
-                  <number>10</number>
-                 </property>
-                 <property name="minimum">
-                  <double>-180.000000000000000</double>
-                 </property>
-                 <property name="maximum">
-                  <double>180.000000000000000</double>
-                 </property>
-                </widget>
-               </item>
-               <item row="6" column="2" alignment="Qt::AlignRight">
-                <widget class="QPushButton" name="pushButtonLoadMapCalibrationData">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="toolTip">
-                  <string>Load map calibration data from a QuickRoute JPEG file</string>
-                 </property>
-                 <property name="layoutDirection">
-                  <enum>Qt::LeftToRight</enum>
-                 </property>
-                 <property name="text">
-                  <string>Load</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </widget>
-            </item>
-            <item>
              <widget class="QGroupBox" name="groupBoxTiming">
               <property name="minimumSize">
                <size>
@@ -899,8 +518,8 @@
                  </property>
                 </widget>
                </item>
-               <item row="3" column="1">
-                <widget class="QSpinBox" name="spinBoxMapHeaderCrop">
+               <item row="2" column="1">
+                <widget class="QDoubleSpinBox" name="doubleSpinBoxVideoPanelScale">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -908,48 +527,16 @@
                   </sizepolicy>
                  </property>
                  <property name="toolTip">
-                  <string>How many pixels to crop from the top of the map image</string>
+                  <string>Initial scale of the video panel</string>
                  </property>
                  <property name="maximum">
-                  <number>99999</number>
+                  <double>99999.000000000000000</double>
                  </property>
-                </widget>
-               </item>
-               <item row="1" column="0">
-                <widget class="QLabel" name="label_17">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
+                 <property name="singleStep">
+                  <double>0.100000000000000</double>
                  </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>100</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string>Map panel width</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="3" column="0">
-                <widget class="QLabel" name="label_18">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>100</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string>Map header crop</string>
+                 <property name="value">
+                  <double>1.000000000000000</double>
                  </property>
                 </widget>
                </item>
@@ -988,6 +575,25 @@
                  </property>
                 </widget>
                </item>
+               <item row="1" column="0">
+                <widget class="QLabel" name="label_17">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Map panel width</string>
+                 </property>
+                </widget>
+               </item>
                <item row="2" column="0">
                 <widget class="QLabel" name="label_26">
                  <property name="sizePolicy">
@@ -1004,28 +610,6 @@
                  </property>
                  <property name="text">
                   <string>Video panel scale</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="1">
-                <widget class="QDoubleSpinBox" name="doubleSpinBoxVideoPanelScale">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="toolTip">
-                  <string>Initial scale of the video panel</string>
-                 </property>
-                 <property name="maximum">
-                  <double>99999.000000000000000</double>
-                 </property>
-                 <property name="singleStep">
-                  <double>0.100000000000000</double>
-                 </property>
-                 <property name="value">
-                  <double>1.000000000000000</double>
                  </property>
                 </widget>
                </item>
@@ -1819,26 +1403,21 @@
  <tabstops>
   <tabstop>tabWidgetMain</tabstop>
   <tabstop>scrollAreaFiles</tabstop>
-  <tabstop>lineEditVideoFile</tabstop>
-  <tabstop>pushButtonBrowseVideoFile</tabstop>
-  <tabstop>lineEditMapFile</tabstop>
-  <tabstop>pushButtonBrowseMapFile</tabstop>
-  <tabstop>lineEditGpxFile</tabstop>
-  <tabstop>pushButtonBrowseGpxFile</tabstop>
-  <tabstop>lineEditOutputFile</tabstop>
-  <tabstop>pushButtonBrowseOutputFile</tabstop>
+  <tabstop>lineEditInputVideoFile</tabstop>
+  <tabstop>pushButtonBrowseInputVideoFile</tabstop>
+  <tabstop>lineEditAlternativeMapImageFile</tabstop>
+  <tabstop>pushButtonBrowseAlternativeMapImageFile</tabstop>
+  <tabstop>lineEditOutputVideoFile</tabstop>
+  <tabstop>pushButtonBrowseOutputVideoFile</tabstop>
   <tabstop>scrollAreaSettings</tabstop>
   <tabstop>spinBoxWindowWidth</tabstop>
   <tabstop>spinBoxWindowHeight</tabstop>
   <tabstop>comboBoxMultisamples</tabstop>
   <tabstop>checkBoxFullscreen</tabstop>
   <tabstop>checkBoxHideCursor</tabstop>
-  <tabstop>doubleSpinBoxMapTopLeftLat</tabstop>
-  <tabstop>doubleSpinBoxMapTopLeftLon</tabstop>
   <tabstop>checkBoxShowInfoPanel</tabstop>
   <tabstop>doubleSpinBoxMapPanelWidth</tabstop>
   <tabstop>doubleSpinBoxVideoPanelScale</tabstop>
-  <tabstop>spinBoxMapHeaderCrop</tabstop>
   <tabstop>spinBoxDecoderFrameCountDivisor</tabstop>
   <tabstop>spinBoxDecoderFrameDurationDivisor</tabstop>
   <tabstop>spinBoxDecoderFrameSizeDivisor</tabstop>

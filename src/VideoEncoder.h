@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include <QString>
 #include <QElapsedTimer>
 
 extern "C"
@@ -27,7 +26,7 @@ namespace OrientView
 
 		VideoEncoder();
 
-		bool initialize(const QString& fileName, VideoDecoder* videoDecoder, Settings* settings);
+		bool initialize(VideoDecoder* videoDecoder, Settings* settings);
 		void shutdown();
 
 		void loadFrameData(FrameData* frameData);

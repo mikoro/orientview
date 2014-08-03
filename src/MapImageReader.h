@@ -3,19 +3,18 @@
 
 #pragma once
 
-#include <QString>
 #include <QImage>
 
 namespace OrientView
 {
-	struct Settings;
+	class Settings;
 
 	class MapImageReader
 	{
 
 	public:
 
-		bool initialize(const QString& fileName, Settings* settings);
+		bool initialize(Settings* settings);
 
 		QImage getMapImage() const;
 

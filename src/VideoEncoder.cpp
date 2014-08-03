@@ -13,9 +13,9 @@ VideoEncoder::VideoEncoder()
 {
 }
 
-bool VideoEncoder::initialize(const QString& fileName, VideoDecoder* videoDecoder, Settings* settings)
+bool VideoEncoder::initialize(VideoDecoder* videoDecoder, Settings* settings)
 {
-	qDebug("Initializing VideoEncoder (%s)", qPrintable(fileName));
+	qDebug("Initializing VideoEncoder (%s)", qPrintable(settings->files.outputVideoFilePath));
 
 	x264_param_t param;
 	
@@ -75,7 +75,7 @@ bool VideoEncoder::initialize(const QString& fileName, VideoDecoder* videoDecode
 
 	mp4File = new Mp4File();
 
-	if (!mp4File->open(fileName))
+	if (!mp4File->open(settings->files.outputVideoFilePath))
 		return false;
 
 	if (!mp4File->setParam(&param))

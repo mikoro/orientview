@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <QString>
-
 extern "C"
 {
 #include "libavformat/avformat.h"
@@ -36,7 +34,7 @@ namespace OrientView
 
 		VideoDecoder();
 
-		bool initialize(const QString& fileName, Settings* settings);
+		bool initialize(Settings* settings);
 		void shutdown();
 
 		bool getNextFrame(FrameData* frameData, FrameData* frameDataGrayscale);

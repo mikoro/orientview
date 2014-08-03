@@ -68,14 +68,14 @@ VideoDecoder::VideoDecoder()
 {
 }
 
-bool VideoDecoder::initialize(const QString& fileName, Settings* settings)
+bool VideoDecoder::initialize(Settings* settings)
 {
-	qDebug("Initializing VideoDecoder (%s)", qPrintable(fileName));
+	qDebug("Initializing VideoDecoder (%s)", qPrintable(settings->files.inputVideoFilePath));
 
 	av_log_set_callback(ffmpegLogCallback);
 	av_register_all();
 
-	if (avformat_open_input(&formatContext, fileName.toUtf8().constData(), nullptr, nullptr) < 0)
+	if (avformat_open_input(&formatContext, settings->files.inputVideoFilePath.toUtf8().constData(), nullptr, nullptr) < 0)
 	{
 		qWarning("Could not open source file");
 		return false;

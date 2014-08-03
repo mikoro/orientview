@@ -9,8 +9,8 @@
 #include "ui_MainWindow.h"
 #include "Settings.h"
 #include "VideoDecoder.h"
+#include "QuickRouteReader.h"
 #include "MapImageReader.h"
-#include "GpxReader.h"
 #include "VideoStabilizer.h"
 #include "Renderer.h"
 #include "VideoEncoder.h"
@@ -30,8 +30,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
 	settings = new Settings();
 	videoDecoder = new VideoDecoder();
+	quickRouteReader = new QuickRouteReader();
 	mapImageReader = new MapImageReader();
-	gpxReader = new GpxReader();
 	videoStabilizer = new VideoStabilizer();
 	renderer = new Renderer();
 	videoEncoder = new VideoEncoder();
@@ -55,8 +55,8 @@ MainWindow::~MainWindow()
 	delete ui;
 	delete settings;
 	delete videoDecoder;
+	delete quickRouteReader;
 	delete mapImageReader;
-	delete gpxReader;
 	delete videoStabilizer;
 	delete renderer;
 	delete videoEncoder;
@@ -119,14 +119,14 @@ void MainWindow::on_actionPlayVideo_triggered()
 	{
 		settings->update(ui);
 
-		if (!videoDecoder->initialize(ui->lineEditVideoFile->text(), settings))
+		if (!videoDecoder->initialize(settings))
 			throw std::runtime_error("Could not initialize VideoDecoder");
 
-		if (!mapImageReader->initialize(ui->lineEditMapFile->text(), settings))
-			throw std::runtime_error("Could not initialize MapImageReader");
+		if (!quickRouteReader->initialize(settings))
+			throw std::runtime_error("Could not initialize QuickRouteReader");
 
-		if (!gpxReader->initialize(ui->lineEditGpxFile->text()))
-			throw std::runtime_error("Could not initialize GpxReader");
+		if (!mapImageReader->initialize(settings))
+			throw std::runtime_error("Could not initialize MapImageReader");
 
 		if (!videoStabilizer->initialize(settings))
 			throw std::runtime_error("Could not initialize VideoStabilizer");
@@ -136,7 +136,7 @@ void MainWindow::on_actionPlayVideo_triggered()
 		if (!videoWindow->initialize(settings))
 			throw std::runtime_error("Could not initialize VideoWindow");
 
-		if (!renderer->initialize(videoDecoder, gpxReader, mapImageReader, videoStabilizer, videoEncoder, videoWindow, settings))
+		if (!renderer->initialize(videoDecoder, quickRouteReader, mapImageReader, videoStabilizer, videoEncoder, videoWindow, settings))
 			throw std::runtime_error("Could not initialize Renderer");
 
 		if (!videoDecoderThread->initialize(videoDecoder))
@@ -176,16 +176,16 @@ void MainWindow::on_actionEncodeVideo_triggered()
 	{
 		settings->update(ui);
 
-		if (!videoDecoder->initialize(ui->lineEditVideoFile->text(), settings))
+		if (!videoDecoder->initialize(settings))
 			throw std::runtime_error("Could not initialize VideoDecoder");
 
-		if (!mapImageReader->initialize(ui->lineEditMapFile->text(), settings))
+		if (!quickRouteReader->initialize(settings))
+			throw std::runtime_error("Could not initialize QuickRouteReader");
+
+		if (!mapImageReader->initialize(settings))
 			throw std::runtime_error("Could not initialize MapImageReader");
 
-		if (!gpxReader->initialize(ui->lineEditGpxFile->text()))
-			throw std::runtime_error("Could not initialize GpxReader");
-
-		if (!videoEncoder->initialize(ui->lineEditOutputFile->text(), videoDecoder, settings))
+		if (!videoEncoder->initialize(videoDecoder, settings))
 			throw std::runtime_error("Could not initialize VideoEncoder");
 
 		if (!videoStabilizer->initialize(settings))
@@ -194,7 +194,7 @@ void MainWindow::on_actionEncodeVideo_triggered()
 		if (!encodeWindow->initialize(videoDecoder, videoEncoderThread, settings))
 			throw std::runtime_error("Could not initialize EncodeWindow");
 
-		if (!renderer->initialize(videoDecoder, gpxReader, mapImageReader, videoStabilizer, videoEncoder, videoWindow, settings))
+		if (!renderer->initialize(videoDecoder, quickRouteReader, mapImageReader, videoStabilizer, videoEncoder, videoWindow, settings))
 			throw std::runtime_error("Could not initialize Renderer");
 
 		if (!videoDecoderThread->initialize(videoDecoder))
@@ -285,79 +285,50 @@ void MainWindow::encodeWindowClosing()
 	videoDecoder->shutdown();
 }
 
-void MainWindow::on_pushButtonBrowseVideoFile_clicked()
+void MainWindow::on_pushButtonBrowseInputVideoFile_clicked()
 {
 	QFileDialog fileDialog(this);
 	fileDialog.setFileMode(QFileDialog::ExistingFile);
-	fileDialog.setWindowTitle(tr("Select video file"));
+	fileDialog.setWindowTitle(tr("Select input video file"));
 	fileDialog.setNameFilter(tr("Video files (*.mp4 *.avi *.mkv);;All files (*.*)"));
 
 	if (fileDialog.exec())
-		ui->lineEditVideoFile->setText(fileDialog.selectedFiles().at(0));
+		ui->lineEditInputVideoFile->setText(fileDialog.selectedFiles().at(0));
 }
 
-void MainWindow::on_pushButtonBrowseMapFile_clicked()
+void MainWindow::on_pushButtonBrowseQuickRouteJpegMapImageFile_clicked()
 {
 	QFileDialog fileDialog(this);
 	fileDialog.setFileMode(QFileDialog::ExistingFile);
-	fileDialog.setWindowTitle(tr("Select map image file"));
-	fileDialog.setNameFilter(tr("Map image files (*.jpg *.png *.tiff *.tif);;All files (*.*)"));
+	fileDialog.setWindowTitle(tr("Select QuickRoute JPEG map image file"));
+	fileDialog.setNameFilter(tr("QuickRoute JPEG map image files (*.jpg);;All files (*.*)"));
 	
 	if (fileDialog.exec())
-		ui->lineEditMapFile->setText(fileDialog.selectedFiles().at(0));
+		ui->lineEditQuickRouteJpegMapImageFile->setText(fileDialog.selectedFiles().at(0));
 }
 
-void MainWindow::on_pushButtonBrowseGpxFile_clicked()
+void MainWindow::on_pushButtonBrowseAlternativeMapImageFile_clicked()
 {
 	QFileDialog fileDialog(this);
 	fileDialog.setFileMode(QFileDialog::ExistingFile);
-	fileDialog.setWindowTitle(tr("Select GPX file"));
-	fileDialog.setNameFilter(tr("GPX files (*.gpx);;All files (*.*)"));
+	fileDialog.setWindowTitle(tr("Select alternative map image file"));
+	fileDialog.setNameFilter(tr("Image files (*.jpg *.png *.tiff *.tif);;All files (*.*)"));
 
 	if (fileDialog.exec())
-		ui->lineEditGpxFile->setText(fileDialog.selectedFiles().at(0));
+		ui->lineEditAlternativeMapImageFile->setText(fileDialog.selectedFiles().at(0));
 }
 
-void MainWindow::on_pushButtonBrowseOutputFile_clicked()
+void MainWindow::on_pushButtonBrowseOutputVideoFile_clicked()
 {
 	QFileDialog fileDialog(this);
 	fileDialog.setFileMode(QFileDialog::AnyFile);
-	fileDialog.setWindowTitle(tr("Select output file"));
-	fileDialog.setNameFilter(tr("Video files (*.mp4)"));
+	fileDialog.setWindowTitle(tr("Select output video file"));
+	fileDialog.setNameFilter(tr("MP4 video files (*.mp4)"));
 	fileDialog.setDefaultSuffix(tr("mp4"));
 	fileDialog.setAcceptMode(QFileDialog::AcceptSave);
 
 	if (fileDialog.exec())
-		ui->lineEditOutputFile->setText(fileDialog.selectedFiles().at(0));
-}
-
-void MainWindow::on_pushButtonLoadMapCalibrationData_clicked()
-{
-	QFileDialog fileDialog(this);
-	fileDialog.setFileMode(QFileDialog::ExistingFile);
-	fileDialog.setWindowTitle(tr("Open QuickRoute JPEG map file"));
-	fileDialog.setNameFilter(tr("QuickRoute JPEG map files (*.jpg);;All files (*.*)"));
-
-	if (fileDialog.exec())
-	{
-		QuickRouteReaderResult result;
-
-		if (QuickRouteReader::readFromJpeg(fileDialog.selectedFiles().at(0), &result, false))
-		{
-			ui->doubleSpinBoxMapTopLeftLat->setValue(result.topLeftLat);
-			ui->doubleSpinBoxMapTopLeftLon->setValue(result.topLeftLon);
-			ui->doubleSpinBoxMapTopRightLat->setValue(result.topRightLat);
-			ui->doubleSpinBoxMapTopRightLon->setValue(result.topRightLon);
-			ui->doubleSpinBoxMapBottomRightLat->setValue(result.bottomRightLat);
-			ui->doubleSpinBoxMapBottomRightLon->setValue(result.bottomRightLon);
-			ui->doubleSpinBoxMapBottomLeftLat->setValue(result.bottomLeftLat);
-			ui->doubleSpinBoxMapBottomLeftLon->setValue(result.bottomLeftLon);
-			ui->doubleSpinBoxMapProjectionOriginLat->setValue(result.projectionOriginLat);
-			ui->doubleSpinBoxMapProjectionOriginLon->setValue(result.projectionOriginLat);
-		}
-		else
-			QMessageBox::critical(this, "OrientView - Error", QString("Could not load map calibration data.\n\nPlease check the application log for details."), QMessageBox::Ok);
-	}
+		ui->lineEditOutputVideoFile->setText(fileDialog.selectedFiles().at(0));
 }
 
 void MainWindow::readSettings()

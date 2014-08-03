@@ -6,19 +6,17 @@
 
 using namespace OrientView;
 
-bool MapImageReader::initialize(const QString& fileName, Settings* settings)
+bool MapImageReader::initialize(Settings* settings)
 {
+	QString fileName = settings->files.alternativeMapImageFilePath.isEmpty() ? settings->files.quickRouteJpegMapImageFilePath : settings->files.alternativeMapImageFilePath;
+
 	qDebug("Initializing MapImageReader (%s)", qPrintable(fileName));
 
-	QImage tempImage;
-
-	if (!tempImage.load(fileName))
+	if (!mapImage.load(fileName))
 	{
 		qWarning("Could not load map image");
 		return false;
 	}
-
-	mapImage = tempImage.copy(0, settings->appearance.mapHeaderCrop, tempImage.width(), tempImage.height() - settings->appearance.mapHeaderCrop);
 
 	return true;
 }

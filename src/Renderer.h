@@ -12,12 +12,11 @@
 #include <QOpenGLTexture>
 
 #include "MovingAverage.h"
-#include "TrackPoint.h"
 
 namespace OrientView
 {
 	class VideoDecoder;
-	class GpxReader;
+	class QuickRouteReader;
 	class MapImageReader;
 	class VideoStabilizer;
 	class VideoEncoder;
@@ -67,7 +66,7 @@ namespace OrientView
 
 		Renderer();
 
-		bool initialize(VideoDecoder* videoDecoder, GpxReader* gpxReader, MapImageReader* mapImageReader, VideoStabilizer* videoStabilizer, VideoEncoder* videoEncoder, VideoWindow* videoWindow, Settings* settings);
+		bool initialize(VideoDecoder* videoDecoder, QuickRouteReader* quickRouteReader, MapImageReader* mapImageReader, VideoStabilizer* videoStabilizer, VideoEncoder* videoEncoder, VideoWindow* videoWindow, Settings* settings);
 		void shutdown();
 
 		void handleInput();
@@ -83,7 +82,6 @@ namespace OrientView
 
 		bool loadShaders(Panel* panel, const QString& shaderName);
 		void loadBuffer(Panel* panel, GLfloat* buffer, int size);
-		void loadTrackPoints(const std::vector<TrackPoint>& newTrackPoints);
 		void renderVideoPanel();
 		void renderMapPanel();
 		void renderInfoPanel();

@@ -3,21 +3,25 @@
 
 #pragma once
 
-#include <QString>
 #include <QDateTime>
+#include <QPointF>
+#include <QTransform>
 
 namespace OrientView
 {
-	struct TrackPoint
+	struct RoutePoint
 	{
 		QDateTime dateTime;
-
-		double latitude = 0.0;
-		double longitude = 0.0;
+		QPointF coordinate;
+		QPointF position;
 		double elevation = 0.0;
 		double heartRate = 0.0;
+	};
 
-		double x = 0.0;
-		double y = 0.0;
+	struct RouteData
+	{
+		QPointF projectionOriginCoordinate;
+		QTransform transformationMatrix;
+		std::vector<RoutePoint> routePoints;
 	};
 }

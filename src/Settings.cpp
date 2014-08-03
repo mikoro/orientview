@@ -11,10 +11,10 @@ using namespace OrientView;
 
 void Settings::read(QSettings* settings)
 {
-	files.videoFilePath = settings->value("files/videoFilePath", "").toString();
-	files.mapFilePath = settings->value("files/mapFilePath", "").toString();
-	files.gpxFilePath = settings->value("files/gpxFilePath", "").toString();
-	files.outputFilePath = settings->value("files/outputFilePath", "").toString();
+	files.inputVideoFilePath = settings->value("files/inputVideoFilePath", "").toString();
+	files.quickRouteJpegMapImageFilePath = settings->value("files/quickRouteJpegMapImageFilePath", "").toString();
+	files.alternativeMapImageFilePath = settings->value("files/alternativeMapImageFilePath", "").toString();
+	files.outputVideoFilePath = settings->value("files/outputVideoFilePath", "").toString();
 
 	window.width = settings->value("window/width", 1280).toInt();
 	window.height = settings->value("window/height", 720).toInt();
@@ -22,23 +22,11 @@ void Settings::read(QSettings* settings)
 	window.fullscreen = settings->value("window/fullscreen", false).toBool();
 	window.hideCursor = settings->value("window/hideCursor", false).toBool();
 
-	mapCalibration.topLeftLat = settings->value("mapCalibration/topLeftLat", 0.0).toDouble();
-	mapCalibration.topLeftLon = settings->value("mapCalibration/topLeftLon", 0.0).toDouble();
-	mapCalibration.topRightLat = settings->value("mapCalibration/topRightLat", 0.0).toDouble();
-	mapCalibration.topRightLon = settings->value("mapCalibration/topRightLon", 0.0).toDouble();
-	mapCalibration.bottomRightLat = settings->value("mapCalibration/bottomRightLat", 0.0).toDouble();
-	mapCalibration.bottomRightLon = settings->value("mapCalibration/bottomRightLon", 0.0).toDouble();
-	mapCalibration.bottomLeftLat = settings->value("mapCalibration/bottomLeftLat", 0.0).toDouble();
-	mapCalibration.bottomLeftLon = settings->value("mapCalibration/bottomLeftLon", 0.0).toDouble();
-	mapCalibration.projectionOriginLat = settings->value("mapCalibration/projectionOriginLat", 0.0).toDouble();
-	mapCalibration.projectionOriginLon = settings->value("mapCalibration/projectionOriginLon", 0.0).toDouble();
-
 	timing.splitTimes = settings->value("timing/splitTimes", "").toString();
 
 	appearance.showInfoPanel = settings->value("appearance/showInfoPanel", false).toBool();
 	appearance.mapPanelWidth = settings->value("appearance/mapPanelWidth", 0.3).toDouble();
 	appearance.videoPanelScale = settings->value("appearance/videoPanelScale", 1.0).toDouble();
-	appearance.mapHeaderCrop = settings->value("appearance/mapHeaderCrop", 0).toInt();
 	
 	decoder.frameCountDivisor = settings->value("decoder/frameCountDivisor", 1).toInt();
 	decoder.frameDurationDivisor = settings->value("decoder/frameDurationDivisor", 1).toInt();
@@ -59,10 +47,10 @@ void Settings::read(QSettings* settings)
 
 void Settings::write(QSettings* settings)
 {
-	settings->setValue("files/videoFilePath", files.videoFilePath);
-	settings->setValue("files/mapFilePath", files.mapFilePath);
-	settings->setValue("files/gpxFilePath", files.gpxFilePath);
-	settings->setValue("files/outputFilePath", files.outputFilePath);
+	settings->setValue("files/inputVideoFilePath", files.inputVideoFilePath);
+	settings->setValue("files/quickRouteJpegMapImageFilePath", files.quickRouteJpegMapImageFilePath);
+	settings->setValue("files/alternativeMapImageFilePath", files.alternativeMapImageFilePath);
+	settings->setValue("files/outputVideoFilePath", files.outputVideoFilePath);
 
 	settings->setValue("window/width", window.width);
 	settings->setValue("window/height", window.height);
@@ -70,23 +58,11 @@ void Settings::write(QSettings* settings)
 	settings->setValue("window/fullscreen", window.fullscreen);
 	settings->setValue("window/hideCursor", window.hideCursor);
 
-	settings->setValue("mapCalibration/topLeftLat", mapCalibration.topLeftLat);
-	settings->setValue("mapCalibration/topLeftLon", mapCalibration.topLeftLon);
-	settings->setValue("mapCalibration/topRightLat", mapCalibration.topRightLat);
-	settings->setValue("mapCalibration/topRightLon", mapCalibration.topRightLon);
-	settings->setValue("mapCalibration/bottomRightLat", mapCalibration.bottomRightLat);
-	settings->setValue("mapCalibration/bottomRightLon", mapCalibration.bottomRightLon);
-	settings->setValue("mapCalibration/bottomLeftLat", mapCalibration.bottomLeftLat);
-	settings->setValue("mapCalibration/bottomLeftLon", mapCalibration.bottomLeftLon);
-	settings->setValue("mapCalibration/projectionOriginLat", mapCalibration.projectionOriginLat);
-	settings->setValue("mapCalibration/projectionOriginLon", mapCalibration.projectionOriginLon);
-
 	settings->setValue("timing/splitTimes", timing.splitTimes);
 
 	settings->setValue("appearance/showInfoPanel", appearance.showInfoPanel);
 	settings->setValue("appearance/mapPanelWidth", appearance.mapPanelWidth);
 	settings->setValue("appearance/videoPanelScale", appearance.videoPanelScale);
-	settings->setValue("appearance/mapHeaderCrop", appearance.mapHeaderCrop);
 
 	settings->setValue("decoder/frameCountDivisor", decoder.frameCountDivisor);
 	settings->setValue("decoder/frameDurationDivisor", decoder.frameDurationDivisor);
@@ -107,10 +83,10 @@ void Settings::write(QSettings* settings)
 
 void Settings::update(Ui::MainWindow* ui)
 {
-	files.videoFilePath = ui->lineEditVideoFile->text();
-	files.mapFilePath = ui->lineEditMapFile->text();
-	files.gpxFilePath = ui->lineEditGpxFile->text();
-	files.outputFilePath = ui->lineEditOutputFile->text();
+	files.inputVideoFilePath = ui->lineEditInputVideoFile->text();
+	files.quickRouteJpegMapImageFilePath = ui->lineEditQuickRouteJpegMapImageFile->text();
+	files.alternativeMapImageFilePath = ui->lineEditAlternativeMapImageFile->text();
+	files.outputVideoFilePath = ui->lineEditOutputVideoFile->text();
 
 	window.width = ui->spinBoxWindowWidth->value();
 	window.height = ui->spinBoxWindowHeight->value();
@@ -118,23 +94,11 @@ void Settings::update(Ui::MainWindow* ui)
 	window.fullscreen = ui->checkBoxFullscreen->isChecked();
 	window.hideCursor = ui->checkBoxHideCursor->isChecked();
 
-	mapCalibration.topLeftLat = ui->doubleSpinBoxMapTopLeftLat->value();
-	mapCalibration.topLeftLon = ui->doubleSpinBoxMapTopLeftLon->value();
-	mapCalibration.topRightLat = ui->doubleSpinBoxMapTopRightLat->value();
-	mapCalibration.topRightLon = ui->doubleSpinBoxMapTopRightLon->value();
-	mapCalibration.bottomRightLat = ui->doubleSpinBoxMapBottomRightLat->value();
-	mapCalibration.bottomRightLon = ui->doubleSpinBoxMapBottomRightLon->value();
-	mapCalibration.bottomLeftLat = ui->doubleSpinBoxMapBottomLeftLat->value();
-	mapCalibration.bottomLeftLon = ui->doubleSpinBoxMapBottomLeftLon->value();
-	mapCalibration.projectionOriginLat = ui->doubleSpinBoxMapProjectionOriginLat->value();
-	mapCalibration.projectionOriginLon = ui->doubleSpinBoxMapProjectionOriginLon->value();
-
 	timing.splitTimes = ui->lineEditSplitTimes->text();
 
 	appearance.showInfoPanel = ui->checkBoxShowInfoPanel->isChecked();
 	appearance.mapPanelWidth = ui->doubleSpinBoxMapPanelWidth->value();
 	appearance.videoPanelScale = ui->doubleSpinBoxVideoPanelScale->value();
-	appearance.mapHeaderCrop = ui->spinBoxMapHeaderCrop->value();
 
 	decoder.frameCountDivisor = ui->spinBoxDecoderFrameCountDivisor->value();
 	decoder.frameDurationDivisor = ui->spinBoxDecoderFrameDurationDivisor->value();
@@ -155,10 +119,10 @@ void Settings::update(Ui::MainWindow* ui)
 
 void Settings::apply(Ui::MainWindow* ui)
 {
-	ui->lineEditVideoFile->setText(files.videoFilePath);
-	ui->lineEditMapFile->setText(files.mapFilePath);
-	ui->lineEditGpxFile->setText(files.gpxFilePath);
-	ui->lineEditOutputFile->setText(files.outputFilePath);
+	ui->lineEditInputVideoFile->setText(files.inputVideoFilePath);
+	ui->lineEditQuickRouteJpegMapImageFile->setText(files.quickRouteJpegMapImageFilePath);
+	ui->lineEditAlternativeMapImageFile->setText(files.alternativeMapImageFilePath);
+	ui->lineEditOutputVideoFile->setText(files.outputVideoFilePath);
 
 	ui->spinBoxWindowWidth->setValue(window.width);
 	ui->spinBoxWindowHeight->setValue(window.height);
@@ -166,23 +130,11 @@ void Settings::apply(Ui::MainWindow* ui)
 	ui->checkBoxFullscreen->setChecked(window.fullscreen);
 	ui->checkBoxHideCursor->setChecked(window.hideCursor);
 
-	ui->doubleSpinBoxMapTopLeftLat->setValue(mapCalibration.topLeftLat);
-	ui->doubleSpinBoxMapTopLeftLon->setValue(mapCalibration.topLeftLon);
-	ui->doubleSpinBoxMapTopRightLat->setValue(mapCalibration.topRightLat);
-	ui->doubleSpinBoxMapTopRightLon->setValue(mapCalibration.topRightLon);
-	ui->doubleSpinBoxMapBottomRightLat->setValue(mapCalibration.bottomRightLat);
-	ui->doubleSpinBoxMapBottomRightLon->setValue(mapCalibration.bottomRightLon);
-	ui->doubleSpinBoxMapBottomLeftLat->setValue(mapCalibration.bottomLeftLat);
-	ui->doubleSpinBoxMapBottomLeftLon->setValue(mapCalibration.bottomLeftLon);
-	ui->doubleSpinBoxMapProjectionOriginLat->setValue(mapCalibration.projectionOriginLat);
-	ui->doubleSpinBoxMapProjectionOriginLon->setValue(mapCalibration.projectionOriginLon);
-
 	ui->lineEditSplitTimes->setText(timing.splitTimes);
 
 	ui->checkBoxShowInfoPanel->setChecked(appearance.showInfoPanel);
 	ui->doubleSpinBoxMapPanelWidth->setValue(appearance.mapPanelWidth);
 	ui->doubleSpinBoxVideoPanelScale->setValue(appearance.videoPanelScale);
-	ui->spinBoxMapHeaderCrop->setValue(appearance.mapHeaderCrop);
 
 	ui->spinBoxDecoderFrameCountDivisor->setValue(decoder.frameCountDivisor);
 	ui->spinBoxDecoderFrameDurationDivisor->setValue(decoder.frameDurationDivisor);

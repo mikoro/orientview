@@ -3,29 +3,22 @@
 
 #pragma once
 
-#include <QString>
+#include "RouteData.h"
 
 namespace OrientView
 {
-	struct QuickRouteReaderResult
-	{
-		double topLeftLat = 0.0;
-		double topLeftLon = 0.0;
-		double topRightLat = 0.0;
-		double topRightLon = 0.0;
-		double bottomRightLat = 0.0;
-		double bottomRightLon = 0.0;
-		double bottomLeftLat = 0.0;
-		double bottomLeftLon = 0.0;
-		double projectionOriginLat = 0.0;
-		double projectionOriginLon = 0.0;
-	};
+	class Settings;
 
 	class QuickRouteReader
 	{
 
 	public:
 
-		static bool readFromJpeg(const QString& fileName, QuickRouteReaderResult* result, bool includeBorders);
+		bool initialize(Settings* settings);
+		const RouteData& getRouteData() const;
+
+	private:
+
+		RouteData routeData;
 	};
 }
