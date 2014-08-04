@@ -77,7 +77,7 @@ void RenderOnScreenThread::run()
 		renderer->renderAll();
 		renderer->stopRendering();
 
-		spareTime = videoDecoder->getVideoInfo().averageFrameDuration - (spareTimer.nsecsElapsed() / 1000000.0);
+		spareTime = videoDecoder->getAverageFrameDuration() - (spareTimer.nsecsElapsed() / 1000000.0);
 
 		// use combination of normal and spinning wait to sync the frame rate accurately
 		while (true)

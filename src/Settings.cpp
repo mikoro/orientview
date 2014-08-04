@@ -35,7 +35,7 @@ void Settings::read(QSettings* settings)
 	stabilizer.enabled = settings->value("stabilizer/enabled", true).toBool();
 	stabilizer.frameSizeDivisor = settings->value("stabilizer/frameSizeDivisor", 8).toInt();
 	stabilizer.averagingFactor = settings->value("stabilizer/averagingFactor", 0.1).toDouble();
-	stabilizer.dampingFactor = settings->value("stabilizer/dampingFactor", 1.0).toDouble();
+	stabilizer.dampingFactor = settings->value("stabilizer/dampingFactor", 0.5).toDouble();
 
 	shaders.videoPanelShader = settings->value("shaders/videoPanelShader", "default").toString();
 	shaders.mapPanelShader = settings->value("shaders/mapPanelShader", "default").toString();

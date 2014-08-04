@@ -106,7 +106,7 @@ void VideoStabilizer::processFrame(FrameData* frameDataGrayscale)
 
 	currentImage.copyTo(previousImage);
 
-	for (size_t i = 0; i < opticalFlowStatus.size(); i++)
+	for (int i = 0; i < opticalFlowStatus.size(); i++)
 	{
 		if (opticalFlowStatus[i])
 		{

@@ -3,6 +3,9 @@
 
 #pragma once
 
+#include <QMutex>
+#include <QElapsedTimer>
+
 extern "C"
 {
 #include "libavformat/avformat.h"
@@ -15,19 +18,6 @@ namespace OrientView
 	class Settings;
 	struct FrameData;
 
-	struct VideoInfo
-	{
-		int frameWidth = 0;
-		int frameHeight = 0;
-		int frameDataLength = 0;
-		int totalFrameCount = 0;
-		int currentFrameNumber = 0;
-		int averageFrameRateNum = 0;
-		int averageFrameRateDen = 0;
-		double averageFrameDuration = 0.0;
-		double averageFrameRate = 0.0;
-	};
-
 	class VideoDecoder
 	{
 	public:
@@ -38,28 +28,60 @@ namespace OrientView
 		void shutdown();
 
 		bool getNextFrame(FrameData* frameData, FrameData* frameDataGrayscale);
-		VideoInfo getVideoInfo() const;
+		void seekRelative(int seconds);
+
+		int getFrameWidth() const;
+		int getFrameHeight() const;
+		int getFrameDataLength() const;
+		int getTotalFrameCount() const;
+		int getCurrentFrameNumber() const;
+		int getAverageFrameRateNum() const;
+		int getAverageFrameRateDen() const;
+		double getAverageFrameDuration() const;
+		double getAverageFrameRate() const;
+		double getCurrentTime() const;
+		bool isFinished() const;
 		double getLastDecodeTime() const;
 
 	private:
 
+		QMutex decoderMutex;
+
 		AVFormatContext* formatContext = nullptr;
 		AVCodecContext* videoCodecContext = nullptr;
 		AVStream* videoStream = nullptr;
-		int videoStreamIndex = 0;
 		AVFrame* frame = nullptr;
 		AVPacket packet;
+		int videoStreamIndex = 0;
+
 		SwsContext* swsContext = nullptr;
 		SwsContext* swsContextGrayscale = nullptr;
 		AVPicture* convertedPicture = nullptr;
 		AVPicture* convertedPictureGrayscale = nullptr;
+
 		bool generateGrayscalePicture = false;
 		int grayscalePictureWidth = 0;
 		int grayscalePictureHeight = 0;
-		int64_t lastFrameTimestamp = 0;
+
+		int frameWidth = 0;
+		int frameHeight = 0;
+		int frameDataLength = 0;
 		int frameCountDivisor = 0;
 		int frameDurationDivisor = 0;
+		int totalFrameCount = 0;
+		int currentFrameNumber = 0;
+		int averageFrameRateNum = 0;
+		int averageFrameRateDen = 0;
+		double averageFrameDuration = 0.0; // in ms
+		double averageFrameRate = 0.0;
+		double currentTime = 0.0; // in s
+		double totalDurationInSeconds = 0.0;
+		int64_t totalDuration = 0; // video stream time base
+		int64_t frameDuration = 0; // video stream time base
+		int64_t lastFrameTimestamp = 0; // video stream time base
+		bool finished = false;
+
+		QElapsedTimer decodeTimer;
 		double lastDecodeTime = 0.0;
-		VideoInfo videoInfo;
 	};
 }

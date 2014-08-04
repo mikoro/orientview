@@ -4,7 +4,6 @@
 #include <windows.h>
 
 #include <QtGlobal>
-#include <QElapsedTimer>
 
 extern "C"
 {
@@ -42,7 +41,7 @@ namespace
 		}
 		else
 		{
-			AVCodecContext* codecContext = formatContext->streams[(size_t)*streamIndex]->codec;
+			AVCodecContext* codecContext = formatContext->streams[*streamIndex]->codec;
 			AVCodec* codec = avcodec_find_decoder(codecContext->codec_id);
 
 			if (!codec)
@@ -93,13 +92,6 @@ bool VideoDecoder::initialize(Settings* settings)
 		return false;
 	}
 
-	videoStream = formatContext->streams[(size_t)videoStreamIndex];
-	videoCodecContext = videoStream->codec;
-
-	videoInfo = VideoInfo();
-	videoInfo.frameWidth = videoCodecContext->width / settings->decoder.frameSizeDivisor;
-	videoInfo.frameHeight = videoCodecContext->height / settings->decoder.frameSizeDivisor;
-
 	frame = av_frame_alloc();
 
 	if (!frame)
@@ -112,7 +104,13 @@ bool VideoDecoder::initialize(Settings* settings)
 	packet.data = nullptr;
 	packet.size = 0;
 
-	swsContext = sws_getContext(videoCodecContext->width, videoCodecContext->height, videoCodecContext->pix_fmt, videoInfo.frameWidth, videoInfo.frameHeight, PIX_FMT_RGBA, SWS_BILINEAR, nullptr, nullptr, nullptr);
+	videoStream = formatContext->streams[videoStreamIndex];
+	videoCodecContext = videoStream->codec;
+
+	frameWidth = videoCodecContext->width / settings->decoder.frameSizeDivisor;
+	frameHeight = videoCodecContext->height / settings->decoder.frameSizeDivisor;
+
+	swsContext = sws_getContext(videoCodecContext->width, videoCodecContext->height, videoCodecContext->pix_fmt, frameWidth, frameHeight, PIX_FMT_RGBA, SWS_BILINEAR, nullptr, nullptr, nullptr);
 
 	if (!swsContext)
 	{
@@ -122,7 +120,7 @@ bool VideoDecoder::initialize(Settings* settings)
 
 	convertedPicture = new AVPicture();
 
-	if (avpicture_alloc(convertedPicture, PIX_FMT_RGBA, videoInfo.frameWidth, videoInfo.frameHeight) < 0)
+	if (avpicture_alloc(convertedPicture, PIX_FMT_RGBA, frameWidth, frameHeight) < 0)
 	{
 		qWarning("Could not allocate conversion picture");
 		return false;
@@ -148,16 +146,29 @@ bool VideoDecoder::initialize(Settings* settings)
 		return false;
 	}
 
+	frameDataLength = frameHeight * convertedPicture->linesize[0];
+
 	frameCountDivisor = settings->decoder.frameCountDivisor;
 	frameDurationDivisor = settings->decoder.frameDurationDivisor;
 
-	videoInfo.frameDataLength = videoInfo.frameHeight * convertedPicture->linesize[0];
-	videoInfo.totalFrameCount = videoStream->nb_frames / frameCountDivisor;
-	videoInfo.averageFrameRateNum = videoStream->avg_frame_rate.num / frameCountDivisor * frameDurationDivisor;
-	videoInfo.averageFrameRateDen = videoStream->avg_frame_rate.den;
-	videoInfo.averageFrameDuration = (double)videoInfo.averageFrameRateDen / videoInfo.averageFrameRateNum * 1000.0;
-	videoInfo.averageFrameRate = (double)videoInfo.averageFrameRateNum / videoInfo.averageFrameRateDen;
+	totalFrameCount = videoStream->nb_frames / frameCountDivisor;
 
+	averageFrameRateNum = videoStream->avg_frame_rate.num / frameCountDivisor * frameDurationDivisor;
+	averageFrameRateDen = videoStream->avg_frame_rate.den;
+	averageFrameDuration = (double)averageFrameRateDen / averageFrameRateNum * 1000.0;
+	averageFrameRate = (double)averageFrameRateNum / averageFrameRateDen;
+
+	frameDuration = (int64_t)(((double)videoStream->avg_frame_rate.den / videoStream->avg_frame_rate.num) / ((double)videoStream->time_base.num / videoStream->time_base.den) + 0.5);
+	totalDuration = videoStream->duration;
+	totalDurationInSeconds = ((double)videoStream->time_base.num / videoStream->time_base.den) * totalDuration;
+	lastFrameTimestamp = 0;
+
+	if (totalFrameCount == 0)
+		qWarning("Frame count reported as zero");
+
+	currentFrameNumber = 0;
+	currentTime = 0.0;
+	finished = false;
 	lastDecodeTime = 0.0;
 
 	return true;
@@ -178,6 +189,8 @@ void VideoDecoder::shutdown()
 		avformat_close_input(&formatContext);
 		formatContext = nullptr;
 	}
+
+	videoStream = nullptr;
 
 	if (frame != nullptr)
 	{
@@ -212,15 +225,16 @@ void VideoDecoder::shutdown()
 
 bool VideoDecoder::getNextFrame(FrameData* frameData, FrameData* frameDataGrayscale)
 {
-	QElapsedTimer decodeTimer;
+	QMutexLocker locker(&decoderMutex);
+
 	int framesRead = 0;
-	bool result = true;
+	int readResult = 0;
+
+	decodeTimer.restart();
 
 	while (true)
 	{
-		decodeTimer.restart();
-
-		if (av_read_frame(formatContext, &packet) >= 0)
+		if ((readResult = av_read_frame(formatContext, &packet)) >= 0)
 		{
 			if (packet.stream_index == videoStreamIndex)
 			{
@@ -234,14 +248,13 @@ bool VideoDecoder::getNextFrame(FrameData* frameData, FrameData* frameDataGraysc
 				}
 
 				framesRead = 0;
-				videoInfo.currentFrameNumber++;
+				currentFrameNumber++;
 
 				if (decodedBytes < 0)
 				{
 					qWarning("Could not decode video frame");
 					av_free_packet(&packet);
-					result = false;
-					break;
+					return false;
 				}
 
 				if (gotPicture)
@@ -249,19 +262,17 @@ bool VideoDecoder::getNextFrame(FrameData* frameData, FrameData* frameDataGraysc
 					sws_scale(swsContext, frame->data, frame->linesize, 0, frame->height, convertedPicture->data, convertedPicture->linesize);
 
 					frameData->data = convertedPicture->data[0];
-					frameData->dataLength = videoInfo.frameHeight * convertedPicture->linesize[0];
+					frameData->dataLength = frameHeight * convertedPicture->linesize[0];
 					frameData->rowLength = convertedPicture->linesize[0];
-					frameData->width = videoInfo.frameWidth;
-					frameData->height = videoInfo.frameHeight;
+					frameData->width = frameWidth;
+					frameData->height = frameHeight;
 					frameData->duration = (int)av_rescale((frame->best_effort_timestamp - lastFrameTimestamp) * 1000000 / frameDurationDivisor, videoStream->time_base.num, videoStream->time_base.den);
-					frameData->number = videoInfo.currentFrameNumber;
-
-					lastFrameTimestamp = frame->best_effort_timestamp;
+					frameData->number = currentFrameNumber;
 
 					if (frameData->duration <= 0 || frameData->duration > 1000000)
-						frameData->duration = (int)(videoInfo.averageFrameDuration * 1000);
+						frameData->duration = (int)(averageFrameDuration * 1000);
 
-					if (generateGrayscalePicture && frameDataGrayscale != nullptr)
+					if (generateGrayscalePicture)
 					{
 						sws_scale(swsContextGrayscale, frame->data, frame->linesize, 0, frame->height, convertedPictureGrayscale->data, convertedPictureGrayscale->linesize);
 
@@ -274,28 +285,95 @@ bool VideoDecoder::getNextFrame(FrameData* frameData, FrameData* frameDataGraysc
 						frameDataGrayscale->number = frameData->number;
 					}
 
+					currentTime = ((double)frame->best_effort_timestamp / totalDuration) * totalDurationInSeconds;
+
+					finished = false;
+					lastFrameTimestamp = frame->best_effort_timestamp;
 					lastDecodeTime = decodeTimer.nsecsElapsed() / 1000000.0;
 
 					av_free_packet(&packet);
-					break;
+					return true;
 				}
 			}
-
+		
 			av_free_packet(&packet);
 		}
 		else
 		{
-			result = false;
-			break;
+			if (readResult != AVERROR_EOF)
+				qWarning("Could not read a frame: %d", readResult);
+			
+			finished = true;
+
+			return false;
 		}
 	}
-
-	return result;
 }
 
-VideoInfo VideoDecoder::getVideoInfo() const
+void VideoDecoder::seekRelative(int seconds)
 {
-	return videoInfo;
+	QMutexLocker locker(&decoderMutex);
+
+	double realFps = (double)videoStream->avg_frame_rate.num / videoStream->avg_frame_rate.den;
+	int64_t seekAmount = (int64_t)(frameDuration * realFps + 0.5) * seconds;
+
+	if (avformat_seek_file(formatContext, videoStreamIndex, INT64_MIN, lastFrameTimestamp + seekAmount, INT64_MAX, 0) < 0)
+		qWarning("Could not seek video");
+}
+
+int VideoDecoder::getFrameWidth() const
+{
+	return frameWidth;
+}
+
+int VideoDecoder::getFrameHeight() const
+{
+	return frameHeight;
+}
+
+int VideoDecoder::getFrameDataLength() const
+{
+	return frameDataLength;
+}
+
+int VideoDecoder::getTotalFrameCount() const
+{
+	return totalFrameCount;
+}
+
+int VideoDecoder::getCurrentFrameNumber() const
+{
+	return currentFrameNumber;
+}
+
+int VideoDecoder::getAverageFrameRateNum() const
+{
+	return averageFrameRateNum;
+}
+
+int VideoDecoder::getAverageFrameRateDen() const
+{
+	return averageFrameRateDen;
+}
+
+double VideoDecoder::getAverageFrameDuration() const
+{
+	return averageFrameDuration;
+}
+
+double VideoDecoder::getAverageFrameRate() const
+{
+	return averageFrameRate;
+}
+
+double VideoDecoder::getCurrentTime() const
+{
+	return currentTime;
+}
+
+bool VideoDecoder::isFinished() const
+{
+	return finished;
 }
 
 double VideoDecoder::getLastDecodeTime() const

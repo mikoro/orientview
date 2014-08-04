@@ -16,10 +16,11 @@ bool VideoEncoderThread::initialize(VideoDecoder* videoDecoder, VideoEncoder* vi
 {
 	qDebug("Initializing VideoEncoderThread");
 
+	this->videoDecoder = videoDecoder;
 	this->videoEncoder = videoEncoder;
 	this->renderOffScreenThread = renderOffScreenThread;
 
-	totalFrameCount = videoDecoder->getVideoInfo().totalFrameCount;
+	totalFrameCount = videoDecoder->getTotalFrameCount();
 
 	return true;
 }
@@ -42,10 +43,9 @@ void VideoEncoderThread::run()
 			int frameSize = videoEncoder->encodeFrame();
 
 			emit frameProcessed(renderedFrameData.number, frameSize);
-
-			if (renderedFrameData.number >= totalFrameCount)
-				break;
 		}
+		else if (videoDecoder->isFinished())
+			break;
 	}
 
 	videoEncoder->close();

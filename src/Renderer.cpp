@@ -30,8 +30,8 @@ bool Renderer::initialize(VideoDecoder* videoDecoder, QuickRouteReader* quickRou
 	this->videoWindow = videoWindow;
 
 	videoPanel = Panel();
-	videoPanel.textureWidth = videoDecoder->getVideoInfo().frameWidth;
-	videoPanel.textureHeight = videoDecoder->getVideoInfo().frameHeight;
+	videoPanel.textureWidth = videoDecoder->getFrameWidth();
+	videoPanel.textureHeight = videoDecoder->getFrameHeight();
 	videoPanel.texelWidth = 1.0 / videoPanel.textureWidth;
 	videoPanel.texelHeight = 1.0 / videoPanel.textureHeight;
 	videoPanel.userScale = settings->appearance.videoPanelScale;
@@ -290,6 +290,15 @@ void Renderer::handleInput()
 			renderMode = RenderMode::ALL;
 	}
 
+	if (selectedPanel == SelectedPanel::NONE)
+	{
+		if (videoWindow->keyIsDown(Qt::Key_Left))
+			videoDecoder->seekRelative(-10);
+
+		if (videoWindow->keyIsDown(Qt::Key_Right))
+			videoDecoder->seekRelative(10);
+	}
+
 	if (selectedPanel != SelectedPanel::NONE)
 	{
 		if (videoWindow->keyIsDown(Qt::Key_R))
@@ -347,7 +356,7 @@ void Renderer::startRendering(double windowWidth, double windowHeight, double fr
 
 	glViewport(0, 0, windowWidth, windowHeight);
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 
 void Renderer::uploadFrameData(FrameData* frameData)

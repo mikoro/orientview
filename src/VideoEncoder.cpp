@@ -27,8 +27,8 @@ bool VideoEncoder::initialize(VideoDecoder* videoDecoder, Settings* settings)
 
 	param.i_width = settings->window.width;
 	param.i_height = settings->window.height;
-	param.i_fps_num = videoDecoder->getVideoInfo().averageFrameRateNum;
-	param.i_fps_den = videoDecoder->getVideoInfo().averageFrameRateDen;
+	param.i_fps_num = videoDecoder->getAverageFrameRateNum();
+	param.i_fps_den = videoDecoder->getAverageFrameRateDen();
 	param.i_timebase_num = param.i_fps_den;
 	param.i_timebase_den = param.i_fps_num;
 	param.i_csp = X264_CSP_I420;

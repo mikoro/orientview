@@ -69,7 +69,7 @@ namespace OrientView
 			bool enabled = true;
 			int frameSizeDivisor = 8;
 			double averagingFactor = 0.1;
-			double dampingFactor = 1.0;
+			double dampingFactor = 0.5;
 
 		} stabilizer;
 

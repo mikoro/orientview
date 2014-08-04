@@ -59,7 +59,7 @@ bool RenderOffScreenThread::initialize(MainWindow* mainWindow, EncodeWindow* enc
 	renderedFrameData = FrameData();
 	renderedFrameData.dataLength = framebufferWidth * framebufferHeight * 4;
 	renderedFrameData.rowLength = framebufferWidth * 4;
-	renderedFrameData.data = new uint8_t[(size_t)renderedFrameData.dataLength];
+	renderedFrameData.data = new uint8_t[renderedFrameData.dataLength];
 	renderedFrameData.width = framebufferWidth;
 	renderedFrameData.height = framebufferHeight;
 
@@ -110,7 +110,7 @@ void RenderOffScreenThread::run()
 	FrameData decodedFrameDataGrayscale;
 	
 	QElapsedTimer frameDurationTimer;
-	double frameDuration = 0.0;
+	double frameDuration = 0.1;
 
 	frameDurationTimer.start();
 	frameReadSemaphore->release(1);

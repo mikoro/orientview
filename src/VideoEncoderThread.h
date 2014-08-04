@@ -33,6 +33,7 @@ namespace OrientView
 
 	private:
 
+		VideoDecoder* videoDecoder = nullptr;
 		VideoEncoder* videoEncoder = nullptr;
 		RenderOffScreenThread* renderOffScreenThread = nullptr;
 
