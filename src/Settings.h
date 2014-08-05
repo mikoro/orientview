@@ -93,5 +93,26 @@ namespace OrientView
 			int constantRateFactor = 23;
 
 		} encoder;
+
+		struct InputHandler
+		{
+			int smallSeekAmount = 2;
+			int normalSeekAmount = 10;
+			int largeSeekAmount = 60;
+			int veryLargeSeekAmount = 600;
+
+			double slowTranslateVelocity = 0.1;
+			double normalTranslateVelocity = 0.5;
+			double fastTranslateVelocity = 1.0;
+
+			double slowRotateVelocity = 0.02;
+			double normalRotateVelocity = 0.1;
+			double fastRotateVelocity = 0.5;
+
+			double smallScaleConstant = 5000.0;
+			double normalScaleConstant = 500.0;
+			double largeScaleConstant = 100.0;
+
+		} inputHandler;
 	};
 }

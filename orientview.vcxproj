@@ -61,6 +61,7 @@
     </ClCompile>
     <ClCompile Include="src\EncodeWindow.cpp" />
     <ClCompile Include="src\GpxReader.cpp" />
+    <ClCompile Include="src\InputHandler.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\MainWindow.cpp" />
     <ClCompile Include="src\MapImageReader.cpp" />
@@ -96,6 +97,7 @@
     <ClInclude Include="build\GeneratedFiles\ui_MainWindow.h" />
     <ClInclude Include="src\FrameData.h" />
     <ClInclude Include="src\GpxReader.h" />
+    <ClInclude Include="src\InputHandler.h" />
     <ClInclude Include="src\MapImageReader.h" />
     <ClInclude Include="src\MovingAverage.h" />
     <ClInclude Include="src\Mp4File.h" />

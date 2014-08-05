@@ -13,6 +13,7 @@
 #include "QuickRouteReader.h"
 #include "MapImageReader.h"
 #include "VideoStabilizer.h"
+#include "InputHandler.h"
 #include "Renderer.h"
 #include "VideoEncoder.h"
 #include "VideoDecoderThread.h"
@@ -34,6 +35,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	quickRouteReader = new QuickRouteReader();
 	mapImageReader = new MapImageReader();
 	videoStabilizer = new VideoStabilizer();
+	inputHandler = new InputHandler();
 	renderer = new Renderer();
 	videoEncoder = new VideoEncoder();
 	videoDecoderThread = new VideoDecoderThread();
@@ -59,6 +61,7 @@ MainWindow::~MainWindow()
 	delete quickRouteReader;
 	delete mapImageReader;
 	delete videoStabilizer;
+	delete inputHandler;
 	delete renderer;
 	delete videoEncoder;
 	delete videoDecoderThread;
@@ -132,18 +135,21 @@ void MainWindow::on_actionPlayVideo_triggered()
 		if (!videoStabilizer->initialize(settings))
 			throw std::runtime_error("Could not initialize VideoStabilizer");
 
+		if (!inputHandler->initialize(videoWindow, renderer, videoDecoder, videoDecoderThread, renderOnScreenThread, settings))
+			throw std::runtime_error("Could not initialize InputHandler");
+
 		videoWindow->show();
 
 		if (!videoWindow->initialize(settings))
 			throw std::runtime_error("Could not initialize VideoWindow");
 
-		if (!renderer->initialize(videoDecoder, quickRouteReader, mapImageReader, videoStabilizer, videoDecoderThread, renderOnScreenThread, videoEncoder, videoWindow, settings))
+		if (!renderer->initialize(videoWindow, videoDecoder, quickRouteReader, mapImageReader, videoStabilizer, inputHandler, settings))
 			throw std::runtime_error("Could not initialize Renderer");
 
 		if (!videoDecoderThread->initialize(videoDecoder))
 			throw std::runtime_error("Could not initialize VideoDecoderThread");
 
-		if (!renderOnScreenThread->initialize(this, videoWindow, videoDecoder, videoDecoderThread, videoStabilizer, renderer))
+		if (!renderOnScreenThread->initialize(this, videoWindow, videoDecoder, videoDecoderThread, videoStabilizer, renderer, inputHandler))
 			throw std::runtime_error("Could not initialize RenderOnScreenThread");
 
 		videoWindow->getContext()->doneCurrent();
@@ -195,13 +201,13 @@ void MainWindow::on_actionEncodeVideo_triggered()
 		if (!encodeWindow->initialize(videoDecoder, videoEncoderThread, settings))
 			throw std::runtime_error("Could not initialize EncodeWindow");
 
-		if (!renderer->initialize(videoDecoder, quickRouteReader, mapImageReader, videoStabilizer, videoDecoderThread, renderOnScreenThread, videoEncoder, videoWindow, settings))
+		if (!renderer->initialize(videoWindow, videoDecoder, quickRouteReader, mapImageReader, videoStabilizer, inputHandler, settings))
 			throw std::runtime_error("Could not initialize Renderer");
 
 		if (!videoDecoderThread->initialize(videoDecoder))
 			throw std::runtime_error("Could not initialize VideoDecoderThread");
 
-		if (!renderOffScreenThread->initialize(this, encodeWindow, videoDecoderThread, videoStabilizer, renderer, settings))
+		if (!renderOffScreenThread->initialize(this, encodeWindow, videoDecoder, videoDecoderThread, videoStabilizer, renderer, videoEncoder, settings))
 			throw std::runtime_error("Could not initialize RenderOffScreenThread");
 
 		if (!videoEncoderThread->initialize(videoDecoder, videoEncoder, renderOffScreenThread))

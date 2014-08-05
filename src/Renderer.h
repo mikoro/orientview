@@ -15,16 +15,16 @@
 
 namespace OrientView
 {
+	class VideoWindow;
 	class VideoDecoder;
 	class QuickRouteReader;
 	class MapImageReader;
 	class VideoStabilizer;
-	class VideoDecoderThread;
-	class RenderOnScreenThread;
-	class VideoEncoder;
-	class VideoWindow;
+	class InputHandler;
 	class Settings;
 	struct FrameData;
+
+	enum class RenderMode { ALL, VIDEO, MAP };
 
 	struct Panel
 	{
@@ -61,9 +61,6 @@ namespace OrientView
 		GLuint texelHeightUniform = 0;
 	};
 
-	enum class SelectedPanel { NONE, VIDEO, MAP };
-	enum class RenderMode { ALL, VIDEO, MAP };
-
 	class Renderer : protected QOpenGLFunctions
 	{
 
@@ -71,17 +68,21 @@ namespace OrientView
 
 		Renderer();
 
-		bool initialize(VideoDecoder* videoDecoder, QuickRouteReader* quickRouteReader, MapImageReader* mapImageReader, VideoStabilizer* videoStabilizer, VideoDecoderThread* videoDecoderThread, RenderOnScreenThread* renderOnScreenThread, VideoEncoder* videoEncoder, VideoWindow* videoWindow, Settings* settings);
+		bool initialize(VideoWindow* videoWindow, VideoDecoder* videoDecoder, QuickRouteReader* quickRouteReader, MapImageReader* mapImageReader, VideoStabilizer* videoStabilizer, InputHandler* inputHandler, Settings* settings);
 		void shutdown();
 
-		void handleInput();
-
-		void startRendering(double windowWidth, double windowHeight, double frameTime, double spareTime);
+		void startRendering(double windowWidth, double windowHeight, double frameTime, double spareTime, double decoderTime, double stabilizerTime, double encoderTime);
 		void uploadFrameData(FrameData* frameData);
 		void renderAll();
 		void stopRendering();
 
+		Panel* getVideoPanel();
+		Panel* getMapPanel();
+		RenderMode getRenderMode();
+
+		void setRenderMode(RenderMode mode);
 		void setFlipOutput(bool value);
+		void toggleShowInfoPanel();
 
 	private:
 
@@ -93,12 +94,8 @@ namespace OrientView
 		void renderPanel(Panel* panel);
 		void renderRoute();
 
-		VideoDecoder* videoDecoder = nullptr;
 		VideoStabilizer* videoStabilizer = nullptr;
-		VideoDecoderThread* videoDecoderThread = nullptr;
-		RenderOnScreenThread* renderOnScreenThread = nullptr;
-		VideoEncoder* videoEncoder = nullptr;
-		VideoWindow* videoWindow = nullptr;
+		InputHandler* inputHandler = nullptr;
 
 		bool flipOutput = false;
 		bool showInfoPanel = false;
@@ -107,16 +104,13 @@ namespace OrientView
 		double windowWidth = 0.0;
 		double windowHeight = 0.0;
 		double frameTime = 0.0;
-		double spareTime = 0.0;
-		double lastRenderTime = 0.0;
 
 		Panel videoPanel;
 		Panel mapPanel;
-		SelectedPanel selectedPanel = SelectedPanel::NONE;
 		RenderMode renderMode = RenderMode::ALL;
-		Panel* selectedPanelPtr = nullptr;
 
 		QElapsedTimer renderTimer;
+		double lastRenderTime = 0.0;
 
 		MovingAverage averageFps;
 		MovingAverage averageFrameTime;

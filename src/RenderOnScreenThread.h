@@ -13,6 +13,7 @@ namespace OrientView
 	class VideoDecoderThread;
 	class VideoStabilizer;
 	class Renderer;
+	class InputHandler;
 	
 	class RenderOnScreenThread : public QThread
 	{
@@ -22,7 +23,7 @@ namespace OrientView
 
 		RenderOnScreenThread();
 
-		bool initialize(MainWindow* mainWindow, VideoWindow* videoWindow, VideoDecoder* videoDecoder, VideoDecoderThread* videoDecoderThread, VideoStabilizer* videoStabilizer, Renderer* renderer);
+		bool initialize(MainWindow* mainWindow, VideoWindow* videoWindow, VideoDecoder* videoDecoder, VideoDecoderThread* videoDecoderThread, VideoStabilizer* videoStabilizer, Renderer* renderer, InputHandler* inputHandler);
 		void shutdown();
 
 		bool isPaused();
@@ -41,6 +42,7 @@ namespace OrientView
 		VideoDecoderThread* videoDecoderThread = nullptr;
 		VideoStabilizer* videoStabilizer = nullptr;
 		Renderer* renderer = nullptr;
+		InputHandler* inputHandler = nullptr;
 
 		bool paused = false;
 		bool shouldAdvanceOneFrame = false;

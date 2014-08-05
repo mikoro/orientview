@@ -7,9 +7,11 @@
 #include "RenderOffScreenThread.h"
 #include "MainWindow.h"
 #include "EncodeWindow.h"
+#include "VideoDecoder.h"
 #include "VideoDecoderThread.h"
 #include "VideoStabilizer.h"
 #include "Renderer.h"
+#include "VideoEncoder.h"
 #include "Settings.h"
 #include "FrameData.h"
 
@@ -19,15 +21,17 @@ RenderOffScreenThread::RenderOffScreenThread()
 {
 }
 
-bool RenderOffScreenThread::initialize(MainWindow* mainWindow, EncodeWindow* encodeWindow, VideoDecoderThread* videoDecoderThread, VideoStabilizer* videoStabilizer, Renderer* renderer, Settings* settings)
+bool RenderOffScreenThread::initialize(MainWindow* mainWindow, EncodeWindow* encodeWindow, VideoDecoder* videoDecoder, VideoDecoderThread* videoDecoderThread, VideoStabilizer* videoStabilizer, Renderer* renderer, VideoEncoder* videoEncoder, Settings* settings)
 {
 	qDebug("Initializing RenderOffScreenThread");
 
 	this->mainWindow = mainWindow;
 	this->encodeWindow = encodeWindow;
+	this->videoDecoder = videoDecoder;
 	this->videoDecoderThread = videoDecoderThread;
 	this->videoStabilizer = videoStabilizer;
 	this->renderer = renderer;
+	this->videoEncoder = videoEncoder;
 
 	framebufferWidth = settings->window.width;
 	framebufferHeight = settings->window.height;
@@ -123,7 +127,7 @@ void RenderOffScreenThread::run()
 
 			encodeWindow->getContext()->makeCurrent(encodeWindow->getSurface());
 			mainFramebuffer->bind();
-			renderer->startRendering(framebufferWidth, framebufferHeight, frameDuration, 0.0);
+			renderer->startRendering(framebufferWidth, framebufferHeight, frameDuration, 0.0, videoDecoder->getLastDecodeTime(), videoStabilizer->getLastProcessTime(), videoEncoder->getLastEncodeTime());
 			renderer->uploadFrameData(&decodedFrameData);
 			videoDecoderThread->signalFrameRead();
 			renderer->renderAll();

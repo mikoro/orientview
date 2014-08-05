@@ -11,6 +11,7 @@
 #include "VideoDecoderThread.h"
 #include "VideoStabilizer.h"
 #include "Renderer.h"
+#include "InputHandler.h"
 #include "Settings.h"
 
 using namespace OrientView;
@@ -19,7 +20,7 @@ RenderOnScreenThread::RenderOnScreenThread()
 {
 }
 
-bool RenderOnScreenThread::initialize(MainWindow* mainWindow, VideoWindow* videoWindow, VideoDecoder* videoDecoder, VideoDecoderThread* videoDecoderThread, VideoStabilizer* videoStabilizer, Renderer* renderer)
+bool RenderOnScreenThread::initialize(MainWindow* mainWindow, VideoWindow* videoWindow, VideoDecoder* videoDecoder, VideoDecoderThread* videoDecoderThread, VideoStabilizer* videoStabilizer, Renderer* renderer, InputHandler* inputHandler)
 {
 	qDebug("Initializing RenderOnScreenThread");
 
@@ -29,6 +30,7 @@ bool RenderOnScreenThread::initialize(MainWindow* mainWindow, VideoWindow* video
 	this->videoDecoderThread = videoDecoderThread;
 	this->videoStabilizer = videoStabilizer;
 	this->renderer = renderer;
+	this->inputHandler = inputHandler;
 
 	paused = false;
 	shouldAdvanceOneFrame = false;
@@ -75,7 +77,7 @@ void RenderOnScreenThread::run()
 			videoStabilizer->processFrame(&frameDataGrayscale);
 
 		videoWindow->getContext()->makeCurrent(videoWindow);
-		renderer->startRendering(videoWindow->width(), videoWindow->height(), frameDuration, spareTime);
+		renderer->startRendering(videoWindow->width(), videoWindow->height(), frameDuration, spareTime, videoDecoder->getLastDecodeTime(), videoStabilizer->getLastProcessTime(), 0.0);
 
 		if (gotFrame)
 		{
@@ -88,7 +90,7 @@ void RenderOnScreenThread::run()
 
 		spareTime = videoDecoder->getAverageFrameDuration() - (spareTimer.nsecsElapsed() / 1000000.0);
 
-		renderer->handleInput();
+		inputHandler->handleInput(frameDuration);
 
 		// use combination of normal and spinning wait to sync the frame rate accurately
 		while (true)

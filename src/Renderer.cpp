@@ -5,14 +5,12 @@
 #include <QTime>
 
 #include "Renderer.h"
+#include "VideoWindow.h"
 #include "VideoDecoder.h"
 #include "QuickRouteReader.h"
 #include "MapImageReader.h"
 #include "VideoStabilizer.h"
-#include "VideoDecoderThread.h"
-#include "RenderOnScreenThread.h"
-#include "VideoEncoder.h"
-#include "VideoWindow.h"
+#include "InputHandler.h"
 #include "Settings.h"
 #include "FrameData.h"
 
@@ -22,16 +20,12 @@ Renderer::Renderer()
 {
 }
 
-bool Renderer::initialize(VideoDecoder* videoDecoder, QuickRouteReader* quickRouteReader, MapImageReader* mapImageReader, VideoStabilizer* videoStabilizer, VideoDecoderThread* videoDecoderThread, RenderOnScreenThread* renderOnScreenThread, VideoEncoder* videoEncoder, VideoWindow* videoWindow, Settings* settings)
+bool Renderer::initialize(VideoWindow* videoWindow, VideoDecoder* videoDecoder, QuickRouteReader* quickRouteReader, MapImageReader* mapImageReader, VideoStabilizer* videoStabilizer, InputHandler* inputHandler, Settings* settings)
 {
 	qDebug("Initializing Renderer");
 
-	this->videoDecoder = videoDecoder;
 	this->videoStabilizer = videoStabilizer;
-	this->videoDecoderThread = videoDecoderThread;
-	this->renderOnScreenThread = renderOnScreenThread;
-	this->videoEncoder = videoEncoder;
-	this->videoWindow = videoWindow;
+	this->inputHandler = inputHandler;
 
 	videoPanel = Panel();
 	videoPanel.textureWidth = videoDecoder->getFrameWidth();
@@ -49,9 +43,7 @@ bool Renderer::initialize(VideoDecoder* videoDecoder, QuickRouteReader* quickRou
 	mapPanel.texelHeight = 1.0 / mapPanel.textureHeight;
 	mapPanel.clearColor = settings->appearance.mapPanelBackgroundColor;
 
-	selectedPanel = SelectedPanel::NONE;
 	renderMode = RenderMode::ALL;
-	selectedPanelPtr = nullptr;
 	mapPanelRelativeWidth = settings->appearance.mapPanelWidth;
 	windowWidth = videoWindow->width();
 	windowHeight = videoWindow->height();
@@ -266,142 +258,20 @@ void Renderer::shutdown()
 	}
 }
 
-void Renderer::handleInput()
-{
-	if (videoWindow->keyIsDownOnce(Qt::Key_F1))
-		showInfoPanel = !showInfoPanel;
-
-	if (videoWindow->keyIsDownOnce(Qt::Key_F2))
-	{
-		if (selectedPanel == SelectedPanel::NONE)
-		{
-			selectedPanel = SelectedPanel::VIDEO;
-			selectedPanelPtr = &videoPanel;
-		}
-		else if (selectedPanel == SelectedPanel::VIDEO)
-		{
-			selectedPanel = SelectedPanel::MAP;
-			selectedPanelPtr = &mapPanel;
-		}
-		else if (selectedPanel == SelectedPanel::MAP)
-		{
-			selectedPanel = SelectedPanel::NONE;
-			selectedPanelPtr = nullptr;
-		}
-	}
-
-	if (!videoWindow->keyIsDown(Qt::Key_Control) && videoWindow->keyIsDownOnce(Qt::Key_Space))
-		renderOnScreenThread->togglePaused();
-	else if (videoWindow->keyIsDown(Qt::Key_Control) && videoWindow->keyIsDownOnce(Qt::Key_Space))
-		renderOnScreenThread->advanceOneFrame();
-
-	if (videoWindow->keyIsDownOnce(Qt::Key_F3))
-	{
-		if (renderMode == RenderMode::ALL)
-			renderMode = RenderMode::VIDEO;
-		else if (renderMode == RenderMode::VIDEO)
-			renderMode = RenderMode::MAP;
-		else if (renderMode == RenderMode::MAP)
-			renderMode = RenderMode::ALL;
-	}
-
-	int seekAmount = 10;
-	double translateVelocity = 0.5;
-	double rotateVelocity = 0.1;
-	double scaleConstant = 500.0;
-
-	if (videoWindow->keyIsDown(Qt::Key_Control))
-	{
-		seekAmount = 2;
-		translateVelocity = 0.1;
-		rotateVelocity = 0.02;
-		scaleConstant = 5000.0;
-	}
-
-	if (videoWindow->keyIsDown(Qt::Key_Shift))
-	{
-		seekAmount = 60;
-		translateVelocity = 1.0;
-		rotateVelocity = 0.5;
-		scaleConstant = 100.0;
-	}
-
-	if (videoWindow->keyIsDown(Qt::Key_Alt))
-	{
-		seekAmount = 600;
-	}
-
-	translateVelocity *= frameTime;
-	rotateVelocity *= frameTime;
-
-	if (selectedPanel == SelectedPanel::NONE)
-	{
-		if (videoWindow->keyIsDownOnce(Qt::Key_Left))
-		{
-			videoDecoder->seekRelative(-seekAmount);
-			videoDecoderThread->signalFrameRead();
-			renderOnScreenThread->advanceOneFrame();
-		}
-
-		if (videoWindow->keyIsDownOnce(Qt::Key_Right))
-		{
-			videoDecoder->seekRelative(seekAmount);
-			videoDecoderThread->signalFrameRead();
-			renderOnScreenThread->advanceOneFrame();
-		}
-	}
-
-	if (selectedPanel != SelectedPanel::NONE)
-	{
-		if (videoWindow->keyIsDown(Qt::Key_R))
-		{
-			selectedPanelPtr->userX = 0.0;
-			selectedPanelPtr->userY = 0.0;
-			selectedPanelPtr->userAngle = 0.0;
-			selectedPanelPtr->userScale = 1.0;
-		}
-
-		if (videoWindow->keyIsDown(Qt::Key_Left))
-			selectedPanelPtr->userX -= translateVelocity;
-
-		if (videoWindow->keyIsDown(Qt::Key_Right))
-			selectedPanelPtr->userX += translateVelocity;
-
-		if (videoWindow->keyIsDown(Qt::Key_Up))
-			selectedPanelPtr->userY += translateVelocity;
-
-		if (videoWindow->keyIsDown(Qt::Key_Down))
-			selectedPanelPtr->userY -= translateVelocity;
-
-		if (videoWindow->keyIsDown(Qt::Key_W))
-			selectedPanelPtr->userAngle += rotateVelocity;
-
-		if (videoWindow->keyIsDown(Qt::Key_S))
-			selectedPanelPtr->userAngle -= rotateVelocity;
-
-		if (videoWindow->keyIsDown(Qt::Key_Q))
-			selectedPanelPtr->userScale *= (1.0 + frameTime / scaleConstant);
-
-		if (videoWindow->keyIsDown(Qt::Key_A))
-			selectedPanelPtr->userScale *= (1.0 - frameTime / scaleConstant);
-	}
-}
-
-void Renderer::startRendering(double windowWidth, double windowHeight, double frameTime, double spareTime)
+void Renderer::startRendering(double windowWidth, double windowHeight, double frameTime, double spareTime, double decoderTime, double stabilizerTime, double encoderTime)
 {
 	renderTimer.restart();
 
 	this->windowWidth = windowWidth;
 	this->windowHeight = windowHeight;
 	this->frameTime = frameTime;
-	this->spareTime = spareTime;
 
 	averageFps.addMeasurement(1000.0 / frameTime);
 	averageFrameTime.addMeasurement(frameTime);
-	averageDecodeTime.addMeasurement(videoDecoder->getLastDecodeTime());
-	averageStabilizeTime.addMeasurement(videoStabilizer->getLastProcessTime());
+	averageDecodeTime.addMeasurement(decoderTime);
+	averageStabilizeTime.addMeasurement(stabilizerTime);
 	averageRenderTime.addMeasurement(lastRenderTime);
-	averageEncodeTime.addMeasurement(videoEncoder->getLastEncodeTime());
+	averageEncodeTime.addMeasurement(encoderTime);
 	averageSpareTime.addMeasurement(spareTime);
 
 	paintDevice->setSize(QSize(windowWidth, windowHeight));
@@ -565,9 +435,9 @@ void Renderer::renderInfoPanel()
 	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString("%1 ms").arg(QString::number(averageRenderTime.getAverage(), 'f', 2)));
 	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString("%1 ms").arg(QString::number(averageEncodeTime.getAverage(), 'f', 2)));
 
-	if (spareTime < 0)
+	if (averageSpareTime.getAverage() < 0)
 		painter->setPen(textRedColor);
-	else if (spareTime > 0)
+	else if (averageSpareTime.getAverage() > 0)
 		painter->setPen(textGreenColor);
 
 	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString("%1 ms").arg(QString::number(averageSpareTime.getAverage(), 'f', 2)));
@@ -575,7 +445,7 @@ void Renderer::renderInfoPanel()
 	QString selectedText;
 	QString renderText;
 
-	switch (selectedPanel)
+	switch (inputHandler->getSelectedPanel())
 	{
 		case SelectedPanel::NONE: selectedText = "none"; break;
 		case SelectedPanel::VIDEO: selectedText = "video"; break;
@@ -660,8 +530,33 @@ void Renderer::stopRendering()
 	lastRenderTime = renderTimer.nsecsElapsed() / 1000000.0;
 }
 
+Panel* Renderer::getVideoPanel()
+{
+	return &videoPanel;
+}
+
+Panel* Renderer::getMapPanel()
+{
+	return &mapPanel;
+}
+
+RenderMode Renderer::getRenderMode()
+{
+	return renderMode;
+}
+
+void Renderer::setRenderMode(RenderMode mode)
+{
+	renderMode = mode;
+}
+
 void Renderer::setFlipOutput(bool value)
 {
 	paintDevice->setPaintFlipped(value);
 	flipOutput = value;
+}
+
+void Renderer::toggleShowInfoPanel()
+{
+	showInfoPanel = !showInfoPanel;
 }

@@ -17,6 +17,7 @@ namespace OrientView
 	class QuickRouteReader;
 	class MapImageReader;
 	class VideoStabilizer;
+	class InputHandler;
 	class Renderer;
 	class VideoEncoder;
 	class VideoDecoderThread;
@@ -67,6 +68,7 @@ namespace OrientView
 		QuickRouteReader* quickRouteReader = nullptr;
 		MapImageReader* mapImageReader = nullptr;
 		VideoStabilizer* videoStabilizer = nullptr;
+		InputHandler* inputHandler = nullptr;
 		Renderer* renderer = nullptr;
 		VideoEncoder* videoEncoder = nullptr;
 		VideoDecoderThread* videoDecoderThread = nullptr;
