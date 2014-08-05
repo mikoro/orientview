@@ -4,6 +4,7 @@
 #include <QFileDialog>
 #include <QtGUI>
 #include <QMessageBox>
+#include <QColorDialog>
 
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
@@ -329,6 +330,32 @@ void MainWindow::on_pushButtonBrowseOutputVideoFile_clicked()
 
 	if (fileDialog.exec())
 		ui->lineEditOutputVideoFile->setText(fileDialog.selectedFiles().at(0));
+}
+
+void MainWindow::on_pushButtonPickVideoPanelBackgroundColor_clicked()
+{
+	settings->update(ui);
+
+	QColorDialog colorDialog;
+	QColor resultColor = colorDialog.getColor(settings->appearance.videoPanelBackgroundColor, this, "Pick video panel background color");
+
+	if (resultColor.isValid())
+		settings->appearance.videoPanelBackgroundColor = resultColor;
+
+	settings->apply(ui);
+}
+
+void MainWindow::on_pushButtonPickMapPanelBackgroundColor_clicked()
+{
+	settings->update(ui);
+
+	QColorDialog colorDialog;
+	QColor resultColor = colorDialog.getColor(settings->appearance.mapPanelBackgroundColor, this, "Pick map panel background color");
+
+	if (resultColor.isValid())
+		settings->appearance.mapPanelBackgroundColor = resultColor;
+
+	settings->apply(ui);
 }
 
 void MainWindow::readSettings()

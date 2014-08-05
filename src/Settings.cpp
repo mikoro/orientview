@@ -27,6 +27,9 @@ void Settings::read(QSettings* settings)
 	appearance.showInfoPanel = settings->value("appearance/showInfoPanel", false).toBool();
 	appearance.mapPanelWidth = settings->value("appearance/mapPanelWidth", 0.3).toDouble();
 	appearance.videoPanelScale = settings->value("appearance/videoPanelScale", 1.0).toDouble();
+	appearance.mapPanelScale = settings->value("appearance/mapPanelScale", 1.0).toDouble();
+	appearance.videoPanelBackgroundColor = settings->value("appearance/videoPanelBackgroundColor", QColor("#003200")).value<QColor>();
+	appearance.mapPanelBackgroundColor = settings->value("appearance/mapPanelBackgroundColor", QColor("#ffffff")).value<QColor>();
 	
 	decoder.frameCountDivisor = settings->value("decoder/frameCountDivisor", 1).toInt();
 	decoder.frameDurationDivisor = settings->value("decoder/frameDurationDivisor", 1).toInt();
@@ -36,6 +39,8 @@ void Settings::read(QSettings* settings)
 	stabilizer.frameSizeDivisor = settings->value("stabilizer/frameSizeDivisor", 8).toInt();
 	stabilizer.averagingFactor = settings->value("stabilizer/averagingFactor", 0.1).toDouble();
 	stabilizer.dampingFactor = settings->value("stabilizer/dampingFactor", 0.5).toDouble();
+	stabilizer.disableVideoClear = settings->value("stabilizer/disableVideoClear", false).toBool();
+	stabilizer.inpaintBorderWidth = settings->value("stabilizer/inpaintBorderWidth", 0).toInt();
 
 	shaders.videoPanelShader = settings->value("shaders/videoPanelShader", "default").toString();
 	shaders.mapPanelShader = settings->value("shaders/mapPanelShader", "default").toString();
@@ -63,6 +68,9 @@ void Settings::write(QSettings* settings)
 	settings->setValue("appearance/showInfoPanel", appearance.showInfoPanel);
 	settings->setValue("appearance/mapPanelWidth", appearance.mapPanelWidth);
 	settings->setValue("appearance/videoPanelScale", appearance.videoPanelScale);
+	settings->setValue("appearance/mapPanelScale", appearance.mapPanelScale);
+	settings->setValue("appearance/videoPanelBackgroundColor", appearance.videoPanelBackgroundColor);
+	settings->setValue("appearance/mapPanelBackgroundColor", appearance.mapPanelBackgroundColor);
 
 	settings->setValue("decoder/frameCountDivisor", decoder.frameCountDivisor);
 	settings->setValue("decoder/frameDurationDivisor", decoder.frameDurationDivisor);
@@ -72,6 +80,8 @@ void Settings::write(QSettings* settings)
 	settings->setValue("stabilizer/frameSizeDivisor", stabilizer.frameSizeDivisor);
 	settings->setValue("stabilizer/averagingFactor", stabilizer.averagingFactor);
 	settings->setValue("stabilizer/dampingFactor", stabilizer.dampingFactor);
+	settings->setValue("stabilizer/disableVideoClear", stabilizer.disableVideoClear);
+	settings->setValue("stabilizer/inpaintBorderWidth", stabilizer.inpaintBorderWidth);
 
 	settings->setValue("shaders/videoPanelShader", shaders.videoPanelShader);
 	settings->setValue("shaders/mapPanelShader", shaders.mapPanelShader);
@@ -99,6 +109,9 @@ void Settings::update(Ui::MainWindow* ui)
 	appearance.showInfoPanel = ui->checkBoxShowInfoPanel->isChecked();
 	appearance.mapPanelWidth = ui->doubleSpinBoxMapPanelWidth->value();
 	appearance.videoPanelScale = ui->doubleSpinBoxVideoPanelScale->value();
+	appearance.mapPanelScale = ui->doubleSpinBoxMapPanelScale->value();
+	appearance.videoPanelBackgroundColor = QColor(ui->lineEditBackgroundColorVideoPanel->text());
+	appearance.mapPanelBackgroundColor = QColor(ui->lineEditBackgroundColorMapPanel->text());
 
 	decoder.frameCountDivisor = ui->spinBoxDecoderFrameCountDivisor->value();
 	decoder.frameDurationDivisor = ui->spinBoxDecoderFrameDurationDivisor->value();
@@ -108,6 +121,8 @@ void Settings::update(Ui::MainWindow* ui)
 	stabilizer.frameSizeDivisor = ui->spinBoxStabilizerFrameSizeDivisor->value();
 	stabilizer.averagingFactor = ui->doubleSpinBoxStabilizerAveragingFactor->value();
 	stabilizer.dampingFactor = ui->doubleSpinBoxStabilizerDampingFactor->value();
+	stabilizer.disableVideoClear = ui->checkBoxStabilizerDisableVideoClear->isChecked();
+	stabilizer.inpaintBorderWidth = ui->spinBoxStabilizerInpaintBorderWidth->value();
 
 	shaders.videoPanelShader = ui->comboBoxVideoPanelShader->currentText();
 	shaders.mapPanelShader = ui->comboBoxMapPanelShader->currentText();
@@ -135,6 +150,9 @@ void Settings::apply(Ui::MainWindow* ui)
 	ui->checkBoxShowInfoPanel->setChecked(appearance.showInfoPanel);
 	ui->doubleSpinBoxMapPanelWidth->setValue(appearance.mapPanelWidth);
 	ui->doubleSpinBoxVideoPanelScale->setValue(appearance.videoPanelScale);
+	ui->doubleSpinBoxMapPanelScale->setValue(appearance.mapPanelScale);
+	ui->lineEditBackgroundColorVideoPanel->setText(appearance.videoPanelBackgroundColor.name());
+	ui->lineEditBackgroundColorMapPanel->setText(appearance.mapPanelBackgroundColor.name());
 
 	ui->spinBoxDecoderFrameCountDivisor->setValue(decoder.frameCountDivisor);
 	ui->spinBoxDecoderFrameDurationDivisor->setValue(decoder.frameDurationDivisor);
@@ -144,6 +162,8 @@ void Settings::apply(Ui::MainWindow* ui)
 	ui->spinBoxStabilizerFrameSizeDivisor->setValue(stabilizer.frameSizeDivisor);
 	ui->doubleSpinBoxStabilizerAveragingFactor->setValue(stabilizer.averagingFactor);
 	ui->doubleSpinBoxStabilizerDampingFactor->setValue(stabilizer.dampingFactor);
+	ui->checkBoxStabilizerDisableVideoClear->setChecked(stabilizer.disableVideoClear);
+	ui->spinBoxStabilizerInpaintBorderWidth->setValue(stabilizer.inpaintBorderWidth);
 
 	ui->comboBoxVideoPanelShader->setCurrentText(shaders.videoPanelShader);
 	ui->comboBoxMapPanelShader->setCurrentText(shaders.mapPanelShader);

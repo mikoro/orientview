@@ -35,12 +35,15 @@ bool Renderer::initialize(VideoDecoder* videoDecoder, QuickRouteReader* quickRou
 	videoPanel.texelWidth = 1.0 / videoPanel.textureWidth;
 	videoPanel.texelHeight = 1.0 / videoPanel.textureHeight;
 	videoPanel.userScale = settings->appearance.videoPanelScale;
+	videoPanel.clearColor = settings->appearance.videoPanelBackgroundColor;
+	videoPanel.clearEnabled = !settings->stabilizer.disableVideoClear;
 
 	mapPanel = Panel();
 	mapPanel.textureWidth = mapImageReader->getMapImage().width();
 	mapPanel.textureHeight = mapImageReader->getMapImage().height();
 	mapPanel.texelWidth = 1.0 / mapPanel.textureWidth;
 	mapPanel.texelHeight = 1.0 / mapPanel.textureHeight;
+	mapPanel.clearColor = settings->appearance.mapPanelBackgroundColor;
 
 	selectedPanel = SelectedPanel::NONE;
 	renderMode = RenderMode::ALL;
@@ -150,6 +153,9 @@ bool Renderer::initialize(VideoDecoder* videoDecoder, QuickRouteReader* quickRou
 				routePath->lineTo(x, y);
 		}
 	}
+
+	glClearColor(videoPanel.clearColor.redF(), videoPanel.clearColor.greenF(), videoPanel.clearColor.blueF(), 0.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
 
 	return true;
 }
@@ -355,8 +361,7 @@ void Renderer::startRendering(double windowWidth, double windowHeight, double fr
 	paintDevice->setSize(QSize(windowWidth, windowHeight));
 
 	glViewport(0, 0, windowWidth, windowHeight);
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 
 void Renderer::uploadFrameData(FrameData* frameData)
@@ -411,6 +416,12 @@ void Renderer::renderVideoPanel()
 	videoPanel.vertexMatrix.rotate(videoPanel.angle + videoPanel.userAngle - videoStabilizer->getAngle(), 0.0f, 0.0f, 1.0f);
 	videoPanel.vertexMatrix.scale(videoPanel.scale);
 
+	if (videoPanel.clearEnabled)
+	{
+		glClearColor(videoPanel.clearColor.redF(), videoPanel.clearColor.greenF(), videoPanel.clearColor.blueF(), 0.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+	}
+
 	renderPanel(&videoPanel);
 }
 
@@ -440,10 +451,16 @@ void Renderer::renderMapPanel()
 		glEnable(GL_SCISSOR_TEST);
 
 	glScissor(0, 0, mapBorderX, (int)windowHeight);
-	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
+
+	if (mapPanel.clearEnabled)
+	{
+		glClearColor(mapPanel.clearColor.redF(), mapPanel.clearColor.greenF(), mapPanel.clearColor.blueF(), 0.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+	}
+
 	renderPanel(&mapPanel);
 	renderRoute();
+
 	glDisable(GL_SCISSOR_TEST);
 
 	painter->begin(paintDevice);

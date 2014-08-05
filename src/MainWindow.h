@@ -48,6 +48,8 @@ namespace OrientView
 		void on_pushButtonBrowseQuickRouteJpegMapImageFile_clicked();
 		void on_pushButtonBrowseAlternativeMapImageFile_clicked();
 		void on_pushButtonBrowseOutputVideoFile_clicked();
+		void on_pushButtonPickVideoPanelBackgroundColor_clicked();
+		void on_pushButtonPickMapPanelBackgroundColor_clicked();
 
 		void videoWindowClosing();
 		void encodeWindowClosing();

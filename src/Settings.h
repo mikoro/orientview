@@ -5,6 +5,7 @@
 
 #include <QString>
 #include <QSettings>
+#include <QColor>
 
 namespace Ui
 {
@@ -53,6 +54,9 @@ namespace OrientView
 			bool showInfoPanel = false;
 			double mapPanelWidth = 0.3;
 			double videoPanelScale = 1.0;
+			double mapPanelScale = 1.0;
+			QColor videoPanelBackgroundColor = QColor("#003200");
+			QColor mapPanelBackgroundColor = QColor("#ffffff");
 
 		} appearance;
 
@@ -70,6 +74,8 @@ namespace OrientView
 			int frameSizeDivisor = 8;
 			double averagingFactor = 0.1;
 			double dampingFactor = 0.5;
+			bool disableVideoClear = false;
+			int inpaintBorderWidth = 0;
 
 		} stabilizer;
 
