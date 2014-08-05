@@ -315,70 +315,103 @@ void VideoDecoder::seekRelative(int seconds)
 	QMutexLocker locker(&decoderMutex);
 
 	double realFps = (double)videoStream->avg_frame_rate.num / videoStream->avg_frame_rate.den;
-	int64_t seekAmount = (int64_t)(frameDuration * realFps + 0.5) * seconds;
+	int64_t targetTimeStamp = lastFrameTimestamp + (int64_t)(frameDuration * realFps + 0.5) * seconds;
 
-	if (avformat_seek_file(formatContext, videoStreamIndex, INT64_MIN, lastFrameTimestamp + seekAmount, INT64_MAX, 0) >= 0)
+	if (avformat_seek_file(formatContext, videoStreamIndex, 0, targetTimeStamp, targetTimeStamp, 0) >= 0)
+	{
 		avcodec_flush_buffers(videoCodecContext);
+
+		int gotPicture = 0;
+
+		while (!gotPicture)
+		{
+			int readResult;
+
+			if ((readResult = av_read_frame(formatContext, &packet)) >= 0)
+			{
+				if (packet.stream_index == videoStreamIndex)
+					avcodec_decode_video2(videoCodecContext, frame, &gotPicture, &packet);
+
+				av_free_packet(&packet);
+			}
+			else
+			{
+				if (readResult != AVERROR_EOF)
+					qWarning("Could not read a frame: %d", readResult);
+
+				finished = true;
+				return;
+			}
+		}
+	}
 	else
 		qWarning("Could not seek video");
 }
 
-int VideoDecoder::getFrameWidth() const
+int VideoDecoder::getFrameWidth()
 {
 	return frameWidth;
 }
 
-int VideoDecoder::getFrameHeight() const
+int VideoDecoder::getFrameHeight()
 {
 	return frameHeight;
 }
 
-int VideoDecoder::getFrameDataLength() const
+int VideoDecoder::getFrameDataLength()
 {
 	return frameDataLength;
 }
 
-int VideoDecoder::getTotalFrameCount() const
+int VideoDecoder::getTotalFrameCount()
 {
 	return totalFrameCount;
 }
 
-int VideoDecoder::getCurrentFrameNumber() const
+int VideoDecoder::getCurrentFrameNumber()
 {
+	QMutexLocker locker(&decoderMutex);
+
 	return currentFrameNumber;
 }
 
-int VideoDecoder::getAverageFrameRateNum() const
+int VideoDecoder::getAverageFrameRateNum()
 {
 	return averageFrameRateNum;
 }
 
-int VideoDecoder::getAverageFrameRateDen() const
+int VideoDecoder::getAverageFrameRateDen()
 {
 	return averageFrameRateDen;
 }
 
-double VideoDecoder::getAverageFrameDuration() const
+double VideoDecoder::getAverageFrameDuration()
 {
 	return averageFrameDuration;
 }
 
-double VideoDecoder::getAverageFrameRate() const
+double VideoDecoder::getAverageFrameRate()
 {
 	return averageFrameRate;
 }
 
-double VideoDecoder::getCurrentTime() const
+double VideoDecoder::getCurrentTime()
 {
+	QMutexLocker locker(&decoderMutex);
+
 	return currentTime;
 }
 
-bool VideoDecoder::isFinished() const
+bool VideoDecoder::isFinished()
 {
+	QMutexLocker locker(&decoderMutex);
+
 	return finished;
 }
 
-double VideoDecoder::getLastDecodeTime() const
+double VideoDecoder::getLastDecodeTime()
 {
+	QMutexLocker locker(&decoderMutex);
+
 	return lastDecodeTime;
 }

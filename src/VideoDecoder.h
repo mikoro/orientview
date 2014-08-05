@@ -30,18 +30,18 @@ namespace OrientView
 		bool getNextFrame(FrameData* frameData, FrameData* frameDataGrayscale);
 		void seekRelative(int seconds);
 
-		int getFrameWidth() const;
-		int getFrameHeight() const;
-		int getFrameDataLength() const;
-		int getTotalFrameCount() const;
-		int getCurrentFrameNumber() const;
-		int getAverageFrameRateNum() const;
-		int getAverageFrameRateDen() const;
-		double getAverageFrameDuration() const;
-		double getAverageFrameRate() const;
-		double getCurrentTime() const;
-		bool isFinished() const;
-		double getLastDecodeTime() const;
+		int getFrameWidth();
+		int getFrameHeight();
+		int getFrameDataLength();
+		int getTotalFrameCount();
+		int getCurrentFrameNumber();
+		int getAverageFrameRateNum();
+		int getAverageFrameRateDen();
+		double getAverageFrameDuration();
+		double getAverageFrameRate();
+		double getCurrentTime();
+		bool isFinished();
+		double getLastDecodeTime();
 
 	private:
 
