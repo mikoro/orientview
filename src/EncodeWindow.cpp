@@ -133,11 +133,14 @@ void EncodeWindow::frameProcessed(int frameNumber, int frameSize)
 	QTime remainingTime2(0, 0, 0, 0);
 	QTime remainingTime3 = remainingTime2.addMSecs(remainingTime1);
 
+	double framesPerSecond = frameNumber / ((double)elapsedTime1 / 1000.0);
+
 	currentSize += frameSize / 1000000.0;
 
 	ui->labelElapsed->setText(elapsedTime3.toString());
 	ui->labelRemaining->setText(remainingTime3.toString());
 	ui->labelFrame->setText(QString("%1/%2").arg(QString::number(frameNumber), QString::number(totalFrameCount)));
+	ui->labelFramesPerSecond->setText(QString::number(framesPerSecond, 'f', 1));
 	ui->labelSize->setText(QString("%1 MB").arg(QString::number(currentSize, 'f', 2)));
 }
 

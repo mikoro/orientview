@@ -7,19 +7,19 @@
     <x>0</x>
     <y>0</y>
     <width>500</width>
-    <height>214</height>
+    <height>233</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
     <width>0</width>
-    <height>214</height>
+    <height>233</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>99999</width>
-    <height>214</height>
+    <height>233</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -30,77 +30,7 @@
     <normaloff>:/icons/misc/icons/orientview.ico</normaloff>:/icons/misc/icons/orientview.ico</iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="3" column="1">
-    <widget class="QLabel" name="label">
-     <property name="minimumSize">
-      <size>
-       <width>60</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>16777215</height>
-      </size>
-     </property>
-     <property name="text">
-      <string>Elapsed:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="1">
-    <widget class="QLabel" name="label_2">
-     <property name="minimumSize">
-      <size>
-       <width>60</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>16777215</height>
-      </size>
-     </property>
-     <property name="text">
-      <string>Remaining:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="2">
-    <widget class="QLabel" name="labelRemaining">
-     <property name="minimumSize">
-      <size>
-       <width>60</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="text">
-      <string>00:00:00</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="2">
-    <widget class="QLabel" name="labelFrame">
-     <property name="minimumSize">
-      <size>
-       <width>60</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="text">
-      <string>1/1234</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-     </property>
-    </widget>
-   </item>
-   <item row="6" column="1">
+   <item row="7" column="1">
     <widget class="QLabel" name="label_4">
      <property name="minimumSize">
       <size>
@@ -119,19 +49,22 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="2">
-    <widget class="QLabel" name="labelElapsed">
+   <item row="3" column="1">
+    <widget class="QLabel" name="label">
      <property name="minimumSize">
       <size>
        <width>60</width>
        <height>0</height>
       </size>
      </property>
-     <property name="text">
-      <string>00:00:00</string>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>16777215</height>
+      </size>
      </property>
-     <property name="alignment">
-      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     <property name="text">
+      <string>Elapsed:</string>
      </property>
     </widget>
    </item>
@@ -154,36 +87,7 @@
      </property>
     </widget>
    </item>
-   <item row="6" column="2">
-    <widget class="QLabel" name="labelSize">
-     <property name="minimumSize">
-      <size>
-       <width>60</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="text">
-      <string>123.55 MB</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="0" rowspan="2">
-    <spacer name="horizontalSpacer">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>40</width>
-       <height>20</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="9" column="1" colspan="2" alignment="Qt::AlignHCenter">
+   <item row="10" column="1" colspan="2" alignment="Qt::AlignHCenter">
     <widget class="QPushButton" name="pushButtonStopClose">
      <property name="minimumSize">
       <size>
@@ -202,27 +106,66 @@
      </property>
     </widget>
    </item>
-   <item row="8" column="1" colspan="2" alignment="Qt::AlignHCenter">
-    <widget class="QPushButton" name="pushButtonOpenVideo">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
+   <item row="4" column="2">
+    <widget class="QLabel" name="labelRemaining">
      <property name="minimumSize">
       <size>
-       <width>100</width>
+       <width>60</width>
        <height>0</height>
       </size>
      </property>
-     <property name="maximumSize">
+     <property name="text">
+      <string>00:00:00</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="1" colspan="2">
+    <spacer name="verticalSpacer_3">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::Fixed</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
       <size>
-       <width>16777215</width>
-       <height>16777215</height>
+       <width>20</width>
+       <height>10</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="7" column="2">
+    <widget class="QLabel" name="labelSize">
+     <property name="minimumSize">
+      <size>
+       <width>60</width>
+       <height>0</height>
       </size>
      </property>
      <property name="text">
-      <string>Open video</string>
+      <string>0 MB</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
      </property>
     </widget>
+   </item>
+   <item row="3" column="0" rowspan="2">
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>40</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
    </item>
    <item row="3" column="4" rowspan="2">
     <spacer name="horizontalSpacer_2">
@@ -272,21 +215,113 @@
      </property>
     </spacer>
    </item>
-   <item row="7" column="1" colspan="2">
-    <spacer name="verticalSpacer_3">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeType">
-      <enum>QSizePolicy::Fixed</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
+   <item row="3" column="2">
+    <widget class="QLabel" name="labelElapsed">
+     <property name="minimumSize">
       <size>
-       <width>20</width>
-       <height>10</height>
+       <width>60</width>
+       <height>0</height>
       </size>
      </property>
-    </spacer>
+     <property name="text">
+      <string>00:00:00</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="1" colspan="2" alignment="Qt::AlignHCenter">
+    <widget class="QPushButton" name="pushButtonOpenVideo">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>100</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="text">
+      <string>Open video</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="2">
+    <widget class="QLabel" name="labelFrame">
+     <property name="minimumSize">
+      <size>
+       <width>60</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="text">
+      <string>1/1</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1">
+    <widget class="QLabel" name="label_2">
+     <property name="minimumSize">
+      <size>
+       <width>60</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="text">
+      <string>Remaining:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="1">
+    <widget class="QLabel" name="label_5">
+     <property name="minimumSize">
+      <size>
+       <width>60</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="text">
+      <string>Frames / s:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="2">
+    <widget class="QLabel" name="labelFramesPerSecond">
+     <property name="minimumSize">
+      <size>
+       <width>60</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="text">
+      <string>0</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>
