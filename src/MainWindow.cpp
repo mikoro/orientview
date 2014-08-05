@@ -380,5 +380,7 @@ void MainWindow::writeSettings()
 
 void MainWindow::closeEvent(QCloseEvent* event)
 {
+	Q_UNUSED(event);
+
 	writeSettings();
 }

@@ -48,15 +48,15 @@ namespace OrientView
 		Renderer* renderer = nullptr;
 		VideoEncoder* videoEncoder = nullptr;
 
-		QOpenGLFramebufferObject* mainFramebuffer = nullptr;
-		QOpenGLFramebufferObject* secondaryFramebuffer = nullptr;
-
-		QSemaphore* frameReadSemaphore = nullptr;
-		QSemaphore* frameAvailableSemaphore = nullptr;
-
 		int framebufferWidth = 0;
 		int framebufferHeight = 0;
 
+		QOpenGLFramebufferObject* mainFramebuffer = nullptr;
+		QOpenGLFramebufferObject* secondaryFramebuffer = nullptr;
+
 		FrameData renderedFrameData;
+
+		QSemaphore* frameReadSemaphore = nullptr;
+		QSemaphore* frameAvailableSemaphore = nullptr;
 	};
 }

@@ -22,6 +22,8 @@ SimpleLogger::~SimpleLogger()
 
 void SimpleLogger::handleMessage(QtMsgType type, const QMessageLogContext& context, const QString& message)
 {
+	Q_UNUSED(context);
+
 	QString typeString;
 
 	switch (type)

@@ -123,6 +123,7 @@ void RenderOffScreenThread::run()
 
 			encodeWindow->getContext()->makeCurrent(encodeWindow->getSurface());
 			mainFramebuffer->bind();
+
 			renderer->startRendering(framebufferWidth, framebufferHeight, frameDuration, 0.0, videoDecoder->getLastDecodeTime(), videoStabilizer->getLastProcessTime(), videoEncoder->getLastEncodeTime());
 			renderer->uploadFrameData(&decodedFrameData);
 			videoDecoderThread->signalFrameRead();

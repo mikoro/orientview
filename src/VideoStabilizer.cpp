@@ -82,7 +82,7 @@ void VideoStabilizer::processFrame(FrameData* frameDataGrayscale)
 	
 	currentImage.copyTo(previousImage);
 
-	for (int i = 0; i < opticalFlowStatus.size(); i++)
+	for (size_t i = 0; i < opticalFlowStatus.size(); i++)
 	{
 		if (opticalFlowStatus[i])
 		{
@@ -108,14 +108,14 @@ void VideoStabilizer::processFrame(FrameData* frameDataGrayscale)
 
 	currentTransformation.copyTo(previousTransformation);
 
-	double dx = tx / frameDataGrayscale->width;
-	double dy = ty / frameDataGrayscale->height;
-	double da = atan2(c, d) * 180.0 / M_PI;
-	double ds = sign(a) * sqrt(a * a + b * b);
+	double deltaX = tx / frameDataGrayscale->width;
+	double deltaY = ty / frameDataGrayscale->height;
+	double deltaAngle = atan2(c, d) * 180.0 / M_PI;
+	//double deltaScale = sign(a) * sqrt(a * a + b * b); // not used, only causes jitter
 
-	currentX += dx;
-	currentY += dy;
-	currentAngle += da;
+	currentX += deltaX;
+	currentY += deltaY;
+	currentAngle += deltaAngle;
 
 	normalizedX = (currentXAverage.getAverage() - currentX) * dampingFactor;
 	normalizedY = (currentYAverage.getAverage() - currentY) * dampingFactor;
