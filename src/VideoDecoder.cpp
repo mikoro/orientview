@@ -295,14 +295,14 @@ bool VideoDecoder::getNextFrame(FrameData* frameData, FrameData* frameDataGraysc
 					return true;
 				}
 			}
-		
+
 			av_free_packet(&packet);
 		}
 		else
 		{
 			if (readResult != AVERROR_EOF)
 				qWarning("Could not read a frame: %d", readResult);
-			
+
 			finished = true;
 
 			return false;
@@ -317,7 +317,9 @@ void VideoDecoder::seekRelative(int seconds)
 	double realFps = (double)videoStream->avg_frame_rate.num / videoStream->avg_frame_rate.den;
 	int64_t seekAmount = (int64_t)(frameDuration * realFps + 0.5) * seconds;
 
-	if (avformat_seek_file(formatContext, videoStreamIndex, INT64_MIN, lastFrameTimestamp + seekAmount, INT64_MAX, 0) < 0)
+	if (avformat_seek_file(formatContext, videoStreamIndex, INT64_MIN, lastFrameTimestamp + seekAmount, INT64_MAX, 0) >= 0)
+		avcodec_flush_buffers(videoCodecContext);
+	else
 		qWarning("Could not seek video");
 }
 

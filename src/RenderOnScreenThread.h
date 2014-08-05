@@ -25,6 +25,10 @@ namespace OrientView
 		bool initialize(MainWindow* mainWindow, VideoWindow* videoWindow, VideoDecoder* videoDecoder, VideoDecoderThread* videoDecoderThread, VideoStabilizer* videoStabilizer, Renderer* renderer);
 		void shutdown();
 
+		bool isPaused();
+		void togglePaused();
+		void advanceOneFrame();
+
 	protected:
 
 		void run();
@@ -37,5 +41,8 @@ namespace OrientView
 		VideoDecoderThread* videoDecoderThread = nullptr;
 		VideoStabilizer* videoStabilizer = nullptr;
 		Renderer* renderer = nullptr;
+
+		bool paused = false;
+		bool shouldAdvanceOneFrame = false;
 	};
 }

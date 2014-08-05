@@ -19,6 +19,8 @@ namespace OrientView
 	class QuickRouteReader;
 	class MapImageReader;
 	class VideoStabilizer;
+	class VideoDecoderThread;
+	class RenderOnScreenThread;
 	class VideoEncoder;
 	class VideoWindow;
 	class Settings;
@@ -69,7 +71,7 @@ namespace OrientView
 
 		Renderer();
 
-		bool initialize(VideoDecoder* videoDecoder, QuickRouteReader* quickRouteReader, MapImageReader* mapImageReader, VideoStabilizer* videoStabilizer, VideoEncoder* videoEncoder, VideoWindow* videoWindow, Settings* settings);
+		bool initialize(VideoDecoder* videoDecoder, QuickRouteReader* quickRouteReader, MapImageReader* mapImageReader, VideoStabilizer* videoStabilizer, VideoDecoderThread* videoDecoderThread, RenderOnScreenThread* renderOnScreenThread, VideoEncoder* videoEncoder, VideoWindow* videoWindow, Settings* settings);
 		void shutdown();
 
 		void handleInput();
@@ -93,6 +95,8 @@ namespace OrientView
 
 		VideoDecoder* videoDecoder = nullptr;
 		VideoStabilizer* videoStabilizer = nullptr;
+		VideoDecoderThread* videoDecoderThread = nullptr;
+		RenderOnScreenThread* renderOnScreenThread = nullptr;
 		VideoEncoder* videoEncoder = nullptr;
 		VideoWindow* videoWindow = nullptr;
 

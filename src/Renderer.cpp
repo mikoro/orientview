@@ -9,6 +9,8 @@
 #include "QuickRouteReader.h"
 #include "MapImageReader.h"
 #include "VideoStabilizer.h"
+#include "VideoDecoderThread.h"
+#include "RenderOnScreenThread.h"
 #include "VideoEncoder.h"
 #include "VideoWindow.h"
 #include "Settings.h"
@@ -20,12 +22,14 @@ Renderer::Renderer()
 {
 }
 
-bool Renderer::initialize(VideoDecoder* videoDecoder, QuickRouteReader* quickRouteReader, MapImageReader* mapImageReader, VideoStabilizer* videoStabilizer, VideoEncoder* videoEncoder, VideoWindow* videoWindow, Settings* settings)
+bool Renderer::initialize(VideoDecoder* videoDecoder, QuickRouteReader* quickRouteReader, MapImageReader* mapImageReader, VideoStabilizer* videoStabilizer, VideoDecoderThread* videoDecoderThread, RenderOnScreenThread* renderOnScreenThread, VideoEncoder* videoEncoder, VideoWindow* videoWindow, Settings* settings)
 {
 	qDebug("Initializing Renderer");
 
 	this->videoDecoder = videoDecoder;
 	this->videoStabilizer = videoStabilizer;
+	this->videoDecoderThread = videoDecoderThread;
+	this->renderOnScreenThread = renderOnScreenThread;
 	this->videoEncoder = videoEncoder;
 	this->videoWindow = videoWindow;
 
@@ -286,6 +290,11 @@ void Renderer::handleInput()
 		}
 	}
 
+	if (!videoWindow->keyIsDown(Qt::Key_Control) && videoWindow->keyIsDownOnce(Qt::Key_Space))
+		renderOnScreenThread->togglePaused();
+	else if (videoWindow->keyIsDown(Qt::Key_Control) && videoWindow->keyIsDownOnce(Qt::Key_Space))
+		renderOnScreenThread->advanceOneFrame();
+
 	if (videoWindow->keyIsDownOnce(Qt::Key_F3))
 	{
 		if (renderMode == RenderMode::ALL)
@@ -327,11 +336,19 @@ void Renderer::handleInput()
 
 	if (selectedPanel == SelectedPanel::NONE)
 	{
-		if (videoWindow->keyIsDown(Qt::Key_Left))
+		if (videoWindow->keyIsDownOnce(Qt::Key_Left))
+		{
 			videoDecoder->seekRelative(-seekAmount);
+			videoDecoderThread->signalFrameRead();
+			renderOnScreenThread->advanceOneFrame();
+		}
 
-		if (videoWindow->keyIsDown(Qt::Key_Right))
+		if (videoWindow->keyIsDownOnce(Qt::Key_Right))
+		{
 			videoDecoder->seekRelative(seekAmount);
+			videoDecoderThread->signalFrameRead();
+			renderOnScreenThread->advanceOneFrame();
+		}
 	}
 
 	if (selectedPanel != SelectedPanel::NONE)

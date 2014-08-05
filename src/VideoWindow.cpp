@@ -106,20 +106,28 @@ bool VideoWindow::event(QEvent* event)
 	if (event->type() == QEvent::KeyPress)
 	{
 		QKeyEvent* ke = (QKeyEvent*)event;
-		keyMap[ke->key()] = true;
 
-		if (ke->key() == Qt::Key_Escape)
+		if (!ke->isAutoRepeat())
 		{
-			emit closing();
-			this->close();
+			keyMap[ke->key()] = true;
+
+			if (ke->key() == Qt::Key_Escape)
+			{
+				emit closing();
+				this->close();
+			}
 		}
 	}
 
 	if (event->type() == QEvent::KeyRelease)
 	{
 		QKeyEvent* ke = (QKeyEvent*)event;
-		keyMap[ke->key()] = false;
-		keyMapOnce[ke->key()] = false;
+		
+		if (!ke->isAutoRepeat())
+		{
+			keyMap[ke->key()] = false;
+			keyMapOnce[ke->key()] = false;
+		}
 	}
 
 	return QWindow::event(event);

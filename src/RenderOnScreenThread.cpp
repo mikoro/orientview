@@ -2,6 +2,7 @@
 // License: GPLv3, see the LICENSE file.
 
 #include <QElapsedTimer>
+#include <QTime>
 
 #include "RenderOnScreenThread.h"
 #include "MainWindow.h"
@@ -28,6 +29,9 @@ bool RenderOnScreenThread::initialize(MainWindow* mainWindow, VideoWindow* video
 	this->videoDecoderThread = videoDecoderThread;
 	this->videoStabilizer = videoStabilizer;
 	this->renderer = renderer;
+
+	paused = false;
+	shouldAdvanceOneFrame = false;
 
 	return true;
 }
@@ -59,12 +63,17 @@ void RenderOnScreenThread::run()
 			continue;
 		}
 
-		bool gotFrame = videoDecoderThread->tryGetNextFrame(&frameData, &frameDataGrayscale, 0);
+		bool gotFrame = false;
+
+		if (!paused || shouldAdvanceOneFrame)
+		{
+			gotFrame = videoDecoderThread->tryGetNextFrame(&frameData, &frameDataGrayscale, 0);
+			shouldAdvanceOneFrame = false;
+		}
 
 		if (gotFrame)
 			videoStabilizer->processFrame(&frameDataGrayscale);
 
-		renderer->handleInput();
 		videoWindow->getContext()->makeCurrent(videoWindow);
 		renderer->startRendering(videoWindow->width(), videoWindow->height(), frameDuration, spareTime);
 
@@ -78,6 +87,8 @@ void RenderOnScreenThread::run()
 		renderer->stopRendering();
 
 		spareTime = videoDecoder->getAverageFrameDuration() - (spareTimer.nsecsElapsed() / 1000000.0);
+
+		renderer->handleInput();
 
 		// use combination of normal and spinning wait to sync the frame rate accurately
 		while (true)
@@ -104,4 +115,20 @@ void RenderOnScreenThread::run()
 
 	videoWindow->getContext()->doneCurrent();
 	videoWindow->getContext()->moveToThread(mainWindow->thread());
+}
+
+bool RenderOnScreenThread::isPaused()
+{
+	return paused;
+}
+
+void RenderOnScreenThread::togglePaused()
+{
+	paused = !paused;
+	shouldAdvanceOneFrame = false;
+}
+
+void RenderOnScreenThread::advanceOneFrame()
+{
+	shouldAdvanceOneFrame = true;
 }

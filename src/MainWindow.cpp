@@ -137,7 +137,7 @@ void MainWindow::on_actionPlayVideo_triggered()
 		if (!videoWindow->initialize(settings))
 			throw std::runtime_error("Could not initialize VideoWindow");
 
-		if (!renderer->initialize(videoDecoder, quickRouteReader, mapImageReader, videoStabilizer, videoEncoder, videoWindow, settings))
+		if (!renderer->initialize(videoDecoder, quickRouteReader, mapImageReader, videoStabilizer, videoDecoderThread, renderOnScreenThread, videoEncoder, videoWindow, settings))
 			throw std::runtime_error("Could not initialize Renderer");
 
 		if (!videoDecoderThread->initialize(videoDecoder))
@@ -195,7 +195,7 @@ void MainWindow::on_actionEncodeVideo_triggered()
 		if (!encodeWindow->initialize(videoDecoder, videoEncoderThread, settings))
 			throw std::runtime_error("Could not initialize EncodeWindow");
 
-		if (!renderer->initialize(videoDecoder, quickRouteReader, mapImageReader, videoStabilizer, videoEncoder, videoWindow, settings))
+		if (!renderer->initialize(videoDecoder, quickRouteReader, mapImageReader, videoStabilizer, videoDecoderThread, renderOnScreenThread, videoEncoder, videoWindow, settings))
 			throw std::runtime_error("Could not initialize Renderer");
 
 		if (!videoDecoderThread->initialize(videoDecoder))
