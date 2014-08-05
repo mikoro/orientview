@@ -21,7 +21,7 @@ namespace OrientView
 	class MapImageReader;
 	class VideoStabilizer;
 	class InputHandler;
-	class Settings;
+	struct Settings;
 	struct FrameData;
 
 	enum class RenderMode { ALL, VIDEO, MAP };
@@ -74,8 +74,8 @@ namespace OrientView
 		void renderAll();
 		void stopRendering();
 
-		Panel* getVideoPanel() const;
-		Panel* getMapPanel() const;
+		Panel* getVideoPanel();
+		Panel* getMapPanel();
 		RenderMode getRenderMode() const;
 
 		void setRenderMode(RenderMode mode);

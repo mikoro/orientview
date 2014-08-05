@@ -128,7 +128,8 @@ bool Renderer::initialize(VideoWindow* videoWindow, VideoDecoder* videoDecoder, 
 	painter->end();
 
 	routePath = new QPainterPath();
-	int routePointCount = quickRouteReader->getRouteData().routePoints.size();
+
+	/*int routePointCount = quickRouteReader->getRouteData().routePoints.size();
 
 	if (routePointCount >= 2)
 	{
@@ -144,7 +145,7 @@ bool Renderer::initialize(VideoWindow* videoWindow, VideoDecoder* videoDecoder, 
 			else
 				routePath->lineTo(x, y);
 		}
-	}
+	}*/
 
 	glClearColor(videoPanel.clearColor.redF(), videoPanel.clearColor.greenF(), videoPanel.clearColor.blueF(), 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -526,12 +527,12 @@ void Renderer::stopRendering()
 	lastRenderTime = renderTimer.nsecsElapsed() / 1000000.0;
 }
 
-Panel* Renderer::getVideoPanel() const
+Panel* Renderer::getVideoPanel()
 {
 	return &videoPanel;
 }
 
-Panel* Renderer::getMapPanel() const
+Panel* Renderer::getMapPanel()
 {
 	return &mapPanel;
 }

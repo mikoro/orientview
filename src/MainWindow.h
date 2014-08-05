@@ -12,7 +12,7 @@ namespace Ui
 
 namespace OrientView
 {
-	class Settings;
+	struct Settings;
 	class VideoDecoder;
 	class QuickRouteReader;
 	class MapImageReader;

@@ -18,7 +18,7 @@ namespace OrientView
 	class VideoStabilizer;
 	class Renderer;
 	class VideoEncoder;
-	class Settings;
+	struct Settings;
 
 	class RenderOffScreenThread : public QThread
 	{

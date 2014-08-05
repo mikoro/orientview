@@ -17,7 +17,7 @@ namespace OrientView
 {
 	class VideoDecoder;
 	class VideoEncoderThread;
-	class Settings;
+	struct Settings;
 
 	class EncodeWindow : public QDialog
 	{

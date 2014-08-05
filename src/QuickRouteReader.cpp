@@ -172,12 +172,12 @@ namespace
 
 		QDateTime previousTime = QDateTime::fromMSecsSinceEpoch(0);
 
-		for (int i = 0; i < segmentCount; i++)
+		for (uint32_t i = 0; i < segmentCount; i++)
 		{
 			if (!readUint32(buffer, index, waypointCount))
 				return false;
 
-			for (int j = 0; j < waypointCount; j++)
+			for (uint32_t j = 0; j < waypointCount; j++)
 			{
 				RoutePoint rp;
 				double lon, lat;
@@ -233,7 +233,7 @@ namespace
 		if (!readUint32(buffer, index, handleCount))
 			return false;
 
-		for (int i = 0; i < handleCount; i++)
+		for (uint32_t i = 0; i < handleCount; i++)
 		{
 			if (i == 0)
 			{
@@ -342,7 +342,7 @@ namespace
 				if (!readUint32(buffer, index, sessionCount))
 					return false;
 
-				for (int i = 0; i < sessionCount; i++)
+				for (uint32_t i = 0; i < sessionCount; i++)
 				{
 					if (!readUint8(buffer, index, tag))
 						return false;

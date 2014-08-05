@@ -11,7 +11,7 @@
 
 namespace OrientView
 {
-	class Settings;
+	struct Settings;
 	struct FrameData;
 
 	class VideoStabilizer

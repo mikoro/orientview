@@ -11,7 +11,7 @@ namespace OrientView
 	class VideoDecoderThread;
 	class RenderOnScreenThread;
 	class Renderer;
-	class Settings;
+	struct Settings;
 
 	enum class SelectedPanel { NONE, VIDEO, MAP };
 

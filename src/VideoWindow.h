@@ -8,7 +8,7 @@
 
 namespace OrientView
 {
-	class Settings;
+	struct Settings;
 
 	class VideoWindow : public QWindow
 	{
