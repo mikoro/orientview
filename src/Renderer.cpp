@@ -296,13 +296,42 @@ void Renderer::handleInput()
 			renderMode = RenderMode::ALL;
 	}
 
+	int seekAmount = 10;
+	double translateVelocity = 0.5;
+	double rotateVelocity = 0.1;
+	double scaleConstant = 500.0;
+
+	if (videoWindow->keyIsDown(Qt::Key_Control))
+	{
+		seekAmount = 2;
+		translateVelocity = 0.1;
+		rotateVelocity = 0.02;
+		scaleConstant = 5000.0;
+	}
+
+	if (videoWindow->keyIsDown(Qt::Key_Shift))
+	{
+		seekAmount = 60;
+		translateVelocity = 1.0;
+		rotateVelocity = 0.5;
+		scaleConstant = 100.0;
+	}
+
+	if (videoWindow->keyIsDown(Qt::Key_Alt))
+	{
+		seekAmount = 600;
+	}
+
+	translateVelocity *= frameTime;
+	rotateVelocity *= frameTime;
+
 	if (selectedPanel == SelectedPanel::NONE)
 	{
 		if (videoWindow->keyIsDown(Qt::Key_Left))
-			videoDecoder->seekRelative(-10);
+			videoDecoder->seekRelative(-seekAmount);
 
 		if (videoWindow->keyIsDown(Qt::Key_Right))
-			videoDecoder->seekRelative(10);
+			videoDecoder->seekRelative(seekAmount);
 	}
 
 	if (selectedPanel != SelectedPanel::NONE)
@@ -315,29 +344,29 @@ void Renderer::handleInput()
 			selectedPanelPtr->userScale = 1.0;
 		}
 
-		if (videoWindow->keyIsDown(Qt::Key_W))
-			selectedPanelPtr->userAngle += 0.1 * frameTime;
-
-		if (videoWindow->keyIsDown(Qt::Key_S))
-			selectedPanelPtr->userAngle -= 0.1 * frameTime;
-
-		if (videoWindow->keyIsDown(Qt::Key_Q))
-			selectedPanelPtr->userScale *= (1.0 + frameTime / 500);
-
-		if (videoWindow->keyIsDown(Qt::Key_A))
-			selectedPanelPtr->userScale *= (1.0 - frameTime / 500);
-
 		if (videoWindow->keyIsDown(Qt::Key_Left))
-			selectedPanelPtr->userX -= 0.5 * frameTime;
+			selectedPanelPtr->userX -= translateVelocity;
 
 		if (videoWindow->keyIsDown(Qt::Key_Right))
-			selectedPanelPtr->userX += 0.5 * frameTime;
+			selectedPanelPtr->userX += translateVelocity;
 
 		if (videoWindow->keyIsDown(Qt::Key_Up))
-			selectedPanelPtr->userY += 0.5 * frameTime;
+			selectedPanelPtr->userY += translateVelocity;
 
 		if (videoWindow->keyIsDown(Qt::Key_Down))
-			selectedPanelPtr->userY -= 0.5 * frameTime;
+			selectedPanelPtr->userY -= translateVelocity;
+
+		if (videoWindow->keyIsDown(Qt::Key_W))
+			selectedPanelPtr->userAngle += rotateVelocity;
+
+		if (videoWindow->keyIsDown(Qt::Key_S))
+			selectedPanelPtr->userAngle -= rotateVelocity;
+
+		if (videoWindow->keyIsDown(Qt::Key_Q))
+			selectedPanelPtr->userScale *= (1.0 + frameTime / scaleConstant);
+
+		if (videoWindow->keyIsDown(Qt::Key_A))
+			selectedPanelPtr->userScale *= (1.0 - frameTime / scaleConstant);
 	}
 }
 
