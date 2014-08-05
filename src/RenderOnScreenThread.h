@@ -21,12 +21,10 @@ namespace OrientView
 
 	public:
 
-		RenderOnScreenThread();
-
 		bool initialize(MainWindow* mainWindow, VideoWindow* videoWindow, VideoDecoder* videoDecoder, VideoDecoderThread* videoDecoderThread, VideoStabilizer* videoStabilizer, Renderer* renderer, InputHandler* inputHandler);
 		void shutdown();
 
-		bool isPaused();
+		bool isPaused() const;
 		void togglePaused();
 		void advanceOneFrame();
 

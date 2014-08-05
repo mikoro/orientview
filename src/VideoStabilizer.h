@@ -19,8 +19,6 @@ namespace OrientView
 
 	public:
 
-		VideoStabilizer();
-
 		bool initialize(Settings* settings);
 		void shutdown();
 
@@ -44,22 +42,23 @@ namespace OrientView
 		double normalizedY = 0.0;
 		double normalizedAngle = 0.0;
 
+		double dampingFactor = 0.0;
+
 		MovingAverage currentXAverage;
 		MovingAverage currentYAverage;
 		MovingAverage currentAngleAverage;
 
-		double dampingFactor = 0.0;
-		double lastProcessTime = 0.0;
-
 		cv::Mat previousImage;
-
+		cv::Mat previousTransformation;
 		std::vector<cv::Point2f> previousCorners;
 		std::vector<cv::Point2f> currentCorners;
 		std::vector<cv::Point2f> previousCornersFiltered;
 		std::vector<cv::Point2f> currentCornersFiltered;
 		std::vector<uchar> opticalFlowStatus;
 		std::vector<float> opticalFlowError;
-		cv::Mat previousTransform;
+		
+		QElapsedTimer processTimer;
+		double lastProcessTime = 0.0;
 
 		QFile dataOutputFile;
 		bool outputData = false;

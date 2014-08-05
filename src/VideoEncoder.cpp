@@ -9,10 +9,6 @@
 
 using namespace OrientView;
 
-VideoEncoder::VideoEncoder()
-{
-}
-
 bool VideoEncoder::initialize(VideoDecoder* videoDecoder, Settings* settings)
 {
 	qDebug("Initializing VideoEncoder (%s)", qPrintable(settings->files.outputVideoFilePath));
@@ -130,7 +126,7 @@ void VideoEncoder::shutdown()
 	}
 }
 
-void VideoEncoder::loadFrameData(FrameData* frameData)
+void VideoEncoder::readFrameData(FrameData* frameData)
 {
 	encodeTimer.restart();
 

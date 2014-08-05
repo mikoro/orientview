@@ -23,7 +23,7 @@ namespace OrientView
 		bool initialize(VideoWindow* videoWindow, Renderer* renderer, VideoDecoder* videoDecoder, VideoDecoderThread* videoDecoderThread, RenderOnScreenThread* renderOnScreenThread, Settings* settings);
 		void handleInput(double frameTime);
 
-		SelectedPanel getSelectedPanel();
+		SelectedPanel getSelectedPanel() const;
 
 	private:
 

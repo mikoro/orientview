@@ -63,10 +63,6 @@ namespace
 	}
 }
 
-VideoDecoder::VideoDecoder()
-{
-}
-
 bool VideoDecoder::initialize(Settings* settings)
 {
 	qDebug("Initializing VideoDecoder (%s)", qPrintable(settings->files.inputVideoFilePath));
@@ -348,51 +344,11 @@ void VideoDecoder::seekRelative(int seconds)
 		qWarning("Could not seek video");
 }
 
-int VideoDecoder::getFrameWidth()
-{
-	return frameWidth;
-}
-
-int VideoDecoder::getFrameHeight()
-{
-	return frameHeight;
-}
-
-int VideoDecoder::getFrameDataLength()
-{
-	return frameDataLength;
-}
-
-int VideoDecoder::getTotalFrameCount()
-{
-	return totalFrameCount;
-}
-
 int VideoDecoder::getCurrentFrameNumber()
 {
 	QMutexLocker locker(&decoderMutex);
 
 	return currentFrameNumber;
-}
-
-int VideoDecoder::getAverageFrameRateNum()
-{
-	return averageFrameRateNum;
-}
-
-int VideoDecoder::getAverageFrameRateDen()
-{
-	return averageFrameRateDen;
-}
-
-double VideoDecoder::getAverageFrameDuration()
-{
-	return averageFrameDuration;
-}
-
-double VideoDecoder::getAverageFrameRate()
-{
-	return averageFrameRate;
 }
 
 double VideoDecoder::getCurrentTime()
@@ -414,4 +370,44 @@ double VideoDecoder::getLastDecodeTime()
 	QMutexLocker locker(&decoderMutex);
 
 	return lastDecodeTime;
+}
+
+int VideoDecoder::getFrameWidth() const
+{
+	return frameWidth;
+}
+
+int VideoDecoder::getFrameHeight() const
+{
+	return frameHeight;
+}
+
+int VideoDecoder::getFrameDataLength() const
+{
+	return frameDataLength;
+}
+
+int VideoDecoder::getTotalFrameCount() const
+{
+	return totalFrameCount;
+}
+
+int VideoDecoder::getAverageFrameRateNum() const
+{
+	return averageFrameRateNum;
+}
+
+int VideoDecoder::getAverageFrameRateDen() const
+{
+	return averageFrameRateDen;
+}
+
+double VideoDecoder::getAverageFrameDuration() const
+{
+	return averageFrameDuration;
+}
+
+double VideoDecoder::getAverageFrameRate() const
+{
+	return averageFrameRate;
 }

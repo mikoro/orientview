@@ -13,6 +13,8 @@ using namespace OrientView;
 
 bool InputHandler::initialize(VideoWindow* videoWindow, Renderer* renderer, VideoDecoder* videoDecoder, VideoDecoderThread* videoDecoderThread, RenderOnScreenThread* renderOnScreenThread, Settings* settings)
 {
+	qDebug("Initializing InputHandler");
+
 	this->videoWindow = videoWindow;
 	this->renderer = renderer;
 	this->videoDecoder = videoDecoder;
@@ -145,7 +147,7 @@ void InputHandler::handleInput(double frameTime)
 	}
 }
 
-SelectedPanel InputHandler::getSelectedPanel()
+SelectedPanel InputHandler::getSelectedPanel() const
 {
 	return selectedPanel;
 }

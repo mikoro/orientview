@@ -16,10 +16,6 @@
 
 using namespace OrientView;
 
-RenderOnScreenThread::RenderOnScreenThread()
-{
-}
-
 bool RenderOnScreenThread::initialize(MainWindow* mainWindow, VideoWindow* videoWindow, VideoDecoder* videoDecoder, VideoDecoderThread* videoDecoderThread, VideoStabilizer* videoStabilizer, Renderer* renderer, InputHandler* inputHandler)
 {
 	qDebug("Initializing RenderOnScreenThread");
@@ -119,7 +115,7 @@ void RenderOnScreenThread::run()
 	videoWindow->getContext()->moveToThread(mainWindow->thread());
 }
 
-bool RenderOnScreenThread::isPaused()
+bool RenderOnScreenThread::isPaused() const
 {
 	return paused;
 }

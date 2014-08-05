@@ -18,8 +18,6 @@ namespace OrientView
 
 	public:
 
-		VideoDecoderThread();
-
 		bool initialize(VideoDecoder* videoDecoder);
 		void shutdown();
 

@@ -66,8 +66,6 @@ namespace OrientView
 
 	public:
 
-		Renderer();
-
 		bool initialize(VideoWindow* videoWindow, VideoDecoder* videoDecoder, QuickRouteReader* quickRouteReader, MapImageReader* mapImageReader, VideoStabilizer* videoStabilizer, InputHandler* inputHandler, Settings* settings);
 		void shutdown();
 
@@ -76,9 +74,9 @@ namespace OrientView
 		void renderAll();
 		void stopRendering();
 
-		Panel* getVideoPanel();
-		Panel* getMapPanel();
-		RenderMode getRenderMode();
+		Panel* getVideoPanel() const;
+		Panel* getMapPanel() const;
+		RenderMode getRenderMode() const;
 
 		void setRenderMode(RenderMode mode);
 		void setFlipOutput(bool value);

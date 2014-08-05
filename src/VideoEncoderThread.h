@@ -17,8 +17,6 @@ namespace OrientView
 
 	public:
 
-		VideoEncoderThread();
-
 		bool initialize(VideoDecoder* videoDecoder, VideoEncoder* videoEncoder, RenderOffScreenThread* renderOffScreenThread);
 		void shutdown();
 
@@ -36,7 +34,5 @@ namespace OrientView
 		VideoDecoder* videoDecoder = nullptr;
 		VideoEncoder* videoEncoder = nullptr;
 		RenderOffScreenThread* renderOffScreenThread = nullptr;
-
-		int totalFrameCount = 0;
 	};
 }

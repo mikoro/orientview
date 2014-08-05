@@ -10,14 +10,9 @@
 #include "Settings.h"
 #include "FrameData.h"
 
-//#define PI 3.14159265358979323846
 #define sign(a) (((a) < 0) ? -1 : ((a) > 0))
 
 using namespace OrientView;
-
-VideoStabilizer::VideoStabilizer()
-{
-}
 
 bool VideoStabilizer::initialize(Settings* settings)
 {
@@ -33,6 +28,8 @@ bool VideoStabilizer::initialize(Settings* settings)
 	normalizedY = 0.0;
 	normalizedAngle = 0.0;
 
+	dampingFactor = settings->stabilizer.dampingFactor;
+
 	currentXAverage.reset();
 	currentXAverage.setAlpha(settings->stabilizer.averagingFactor);
 	currentYAverage.reset();
@@ -40,10 +37,9 @@ bool VideoStabilizer::initialize(Settings* settings)
 	currentAngleAverage.reset();
 	currentAngleAverage.setAlpha(settings->stabilizer.averagingFactor);
 
-	dampingFactor = settings->stabilizer.dampingFactor;
-	lastProcessTime = 0.0;
+	previousTransformation = cv::Mat::eye(2, 3, CV_64F);
 
-	previousTransform = cv::Mat::eye(2, 3, CV_64F);
+	lastProcessTime = 0.0;
 
 	if (outputData)
 	{
@@ -68,8 +64,7 @@ void VideoStabilizer::processFrame(FrameData* frameDataGrayscale)
 	if (!isEnabled)
 		return;
 
-	QElapsedTimer processTimer;
-	processTimer.start();
+	processTimer.restart();
 
 	cv::Mat currentImage(frameDataGrayscale->height, frameDataGrayscale->width, CV_8UC1, frameDataGrayscale->data);
 
@@ -82,28 +77,9 @@ void VideoStabilizer::processFrame(FrameData* frameDataGrayscale)
 		return;
 	}
 
-	bool failed = false;
-
-	try
-	{
-		cv::goodFeaturesToTrack(previousImage, previousCorners, 200, 0.01, 30.0);
-	}
-	catch (cv::Exception& ex)
-	{
-		qWarning("Could not execute goodFeaturesToTrack: %s", ex.what());
-		failed = true;
-	}
-
-	try
-	{
-		cv::calcOpticalFlowPyrLK(previousImage, currentImage, previousCorners, currentCorners, opticalFlowStatus, opticalFlowError);
-	}
-	catch (cv::Exception& ex)
-	{
-		qWarning("Could not execute calcOpticalFlowPyrLK: %s", ex.what());
-		failed = true;
-	}
-
+	cv::goodFeaturesToTrack(previousImage, previousCorners, 200, 0.01, 30.0);
+	cv::calcOpticalFlowPyrLK(previousImage, currentImage, previousCorners, currentCorners, opticalFlowStatus, opticalFlowError);
+	
 	currentImage.copyTo(previousImage);
 
 	for (int i = 0; i < opticalFlowStatus.size(); i++)
@@ -115,34 +91,22 @@ void VideoStabilizer::processFrame(FrameData* frameDataGrayscale)
 		}
 	}
 
-	cv::Mat transform;
+	cv::Mat currentTransformation;
+	currentTransformation = cv::estimateRigidTransform(previousCornersFiltered, currentCornersFiltered, false);
 
-	try
-	{
-		transform = cv::estimateRigidTransform(previousCornersFiltered, currentCornersFiltered, false);
-	}
-	catch (cv::Exception& ex)
-	{
-		qWarning("Could not execute estimateRigidTransform: %s", ex.what());
-		failed = true;
-	}
-
-	if (transform.data == nullptr)
-		failed = true;
-
-	if (failed)
-		previousTransform.copyTo(transform);
+	if (currentTransformation.data == nullptr)
+		previousTransformation.copyTo(currentTransformation);
 
 	// a b tx
 	// c d ty
-	double a = transform.at<double>(0, 0);
-	double b = transform.at<double>(0, 1);
-	double c = transform.at<double>(1, 0);
-	double d = transform.at<double>(1, 1);
-	double tx = transform.at<double>(0, 2);
-	double ty = transform.at<double>(1, 2);
+	double a = currentTransformation.at<double>(0, 0);
+	double b = currentTransformation.at<double>(0, 1);
+	double c = currentTransformation.at<double>(1, 0);
+	double d = currentTransformation.at<double>(1, 1);
+	double tx = currentTransformation.at<double>(0, 2);
+	double ty = currentTransformation.at<double>(1, 2);
 
-	transform.copyTo(previousTransform);
+	currentTransformation.copyTo(previousTransformation);
 
 	double dx = tx / frameDataGrayscale->width;
 	double dy = ty / frameDataGrayscale->height;

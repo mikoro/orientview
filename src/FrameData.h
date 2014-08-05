@@ -14,7 +14,7 @@ namespace OrientView
 		int rowLength = 0;
 		int width = 0;
 		int height = 0;
-		int duration = 0; // ms
+		int duration = 0; // us
 		int number = 0;
 	};
 }

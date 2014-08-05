@@ -78,7 +78,7 @@ bool GpxReader::initialize(const QString& fileName)
 	return true;
 }
 
-const std::vector<TrackPoint>& GpxReader::getTrackPoints()
+const std::vector<TrackPoint>& GpxReader::getTrackPoints() const
 {
 	return trackPoints;
 }

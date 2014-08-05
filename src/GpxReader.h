@@ -24,7 +24,7 @@ namespace OrientView
 	public:
 
 		bool initialize(const QString& fileName);
-		const std::vector<TrackPoint>& getTrackPoints();
+		const std::vector<TrackPoint>& getTrackPoints() const;
 
 	private:
 

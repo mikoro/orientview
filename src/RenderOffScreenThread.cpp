@@ -17,10 +17,6 @@
 
 using namespace OrientView;
 
-RenderOffScreenThread::RenderOffScreenThread()
-{
-}
-
 bool RenderOffScreenThread::initialize(MainWindow* mainWindow, EncodeWindow* encodeWindow, VideoDecoder* videoDecoder, VideoDecoderThread* videoDecoderThread, VideoStabilizer* videoStabilizer, Renderer* renderer, VideoEncoder* videoEncoder, Settings* settings)
 {
 	qDebug("Initializing RenderOffScreenThread");

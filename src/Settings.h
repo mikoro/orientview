@@ -14,11 +14,8 @@ namespace Ui
 
 namespace OrientView
 {
-	class Settings
+	struct Settings
 	{
-
-	public:
-
 		void read(QSettings* settings);
 		void write(QSettings* settings);
 		void update(Ui::MainWindow* ui);

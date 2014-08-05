@@ -16,10 +16,6 @@
 
 using namespace OrientView;
 
-Renderer::Renderer()
-{
-}
-
 bool Renderer::initialize(VideoWindow* videoWindow, VideoDecoder* videoDecoder, QuickRouteReader* quickRouteReader, MapImageReader* mapImageReader, VideoStabilizer* videoStabilizer, InputHandler* inputHandler, Settings* settings)
 {
 	qDebug("Initializing Renderer");
@@ -530,17 +526,17 @@ void Renderer::stopRendering()
 	lastRenderTime = renderTimer.nsecsElapsed() / 1000000.0;
 }
 
-Panel* Renderer::getVideoPanel()
+Panel* Renderer::getVideoPanel() const
 {
 	return &videoPanel;
 }
 
-Panel* Renderer::getMapPanel()
+Panel* Renderer::getMapPanel() const
 {
 	return &mapPanel;
 }
 
-RenderMode Renderer::getRenderMode()
+RenderMode Renderer::getRenderMode() const
 {
 	return renderMode;
 }

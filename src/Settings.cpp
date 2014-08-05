@@ -11,6 +11,8 @@ using namespace OrientView;
 
 void Settings::read(QSettings* settings)
 {
+	qDebug("Reading settings from %s", qPrintable(settings->fileName()));
+
 	files.inputVideoFilePath = settings->value("files/inputVideoFilePath", "").toString();
 	files.quickRouteJpegMapImageFilePath = settings->value("files/quickRouteJpegMapImageFilePath", "").toString();
 	files.alternativeMapImageFilePath = settings->value("files/alternativeMapImageFilePath", "").toString();
@@ -66,6 +68,8 @@ void Settings::read(QSettings* settings)
 
 void Settings::write(QSettings* settings)
 {
+	qDebug("Writing settings to %s", qPrintable(settings->fileName()));
+
 	settings->setValue("files/inputVideoFilePath", files.inputVideoFilePath);
 	settings->setValue("files/quickRouteJpegMapImageFilePath", files.quickRouteJpegMapImageFilePath);
 	settings->setValue("files/alternativeMapImageFilePath", files.alternativeMapImageFilePath);

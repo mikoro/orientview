@@ -6,10 +6,6 @@
 
 using namespace OrientView;
 
-VideoDecoderThread::VideoDecoderThread()
-{
-}
-
 bool VideoDecoderThread::initialize(VideoDecoder* videoDecoder)
 {
 	qDebug("Initializing VideoDecoderThread");
