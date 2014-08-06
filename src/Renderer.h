@@ -101,7 +101,7 @@ namespace OrientView
 
 		bool flipOutput = false;
 		bool showInfoPanel = false;
-		bool fullClearRequested = false;
+		bool fullClearRequested = true;
 
 		double mapPanelRelativeWidth = 0.0;
 		double windowWidth = 0.0;

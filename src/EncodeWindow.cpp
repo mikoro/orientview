@@ -64,17 +64,18 @@ bool EncodeWindow::initialize(VideoDecoder* videoDecoder, VideoEncoderThread* vi
 		return false;
 	}
 
-	ui->progressBarMain->setValue(0);
-	ui->pushButtonOpenVideo->setEnabled(false);
-	ui->pushButtonStopClose->setText("Stop");
-
-	startTime.restart();
-
 	initialized = true;
 	isRunning = true;
 	totalFrameCount = videoDecoder->getTotalFrameCount();
 	currentSize = 0.0;
 	videoFilePath = settings->files.outputVideoFilePath;
+
+	ui->progressBarMain->setValue(0);
+	ui->labelTotalFrames->setText(QString::number(totalFrameCount));
+	ui->pushButtonOpenVideo->setEnabled(false);
+	ui->pushButtonStopClose->setText("Stop");
+
+	startTime.restart();
 
 	return true;
 }
@@ -119,29 +120,28 @@ void EncodeWindow::frameProcessed(int frameNumber, int frameSize)
 	int value = (int)round((double)frameNumber / totalFrameCount * 1000.0);
 	ui->progressBarMain->setValue(value);
 
-	int elapsedTime1 = startTime.elapsed();
+	int elapsedTimeMs = startTime.elapsed();
+	double timePerFrameMs = (double)elapsedTimeMs / frameNumber;
+	double framesPerSecond = 1.0 / timePerFrameMs * 1000.0;
+	int totalTimeMs = (int)round(timePerFrameMs * totalFrameCount);
+	int remainingTimeMs = totalTimeMs - elapsedTimeMs;
+	currentSize += (frameSize / 1000000.0);
+	double totalSize = (currentSize / frameNumber) * totalFrameCount;
 
-	QTime elapsedTime2(0, 0, 0, 0);
-	QTime elapsedTime3 = elapsedTime2.addMSecs(elapsedTime1);
+	if (remainingTimeMs < 0)
+		remainingTimeMs = 0;
 
-	double timePerFrame = (double)elapsedTime1 / frameNumber;
-	int remainingTime1 = ((int)round(timePerFrame * totalFrameCount)) - elapsedTime1;
+	QTime elapsedTime = QTime(0, 0, 0, 0).addMSecs(elapsedTimeMs);
+	QTime remainingTime = QTime(0, 0, 0, 0).addMSecs(remainingTimeMs);
+	QTime totalTime = QTime(0, 0, 0, 0).addMSecs(totalTimeMs);
 
-	if (remainingTime1 < 0)
-		remainingTime1 = 0;
-
-	QTime remainingTime2(0, 0, 0, 0);
-	QTime remainingTime3 = remainingTime2.addMSecs(remainingTime1);
-
-	double framesPerSecond = frameNumber / ((double)elapsedTime1 / 1000.0);
-
-	currentSize += frameSize / 1000000.0;
-
-	ui->labelElapsed->setText(elapsedTime3.toString());
-	ui->labelRemaining->setText(remainingTime3.toString());
-	ui->labelFrame->setText(QString("%1/%2").arg(QString::number(frameNumber), QString::number(totalFrameCount)));
+	ui->labelElapsedTime->setText(elapsedTime.toString());
+	ui->labelRemainingTime->setText(remainingTime.toString());
+	ui->labelTotalTime->setText(totalTime.toString());
+	ui->labelCurrentFrame->setText(QString::number(frameNumber));
 	ui->labelFramesPerSecond->setText(QString::number(framesPerSecond, 'f', 1));
-	ui->labelSize->setText(QString("%1 MB").arg(QString::number(currentSize, 'f', 2)));
+	ui->labelCurrentSize->setText(QString("%1 MB").arg(QString::number(currentSize, 'f', 2)));
+	ui->labelTotalSize->setText(QString("%1 MB").arg(QString::number(totalSize, 'f', 2)));
 }
 
 void EncodeWindow::encodingFinished()

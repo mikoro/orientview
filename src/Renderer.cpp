@@ -45,6 +45,7 @@ bool Renderer::initialize(VideoWindow* videoWindow, VideoDecoder* videoDecoder, 
 	windowHeight = videoWindow->height();
 
 	showInfoPanel = settings->appearance.showInfoPanel;
+	fullClearRequested = true;
 
 	const double movingAverageAlpha = 0.1;
 	averageFps.reset();
@@ -146,9 +147,6 @@ bool Renderer::initialize(VideoWindow* videoWindow, VideoDecoder* videoDecoder, 
 				routePath->lineTo(x, y);
 		}
 	}*/
-
-	glClearColor(videoPanel.clearColor.redF(), videoPanel.clearColor.greenF(), videoPanel.clearColor.blueF(), 0.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
 
 	return true;
 }
