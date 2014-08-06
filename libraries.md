@@ -1,4 +1,4 @@
-# Compiling external libraries
+# Compiling external libraries for Windows
 
 ## Prerequisites
 
