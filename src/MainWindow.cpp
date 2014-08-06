@@ -2,7 +2,7 @@
 // License: GPLv3, see the LICENSE file.
 
 #include <QFileDialog>
-#include <QtGUI>
+#include <QtGui>
 #include <QMessageBox>
 #include <QColorDialog>
 

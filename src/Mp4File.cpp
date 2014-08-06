@@ -146,7 +146,7 @@ bool Mp4File::setParam(x264_param_t* param)
 	lsmash_media_parameters_t mediaParameters;
 	lsmash_initialize_media_parameters(&mediaParameters);
 	mediaParameters.timescale = mediaTimescale;
-	mediaParameters.media_handler_name = "L-SMASH Video Media Handler";
+	mediaParameters.media_handler_name = (char*)"L-SMASH Video Media Handler";
 	RETURN_IF_ERR(lsmash_set_media_parameters(mp4Handle->root, mp4Handle->track, &mediaParameters), "Failed to set media parameters for video");
 
 	mp4Handle->videoTimescale = lsmash_get_media_timescale(mp4Handle->root, mp4Handle->track);

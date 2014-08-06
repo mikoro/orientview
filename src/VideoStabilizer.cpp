@@ -99,8 +99,6 @@ void VideoStabilizer::processFrame(FrameData* frameDataGrayscale)
 
 	// a b tx
 	// c d ty
-	double a = currentTransformation.at<double>(0, 0);
-	double b = currentTransformation.at<double>(0, 1);
 	double c = currentTransformation.at<double>(1, 0);
 	double d = currentTransformation.at<double>(1, 1);
 	double tx = currentTransformation.at<double>(0, 2);
