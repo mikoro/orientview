@@ -18,6 +18,7 @@ namespace OrientView
 	struct Settings;
 	struct FrameData;
 
+	// Encapsulate the FFmpeg library for reading and decoding video files.
 	class VideoDecoder
 	{
 	public:

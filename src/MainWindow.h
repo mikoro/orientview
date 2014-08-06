@@ -27,6 +27,7 @@ namespace OrientView
 	class VideoWindow;
 	class EncodeWindow;
 
+	// Main window is the first window shown and houses all the other parts of the program.
 	class MainWindow : public QMainWindow
 	{
 		Q_OBJECT

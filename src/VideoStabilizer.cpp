@@ -77,11 +77,15 @@ void VideoStabilizer::processFrame(FrameData* frameDataGrayscale)
 		return;
 	}
 
+	// find good trackable feature points from the previous image
 	cv::goodFeaturesToTrack(previousImage, previousCorners, 200, 0.01, 30.0);
+
+	// find those same points in the current image
 	cv::calcOpticalFlowPyrLK(previousImage, currentImage, previousCorners, currentCorners, opticalFlowStatus, opticalFlowError);
 	
 	currentImage.copyTo(previousImage);
 
+	// filter out points which didn't have a good match
 	for (size_t i = 0; i < opticalFlowStatus.size(); i++)
 	{
 		if (opticalFlowStatus[i])
@@ -91,9 +95,11 @@ void VideoStabilizer::processFrame(FrameData* frameDataGrayscale)
 		}
 	}
 
+	// estimate the transformation between previous and current images trackable points
 	cv::Mat currentTransformation;
 	currentTransformation = cv::estimateRigidTransform(previousCornersFiltered, currentCornersFiltered, false);
 
+	// sometimes the transformation could not be found, just use previous transformation
 	if (currentTransformation.data == nullptr)
 		previousTransformation.copyTo(currentTransformation);
 
@@ -111,14 +117,19 @@ void VideoStabilizer::processFrame(FrameData* frameDataGrayscale)
 	double deltaAngle = atan2(c, d) * 180.0 / M_PI;
 	//double deltaScale = sign(a) * sqrt(a * a + b * b); // not used, only causes jitter
 
+	// current* values track the cumulative trajectory of the image
+	// these are not bounded in anyway
 	currentX += deltaX;
 	currentY += deltaY;
 	currentAngle += deltaAngle;
 
+	// normalized* filter out the trajectory and only give out delta values respect to the average trajectory
+	// these are centered at zero
 	normalizedX = (currentXAverage.getAverage() - currentX) * dampingFactor;
 	normalizedY = (currentYAverage.getAverage() - currentY) * dampingFactor;
 	normalizedAngle = (currentAngleAverage.getAverage() - currentAngle) * dampingFactor;
 
+	// calculate exponential moving average of the current values
 	currentXAverage.addMeasurement(currentX);
 	currentYAverage.addMeasurement(currentY);
 	currentAngleAverage.addMeasurement(currentAngle);

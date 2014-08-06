@@ -18,6 +18,7 @@ namespace OrientView
 		double heartRate = 0.0;
 	};
 
+	// Read track point data from GPX files.
 	class GpxReader
 	{
 

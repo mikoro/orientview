@@ -7,14 +7,15 @@
 
 namespace OrientView
 {
+	// Contains the frame data that is passed around from one stage to another.
 	struct FrameData
 	{
-		uint8_t* data = nullptr;
-		int dataLength = 0;
-		int rowLength = 0;
-		int width = 0;
-		int height = 0;
-		int duration = 0; // us
-		int number = 0;
+		uint8_t* data = nullptr;	// Raw data, format depends on context (RGBA32 or GRAY8)
+		int dataLength = 0;			// Data length in bytes
+		int rowLength = 0;			// Length of the row in bytes (could be larger than width)
+		int width = 0;				// Width in pixels
+		int height = 0;				// Height in pixels
+		int duration = 0;			// Duration in microseconds
+		int number = 0;				// Cumulative frame number
 	};
 }

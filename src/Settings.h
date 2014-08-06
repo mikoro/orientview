@@ -14,6 +14,7 @@ namespace Ui
 
 namespace OrientView
 {
+	// Central structure of all the settings of the program.
 	struct Settings
 	{
 		void read(QSettings* settings);

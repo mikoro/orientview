@@ -14,6 +14,7 @@ namespace OrientView
 	struct Settings;
 	struct FrameData;
 
+	// Use the OpenCV library to do real-time video stabilization.
 	class VideoStabilizer
 	{
 

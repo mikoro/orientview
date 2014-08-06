@@ -121,6 +121,7 @@ void RenderOffScreenThread::run()
 		{
 			videoStabilizer->processFrame(&decodedFrameDataGrayscale);
 
+			// direct the rendering to offscreen framebuffer
 			encodeWindow->getContext()->makeCurrent(encodeWindow->getSurface());
 			mainFramebuffer->bind();
 
@@ -175,6 +176,8 @@ void RenderOffScreenThread::signalFrameRead()
 
 void RenderOffScreenThread::readDataFromFramebuffer(QOpenGLFramebufferObject* sourceFbo)
 {
+	// pixels cannot be directly read from a multisampled framebuffer
+	// copy the framebuffer to a non-multisampled framebuffer and try again
 	if (sourceFbo->format().samples() != 0)
 	{
 		QRect rect(0, 0, framebufferWidth, framebufferHeight);

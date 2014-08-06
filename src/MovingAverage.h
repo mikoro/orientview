@@ -5,6 +5,7 @@
 
 namespace OrientView
 {
+	// Calculate exponential moving average.
 	class MovingAverage
 	{
 

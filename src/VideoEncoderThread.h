@@ -11,6 +11,7 @@ namespace OrientView
 	class VideoEncoder;
 	class RenderOffScreenThread;
 
+	// Run video encoder on a thread.
 	class VideoEncoderThread : public QThread
 	{
 		Q_OBJECT

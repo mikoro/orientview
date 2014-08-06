@@ -15,6 +15,7 @@ namespace OrientView
 
 	enum class SelectedPanel { NONE, VIDEO, MAP };
 
+	// Read user input and act accordingly.
 	class InputHandler
 	{
 

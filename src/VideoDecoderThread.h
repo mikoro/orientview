@@ -12,6 +12,7 @@ namespace OrientView
 {
 	class VideoDecoder;
 
+	// Run video decoder on a thread.
 	class VideoDecoderThread : public QThread
 	{
 		Q_OBJECT

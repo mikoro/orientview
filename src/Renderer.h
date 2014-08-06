@@ -23,44 +23,11 @@ namespace OrientView
 	class InputHandler;
 	struct Settings;
 	struct FrameData;
+	struct Panel;
 
 	enum class RenderMode { ALL, VIDEO, MAP };
 
-	struct Panel
-	{
-		QOpenGLShaderProgram* program = nullptr;
-		QOpenGLBuffer* buffer = nullptr;
-		QOpenGLTexture* texture = nullptr;
-
-		QMatrix4x4 vertexMatrix;
-
-		QColor clearColor = QColor(0, 0, 0);
-		bool clearEnabled = true;
-
-		double textureWidth = 0.0;
-		double textureHeight = 0.0;
-		double texelWidth = 0.0;
-		double texelHeight = 0.0;
-
-		double x = 0.0;
-		double y = 0.0;
-		double angle = 0.0;
-		double scale = 1.0;
-		double userX = 0.0;
-		double userY = 0.0;
-		double userAngle = 0.0;
-		double userScale = 1.0;
-
-		int vertexMatrixUniform = 0;
-		int vertexPositionAttribute = 0;
-		int vertexTextureCoordinateAttribute = 0;
-		int textureSamplerUniform = 0;
-		int textureWidthUniform = 0;
-		int textureHeightUniform = 0;
-		int texelWidthUniform = 0;
-		int texelHeightUniform = 0;
-	};
-
+	// Does the actual drawing using OpenGL.
 	class Renderer : protected QOpenGLFunctions
 	{
 
@@ -121,5 +88,40 @@ namespace OrientView
 		QOpenGLPaintDevice* paintDevice = nullptr;
 		QPainter* painter = nullptr;
 		QPainterPath* routePath = nullptr;
+	};
+
+	struct Panel
+	{
+		QOpenGLShaderProgram* program = nullptr;
+		QOpenGLBuffer* buffer = nullptr;
+		QOpenGLTexture* texture = nullptr;
+
+		QMatrix4x4 vertexMatrix;
+
+		QColor clearColor = QColor(0, 0, 0);
+		bool clearEnabled = true;
+
+		double textureWidth = 0.0;
+		double textureHeight = 0.0;
+		double texelWidth = 0.0;
+		double texelHeight = 0.0;
+
+		double x = 0.0;
+		double y = 0.0;
+		double angle = 0.0;
+		double scale = 1.0;
+		double userX = 0.0;
+		double userY = 0.0;
+		double userAngle = 0.0;
+		double userScale = 1.0;
+
+		int vertexMatrixUniform = 0;
+		int vertexPositionAttribute = 0;
+		int vertexTextureCoordinateAttribute = 0;
+		int textureSamplerUniform = 0;
+		int textureWidthUniform = 0;
+		int textureHeightUniform = 0;
+		int texelWidthUniform = 0;
+		int texelHeightUniform = 0;
 	};
 }

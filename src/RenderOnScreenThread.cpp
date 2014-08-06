@@ -72,7 +72,9 @@ void RenderOnScreenThread::run()
 		if (gotFrame)
 			videoStabilizer->processFrame(&frameDataGrayscale);
 
+		// direct the rendering to the video window
 		videoWindow->getContext()->makeCurrent(videoWindow);
+
 		renderer->startRendering(videoWindow->width(), videoWindow->height(), frameDuration, spareTime, videoDecoder->getLastDecodeTime(), videoStabilizer->getLastProcessTime(), 0.0);
 
 		if (gotFrame)

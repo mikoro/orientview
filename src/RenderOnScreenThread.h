@@ -15,6 +15,7 @@ namespace OrientView
 	class Renderer;
 	class InputHandler;
 	
+	// Run renderer on a thread and draw to a visible window.
 	class RenderOnScreenThread : public QThread
 	{
 		Q_OBJECT

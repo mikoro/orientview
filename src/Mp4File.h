@@ -9,6 +9,7 @@ namespace OrientView
 {
 	struct Mp4Handle;
 
+	// Encapsulate the l-smash library for writing out video files in MP4 format.
 	class Mp4File
 	{
 

@@ -40,6 +40,7 @@ bool VideoEncoder::initialize(VideoDecoder* videoDecoder, Settings* settings)
 		return false;
 	}
 
+	// these need to set to zero for MP4 files
 	param.b_annexb = 0;
 	param.b_repeat_headers = 0;
 

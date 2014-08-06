@@ -9,6 +9,7 @@ namespace OrientView
 {
 	struct Settings;
 
+	// Read route and calibration data from QuickRoute JPEG files.
 	class QuickRouteReader
 	{
 

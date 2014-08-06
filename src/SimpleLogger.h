@@ -7,6 +7,7 @@
 
 namespace OrientView
 {
+	// Log all the messages to file and to other possible debug outputs.
 	class SimpleLogger
 	{
 	public:

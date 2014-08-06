@@ -20,6 +20,7 @@ namespace OrientView
 	struct FrameData;
 	class Mp4File;
 
+	// Encapsulate the x264 library for encoding video frames.
 	class VideoEncoder
 	{
 
