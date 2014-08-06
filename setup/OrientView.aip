@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<DOCUMENT Type="Advanced Installer" CreateVersion="11.4" version="11.4" Modules="simple" RootPath="." Language="en" Id="{37B97301-1F3A-44A0-9661-545704D05415}">
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiPropsComponent">
+    <ROW Property="AI_BITMAP_DISPLAY_MODE" Value="0"/>
+    <ROW Property="ALLUSERS" Value="1"/>
+    <ROW Property="ARPCOMMENTS" Value="This installer database contains the logic and data required to install [|ProductName]." ValueLocId="*"/>
+    <ROW Property="ARPCONTACT" Value="mikko@mikkoronkainen.com"/>
+    <ROW Property="ARPHELPLINK" Value="https://github.com/mikoro/orientview"/>
+    <ROW Property="ARPPRODUCTICON" Value="orientview.exe" Type="8"/>
+    <ROW Property="ARPURLINFOABOUT" Value="https://github.com/mikoro/orientview"/>
+    <ROW Property="ARPURLUPDATEINFO" Value="https://github.com/mikoro/orientview"/>
+    <ROW Property="MSIFASTINSTALL" MultiBuildValue="DefaultBuild:1"/>
+    <ROW Property="Manufacturer" Value="Mikko Ronkainen"/>
+    <ROW Property="ProductCode" Value="1033:{33CBC450-1257-4DBB-A69B-F83C94E047E5} " Type="16"/>
+    <ROW Property="ProductLanguage" Value="1033"/>
+    <ROW Property="ProductName" Value="OrientView"/>
+    <ROW Property="ProductVersion" Value="1.0.0" Type="32"/>
+    <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
+    <ROW Property="UpgradeCode" Value="{4DD74A19-E5F6-4CF8-9EBB-E63D4107985F}"/>
+    <ROW Property="WindowsType9X" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>
+    <ROW Property="WindowsType9XDisplay" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>
+    <ROW Property="WindowsTypeNT" MultiBuildValue="DefaultBuild:Windows 9x/ME/NT/2000/XP/Vista/Windows 7/Windows 8 x86/Windows 8.1 x86" ValueLocId="-"/>
+    <ROW Property="WindowsTypeNT40" MultiBuildValue="DefaultBuild:Windows NT 4.0" ValueLocId="-"/>
+    <ROW Property="WindowsTypeNT40Display" MultiBuildValue="DefaultBuild:Windows NT 4.0" ValueLocId="-"/>
+    <ROW Property="WindowsTypeNTDisplay" MultiBuildValue="DefaultBuild:Windows 9x/ME/NT/2000/XP/Vista/Windows 7/Windows 8 x86/Windows 8.1 x86" ValueLocId="-"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiDirsComponent">
+    <ROW Directory="APPDIR" Directory_Parent="TARGETDIR" DefaultDir="APPDIR:." IsPseudoRoot="1"/>
+    <ROW Directory="Qt5Core.dll_Dir" Directory_Parent="dll_Dir" DefaultDir="Qt5Core.dll"/>
+    <ROW Directory="Qt5Gui.dll_Dir" Directory_Parent="dll_Dir" DefaultDir="Qt5Gui.dll"/>
+    <ROW Directory="Qt5Widgets.dll_Dir" Directory_Parent="dll_Dir" DefaultDir="QT5WID~1.DLL|Qt5Widgets.dll"/>
+    <ROW Directory="SHORTCUTDIR" Directory_Parent="TARGETDIR" DefaultDir="SHORTC~1|SHORTCUTDIR" IsPseudoRoot="1"/>
+    <ROW Directory="TARGETDIR" DefaultDir="SourceDir"/>
+    <ROW Directory="avcodec55.dll_Dir" Directory_Parent="dll_Dir" DefaultDir="AVCODE~1.DLL|avcodec-55.dll"/>
+    <ROW Directory="avformat55.dll_Dir" Directory_Parent="dll_Dir" DefaultDir="AVFORM~1.DLL|avformat-55.dll"/>
+    <ROW Directory="avutil52.dll_Dir" Directory_Parent="dll_Dir" DefaultDir="AVUTIL~1.DLL|avutil-52.dll"/>
+    <ROW Directory="data_Dir" Directory_Parent="APPDIR" DefaultDir="data"/>
+    <ROW Directory="dll_Dir" Directory_Parent="data_Dir" DefaultDir="dll"/>
+    <ROW Directory="fonts_Dir" Directory_Parent="data_Dir" DefaultDir="fonts"/>
+    <ROW Directory="icudt52.dll_Dir" Directory_Parent="dll_Dir" DefaultDir="icudt52.dll"/>
+    <ROW Directory="icuin52.dll_Dir" Directory_Parent="dll_Dir" DefaultDir="icuin52.dll"/>
+    <ROW Directory="icuuc52.dll_Dir" Directory_Parent="dll_Dir" DefaultDir="icuuc52.dll"/>
+    <ROW Directory="imageformats_Dir" Directory_Parent="plugins_Dir" DefaultDir="IMAGEF~1|imageformats"/>
+    <ROW Directory="liblsmash.dll_Dir" Directory_Parent="dll_Dir" DefaultDir="LIBLSM~1.DLL|liblsmash.dll"/>
+    <ROW Directory="libx264142.dll_Dir" Directory_Parent="dll_Dir" DefaultDir="LIBX26~1.DLL|libx264-142.dll"/>
+    <ROW Directory="msvcp120.dll_Dir" Directory_Parent="dll_Dir" DefaultDir="msvcp120.dll"/>
+    <ROW Directory="msvcr120.dll_Dir" Directory_Parent="dll_Dir" DefaultDir="msvcr120.dll"/>
+    <ROW Directory="opencv_core249.dll_Dir" Directory_Parent="dll_Dir" DefaultDir="OPENCV~1.DLL|opencv_core249.dll"/>
+    <ROW Directory="opencv_imgproc249.dll_Dir" Directory_Parent="dll_Dir" DefaultDir="OPENCV~2.DLL|opencv_imgproc249.dll"/>
+    <ROW Directory="opencv_photo249.dll_Dir" Directory_Parent="dll_Dir" DefaultDir="OPENCV~3.DLL|opencv_photo249.dll"/>
+    <ROW Directory="opencv_video249.dll_Dir" Directory_Parent="dll_Dir" DefaultDir="OPENCV~4.DLL|opencv_video249.dll"/>
+    <ROW Directory="platforms_Dir" Directory_Parent="plugins_Dir" DefaultDir="PLATFO~1|platforms"/>
+    <ROW Directory="plugins_Dir" Directory_Parent="data_Dir" DefaultDir="plugins"/>
+    <ROW Directory="shaders_Dir" Directory_Parent="data_Dir" DefaultDir="shaders"/>
+    <ROW Directory="swresample0.dll_Dir" Directory_Parent="dll_Dir" DefaultDir="SWRESA~1.DLL|swresample-0.dll"/>
+    <ROW Directory="swscale2.dll_Dir" Directory_Parent="dll_Dir" DefaultDir="SWSCAL~1.DLL|swscale-2.dll"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiCompsComponent">
+    <ROW Component="ProductInformation" ComponentId="{2647BC60-8C76-4508-862B-07833AD37CEE}" Directory_="APPDIR" Attributes="4" KeyPath="Version"/>
+    <ROW Component="Qt5Core.dll" ComponentId="{555593EC-A364-489B-B149-F8C413EFF1EC}" Directory_="Qt5Core.dll_Dir" Attributes="256" KeyPath="Qt5Core.dll"/>
+    <ROW Component="Qt5Core.dll.manifest" ComponentId="{2DF1AC4B-2AFC-43AD-9D26-6B74B11DC3CD}" Directory_="Qt5Core.dll_Dir" Attributes="0" KeyPath="Qt5Core.dll.manifest" Type="0"/>
+    <ROW Component="Qt5Gui.dll" ComponentId="{3A816686-BBCC-4FEC-AF0B-B322EE3DBD03}" Directory_="Qt5Gui.dll_Dir" Attributes="256" KeyPath="Qt5Gui.dll"/>
+    <ROW Component="Qt5Gui.dll.manifest" ComponentId="{CBE82032-F6DC-4CE0-AEB9-3025E9A022A9}" Directory_="Qt5Gui.dll_Dir" Attributes="0" KeyPath="Qt5Gui.dll.manifest" Type="0"/>
+    <ROW Component="Qt5Widgets.dll" ComponentId="{AFF2FB20-956C-4061-93B4-ADAA7361C228}" Directory_="Qt5Widgets.dll_Dir" Attributes="256" KeyPath="Qt5Widgets.dll"/>
+    <ROW Component="Qt5Widgets.dll.manifest" ComponentId="{0CB08280-9DD0-43E2-878E-41D59A373440}" Directory_="Qt5Widgets.dll_Dir" Attributes="0" KeyPath="Qt5Widgets.dll.manifest" Type="0"/>
+    <ROW Component="SHORTCUTDIR" ComponentId="{EA3C3580-2E5E-4052-8285-C62C13165779}" Directory_="SHORTCUTDIR" Attributes="0"/>
+    <ROW Component="avcodec55.dll" ComponentId="{C4ABCC61-D32D-4715-BE6D-CAD378636DC7}" Directory_="avcodec55.dll_Dir" Attributes="256" KeyPath="avcodec55.dll"/>
+    <ROW Component="avcodec55.dll.manifest" ComponentId="{084C625B-818B-478D-9F2F-A637991EA17C}" Directory_="avcodec55.dll_Dir" Attributes="0" KeyPath="avcodec55.dll.manifest" Type="0"/>
+    <ROW Component="avformat55.dll" ComponentId="{872DF64E-220A-4061-B46A-E0F7D671470B}" Directory_="avformat55.dll_Dir" Attributes="256" KeyPath="avformat55.dll"/>
+    <ROW Component="avformat55.dll.manifest" ComponentId="{A057560E-6DCF-4B7E-A44E-FDC20C4A5095}" Directory_="avformat55.dll_Dir" Attributes="0" KeyPath="avformat55.dll.manifest" Type="0"/>
+    <ROW Component="avutil52.dll" ComponentId="{2F5B173C-82EF-4D0E-B6E0-82E10481277B}" Directory_="avutil52.dll_Dir" Attributes="256" KeyPath="avutil52.dll"/>
+    <ROW Component="avutil52.dll.manifest" ComponentId="{7410F927-AB7C-4709-ABC7-01565B00E552}" Directory_="avutil52.dll_Dir" Attributes="0" KeyPath="avutil52.dll.manifest" Type="0"/>
+    <ROW Component="bicubic.frag" ComponentId="{0866BDE9-D80F-4B10-AD5D-7687BE070F79}" Directory_="shaders_Dir" Attributes="0" KeyPath="bicubic.frag" Type="0"/>
+    <ROW Component="dejavusansbold.ttf" ComponentId="{E3E9F8BB-CAC1-49E4-86FB-F85DD9FBE5DF}" Directory_="fonts_Dir" Attributes="0" Type="0"/>
+    <ROW Component="icudt52.dll" ComponentId="{58EE21CC-CF98-4E21-8CFD-6157AE482EF7}" Directory_="icudt52.dll_Dir" Attributes="256" KeyPath="icudt52.dll"/>
+    <ROW Component="icudt52.dll.manifest" ComponentId="{1DA73E32-8962-439F-B509-571CF3B80E94}" Directory_="icudt52.dll_Dir" Attributes="0" KeyPath="icudt52.dll.manifest" Type="0"/>
+    <ROW Component="icuin52.dll" ComponentId="{EC705AEF-A6D2-48D5-8286-327CEA7A290A}" Directory_="icuin52.dll_Dir" Attributes="256" KeyPath="icuin52.dll"/>
+    <ROW Component="icuin52.dll.manifest" ComponentId="{BA1505EF-5304-4E3B-8E5A-30360D827857}" Directory_="icuin52.dll_Dir" Attributes="0" KeyPath="icuin52.dll.manifest" Type="0"/>
+    <ROW Component="icuuc52.dll" ComponentId="{24E35FEA-21C8-4EA5-9469-52B82D9CAC5C}" Directory_="icuuc52.dll_Dir" Attributes="256" KeyPath="icuuc52.dll"/>
+    <ROW Component="icuuc52.dll.manifest" ComponentId="{77A0B8DF-0F04-4C39-B4E2-FD236C62C718}" Directory_="icuuc52.dll_Dir" Attributes="0" KeyPath="icuuc52.dll.manifest" Type="0"/>
+    <ROW Component="liblsmash.dll" ComponentId="{BF3363A0-A9FA-4BBD-9F15-53C5EF85F4FF}" Directory_="liblsmash.dll_Dir" Attributes="256" KeyPath="liblsmash.dll"/>
+    <ROW Component="liblsmash.dll.manifest" ComponentId="{570A6B94-B695-40CA-9037-E23106B5C623}" Directory_="liblsmash.dll_Dir" Attributes="0" KeyPath="liblsmash.dll.manifest" Type="0"/>
+    <ROW Component="libx264142.dll" ComponentId="{488D8198-3BEA-4714-919A-1DAC6E85B715}" Directory_="libx264142.dll_Dir" Attributes="256" KeyPath="libx264142.dll"/>
+    <ROW Component="libx264142.dll.manifest" ComponentId="{88BAC70A-A0BD-4333-B160-E1117F42903A}" Directory_="libx264142.dll_Dir" Attributes="0" KeyPath="libx264142.dll.manifest" Type="0"/>
+    <ROW Component="msvcp120.dll" ComponentId="{6920AAF2-D004-4F7C-9710-8481CD583631}" Directory_="msvcp120.dll_Dir" Attributes="256" KeyPath="msvcp120.dll"/>
+    <ROW Component="msvcp120.dll.manifest" ComponentId="{080687D2-15E2-400B-9C4A-731130C0D3CA}" Directory_="msvcp120.dll_Dir" Attributes="0" KeyPath="msvcp120.dll.manifest" Type="0"/>
+    <ROW Component="msvcr120.dll" ComponentId="{A2FAA37E-5431-4DDB-B63A-6642F7C2696F}" Directory_="msvcr120.dll_Dir" Attributes="256" KeyPath="msvcr120.dll"/>
+    <ROW Component="msvcr120.dll.manifest" ComponentId="{77861F45-5746-44DA-A0DA-6823C3C9212A}" Directory_="msvcr120.dll_Dir" Attributes="0" KeyPath="msvcr120.dll.manifest" Type="0"/>
+    <ROW Component="opencv_core249.dll" ComponentId="{267646C5-D147-492C-87F8-E6E73179DB33}" Directory_="opencv_core249.dll_Dir" Attributes="256" KeyPath="opencv_core249.dll"/>
+    <ROW Component="opencv_core249.dll.manifest" ComponentId="{5065F5C8-A985-4E96-9C67-98A6C68A12F9}" Directory_="opencv_core249.dll_Dir" Attributes="0" KeyPath="opencv_core249.dll.manifest" Type="0"/>
+    <ROW Component="opencv_imgproc249.dll" ComponentId="{D3755576-B96B-45FB-8BEC-2091F58F0884}" Directory_="opencv_imgproc249.dll_Dir" Attributes="256" KeyPath="opencv_imgproc249.dll"/>
+    <ROW Component="opencv_imgproc249.dll.manifest" ComponentId="{785500D6-304A-41DF-B9C9-2F739FF2D861}" Directory_="opencv_imgproc249.dll_Dir" Attributes="0" KeyPath="opencv_imgproc249.dll.manifest" Type="0"/>
+    <ROW Component="opencv_photo249.dll" ComponentId="{6C188DE3-8791-4B3D-9050-91890A4D3DF3}" Directory_="opencv_photo249.dll_Dir" Attributes="256" KeyPath="opencv_photo249.dll"/>
+    <ROW Component="opencv_photo249.dll.manifest" ComponentId="{5D944704-8203-491A-AE0A-C92795891013}" Directory_="opencv_photo249.dll_Dir" Attributes="0" KeyPath="opencv_photo249.dll.manifest" Type="0"/>
+    <ROW Component="opencv_video249.dll" ComponentId="{DC3A6F85-18A6-4DFF-A0CB-4DBC2455C65B}" Directory_="opencv_video249.dll_Dir" Attributes="256" KeyPath="opencv_video249.dll"/>
+    <ROW Component="opencv_video249.dll.manifest" ComponentId="{04716D49-2CA6-4BD2-8B07-4F8AFBF108C9}" Directory_="opencv_video249.dll_Dir" Attributes="0" KeyPath="opencv_video249.dll.manifest" Type="0"/>
+    <ROW Component="orientview.exe" ComponentId="{28A6F483-566F-4A80-924D-E28D233F2819}" Directory_="APPDIR" Attributes="256" KeyPath="orientview.exe"/>
+    <ROW Component="orientview.exe.config" ComponentId="{AAD6BE5F-77A4-4B48-B02C-8FBAA5D2D82F}" Directory_="APPDIR" Attributes="0" KeyPath="orientview.exe.config" Type="0"/>
+    <ROW Component="qjpeg.dll" ComponentId="{87F6E5E8-9CBC-4CC3-B925-02DC2A747F53}" Directory_="imageformats_Dir" Attributes="256" KeyPath="qjpeg.dll"/>
+    <ROW Component="qwindows.dll" ComponentId="{0539E11E-BD60-4616-B797-CA837E1506CB}" Directory_="platforms_Dir" Attributes="256" KeyPath="qwindows.dll"/>
+    <ROW Component="swresample0.dll" ComponentId="{0A70DD85-47C0-4870-9B5B-F612FD523831}" Directory_="swresample0.dll_Dir" Attributes="256" KeyPath="swresample0.dll"/>
+    <ROW Component="swresample0.dll.manifest" ComponentId="{FE0CA2C4-425E-4518-AC50-17ED57AEB7C9}" Directory_="swresample0.dll_Dir" Attributes="0" KeyPath="swresample0.dll.manifest" Type="0"/>
+    <ROW Component="swscale2.dll" ComponentId="{EDDA02BA-6986-41C3-BA11-2452C5C52445}" Directory_="swscale2.dll_Dir" Attributes="256" KeyPath="swscale2.dll"/>
+    <ROW Component="swscale2.dll.manifest" ComponentId="{EF1DB86F-6A31-47E9-9C36-029F480FCCA3}" Directory_="swscale2.dll_Dir" Attributes="0" KeyPath="swscale2.dll.manifest" Type="0"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatsComponent">
+    <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="1" Level="1" Directory_="APPDIR" Attributes="0" Components="ProductInformation Qt5Core.dll Qt5Core.dll.manifest Qt5Gui.dll Qt5Gui.dll.manifest Qt5Widgets.dll Qt5Widgets.dll.manifest SHORTCUTDIR avcodec55.dll avcodec55.dll.manifest avformat55.dll avformat55.dll.manifest avutil52.dll avutil52.dll.manifest bicubic.frag dejavusansbold.ttf icudt52.dll icudt52.dll.manifest icuin52.dll icuin52.dll.manifest icuuc52.dll icuuc52.dll.manifest liblsmash.dll liblsmash.dll.manifest libx264142.dll libx264142.dll.manifest msvcp120.dll msvcp120.dll.manifest msvcr120.dll msvcr120.dll.manifest opencv_core249.dll opencv_core249.dll.manifest opencv_imgproc249.dll opencv_imgproc249.dll.manifest opencv_photo249.dll opencv_photo249.dll.manifest opencv_video249.dll opencv_video249.dll.manifest orientview.exe orientview.exe.config qjpeg.dll qwindows.dll swresample0.dll swresample0.dll.manifest swscale2.dll swscale2.dll.manifest"/>
+    <ATTRIBUTE name="CurrentFeature" value="MainFeature"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiFilesComponent">
+    <ROW File="Qt5Core.dll" Component_="Qt5Core.dll" FileName="Qt5Core.dll" Attributes="0" SourcePath="..\bin\Release\data\dll\Qt5Core.dll\Qt5Core.dll" SelfReg="false" NextFile="Qt5Core.dll.manifest"/>
+    <ROW File="Qt5Core.dll.manifest" Component_="Qt5Core.dll.manifest" FileName="QT5COR~1.MAN|Qt5Core.dll.manifest" Attributes="0" SourcePath="..\bin\Release\data\dll\Qt5Core.dll\Qt5Core.dll.manifest" SelfReg="false" NextFile="Qt5Gui.dll"/>
+    <ROW File="Qt5Gui.dll" Component_="Qt5Gui.dll" FileName="Qt5Gui.dll" Attributes="0" SourcePath="..\bin\Release\data\dll\Qt5Gui.dll\Qt5Gui.dll" SelfReg="false" NextFile="Qt5Gui.dll.manifest"/>
+    <ROW File="Qt5Gui.dll.manifest" Component_="Qt5Gui.dll.manifest" FileName="QT5GUI~1.MAN|Qt5Gui.dll.manifest" Attributes="0" SourcePath="..\bin\Release\data\dll\Qt5Gui.dll\Qt5Gui.dll.manifest" SelfReg="false" NextFile="Qt5Widgets.dll"/>
+    <ROW File="Qt5Widgets.dll" Component_="Qt5Widgets.dll" FileName="QT5WID~1.DLL|Qt5Widgets.dll" Attributes="0" SourcePath="..\bin\Release\data\dll\Qt5Widgets.dll\Qt5Widgets.dll" SelfReg="false" NextFile="Qt5Widgets.dll.manifest"/>
+    <ROW File="Qt5Widgets.dll.manifest" Component_="Qt5Widgets.dll.manifest" FileName="QT5WID~1.MAN|Qt5Widgets.dll.manifest" Attributes="0" SourcePath="..\bin\Release\data\dll\Qt5Widgets.dll\Qt5Widgets.dll.manifest" SelfReg="false" NextFile="swresample0.dll"/>
+    <ROW File="avcodec55.dll" Component_="avcodec55.dll" FileName="AVCODE~1.DLL|avcodec-55.dll" Attributes="0" SourcePath="..\bin\Release\data\dll\avcodec-55.dll\avcodec-55.dll" SelfReg="false" NextFile="avcodec55.dll.manifest"/>
+    <ROW File="avcodec55.dll.manifest" Component_="avcodec55.dll.manifest" FileName="AVCODE~1.MAN|avcodec-55.dll.manifest" Attributes="0" SourcePath="..\bin\Release\data\dll\avcodec-55.dll\avcodec-55.dll.manifest" SelfReg="false" NextFile="avformat55.dll"/>
+    <ROW File="avformat55.dll" Component_="avformat55.dll" FileName="AVFORM~1.DLL|avformat-55.dll" Attributes="0" SourcePath="..\bin\Release\data\dll\avformat-55.dll\avformat-55.dll" SelfReg="false" NextFile="avformat55.dll.manifest"/>
+    <ROW File="avformat55.dll.manifest" Component_="avformat55.dll.manifest" FileName="AVFORM~1.MAN|avformat-55.dll.manifest" Attributes="0" SourcePath="..\bin\Release\data\dll\avformat-55.dll\avformat-55.dll.manifest" SelfReg="false" NextFile="avutil52.dll"/>
+    <ROW File="avutil52.dll" Component_="avutil52.dll" FileName="AVUTIL~1.DLL|avutil-52.dll" Attributes="0" SourcePath="..\bin\Release\data\dll\avutil-52.dll\avutil-52.dll" SelfReg="false" NextFile="avutil52.dll.manifest"/>
+    <ROW File="avutil52.dll.manifest" Component_="avutil52.dll.manifest" FileName="AVUTIL~1.MAN|avutil-52.dll.manifest" Attributes="0" SourcePath="..\bin\Release\data\dll\avutil-52.dll\avutil-52.dll.manifest" SelfReg="false" NextFile="icudt52.dll"/>
+    <ROW File="bicubic.frag" Component_="bicubic.frag" FileName="BICUBI~1.FRA|bicubic.frag" Attributes="0" SourcePath="..\bin\Release\data\shaders\bicubic.frag" SelfReg="false" NextFile="bicubic.vert"/>
+    <ROW File="bicubic.vert" Component_="bicubic.frag" FileName="BICUBI~1.VER|bicubic.vert" Attributes="0" SourcePath="..\bin\Release\data\shaders\bicubic.vert" SelfReg="false" NextFile="bilinear.frag"/>
+    <ROW File="bilinear.frag" Component_="bicubic.frag" FileName="BILINE~1.FRA|bilinear.frag" Attributes="0" SourcePath="..\bin\Release\data\shaders\bilinear.frag" SelfReg="false" NextFile="bilinear.vert"/>
+    <ROW File="bilinear.vert" Component_="bicubic.frag" FileName="BILINE~1.VER|bilinear.vert" Attributes="0" SourcePath="..\bin\Release\data\shaders\bilinear.vert" SelfReg="false" NextFile="default.frag"/>
+    <ROW File="default.frag" Component_="bicubic.frag" FileName="DEFAUL~1.FRA|default.frag" Attributes="0" SourcePath="..\bin\Release\data\shaders\default.frag" SelfReg="false" NextFile="default.vert"/>
+    <ROW File="default.vert" Component_="bicubic.frag" FileName="DEFAUL~1.VER|default.vert" Attributes="0" SourcePath="..\bin\Release\data\shaders\default.vert" SelfReg="false" NextFile="legacy.frag"/>
+    <ROW File="dejavusansbold.ttf" Component_="dejavusansbold.ttf" FileName="DEJAVU~1.TTF|dejavu-sans-bold.ttf" Attributes="0" SourcePath="..\bin\Release\data\fonts\dejavu-sans-bold.ttf" SelfReg="false" NextFile="dejavusansmonobold.ttf"/>
+    <ROW File="dejavusansmonobold.ttf" Component_="dejavusansbold.ttf" FileName="DEJAVU~2.TTF|dejavu-sans-mono-bold.ttf" Attributes="0" SourcePath="..\bin\Release\data\fonts\dejavu-sans-mono-bold.ttf" SelfReg="false" NextFile="dejavusansmonoregular.ttf"/>
+    <ROW File="dejavusansmonoregular.ttf" Component_="dejavusansbold.ttf" FileName="DEJAVU~3.TTF|dejavu-sans-mono-regular.ttf" Attributes="0" SourcePath="..\bin\Release\data\fonts\dejavu-sans-mono-regular.ttf" SelfReg="false" NextFile="dejavusansregular.ttf"/>
+    <ROW File="dejavusansregular.ttf" Component_="dejavusansbold.ttf" FileName="DEJAVU~4.TTF|dejavu-sans-regular.ttf" Attributes="0" SourcePath="..\bin\Release\data\fonts\dejavu-sans-regular.ttf" SelfReg="false" NextFile="qjpeg.dll"/>
+    <ROW File="icudt52.dll" Component_="icudt52.dll" FileName="icudt52.dll" Attributes="0" SourcePath="..\bin\Release\data\dll\icudt52.dll\icudt52.dll" SelfReg="false" NextFile="icudt52.dll.manifest"/>
+    <ROW File="icudt52.dll.manifest" Component_="icudt52.dll.manifest" FileName="ICUDT5~1.MAN|icudt52.dll.manifest" Attributes="0" SourcePath="..\bin\Release\data\dll\icudt52.dll\icudt52.dll.manifest" SelfReg="false" NextFile="icuin52.dll"/>
+    <ROW File="icuin52.dll" Component_="icuin52.dll" FileName="icuin52.dll" Attributes="0" SourcePath="..\bin\Release\data\dll\icuin52.dll\icuin52.dll" SelfReg="false" NextFile="icuin52.dll.manifest"/>
+    <ROW File="icuin52.dll.manifest" Component_="icuin52.dll.manifest" FileName="ICUIN5~1.MAN|icuin52.dll.manifest" Attributes="0" SourcePath="..\bin\Release\data\dll\icuin52.dll\icuin52.dll.manifest" SelfReg="false" NextFile="icuuc52.dll"/>
+    <ROW File="icuuc52.dll" Component_="icuuc52.dll" FileName="icuuc52.dll" Attributes="0" SourcePath="..\bin\Release\data\dll\icuuc52.dll\icuuc52.dll" SelfReg="false" NextFile="icuuc52.dll.manifest"/>
+    <ROW File="icuuc52.dll.manifest" Component_="icuuc52.dll.manifest" FileName="ICUUC5~1.MAN|icuuc52.dll.manifest" Attributes="0" SourcePath="..\bin\Release\data\dll\icuuc52.dll\icuuc52.dll.manifest" SelfReg="false" NextFile="liblsmash.dll"/>
+    <ROW File="legacy.frag" Component_="bicubic.frag" FileName="LEGACY~1.FRA|legacy.frag" Attributes="0" SourcePath="..\bin\Release\data\shaders\legacy.frag" SelfReg="false" NextFile="legacy.vert"/>
+    <ROW File="legacy.vert" Component_="bicubic.frag" FileName="LEGACY~1.VER|legacy.vert" Attributes="0" SourcePath="..\bin\Release\data\shaders\legacy.vert" SelfReg="false"/>
+    <ROW File="liblsmash.dll" Component_="liblsmash.dll" FileName="LIBLSM~1.DLL|liblsmash.dll" Attributes="0" SourcePath="..\bin\Release\data\dll\liblsmash.dll\liblsmash.dll" SelfReg="false" NextFile="liblsmash.dll.manifest"/>
+    <ROW File="liblsmash.dll.manifest" Component_="liblsmash.dll.manifest" FileName="LIBLSM~1.MAN|liblsmash.dll.manifest" Attributes="0" SourcePath="..\bin\Release\data\dll\liblsmash.dll\liblsmash.dll.manifest" SelfReg="false" NextFile="libx264142.dll"/>
+    <ROW File="libx264142.dll" Component_="libx264142.dll" FileName="LIBX26~1.DLL|libx264-142.dll" Attributes="0" SourcePath="..\bin\Release\data\dll\libx264-142.dll\libx264-142.dll" SelfReg="false" NextFile="libx264142.dll.manifest"/>
+    <ROW File="libx264142.dll.manifest" Component_="libx264142.dll.manifest" FileName="LIBX26~1.MAN|libx264-142.dll.manifest" Attributes="0" SourcePath="..\bin\Release\data\dll\libx264-142.dll\libx264-142.dll.manifest" SelfReg="false" NextFile="msvcp120.dll"/>
+    <ROW File="msvcp120.dll" Component_="msvcp120.dll" FileName="msvcp120.dll" Attributes="0" SourcePath="..\bin\Release\data\dll\msvcp120.dll\msvcp120.dll" SelfReg="false" NextFile="msvcp120.dll.manifest"/>
+    <ROW File="msvcp120.dll.manifest" Component_="msvcp120.dll.manifest" FileName="MSVCP1~1.MAN|msvcp120.dll.manifest" Attributes="0" SourcePath="..\bin\Release\data\dll\msvcp120.dll\msvcp120.dll.manifest" SelfReg="false" NextFile="msvcr120.dll"/>
+    <ROW File="msvcr120.dll" Component_="msvcr120.dll" FileName="msvcr120.dll" Attributes="0" SourcePath="..\bin\Release\data\dll\msvcr120.dll\msvcr120.dll" SelfReg="false" NextFile="msvcr120.dll.manifest"/>
+    <ROW File="msvcr120.dll.manifest" Component_="msvcr120.dll.manifest" FileName="MSVCR1~1.MAN|msvcr120.dll.manifest" Attributes="0" SourcePath="..\bin\Release\data\dll\msvcr120.dll\msvcr120.dll.manifest" SelfReg="false" NextFile="opencv_core249.dll"/>
+    <ROW File="opencv_core249.dll" Component_="opencv_core249.dll" FileName="OPENCV~1.DLL|opencv_core249.dll" Attributes="0" SourcePath="..\bin\Release\data\dll\opencv_core249.dll\opencv_core249.dll" SelfReg="false" NextFile="opencv_core249.dll.manifest"/>
+    <ROW File="opencv_core249.dll.manifest" Component_="opencv_core249.dll.manifest" FileName="OPENCV~1.MAN|opencv_core249.dll.manifest" Attributes="0" SourcePath="..\bin\Release\data\dll\opencv_core249.dll\opencv_core249.dll.manifest" SelfReg="false" NextFile="opencv_imgproc249.dll"/>
+    <ROW File="opencv_imgproc249.dll" Component_="opencv_imgproc249.dll" FileName="OPENCV~1.DLL|opencv_imgproc249.dll" Attributes="0" SourcePath="..\bin\Release\data\dll\opencv_imgproc249.dll\opencv_imgproc249.dll" SelfReg="false" NextFile="opencv_imgproc249.dll.manifest"/>
+    <ROW File="opencv_imgproc249.dll.manifest" Component_="opencv_imgproc249.dll.manifest" FileName="OPENCV~1.MAN|opencv_imgproc249.dll.manifest" Attributes="0" SourcePath="..\bin\Release\data\dll\opencv_imgproc249.dll\opencv_imgproc249.dll.manifest" SelfReg="false" NextFile="opencv_photo249.dll"/>
+    <ROW File="opencv_photo249.dll" Component_="opencv_photo249.dll" FileName="OPENCV~1.DLL|opencv_photo249.dll" Attributes="0" SourcePath="..\bin\Release\data\dll\opencv_photo249.dll\opencv_photo249.dll" SelfReg="false" NextFile="opencv_photo249.dll.manifest"/>
+    <ROW File="opencv_photo249.dll.manifest" Component_="opencv_photo249.dll.manifest" FileName="OPENCV~1.MAN|opencv_photo249.dll.manifest" Attributes="0" SourcePath="..\bin\Release\data\dll\opencv_photo249.dll\opencv_photo249.dll.manifest" SelfReg="false" NextFile="opencv_video249.dll"/>
+    <ROW File="opencv_video249.dll" Component_="opencv_video249.dll" FileName="OPENCV~1.DLL|opencv_video249.dll" Attributes="0" SourcePath="..\bin\Release\data\dll\opencv_video249.dll\opencv_video249.dll" SelfReg="false" NextFile="opencv_video249.dll.manifest"/>
+    <ROW File="opencv_video249.dll.manifest" Component_="opencv_video249.dll.manifest" FileName="OPENCV~1.MAN|opencv_video249.dll.manifest" Attributes="0" SourcePath="..\bin\Release\data\dll\opencv_video249.dll\opencv_video249.dll.manifest" SelfReg="false" NextFile="Qt5Core.dll"/>
+    <ROW File="orientview.exe" Component_="orientview.exe" FileName="ORIENT~1.EXE|orientview.exe" Attributes="0" SourcePath="..\bin\Release\orientview.exe" SelfReg="false" NextFile="orientview.exe.config" DigSign="true"/>
+    <ROW File="orientview.exe.config" Component_="orientview.exe.config" FileName="ORIENT~1.CON|orientview.exe.config" Attributes="0" SourcePath="..\bin\Release\orientview.exe.config" SelfReg="false" NextFile="avcodec55.dll"/>
+    <ROW File="qjpeg.dll" Component_="qjpeg.dll" FileName="qjpeg.dll" Attributes="0" SourcePath="..\bin\Release\data\plugins\imageformats\qjpeg.dll" SelfReg="false" NextFile="qwindows.dll"/>
+    <ROW File="qwindows.dll" Component_="qwindows.dll" FileName="qwindows.dll" Attributes="0" SourcePath="..\bin\Release\data\plugins\platforms\qwindows.dll" SelfReg="false" NextFile="bicubic.frag"/>
+    <ROW File="swresample0.dll" Component_="swresample0.dll" FileName="SWRESA~1.DLL|swresample-0.dll" Attributes="0" SourcePath="..\bin\Release\data\dll\swresample-0.dll\swresample-0.dll" SelfReg="false" NextFile="swresample0.dll.manifest"/>
+    <ROW File="swresample0.dll.manifest" Component_="swresample0.dll.manifest" FileName="SWRESA~1.MAN|swresample-0.dll.manifest" Attributes="0" SourcePath="..\bin\Release\data\dll\swresample-0.dll\swresample-0.dll.manifest" SelfReg="false" NextFile="swscale2.dll"/>
+    <ROW File="swscale2.dll" Component_="swscale2.dll" FileName="SWSCAL~1.DLL|swscale-2.dll" Attributes="0" SourcePath="..\bin\Release\data\dll\swscale-2.dll\swscale-2.dll" SelfReg="false" NextFile="swscale2.dll.manifest"/>
+    <ROW File="swscale2.dll.manifest" Component_="swscale2.dll.manifest" FileName="SWSCAL~1.MAN|swscale-2.dll.manifest" Attributes="0" SourcePath="..\bin\Release\data\dll\swscale-2.dll\swscale-2.dll.manifest" SelfReg="false" NextFile="dejavusansbold.ttf"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.BuildComponent">
+    <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="0" Languages="en" InstallationType="4" UseLargeSchema="true" MsiPackageType="x64"/>
+    <ATTRIBUTE name="CurrentBuild" value="DefaultBuild"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.DictionaryComponent">
+    <ROW Path="&lt;AI_DICTS&gt;ui.ail"/>
+    <ROW Path="&lt;AI_DICTS&gt;ui_en.ail"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.FragmentComponent">
+    <ROW Fragment="CommonUI.aip" Path="&lt;AI_FRAGS&gt;CommonUI.aip"/>
+    <ROW Fragment="FolderDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\FolderDlg.aip"/>
+    <ROW Fragment="MaintenanceTypeDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\MaintenanceTypeDlg.aip"/>
+    <ROW Fragment="MaintenanceWelcomeDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\MaintenanceWelcomeDlg.aip"/>
+    <ROW Fragment="SequenceDialogs.aip" Path="&lt;AI_THEMES&gt;classic\fragments\SequenceDialogs.aip"/>
+    <ROW Fragment="Sequences.aip" Path="&lt;AI_FRAGS&gt;Sequences.aip"/>
+    <ROW Fragment="StaticUIStrings.aip" Path="&lt;AI_FRAGS&gt;StaticUIStrings.aip"/>
+    <ROW Fragment="UI.aip" Path="&lt;AI_THEMES&gt;classic\fragments\UI.aip"/>
+    <ROW Fragment="Validation.aip" Path="&lt;AI_FRAGS&gt;Validation.aip"/>
+    <ROW Fragment="VerifyRemoveDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\VerifyRemoveDlg.aip"/>
+    <ROW Fragment="VerifyRepairDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\VerifyRepairDlg.aip"/>
+    <ROW Fragment="WelcomeDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\WelcomeDlg.aip"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiBinaryComponent">
+    <ROW Name="aicustact.dll" SourcePath="&lt;AI_CUSTACTS&gt;aicustact.dll"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiControlEventComponent">
+    <ROW Dialog_="WelcomeDlg" Control_="Next" Event="NewDialog" Argument="FolderDlg" Condition="AI_INSTALL" Ordering="1"/>
+    <ROW Dialog_="FolderDlg" Control_="Next" Event="NewDialog" Argument="VerifyReadyDlg" Condition="AI_INSTALL" Ordering="201"/>
+    <ROW Dialog_="FolderDlg" Control_="Back" Event="NewDialog" Argument="WelcomeDlg" Condition="AI_INSTALL" Ordering="1"/>
+    <ROW Dialog_="MaintenanceWelcomeDlg" Control_="Next" Event="NewDialog" Argument="MaintenanceTypeDlg" Condition="AI_MAINT" Ordering="99"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Install" Event="EndDialog" Argument="Return" Condition="AI_MAINT" Ordering="198"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Back" Event="NewDialog" Argument="CustomizeDlg" Condition="AI_MAINT" Ordering="202"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Install" Event="EndDialog" Argument="Return" Condition="AI_INSTALL" Ordering="197"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Back" Event="NewDialog" Argument="FolderDlg" Condition="AI_INSTALL" Ordering="201"/>
+    <ROW Dialog_="CustomizeDlg" Control_="Next" Event="NewDialog" Argument="VerifyReadyDlg" Condition="AI_MAINT" Ordering="101"/>
+    <ROW Dialog_="CustomizeDlg" Control_="Back" Event="NewDialog" Argument="MaintenanceTypeDlg" Condition="AI_MAINT" Ordering="1"/>
+    <ROW Dialog_="MaintenanceTypeDlg" Control_="ChangeButton" Event="NewDialog" Argument="CustomizeDlg" Condition="AI_MAINT" Ordering="501"/>
+    <ROW Dialog_="MaintenanceTypeDlg" Control_="Back" Event="NewDialog" Argument="MaintenanceWelcomeDlg" Condition="AI_MAINT" Ordering="1"/>
+    <ROW Dialog_="MaintenanceTypeDlg" Control_="RemoveButton" Event="NewDialog" Argument="VerifyRemoveDlg" Condition="AI_MAINT AND InstallMode=&quot;Remove&quot;" Ordering="601"/>
+    <ROW Dialog_="VerifyRemoveDlg" Control_="Back" Event="NewDialog" Argument="MaintenanceTypeDlg" Condition="AI_MAINT AND InstallMode=&quot;Remove&quot;" Ordering="1"/>
+    <ROW Dialog_="MaintenanceTypeDlg" Control_="RepairButton" Event="NewDialog" Argument="VerifyRepairDlg" Condition="AI_MAINT AND InstallMode=&quot;Repair&quot;" Ordering="601"/>
+    <ROW Dialog_="VerifyRepairDlg" Control_="Back" Event="NewDialog" Argument="MaintenanceTypeDlg" Condition="AI_MAINT AND InstallMode=&quot;Repair&quot;" Ordering="1"/>
+    <ROW Dialog_="VerifyRepairDlg" Control_="Repair" Event="EndDialog" Argument="Return" Condition="AI_MAINT AND InstallMode=&quot;Repair&quot;" Ordering="399" Options="1"/>
+    <ROW Dialog_="VerifyRemoveDlg" Control_="Remove" Event="EndDialog" Argument="Return" Condition="AI_MAINT AND InstallMode=&quot;Remove&quot;" Ordering="299" Options="1"/>
+    <ROW Dialog_="PatchWelcomeDlg" Control_="Next" Event="NewDialog" Argument="VerifyReadyDlg" Condition="AI_PATCH" Ordering="201"/>
+    <ROW Dialog_="ResumeDlg" Control_="Install" Event="EndDialog" Argument="Return" Condition="AI_RESUME" Ordering="299"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Install" Event="EndDialog" Argument="Return" Condition="AI_PATCH" Ordering="199"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Back" Event="NewDialog" Argument="PatchWelcomeDlg" Condition="AI_PATCH" Ordering="203"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiCreateFolderComponent">
+    <ROW Directory_="SHORTCUTDIR" Component_="SHORTCUTDIR" ManualDelete="false"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiCustActComponent">
+    <ROW Action="AI_DOWNGRADE" Type="19" Target="4010"/>
+    <ROW Action="AI_DpiContentScale" Type="1" Source="aicustact.dll" Target="DpiContentScale"/>
+    <ROW Action="AI_InstallModeCheck" Type="1" Source="aicustact.dll" Target="UpdateInstallMode" WithoutSeq="true"/>
+    <ROW Action="AI_PREPARE_UPGRADE" Type="65" Source="aicustact.dll" Target="PrepareUpgrade"/>
+    <ROW Action="AI_RESTORE_LOCATION" Type="65" Source="aicustact.dll" Target="RestoreLocation"/>
+    <ROW Action="AI_ResolveKnownFolders" Type="1" Source="aicustact.dll" Target="AI_ResolveKnownFolders"/>
+    <ROW Action="AI_SHOW_LOG" Type="65" Source="aicustact.dll" Target="LaunchLogFile" WithoutSeq="true"/>
+    <ROW Action="AI_STORE_LOCATION" Type="51" Source="ARPINSTALLLOCATION" Target="[APPDIR]"/>
+    <ROW Action="SET_APPDIR" Type="307" Source="APPDIR" Target="[ProgramFilesFolder][Manufacturer]\[ProductName]" MultiBuildTarget="DefaultBuild:[ProgramFiles64Folder][ProductName]"/>
+    <ROW Action="SET_SHORTCUTDIR" Type="307" Source="SHORTCUTDIR" Target="[ProgramMenuFolder][ProductName]"/>
+    <ROW Action="SET_TARGETDIR_TO_APPDIR" Type="51" Source="TARGETDIR" Target="[APPDIR]"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiIconsComponent">
+    <ROW Name="orientview.exe" SourcePath="..\misc\icons\orientview.ico" Index="0"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiInstExSeqComponent">
+    <ROW Action="AI_DOWNGRADE" Condition="AI_NEWERPRODUCTFOUND AND (UILevel &lt;&gt; 5)" Sequence="210"/>
+    <ROW Action="AI_RESTORE_LOCATION" Condition="APPDIR=&quot;&quot;" Sequence="749"/>
+    <ROW Action="AI_STORE_LOCATION" Condition="(Not Installed) OR REINSTALL" Sequence="1501"/>
+    <ROW Action="AI_PREPARE_UPGRADE" Condition="AI_UPGRADE=&quot;No&quot; AND (Not Installed)" Sequence="1399"/>
+    <ROW Action="AI_ResolveKnownFolders" Sequence="51"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiInstallUISequenceComponent">
+    <ROW Action="AI_RESTORE_LOCATION" Condition="APPDIR=&quot;&quot;" Sequence="749"/>
+    <ROW Action="AI_ResolveKnownFolders" Sequence="52"/>
+    <ROW Action="AI_DpiContentScale" Sequence="51"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiLaunchConditionsComponent">
+    <ROW Condition="( Version9X OR VersionNT64 )" Description="[ProductName] cannot be installed on [WindowsTypeNTDisplay]" DescriptionLocId="AI.LaunchCondition.NoNT" IsPredefined="true" Builds="DefaultBuild"/>
+    <ROW Condition="(VersionNT &lt;&gt; 400)" Description="[ProductName] cannot be installed on the following Windows versions: [WindowsTypeNT40Display]" DescriptionLocId="AI.LaunchCondition.NoNT40" IsPredefined="true" Builds="DefaultBuild"/>
+    <ROW Condition="VersionNT" Description="[ProductName] cannot be installed on [WindowsType9XDisplay]" DescriptionLocId="AI.LaunchCondition.No9X" IsPredefined="true" Builds="DefaultBuild"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiRegsComponent">
+    <ROW Registry="Path" Root="-1" Key="Software\[Manufacturer]\[ProductName]" Name="Path" Value="[APPDIR]" Component_="ProductInformation"/>
+    <ROW Registry="Version" Root="-1" Key="Software\[Manufacturer]\[ProductName]" Name="Version" Value="[ProductVersion]" Component_="ProductInformation"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiShortsComponent">
+    <ROW Shortcut="OrientView" Directory_="SHORTCUTDIR" Name="ORIENT~1|OrientView" Component_="orientview.exe" Target="[#orientview.exe]" Hotkey="0" IconIndex="0" ShowCmd="1" WkDir="APPDIR"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiThemeComponent">
+    <ATTRIBUTE name="UsedTheme" value="classic"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiUpgradeComponent">
+    <ROW UpgradeCode="[|UpgradeCode]" VersionMin="0.0.1" VersionMax="[|ProductVersion]" Attributes="257" ActionProperty="OLDPRODUCTS"/>
+    <ROW UpgradeCode="[|UpgradeCode]" VersionMin="[|ProductVersion]" Attributes="2" ActionProperty="AI_NEWERPRODUCTFOUND"/>
+  </COMPONENT>
+</DOCUMENT>
