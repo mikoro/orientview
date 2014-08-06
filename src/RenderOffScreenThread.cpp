@@ -130,7 +130,7 @@ void RenderOffScreenThread::run()
 			renderer->renderAll();
 			renderer->stopRendering();
 
-			while (!frameReadSemaphore->tryAcquire(1, 20) && !isInterruptionRequested()) {}
+			while (!frameReadSemaphore->tryAcquire(1, 100) && !isInterruptionRequested()) {}
 
 			if (isInterruptionRequested())
 				break;

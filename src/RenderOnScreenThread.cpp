@@ -57,7 +57,7 @@ void RenderOnScreenThread::run()
 	{
 		if (!videoWindow->isExposed())
 		{
-			QThread::msleep(20);
+			QThread::msleep(100);
 			continue;
 		}
 

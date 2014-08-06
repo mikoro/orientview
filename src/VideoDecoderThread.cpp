@@ -43,7 +43,7 @@ void VideoDecoderThread::run()
 
 	while (!isInterruptionRequested())
 	{
-		while (!frameReadSemaphore->tryAcquire(1, 20) && !isInterruptionRequested()) {}
+		while (!frameReadSemaphore->tryAcquire(1, 100) && !isInterruptionRequested()) {}
 
 		if (isInterruptionRequested())
 			break;
@@ -51,7 +51,7 @@ void VideoDecoderThread::run()
 		if (videoDecoder->getNextFrame(&decodedFrameData, &decodedFrameDataGrayscale))
 			frameAvailableSemaphore->release(1);
 		else
-			QThread::msleep(20);
+			QThread::msleep(100);
 	}
 }
 
