@@ -63,6 +63,7 @@ namespace OrientView
 			int frameCountDivisor = 1;
 			int frameDurationDivisor = 1;
 			int frameSizeDivisor = 1;
+			bool enableVerboseLogging = false;
 
 		} decoder;
 

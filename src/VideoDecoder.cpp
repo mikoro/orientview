@@ -17,15 +17,21 @@ using namespace OrientView;
 
 namespace
 {
+	bool enableVerboseLogging = false;
+
 	void ffmpegLogCallback(void* ptr, int level, const char* fmt, va_list vl)
 	{
+		int printPrefix = 1;
+		char line[1024] = { 0 };
+		av_log_format_line(ptr, level, fmt, vl, line, 1024, &printPrefix);
+		int length = strlen(line);
+		char lineClipped[1024] = { 0 };
+		strncpy(lineClipped, line, length - 1);
+
 		if (level <= AV_LOG_WARNING)
-		{
-			int print_prefix = 0;
-			char line[1024] = { 0 };
-			av_log_format_line(ptr, level, fmt, vl, line, 1024, &print_prefix);
-			qWarning(line);
-		}
+			qWarning(lineClipped);
+		else if (enableVerboseLogging && level <= AV_LOG_DEBUG)
+			qDebug(lineClipped);
 	}
 
 	bool openCodecContext(int* streamIndex, AVFormatContext* formatContext, AVMediaType mediaType)
@@ -65,6 +71,9 @@ bool VideoDecoder::initialize(Settings* settings)
 {
 	qDebug("Initializing VideoDecoder (%s)", qPrintable(settings->files.inputVideoFilePath));
 
+	enableVerboseLogging = settings->decoder.enableVerboseLogging;
+
+	av_log_set_level(enableVerboseLogging ? AV_LOG_DEBUG : AV_LOG_WARNING);
 	av_log_set_callback(ffmpegLogCallback);
 	av_register_all();
 
