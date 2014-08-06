@@ -148,6 +148,8 @@ int VideoEncoder::encodeFrame()
 	else
 		qWarning("Could not encode frame");
 
+	QMutexLocker locker(&encoderMutex);
+
 	lastEncodeTime = encodeTimer.nsecsElapsed() / 1000000.0;
 
 	return frameSize;
@@ -158,7 +160,9 @@ void VideoEncoder::close()
 	mp4File->close(frameNumber);
 }
 
-double VideoEncoder::getLastEncodeTime() const
+double VideoEncoder::getLastEncodeTime()
 {
+	QMutexLocker locker(&encoderMutex);
+
 	return lastEncodeTime;
 }

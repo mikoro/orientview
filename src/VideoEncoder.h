@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <QMutex>
 #include <QElapsedTimer>
 
 extern "C"
@@ -31,9 +32,11 @@ namespace OrientView
 		int encodeFrame();
 		void close();
 
-		double getLastEncodeTime() const;
+		double getLastEncodeTime();
 
 	private:
+
+		QMutex encoderMutex;
 
 		x264_t* encoder = nullptr;
 		x264_picture_t* convertedPicture = nullptr;
