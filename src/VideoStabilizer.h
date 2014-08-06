@@ -25,6 +25,9 @@ namespace OrientView
 
 		void processFrame(FrameData* frameDataGrayscale);
 
+		void toggleEnabled();
+		void reset();
+
 		double getX() const;
 		double getY() const;
 		double getAngle() const;

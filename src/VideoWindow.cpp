@@ -103,6 +103,9 @@ bool VideoWindow::event(QEvent* event)
 	if (event->type() == QEvent::Close)
 		emit closing();
 
+	if (event->type() == QEvent::Resize)
+		emit resizing();
+
 	if (event->type() == QEvent::KeyPress)
 	{
 		QKeyEvent* ke = (QKeyEvent*)event;

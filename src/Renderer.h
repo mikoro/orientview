@@ -64,8 +64,9 @@ namespace OrientView
 	};
 
 	// Does the actual drawing using OpenGL.
-	class Renderer : protected QOpenGLFunctions
+	class Renderer : public QObject, protected QOpenGLFunctions
 	{
+		Q_OBJECT
 
 	public:
 
@@ -85,6 +86,10 @@ namespace OrientView
 		void setFlipOutput(bool value);
 		void toggleShowInfoPanel();
 		void requestFullClear();
+
+	public slots:
+
+		void windowResized();
 
 	private:
 

@@ -140,6 +140,12 @@
     <ClCompile Include="build\GeneratedFiles\qrc_OrientView.cpp">
       <Filter>Generated Files</Filter>
     </ClCompile>
+    <ClCompile Include="build\GeneratedFiles\Debug\moc_Renderer.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="build\GeneratedFiles\Release\moc_Renderer.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="src\MainWindow.h">
@@ -171,6 +177,9 @@
     </CustomBuild>
     <CustomBuild Include="src\OrientView.qrc">
       <Filter>Resource Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="src\Renderer.h">
+      <Filter>Header Files</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
@@ -205,9 +214,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\MapImageReader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Mp4File.h">

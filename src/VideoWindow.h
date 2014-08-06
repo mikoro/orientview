@@ -30,6 +30,7 @@ namespace OrientView
 	signals:
 
 		void closing();
+		void resizing();
 
 	protected:
 

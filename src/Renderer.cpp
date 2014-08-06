@@ -310,9 +310,12 @@ void Renderer::renderVideoPanel()
 	double videoPanelOffsetX = 0.0;
 
 	if (renderMode != RenderMode::VIDEO)
+	{
 		videoPanelOffsetX += (windowWidth / 2.0) - (((1.0 - mapPanelRelativeWidth) * windowWidth) / 2.0);
-
-	videoPanel.scale = ((1.0 - mapPanelRelativeWidth) * windowWidth) / videoPanel.textureWidth;
+		videoPanel.scale = ((1.0 - mapPanelRelativeWidth) * windowWidth) / videoPanel.textureWidth;
+	}
+	else
+		videoPanel.scale = windowWidth / videoPanel.textureWidth;
 
 	if (videoPanel.scale * videoPanel.textureHeight > windowHeight)
 		videoPanel.scale = windowHeight / videoPanel.textureHeight;
@@ -606,4 +609,9 @@ void Renderer::toggleShowInfoPanel()
 void Renderer::requestFullClear()
 {
 	fullClearRequested = true;
+}
+
+void Renderer::windowResized()
+{
+	requestFullClear();
 }

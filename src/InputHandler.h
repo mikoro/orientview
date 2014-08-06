@@ -9,6 +9,7 @@ namespace OrientView
 	class Renderer;
 	class VideoDecoder;
 	class VideoDecoderThread;
+	class VideoStabilizer;
 	class RenderOnScreenThread;
 	class Renderer;
 	struct Settings;
@@ -21,7 +22,7 @@ namespace OrientView
 
 	public:
 
-		bool initialize(VideoWindow* videoWindow, Renderer* renderer, VideoDecoder* videoDecoder, VideoDecoderThread* videoDecoderThread, RenderOnScreenThread* renderOnScreenThread, Settings* settings);
+		bool initialize(VideoWindow* videoWindow, Renderer* renderer, VideoDecoder* videoDecoder, VideoDecoderThread* videoDecoderThread, VideoStabilizer* videoStabilizer, RenderOnScreenThread* renderOnScreenThread, Settings* settings);
 		void handleInput(double frameTime);
 
 		SelectedPanel getSelectedPanel() const;
@@ -32,6 +33,7 @@ namespace OrientView
 		Renderer* renderer = nullptr;
 		VideoDecoder* videoDecoder = nullptr;
 		VideoDecoderThread* videoDecoderThread = nullptr;
+		VideoStabilizer* videoStabilizer = nullptr;
 		RenderOnScreenThread* renderOnScreenThread = nullptr;
 		Settings* settings = nullptr;
 

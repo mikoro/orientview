@@ -18,23 +18,13 @@ bool VideoStabilizer::initialize(Settings* settings)
 {
 	qDebug("Initializing VideoStabilizer");
 
+	reset();
+
 	isFirstImage = true;
 	isEnabled = settings->stabilizer.enabled;
-
-	currentX = 0.0;
-	currentY = 0.0;
-	currentAngle = 0.0;
-	normalizedX = 0.0;
-	normalizedY = 0.0;
-	normalizedAngle = 0.0;
-
 	dampingFactor = settings->stabilizer.dampingFactor;
-
-	currentXAverage.reset();
 	currentXAverage.setAlpha(settings->stabilizer.averagingFactor);
-	currentYAverage.reset();
 	currentYAverage.setAlpha(settings->stabilizer.averagingFactor);
-	currentAngleAverage.reset();
 	currentAngleAverage.setAlpha(settings->stabilizer.averagingFactor);
 
 	previousTransformation = cv::Mat::eye(2, 3, CV_64F);
@@ -149,6 +139,25 @@ void VideoStabilizer::processFrame(FrameData* frameDataGrayscale)
 	opticalFlowError.clear();
 
 	lastProcessTime = processTimer.nsecsElapsed() / 1000000.0;
+}
+
+void VideoStabilizer::toggleEnabled()
+{
+	isEnabled = !isEnabled;
+	reset();
+}
+
+void VideoStabilizer::reset()
+{
+	currentX = 0.0;
+	currentY = 0.0;
+	currentAngle = 0.0;
+	normalizedX = 0.0;
+	normalizedY = 0.0;
+	normalizedAngle = 0.0;
+	currentXAverage.reset();
+	currentYAverage.reset();
+	currentAngleAverage.reset();
 }
 
 double VideoStabilizer::getX() const

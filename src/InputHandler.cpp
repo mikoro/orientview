@@ -6,12 +6,13 @@
 #include "Renderer.h"
 #include "VideoDecoder.h"
 #include "VideoDecoderThread.h"
+#include "VideoStabilizer.h"
 #include "RenderOnScreenThread.h"
 #include "Settings.h"
 
 using namespace OrientView;
 
-bool InputHandler::initialize(VideoWindow* videoWindow, Renderer* renderer, VideoDecoder* videoDecoder, VideoDecoderThread* videoDecoderThread, RenderOnScreenThread* renderOnScreenThread, Settings* settings)
+bool InputHandler::initialize(VideoWindow* videoWindow, Renderer* renderer, VideoDecoder* videoDecoder, VideoDecoderThread* videoDecoderThread, VideoStabilizer* videoStabilizer, RenderOnScreenThread* renderOnScreenThread, Settings* settings)
 {
 	qDebug("Initializing InputHandler");
 
@@ -19,6 +20,7 @@ bool InputHandler::initialize(VideoWindow* videoWindow, Renderer* renderer, Vide
 	this->renderer = renderer;
 	this->videoDecoder = videoDecoder;
 	this->videoDecoderThread = videoDecoderThread;
+	this->videoStabilizer = videoStabilizer;
 	this->renderOnScreenThread = renderOnScreenThread;
 	this->settings = settings;
 
@@ -55,6 +57,9 @@ void InputHandler::handleInput(double frameTime)
 
 		renderer->requestFullClear();
 	}
+
+	if (videoWindow->keyIsDownOnce(Qt::Key_F4))
+		videoStabilizer->toggleEnabled();
 
 	int seekAmount = settings->inputHandler.normalSeekAmount;
 	double translateVelocity = settings->inputHandler.normalTranslateVelocity;
@@ -173,7 +178,7 @@ void InputHandler::handleInput(double frameTime)
 			panelHasMoved = true;
 		}
 
-		if (panelHasMoved = true)
+		if (panelHasMoved)
 			renderer->requestFullClear();
 	}
 }
