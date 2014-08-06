@@ -309,10 +309,10 @@ void Renderer::renderVideoPanel()
 	else
 		videoPanel.vertexMatrix.ortho(-windowWidth / 2, windowWidth / 2, windowHeight / 2, -windowHeight / 2, 0.0f, 1.0f);
 
-	double offsetX = 0.0;
+	double videoPanelOffsetX = 0.0;
 
 	if (renderMode != RenderMode::VIDEO)
-		offsetX += (windowWidth / 2.0) - (((1.0 - mapPanelRelativeWidth) * windowWidth) / 2.0);
+		videoPanelOffsetX += (windowWidth / 2.0) - (((1.0 - mapPanelRelativeWidth) * windowWidth) / 2.0);
 
 	videoPanel.scale = ((1.0 - mapPanelRelativeWidth) * windowWidth) / videoPanel.textureWidth;
 
@@ -322,20 +322,42 @@ void Renderer::renderVideoPanel()
 	videoPanel.scale *= videoPanel.userScale;
 
 	videoPanel.vertexMatrix.translate(
-		offsetX + videoPanel.x + videoPanel.userX + videoStabilizer->getX() * videoPanel.textureWidth * videoPanel.scale,
+		videoPanelOffsetX + videoPanel.x + videoPanel.userX + videoStabilizer->getX() * videoPanel.textureWidth * videoPanel.scale,
 		videoPanel.y + videoPanel.userY - videoStabilizer->getY() * videoPanel.textureHeight * videoPanel.scale,
 		0.0f);
 
 	videoPanel.vertexMatrix.rotate(videoPanel.angle + videoPanel.userAngle - videoStabilizer->getAngle(), 0.0f, 0.0f, 1.0f);
 	videoPanel.vertexMatrix.scale(videoPanel.scale);
 
+	if (fullClearRequested)
+	{
+		glClearColor(videoPanel.clearColor.redF(), videoPanel.clearColor.greenF(), videoPanel.clearColor.blueF(), 0.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+		fullClearRequested = false;
+	}
+
+	if (videoPanel.clippingEnabled)
+	{
+		double videoPanelWidth = videoPanel.scale * videoPanel.textureWidth;
+		double videoPanelHeight = videoPanel.scale * videoPanel.textureHeight;
+		double leftMargin = (windowWidth - videoPanelWidth) / 2.0;
+		double bottomMargin = (windowHeight - videoPanelHeight) / 2.0;
+
+		glEnable(GL_SCISSOR_TEST);
+		glScissor((int)(leftMargin + videoPanelOffsetX + videoPanel.x + videoPanel.userX + 0.5),
+			(int)(bottomMargin + videoPanel.y + videoPanel.userY + 0.5),
+			(int)(videoPanelWidth + 0.5),
+			(int)(videoPanelHeight + 0.5));
+	}
+
 	if (videoPanel.clearEnabled)
 	{
 		glClearColor(videoPanel.clearColor.redF(), videoPanel.clearColor.greenF(), videoPanel.clearColor.blueF(), 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 	}
-
+	
 	renderPanel(&videoPanel);
+	glDisable(GL_SCISSOR_TEST);
 }
 
 void Renderer::renderMapPanel()
@@ -358,13 +380,23 @@ void Renderer::renderMapPanel()
 	mapPanel.vertexMatrix.rotate(mapPanel.angle + mapPanel.userAngle, 0.0f, 0.0f, 1.0f);
 	mapPanel.vertexMatrix.scale(mapPanel.scale);
 
+	mapPanel.clippingEnabled = (renderMode == RenderMode::ALL);
+
 	int mapBorderX = (int)(mapPanelRelativeWidth * windowWidth + 0.5);
 
-	if (renderMode != RenderMode::MAP)
+	if (fullClearRequested)
+	{
+		glClearColor(mapPanel.clearColor.redF(), mapPanel.clearColor.greenF(), mapPanel.clearColor.blueF(), 0.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+		fullClearRequested = false;
+	}
+
+	if (mapPanel.clippingEnabled)
+	{
 		glEnable(GL_SCISSOR_TEST);
-
-	glScissor(0, 0, mapBorderX, (int)windowHeight);
-
+		glScissor(0, 0, mapBorderX, (int)windowHeight);
+	}
+	
 	if (mapPanel.clearEnabled)
 	{
 		glClearColor(mapPanel.clearColor.redF(), mapPanel.clearColor.greenF(), mapPanel.clearColor.blueF(), 0.0f);
@@ -372,14 +404,17 @@ void Renderer::renderMapPanel()
 	}
 
 	renderPanel(&mapPanel);
-	renderRoute();
-
 	glDisable(GL_SCISSOR_TEST);
 
-	painter->begin(paintDevice);
-	painter->setPen(QColor(0, 0, 0));
-	painter->drawLine(mapBorderX, 0, mapBorderX, (int)windowHeight);
-	painter->end();
+	renderRoute();
+
+	if (mapPanel.clippingEnabled)
+	{
+		painter->begin(paintDevice);
+		painter->setPen(QColor(0, 0, 0));
+		painter->drawLine(mapBorderX, 0, mapBorderX, (int)windowHeight);
+		painter->end();
+	}
 }
 
 void Renderer::renderInfoPanel()
@@ -568,4 +603,9 @@ void Renderer::setFlipOutput(bool value)
 void Renderer::toggleShowInfoPanel()
 {
 	showInfoPanel = !showInfoPanel;
+}
+
+void Renderer::requestFullClear()
+{
+	fullClearRequested = true;
 }

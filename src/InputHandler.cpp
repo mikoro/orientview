@@ -52,6 +52,8 @@ void InputHandler::handleInput(double frameTime)
 			case RenderMode::MAP: renderer->setRenderMode(RenderMode::ALL); break;
 			default: break;
 		}
+
+		renderer->requestFullClear();
 	}
 
 	int seekAmount = settings->inputHandler.normalSeekAmount;
@@ -105,6 +107,7 @@ void InputHandler::handleInput(double frameTime)
 	else
 	{
 		Panel* targetPanel = nullptr;
+		bool panelHasMoved = false;
 
 		switch (selectedPanel)
 		{
@@ -119,31 +122,59 @@ void InputHandler::handleInput(double frameTime)
 			targetPanel->userY = 0.0;
 			targetPanel->userAngle = 0.0;
 			targetPanel->userScale = 1.0;
+			panelHasMoved = true;
 		}
 
 		if (videoWindow->keyIsDown(Qt::Key_Left))
+		{
 			targetPanel->userX -= translateVelocity;
+			panelHasMoved = true;
+		}
 
 		if (videoWindow->keyIsDown(Qt::Key_Right))
+		{
 			targetPanel->userX += translateVelocity;
+			panelHasMoved = true;
+		}
 
 		if (videoWindow->keyIsDown(Qt::Key_Up))
+		{
 			targetPanel->userY += translateVelocity;
+			panelHasMoved = true;
+		}
 
 		if (videoWindow->keyIsDown(Qt::Key_Down))
+		{
 			targetPanel->userY -= translateVelocity;
+			panelHasMoved = true;
+		}
 
 		if (videoWindow->keyIsDown(Qt::Key_W))
+		{
 			targetPanel->userAngle += rotateVelocity;
+			panelHasMoved = true;
+		}
 
 		if (videoWindow->keyIsDown(Qt::Key_S))
+		{
 			targetPanel->userAngle -= rotateVelocity;
+			panelHasMoved = true;
+		}
 
 		if (videoWindow->keyIsDown(Qt::Key_Q))
+		{
 			targetPanel->userScale *= (1.0 + frameTime / scaleConstant);
+			panelHasMoved = true;
+		}
 
 		if (videoWindow->keyIsDown(Qt::Key_A))
+		{
 			targetPanel->userScale *= (1.0 - frameTime / scaleConstant);
+			panelHasMoved = true;
+		}
+
+		if (panelHasMoved = true)
+			renderer->requestFullClear();
 	}
 }
 
