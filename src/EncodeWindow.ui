@@ -26,7 +26,7 @@
    <string>OrientView - Encoding</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="MainView.qrc">
+   <iconset resource="OrientView.qrc">
     <normaloff>:/icons/misc/icons/orientview.ico</normaloff>:/icons/misc/icons/orientview.ico</iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout">
@@ -326,7 +326,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="MainView.qrc"/>
+  <include location="OrientView.qrc"/>
  </resources>
  <connections/>
  <designerdata>

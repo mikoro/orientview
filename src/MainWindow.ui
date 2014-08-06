@@ -32,7 +32,7 @@
    <string>OrientView</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="MainView.qrc">
+   <iconset resource="OrientView.qrc">
     <normaloff>:/icons/misc/icons/orientview.ico</normaloff>:/icons/misc/icons/orientview.ico</iconset>
   </property>
   <widget class="QWidget" name="centralWidget">
@@ -198,7 +198,7 @@
            <property name="geometry">
             <rect>
              <x>0</x>
-             <y>-357</y>
+             <y>0</y>
              <width>550</width>
              <height>928</height>
             </rect>
@@ -1875,7 +1875,7 @@
   </widget>
   <action name="actionLoadSettings">
    <property name="icon">
-    <iconset resource="MainView.qrc">
+    <iconset resource="OrientView.qrc">
      <normaloff>:/icons/misc/icons/document-open.svg</normaloff>:/icons/misc/icons/document-open.svg</iconset>
    </property>
    <property name="text">
@@ -1887,7 +1887,7 @@
   </action>
   <action name="actionSaveSettings">
    <property name="icon">
-    <iconset resource="MainView.qrc">
+    <iconset resource="OrientView.qrc">
      <normaloff>:/icons/misc/icons/document-save-as.svg</normaloff>:/icons/misc/icons/document-save-as.svg</iconset>
    </property>
    <property name="text">
@@ -1899,7 +1899,7 @@
   </action>
   <action name="actionPlayVideo">
    <property name="icon">
-    <iconset resource="MainView.qrc">
+    <iconset resource="OrientView.qrc">
      <normaloff>:/icons/misc/icons/media-playback-start.svg</normaloff>:/icons/misc/icons/media-playback-start.svg</iconset>
    </property>
    <property name="text">
@@ -1911,7 +1911,7 @@
   </action>
   <action name="actionEncodeVideo">
    <property name="icon">
-    <iconset resource="MainView.qrc">
+    <iconset resource="OrientView.qrc">
      <normaloff>:/icons/misc/icons/video-x-generic.svg</normaloff>:/icons/misc/icons/video-x-generic.svg</iconset>
    </property>
    <property name="text">
@@ -1923,7 +1923,7 @@
   </action>
   <action name="actionExit">
    <property name="icon">
-    <iconset resource="MainView.qrc">
+    <iconset resource="OrientView.qrc">
      <normaloff>:/icons/misc/icons/system-log-out.svg</normaloff>:/icons/misc/icons/system-log-out.svg</iconset>
    </property>
    <property name="text">
@@ -1935,7 +1935,7 @@
   </action>
   <action name="actionDefaultSettings">
    <property name="icon">
-    <iconset resource="MainView.qrc">
+    <iconset resource="OrientView.qrc">
      <normaloff>:/icons/misc/icons/edit-clear.svg</normaloff>:/icons/misc/icons/edit-clear.svg</iconset>
    </property>
    <property name="text">
@@ -1978,7 +1978,7 @@
   <tabstop>spinBoxEncoderCrf</tabstop>
  </tabstops>
  <resources>
-  <include location="MainView.qrc"/>
+  <include location="OrientView.qrc"/>
  </resources>
  <connections/>
 </ui>
