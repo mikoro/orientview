@@ -438,7 +438,7 @@ void Renderer::renderInfoPanel()
 		painter->setPen(textGreenColor);
 
 	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString("%1 ms").arg(QString::number(averageSpareTime.getAverage(), 'f', 2)));
-	
+
 	QString selectedText;
 	QString renderText;
 
@@ -482,14 +482,14 @@ void Renderer::renderRoute()
 
 	painter->begin(paintDevice);
 
-	if (renderMode != RenderMode::MAP)	
+	if (renderMode != RenderMode::MAP)
 	{
 		painter->setClipping(true);
 		painter->setClipRect(0, 0, (int)(mapPanelRelativeWidth * windowWidth + 0.5), (int)windowHeight);
 	}
 	else
 		painter->setClipping(false);
-	
+
 	painter->setPen(pen);
 	painter->setWorldMatrix(m);
 	painter->drawPath(*routePath);
@@ -499,12 +499,24 @@ void Renderer::renderRoute()
 void Renderer::renderPanel(Panel* panel)
 {
 	panel->program->bind();
-	panel->program->setUniformValue(panel->vertexMatrixUniform, panel->vertexMatrix);
-	panel->program->setUniformValue(panel->textureSamplerUniform, 0);
-	panel->program->setUniformValue(panel->textureWidthUniform, (float)panel->textureWidth);
-	panel->program->setUniformValue(panel->textureHeightUniform, (float)panel->textureHeight);
-	panel->program->setUniformValue(panel->texelWidthUniform, (float)panel->texelWidth);
-	panel->program->setUniformValue(panel->texelHeightUniform, (float)panel->texelHeight);
+
+	if (panel->vertexMatrixUniform >= 0)
+		panel->program->setUniformValue((GLuint)panel->vertexMatrixUniform, panel->vertexMatrix);
+
+	if (panel->textureSamplerUniform >= 0)
+		panel->program->setUniformValue((GLuint)panel->textureSamplerUniform, 0);
+
+	if (panel->textureWidthUniform >= 0)
+		panel->program->setUniformValue((GLuint)panel->textureWidthUniform, (float)panel->textureWidth);
+
+	if (panel->textureHeightUniform >= 0)
+		panel->program->setUniformValue((GLuint)panel->textureHeightUniform, (float)panel->textureHeight);
+
+	if (panel->texelWidthUniform >= 0)
+		panel->program->setUniformValue((GLuint)panel->texelWidthUniform, (float)panel->texelWidth);
+
+	if (panel->texelHeightUniform >= 0)
+		panel->program->setUniformValue((GLuint)panel->texelHeightUniform, (float)panel->texelHeight);
 
 	panel->buffer->bind();
 	panel->texture->bind();

@@ -51,14 +51,14 @@ namespace OrientView
 		double userAngle = 0.0;
 		double userScale = 1.0;
 
-		GLuint vertexMatrixUniform = 0;
-		GLuint vertexPositionAttribute = 0;
-		GLuint vertexTextureCoordinateAttribute = 0;
-		GLuint textureSamplerUniform = 0;
-		GLuint textureWidthUniform = 0;
-		GLuint textureHeightUniform = 0;
-		GLuint texelWidthUniform = 0;
-		GLuint texelHeightUniform = 0;
+		int vertexMatrixUniform = 0;
+		int vertexPositionAttribute = 0;
+		int vertexTextureCoordinateAttribute = 0;
+		int textureSamplerUniform = 0;
+		int textureWidthUniform = 0;
+		int textureHeightUniform = 0;
+		int texelWidthUniform = 0;
+		int texelHeightUniform = 0;
 	};
 
 	class Renderer : protected QOpenGLFunctions
