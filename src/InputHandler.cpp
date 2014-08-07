@@ -90,23 +90,31 @@ void InputHandler::handleInput(double frameTime)
 
 	if (!videoWindow->keyIsDown(Qt::Key_Control) && videoWindow->keyIsDownOnce(Qt::Key_Space))
 		renderOnScreenThread->togglePaused();
-	else if (videoWindow->keyIsDown(Qt::Key_Control) && videoWindow->keyIsDownOnce(Qt::Key_Space) && renderOnScreenThread->isPaused())
+	else if (videoWindow->keyIsDown(Qt::Key_Control) && keyIsDownWithRepeat(Qt::Key_Space, advanceOneFrameRepeatHandler))
+	{
+		if (!renderOnScreenThread->isPaused())
+			renderOnScreenThread->togglePaused();
+
 		renderOnScreenThread->advanceOneFrame();
+		videoWindow->keyIsDownOnce(Qt::Key_Space); // clear key state
+	}
 
 	if (selectedPanel == SelectedPanel::NONE)
 	{
-		if (videoWindow->keyIsDown(Qt::Key_Left))
+		if (keyIsDownWithRepeat(Qt::Key_Left, seekBackwardRepeatHandler))
 		{
 			videoDecoder->seekRelative(-seekAmount);
 			videoDecoderThread->signalFrameRead();
 			renderOnScreenThread->advanceOneFrame();
+			videoStabilizer->reset();
 		}
 
-		if (videoWindow->keyIsDown(Qt::Key_Right))
+		if (keyIsDownWithRepeat(Qt::Key_Right, seekForwardRepeatHandler))
 		{
 			videoDecoder->seekRelative(seekAmount);
 			videoDecoderThread->signalFrameRead();
 			renderOnScreenThread->advanceOneFrame();
+			videoStabilizer->reset();
 		}
 	}
 	else
@@ -186,4 +194,30 @@ void InputHandler::handleInput(double frameTime)
 SelectedPanel InputHandler::getSelectedPanel() const
 {
 	return selectedPanel;
+}
+
+bool InputHandler::keyIsDownWithRepeat(int key, RepeatHandler& repeatHandler)
+{
+	bool isDown = false;
+
+	if (videoWindow->keyIsDown(key))
+	{
+		if (repeatHandler.hasBeenReleased || (repeatHandler.firstRepeatTimer.elapsed() > firstRepeatDelay))
+		{
+			if (repeatHandler.repeatTimer.elapsed() > repeatDelay)
+			{
+				isDown = true;
+				repeatHandler.repeatTimer.restart();
+			}
+
+			repeatHandler.hasBeenReleased = false;
+		}
+	}
+	else
+	{
+		repeatHandler.firstRepeatTimer.restart();
+		repeatHandler.hasBeenReleased = true;
+	}
+
+	return isDown;
 }

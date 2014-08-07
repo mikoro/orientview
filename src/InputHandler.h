@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <QElapsedTimer>
+
 namespace OrientView
 {
 	class VideoWindow;
@@ -15,6 +17,13 @@ namespace OrientView
 	struct Settings;
 
 	enum class SelectedPanel { NONE, VIDEO, MAP };
+
+	struct RepeatHandler
+	{
+		QElapsedTimer firstRepeatTimer;
+		QElapsedTimer repeatTimer;
+		bool hasBeenReleased = true;
+	};
 
 	// Read user input and act accordingly.
 	class InputHandler
@@ -29,6 +38,8 @@ namespace OrientView
 
 	private:
 
+		bool keyIsDownWithRepeat(int key, RepeatHandler& repeatHandler);
+
 		VideoWindow* videoWindow = nullptr;
 		Renderer* renderer = nullptr;
 		VideoDecoder* videoDecoder = nullptr;
@@ -38,5 +49,12 @@ namespace OrientView
 		Settings* settings = nullptr;
 
 		SelectedPanel selectedPanel = SelectedPanel::NONE;
+
+		const int firstRepeatDelay = 800;
+		const int repeatDelay = 50;
+
+		RepeatHandler seekBackwardRepeatHandler;
+		RepeatHandler seekForwardRepeatHandler;
+		RepeatHandler advanceOneFrameRepeatHandler;
 	};
 }

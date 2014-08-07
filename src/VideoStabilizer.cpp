@@ -27,8 +27,6 @@ bool VideoStabilizer::initialize(Settings* settings)
 	currentYAverage.setAlpha(settings->stabilizer.averagingFactor);
 	currentAngleAverage.setAlpha(settings->stabilizer.averagingFactor);
 
-	previousTransformation = cv::Mat::eye(2, 3, CV_64F);
-
 	lastProcessTime = 0.0;
 
 	if (outputData)
@@ -160,6 +158,7 @@ void VideoStabilizer::reset()
 	currentXAverage.reset();
 	currentYAverage.reset();
 	currentAngleAverage.reset();
+	previousTransformation = cv::Mat::eye(2, 3, CV_64F);
 }
 
 double VideoStabilizer::getX() const
