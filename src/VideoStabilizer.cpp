@@ -85,9 +85,11 @@ void VideoStabilizer::processFrame(FrameData* frameDataGrayscale)
 		}
 	}
 
-	// estimate the transformation between previous and current images trackable points
 	cv::Mat currentTransformation;
-	currentTransformation = cv::estimateRigidTransform(previousCornersFiltered, currentCornersFiltered, false);
+
+	// estimate the transformation between previous and current images trackable points
+	if (previousCornersFiltered.size() > 0 && currentCornersFiltered.size() > 0)
+		currentTransformation = cv::estimateRigidTransform(previousCornersFiltered, currentCornersFiltered, false);
 
 	// sometimes the transformation could not be found, just use previous transformation
 	if (currentTransformation.data == nullptr)
