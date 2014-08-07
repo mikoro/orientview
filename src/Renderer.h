@@ -73,7 +73,7 @@ namespace OrientView
 		bool initialize(VideoWindow* videoWindow, VideoDecoder* videoDecoder, QuickRouteReader* quickRouteReader, MapImageReader* mapImageReader, VideoStabilizer* videoStabilizer, InputHandler* inputHandler, Settings* settings);
 		void shutdown();
 
-		void startRendering(double windowWidth, double windowHeight, double frameTime, double spareTime, double decoderTime, double stabilizerTime, double encoderTime);
+		void startRendering(double windowWidth, double windowHeight, double currentTime, double frameTime, double spareTime, double decoderTime, double stabilizerTime, double encoderTime);
 		void uploadFrameData(FrameData* frameData);
 		void renderAll();
 		void stopRendering();
@@ -84,6 +84,7 @@ namespace OrientView
 
 		void setRenderMode(RenderMode mode);
 		void setFlipOutput(bool value);
+		void setIsEncoding(bool value);
 		void toggleShowInfoPanel();
 		void requestFullClear();
 
@@ -104,13 +105,15 @@ namespace OrientView
 		VideoStabilizer* videoStabilizer = nullptr;
 		InputHandler* inputHandler = nullptr;
 
-		bool flipOutput = false;
+		bool shouldFlipOutput = false;
+		bool isEncoding = false;
 		bool showInfoPanel = false;
 		bool fullClearRequested = true;
 
 		double mapPanelRelativeWidth = 0.0;
 		double windowWidth = 0.0;
 		double windowHeight = 0.0;
+		double currentTime = 0.0;
 		double frameTime = 0.0;
 
 		Panel videoPanel;

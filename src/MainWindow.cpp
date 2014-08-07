@@ -157,6 +157,7 @@ void MainWindow::on_actionPlayVideo_triggered()
 		videoWindow->getContext()->moveToThread(renderOnScreenThread);
 
 		renderer->setFlipOutput(false);
+		renderer->setIsEncoding(false);
 
 		videoDecoderThread->start();
 		renderOnScreenThread->start();
@@ -221,6 +222,7 @@ void MainWindow::on_actionEncodeVideo_triggered()
 		encodeWindow->getContext()->moveToThread(renderOffScreenThread);
 
 		renderer->setFlipOutput(true);
+		renderer->setIsEncoding(true);
 
 		videoDecoderThread->start();
 		renderOffScreenThread->start();

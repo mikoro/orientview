@@ -253,12 +253,13 @@ void Renderer::shutdown()
 	}
 }
 
-void Renderer::startRendering(double windowWidth, double windowHeight, double frameTime, double spareTime, double decoderTime, double stabilizerTime, double encoderTime)
+void Renderer::startRendering(double windowWidth, double windowHeight, double currentTime, double frameTime, double spareTime, double decoderTime, double stabilizerTime, double encoderTime)
 {
 	renderTimer.restart();
 
 	this->windowWidth = windowWidth;
 	this->windowHeight = windowHeight;
+	this->currentTime = currentTime;
 	this->frameTime = frameTime;
 
 	averageFps.addMeasurement(1000.0 / frameTime);
@@ -302,7 +303,7 @@ void Renderer::renderVideoPanel()
 {
 	videoPanel.vertexMatrix.setToIdentity();
 
-	if (!flipOutput)
+	if (!shouldFlipOutput)
 		videoPanel.vertexMatrix.ortho(-windowWidth / 2, windowWidth / 2, -windowHeight / 2, windowHeight / 2, 0.0f, 1.0f);
 	else
 		videoPanel.vertexMatrix.ortho(-windowWidth / 2, windowWidth / 2, windowHeight / 2, -windowHeight / 2, 0.0f, 1.0f);
@@ -365,7 +366,7 @@ void Renderer::renderMapPanel()
 {
 	mapPanel.vertexMatrix.setToIdentity();
 
-	if (!flipOutput)
+	if (!shouldFlipOutput)
 		mapPanel.vertexMatrix.ortho(-windowWidth / 2, windowWidth / 2, -windowHeight / 2, windowHeight / 2, 0.0f, 1.0f);
 	else
 		mapPanel.vertexMatrix.ortho(-windowWidth / 2, windowWidth / 2, windowHeight / 2, -windowHeight / 2, 0.0f, 1.0f);
@@ -427,12 +428,12 @@ void Renderer::renderInfoPanel()
 	int textY = 6;
 	int lineHeight = metrics.height();
 	int lineSpacing = metrics.lineSpacing() + 1;
-	int lineWidth1 = metrics.boundingRect("stabilize:").width();
-	int lineWidth2 = metrics.boundingRect("999.99 ms").width();
-	int rightPartMargin = 12;
+	int lineWidth1 = metrics.boundingRect("video scale:").width();
+	int lineWidth2 = metrics.boundingRect("99:99:99.999").width();
+	int rightPartMargin = 15;
 	int backgroundRadius = 10;
-	int backgroundWidth = textX + backgroundRadius + lineWidth1 + rightPartMargin + lineWidth2 + 2;
-	int backgroundHeight = lineSpacing * 11 + textY + 3;
+	int backgroundWidth = textX + backgroundRadius + lineWidth1 + rightPartMargin + lineWidth2 + 10;
+	int backgroundHeight = lineSpacing * 15 + textY + 3;
 
 	QColor textColor = QColor(255, 255, 255, 200);
 	QColor textGreenColor = QColor(0, 255, 0, 200);
@@ -445,36 +446,59 @@ void Renderer::renderInfoPanel()
 
 	painter->setPen(textColor);
 	painter->setFont(font);
-	painter->drawText(textX, textY, lineWidth1, lineHeight, 0, "fps:");
+
+	painter->drawText(textX, textY, lineWidth1, lineHeight, 0, "time:");
+
+	textY += lineSpacing;
+
+	painter->drawText(textX, textY += lineSpacing, lineWidth1, lineHeight, 0, "fps:");
 	painter->drawText(textX, textY += lineSpacing, lineWidth1, lineHeight, 0, "frame:");
 	painter->drawText(textX, textY += lineSpacing, lineWidth1, lineHeight, 0, "decode:");
 	painter->drawText(textX, textY += lineSpacing, lineWidth1, lineHeight, 0, "stabilize:");
 	painter->drawText(textX, textY += lineSpacing, lineWidth1, lineHeight, 0, "render:");
-	painter->drawText(textX, textY += lineSpacing, lineWidth1, lineHeight, 0, "encode:");
-	painter->drawText(textX, textY += lineSpacing, lineWidth1, lineHeight, 0, "spare:");
+
+	if (isEncoding)
+		painter->drawText(textX, textY += lineSpacing, lineWidth1, lineHeight, 0, "encode:");
+	else
+		painter->drawText(textX, textY += lineSpacing, lineWidth1, lineHeight, 0, "spare:");
 
 	textY += lineSpacing;
 
 	painter->drawText(textX, textY += lineSpacing, lineWidth1, lineHeight, 0, "selected:");
 	painter->drawText(textX, textY += lineSpacing, lineWidth1, lineHeight, 0, "render:");
 
+	textY += lineSpacing;
+
+	painter->drawText(textX, textY += lineSpacing, lineWidth1, lineHeight, 0, "video scale:");
+	painter->drawText(textX, textY += lineSpacing, lineWidth1, lineHeight, 0, "map scale:");
+
 	textX += lineWidth1 + rightPartMargin;
 	textY = 6;
 
-	painter->drawText(textX, textY, lineWidth2, lineHeight, 0, QString::number(averageFps.getAverage(), 'f', 2));
+	QTime currentTimeTemp = QTime(0, 0, 0, 0).addMSecs((int)(currentTime * 1000.0 + 0.5));
+	painter->drawText(textX, textY, lineWidth2, lineHeight, 0, currentTimeTemp.toString("HH:mm:ss.zzz"));
+
+	textY += lineSpacing;
+
+	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString::number(averageFps.getAverage(), 'f', 2));
 	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString("%1 ms").arg(QString::number(averageFrameTime.getAverage(), 'f', 2)));
 	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString("%1 ms").arg(QString::number(averageDecodeTime.getAverage(), 'f', 2)));
 	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString("%1 ms").arg(QString::number(averageStabilizeTime.getAverage(), 'f', 2)));
 	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString("%1 ms").arg(QString::number(averageRenderTime.getAverage(), 'f', 2)));
-	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString("%1 ms").arg(QString::number(averageEncodeTime.getAverage(), 'f', 2)));
 
-	if (averageSpareTime.getAverage() < 0)
-		painter->setPen(textRedColor);
-	else if (averageSpareTime.getAverage() > 0)
-		painter->setPen(textGreenColor);
+	if (isEncoding)
+		painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString("%1 ms").arg(QString::number(averageEncodeTime.getAverage(), 'f', 2)));
+	else
+	{
+		if (averageSpareTime.getAverage() < 0)
+			painter->setPen(textRedColor);
+		else if (averageSpareTime.getAverage() > 0)
+			painter->setPen(textGreenColor);
 
-	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString("%1 ms").arg(QString::number(averageSpareTime.getAverage(), 'f', 2)));
-
+		painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString("%1 ms").arg(QString::number(averageSpareTime.getAverage(), 'f', 2)));
+		painter->setPen(textColor);
+	}
+	
 	QString selectedText;
 	QString renderText;
 
@@ -496,9 +520,13 @@ void Renderer::renderInfoPanel()
 
 	textY += lineSpacing;
 
-	painter->setPen(textColor);
 	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, selectedText);
 	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, renderText);
+
+	textY += lineSpacing;
+
+	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString::number(videoPanel.userScale, 'f', 2));
+	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString::number(mapPanel.userScale, 'f', 2));
 
 	painter->end();
 }
@@ -598,7 +626,12 @@ void Renderer::setRenderMode(RenderMode mode)
 void Renderer::setFlipOutput(bool value)
 {
 	paintDevice->setPaintFlipped(value);
-	flipOutput = value;
+	shouldFlipOutput = value;
+}
+
+void Renderer::setIsEncoding(bool value)
+{
+	isEncoding = value;
 }
 
 void Renderer::toggleShowInfoPanel()

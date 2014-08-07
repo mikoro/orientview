@@ -75,7 +75,7 @@ void RenderOnScreenThread::run()
 		// direct the rendering to the video window
 		videoWindow->getContext()->makeCurrent(videoWindow);
 
-		renderer->startRendering(videoWindow->width(), videoWindow->height(), frameDuration, spareTime, videoDecoder->getLastDecodeTime(), videoStabilizer->getLastProcessTime(), 0.0);
+		renderer->startRendering(videoWindow->width(), videoWindow->height(), videoDecoder->getCurrentTime(), frameDuration, spareTime, videoDecoder->getLastDecodeTime(), videoStabilizer->getLastProcessTime(), 0.0);
 
 		if (gotFrame)
 		{
