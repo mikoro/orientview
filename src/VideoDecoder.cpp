@@ -320,6 +320,12 @@ void VideoDecoder::seekRelative(int seconds)
 	double realFps = (double)videoStream->avg_frame_rate.num / videoStream->avg_frame_rate.den;
 	int64_t targetTimeStamp = lastFrameTimestamp + (int64_t)(frameDuration * realFps + 0.5) * seconds;
 
+	if (targetTimeStamp < 0)
+		targetTimeStamp = 0;
+
+	if (targetTimeStamp > totalDuration)
+		targetTimeStamp = totalDuration;
+
 	if (avformat_seek_file(formatContext, videoStreamIndex, 0, targetTimeStamp, targetTimeStamp, 0) >= 0)
 	{
 		avcodec_flush_buffers(videoCodecContext);
