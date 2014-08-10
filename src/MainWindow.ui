@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>611</width>
-    <height>621</height>
+    <width>669</width>
+    <height>579</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -36,1798 +36,1986 @@
     <normaloff>:/icons/misc/icons/orientview.ico</normaloff>:/icons/misc/icons/orientview.ico</iconset>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QVBoxLayout" name="verticalLayout">
+   <layout class="QVBoxLayout" name="verticalLayout_8">
     <item>
      <widget class="QTabWidget" name="tabWidgetMain">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
-      <widget class="QWidget" name="tabFiles">
+      <widget class="QWidget" name="tabVideoDecoder">
        <attribute name="title">
-        <string>Files</string>
+        <string>Video decoder</string>
        </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_5">
+       <layout class="QVBoxLayout" name="verticalLayout">
         <item>
-         <widget class="QScrollArea" name="scrollAreaFiles">
-          <property name="widgetResizable">
-           <bool>true</bool>
+         <widget class="QGroupBox" name="groupBoxInputVideoFile">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
           </property>
-          <widget class="QWidget" name="scrollAreaWidgetContents_2">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>0</y>
-             <width>567</width>
-             <height>483</height>
-            </rect>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayout_2">
-            <property name="spacing">
-             <number>12</number>
-            </property>
-            <item>
-             <widget class="QGroupBox" name="groupBoxInputVideoFile">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="title">
-               <string>Input video file</string>
-              </property>
-              <layout class="QHBoxLayout" name="horizontalLayout">
-               <item>
-                <widget class="QLineEdit" name="lineEditInputVideoFile"/>
-               </item>
-               <item>
-                <widget class="QPushButton" name="pushButtonBrowseInputVideoFile">
-                 <property name="text">
-                  <string>Browse</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </widget>
-            </item>
-            <item>
-             <widget class="QGroupBox" name="groupBoxQuickRouteJpegMapImageFile">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="title">
-               <string>QuickRoute JPEG map image file</string>
-              </property>
-              <layout class="QHBoxLayout" name="horizontalLayout_3">
-               <item>
-                <widget class="QLineEdit" name="lineEditQuickRouteJpegMapImageFile"/>
-               </item>
-               <item>
-                <widget class="QPushButton" name="pushButtonBrowseQuickRouteJpegMapImageFile">
-                 <property name="text">
-                  <string>Browse</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </widget>
-            </item>
-            <item>
-             <widget class="QGroupBox" name="groupBoxAlternativeMapImageFile">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="title">
-               <string>Alternative map image file (optional)</string>
-              </property>
-              <layout class="QHBoxLayout" name="horizontalLayout_2">
-               <item>
-                <widget class="QLineEdit" name="lineEditAlternativeMapImageFile"/>
-               </item>
-               <item>
-                <widget class="QPushButton" name="pushButtonBrowseAlternativeMapImageFile">
-                 <property name="text">
-                  <string>Browse</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </widget>
-            </item>
-            <item>
-             <widget class="QGroupBox" name="groupBoxOutputVideoFile">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="title">
-               <string>Output video file (when encoding)</string>
-              </property>
-              <layout class="QHBoxLayout" name="horizontalLayout_4">
-               <item>
-                <widget class="QLineEdit" name="lineEditOutputVideoFile"/>
-               </item>
-               <item>
-                <widget class="QPushButton" name="pushButtonBrowseOutputVideoFile">
-                 <property name="text">
-                  <string>Browse</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </widget>
-            </item>
-            <item>
-             <spacer name="verticalSpacer">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>163</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
-          </widget>
+          <property name="title">
+           <string>Input video file</string>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout">
+           <item>
+            <widget class="QLineEdit" name="lineEditInputVideoFile"/>
+           </item>
+           <item>
+            <widget class="QPushButton" name="pushButtonBrowseInputVideoFile">
+             <property name="text">
+              <string>Browse</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="groupBoxDecoderSettings">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="title">
+           <string>Settings</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_6">
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_16">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>120</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Frame duration divisor</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QSpinBox" name="spinBoxDecoderFrameDurationDivisor">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>100</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>Increase to increase fps (will show each frame for less time)</string>
+             </property>
+             <property name="minimum">
+              <number>1</number>
+             </property>
+             <property name="maximum">
+              <number>99999</number>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QSpinBox" name="spinBoxDecoderFrameCountDivisor">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>100</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>Increase to decrease fps (will skip frames)</string>
+             </property>
+             <property name="minimum">
+              <number>1</number>
+             </property>
+             <property name="maximum">
+              <number>99999</number>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_15">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>120</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Frame count divisor</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_23">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>120</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Frame size divisor</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QSpinBox" name="spinBoxDecoderFrameSizeDivisor">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>100</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>Increase to decrease to video frame size</string>
+             </property>
+             <property name="minimum">
+              <number>1</number>
+             </property>
+             <property name="maximum">
+              <number>99999</number>
+             </property>
+             <property name="value">
+              <number>1</number>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="2">
+            <spacer name="horizontalSpacer_2">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <spacer name="verticalSpacer">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="tabSettings">
+      <widget class="QWidget" name="tabMapAndRoute">
        <attribute name="title">
-        <string>Settings</string>
+        <string>Map and route</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <item>
+         <widget class="QGroupBox" name="groupBoxQuickRouteJpegMapImageFile">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="title">
+           <string>QuickRoute JPEG map image file</string>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_3">
+           <item>
+            <widget class="QLineEdit" name="lineEditQuickRouteJpegMapImageFile"/>
+           </item>
+           <item>
+            <widget class="QPushButton" name="pushButtonBrowseQuickRouteJpegMapImageFile">
+             <property name="text">
+              <string>Browse</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="groupBoxAlternativeMapImageFile">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="title">
+           <string>Alternative map image file (optional)</string>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_2">
+           <item>
+            <widget class="QLineEdit" name="lineEditAlternativeMapImageFile"/>
+           </item>
+           <item>
+            <widget class="QPushButton" name="pushButtonBrowseAlternativeMapImageFile">
+             <property name="text">
+              <string>Browse</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="groupBoxRouteCalibration">
+          <property name="title">
+           <string>Route calibration</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout">
+           <item row="0" column="2">
+            <spacer name="horizontalSpacer_6">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_32">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>90</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Start offset (s)</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QDoubleSpinBox" name="doubleSpinBoxRouteStartOffset">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>100</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>Increase to make centering faster and less effective stabilization</string>
+             </property>
+             <property name="minimum">
+              <double>-99999.000000000000000</double>
+             </property>
+             <property name="maximum">
+              <double>99999.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>1.000000000000000</double>
+             </property>
+             <property name="value">
+              <double>0.000000000000000</double>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <spacer name="verticalSpacer_3">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tabSplitTimes">
+       <attribute name="title">
+        <string>Split times</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <item>
+         <widget class="QGroupBox" name="groupBoxSplitTimes">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="title">
+           <string>Split times</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_2">
+           <item row="0" column="0">
+            <widget class="QLineEdit" name="lineEditSplitTimes">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="toolTip">
+              <string>Relative split times separated by a vertical bar &quot;|&quot;</string>
+             </property>
+             <property name="text">
+              <string>0:00|0:50|1:25|2:30</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <spacer name="verticalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tabWindow">
+       <attribute name="title">
+        <string>Window</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_4">
         <item>
-         <widget class="QScrollArea" name="scrollAreaSettings">
-          <property name="widgetResizable">
-           <bool>true</bool>
+         <widget class="QGroupBox" name="groupBoxWindowSettings">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
           </property>
-          <widget class="QWidget" name="scrollAreaWidgetContents">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>0</y>
-             <width>550</width>
-             <height>928</height>
-            </rect>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayout_3">
-            <property name="spacing">
-             <number>12</number>
-            </property>
-            <item>
-             <widget class="QGroupBox" name="groupBoxWindow">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
+          <property name="title">
+           <string>Settings</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_3">
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_6">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>80</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Width</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="QCheckBox" name="checkBoxHideCursor">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>100</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>Whether to hide the cursor when over the window</string>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QSpinBox" name="spinBoxWindowWidth">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>100</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>The width of the video window and encoded video</string>
+             </property>
+             <property name="minimum">
+              <number>1</number>
+             </property>
+             <property name="maximum">
+              <number>99999</number>
+             </property>
+             <property name="singleStep">
+              <number>10</number>
+             </property>
+             <property name="value">
+              <number>1280</number>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_7">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>80</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Height</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_8">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>80</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Multisamples</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0">
+            <widget class="QLabel" name="label_10">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>80</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Hide cursor</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QSpinBox" name="spinBoxWindowHeight">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>100</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>The height of the video window and encoded video</string>
+             </property>
+             <property name="minimum">
+              <number>1</number>
+             </property>
+             <property name="maximum">
+              <number>99999</number>
+             </property>
+             <property name="singleStep">
+              <number>10</number>
+             </property>
+             <property name="value">
+              <number>720</number>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="label_9">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>80</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Fullscreen</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QComboBox" name="comboBoxMultisamples">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>100</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>Number of multisamples used to smooth the rendering output</string>
+             </property>
+             <property name="editable">
+              <bool>false</bool>
+             </property>
+             <property name="currentIndex">
+              <number>4</number>
+             </property>
+             <item>
+              <property name="text">
+               <string>0</string>
               </property>
-              <property name="title">
-               <string>Window</string>
+             </item>
+             <item>
+              <property name="text">
+               <string>2</string>
               </property>
-              <layout class="QGridLayout" name="gridLayout_3">
-               <item row="0" column="0">
-                <widget class="QLabel" name="label_6">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>100</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string>Width</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="4" column="1">
-                <widget class="QCheckBox" name="checkBoxHideCursor">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>100</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="toolTip">
-                  <string>Whether to hide the cursor when over the window</string>
-                 </property>
-                 <property name="text">
-                  <string/>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="1">
-                <widget class="QSpinBox" name="spinBoxWindowWidth">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>100</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="toolTip">
-                  <string>The width of the video window and encoded video</string>
-                 </property>
-                 <property name="minimum">
-                  <number>1</number>
-                 </property>
-                 <property name="maximum">
-                  <number>99999</number>
-                 </property>
-                 <property name="singleStep">
-                  <number>10</number>
-                 </property>
-                 <property name="value">
-                  <number>1280</number>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="0">
-                <widget class="QLabel" name="label_7">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>100</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string>Height</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="0">
-                <widget class="QLabel" name="label_8">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>100</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string>Multisamples</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="4" column="0">
-                <widget class="QLabel" name="label_10">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>100</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string>Hide cursor</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="1">
-                <widget class="QSpinBox" name="spinBoxWindowHeight">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>100</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="toolTip">
-                  <string>The height of the video window and encoded video</string>
-                 </property>
-                 <property name="minimum">
-                  <number>1</number>
-                 </property>
-                 <property name="maximum">
-                  <number>99999</number>
-                 </property>
-                 <property name="singleStep">
-                  <number>10</number>
-                 </property>
-                 <property name="value">
-                  <number>720</number>
-                 </property>
-                </widget>
-               </item>
-               <item row="3" column="0">
-                <widget class="QLabel" name="label_9">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>100</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string>Fullscreen</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="1">
-                <widget class="QComboBox" name="comboBoxMultisamples">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>100</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="toolTip">
-                  <string>Number of multisamples used to smooth the rendering output</string>
-                 </property>
-                 <property name="editable">
-                  <bool>false</bool>
-                 </property>
-                 <property name="currentIndex">
-                  <number>4</number>
-                 </property>
-                 <item>
-                  <property name="text">
-                   <string>0</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>2</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>4</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>8</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>16</string>
-                  </property>
-                 </item>
-                </widget>
-               </item>
-               <item row="3" column="1">
-                <widget class="QCheckBox" name="checkBoxFullscreen">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>100</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="toolTip">
-                  <string>Whether to open the window fullscreen</string>
-                 </property>
-                 <property name="text">
-                  <string/>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="2">
-                <spacer name="horizontalSpacer">
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>40</width>
-                   <height>20</height>
-                  </size>
-                 </property>
-                </spacer>
-               </item>
-              </layout>
-             </widget>
-            </item>
-            <item>
-             <widget class="QGroupBox" name="groupBoxTiming">
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>0</height>
-               </size>
+             </item>
+             <item>
+              <property name="text">
+               <string>4</string>
               </property>
-              <property name="title">
-               <string>Timing</string>
+             </item>
+             <item>
+              <property name="text">
+               <string>8</string>
               </property>
-              <layout class="QGridLayout" name="gridLayout_2">
-               <item row="0" column="1">
-                <widget class="QLineEdit" name="lineEditSplitTimes">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="toolTip">
-                  <string>Relative split times separated by a vertical bar &quot;|&quot;</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="0">
-                <widget class="QLabel" name="label_29">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>100</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string>Split times</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </widget>
-            </item>
-            <item>
-             <widget class="QGroupBox" name="groupBoxAppearance">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
+             </item>
+             <item>
+              <property name="text">
+               <string>16</string>
               </property>
-              <property name="title">
-               <string>Appearance</string>
-              </property>
-              <layout class="QGridLayout" name="gridLayout_7">
-               <item row="5" column="4">
-                <widget class="QLabel" name="label_2">
-                 <property name="text">
-                  <string>Map panel</string>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignCenter</set>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="0">
-                <widget class="QLabel" name="label_17">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>100</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string>Map panel width</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="3" column="0">
-                <widget class="QLabel" name="label_26">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>100</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string>Video panel scale</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="1">
-                <widget class="QCheckBox" name="checkBoxShowInfoPanel">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>100</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="toolTip">
-                  <string>Whether to show the info panel (fps and other info)</string>
-                 </property>
-                 <property name="text">
-                  <string/>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="0">
-                <widget class="QLabel" name="label_19">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>100</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string>Show info panel</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="6" column="4">
-                <widget class="QLineEdit" name="lineEditBackgroundColorMapPanel"/>
-               </item>
-               <item row="6" column="0">
-                <widget class="QLabel" name="label_28">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>100</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string>Background color</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="6" column="5">
-                <widget class="QPushButton" name="pushButtonPickMapPanelBackgroundColor">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>25</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string>...</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="4" column="0">
-                <widget class="QLabel" name="label_27">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>100</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string>Map panel scale</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="6" column="2" colspan="2">
-                <widget class="QPushButton" name="pushButtonPickVideoPanelBackgroundColor">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>25</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string>...</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="6" column="1">
-                <widget class="QLineEdit" name="lineEditBackgroundColorVideoPanel"/>
-               </item>
-               <item row="5" column="1" colspan="2">
-                <widget class="QLabel" name="label">
-                 <property name="text">
-                  <string>Video panel</string>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignCenter</set>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="1">
-                <widget class="QDoubleSpinBox" name="doubleSpinBoxMapPanelWidth">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>100</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="toolTip">
-                  <string>Relative width of the map panel</string>
-                 </property>
-                 <property name="maximum">
-                  <double>1.000000000000000</double>
-                 </property>
-                 <property name="singleStep">
-                  <double>0.100000000000000</double>
-                 </property>
-                 <property name="value">
-                  <double>0.300000000000000</double>
-                 </property>
-                </widget>
-               </item>
-               <item row="3" column="1">
-                <widget class="QDoubleSpinBox" name="doubleSpinBoxVideoPanelScale">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>100</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="toolTip">
-                  <string>Initial scale of the video panel</string>
-                 </property>
-                 <property name="maximum">
-                  <double>99999.000000000000000</double>
-                 </property>
-                 <property name="singleStep">
-                  <double>0.100000000000000</double>
-                 </property>
-                 <property name="value">
-                  <double>1.000000000000000</double>
-                 </property>
-                </widget>
-               </item>
-               <item row="4" column="1">
-                <widget class="QDoubleSpinBox" name="doubleSpinBoxMapPanelScale">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>100</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="toolTip">
-                  <string>Initial scale of the video panel</string>
-                 </property>
-                 <property name="maximum">
-                  <double>99999.000000000000000</double>
-                 </property>
-                 <property name="singleStep">
-                  <double>0.100000000000000</double>
-                 </property>
-                 <property name="value">
-                  <double>1.000000000000000</double>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </widget>
-            </item>
-            <item>
-             <widget class="QGroupBox" name="groupBoxDecoder">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="title">
-               <string>Decoder</string>
-              </property>
-              <layout class="QGridLayout" name="gridLayout_6">
-               <item row="1" column="0">
-                <widget class="QLabel" name="label_16">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>110</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string>Frame duration divisor</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="1">
-                <widget class="QSpinBox" name="spinBoxDecoderFrameDurationDivisor">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>100</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="toolTip">
-                  <string>Increase to increase fps (will show each frame for less time)</string>
-                 </property>
-                 <property name="minimum">
-                  <number>1</number>
-                 </property>
-                 <property name="maximum">
-                  <number>99999</number>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="1">
-                <widget class="QSpinBox" name="spinBoxDecoderFrameCountDivisor">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>100</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="toolTip">
-                  <string>Increase to decrease fps (will skip frames)</string>
-                 </property>
-                 <property name="minimum">
-                  <number>1</number>
-                 </property>
-                 <property name="maximum">
-                  <number>99999</number>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="0">
-                <widget class="QLabel" name="label_15">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>110</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string>Frame count divisor</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="0">
-                <widget class="QLabel" name="label_23">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>110</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string>Frame size divisor</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="1">
-                <widget class="QSpinBox" name="spinBoxDecoderFrameSizeDivisor">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>100</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="toolTip">
-                  <string>Increase to decrease to video frame size</string>
-                 </property>
-                 <property name="minimum">
-                  <number>1</number>
-                 </property>
-                 <property name="maximum">
-                  <number>99999</number>
-                 </property>
-                 <property name="value">
-                  <number>1</number>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="2">
-                <spacer name="horizontalSpacer_2">
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>40</width>
-                   <height>20</height>
-                  </size>
-                 </property>
-                </spacer>
-               </item>
-              </layout>
-             </widget>
-            </item>
-            <item>
-             <widget class="QGroupBox" name="groupBoxStabilizer">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="title">
-               <string>Stabilizer</string>
-              </property>
-              <layout class="QGridLayout" name="gridLayout_5">
-               <item row="0" column="0">
-                <widget class="QLabel" name="label_11">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>110</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string>Enabled</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="0">
-                <widget class="QLabel" name="label_24">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>110</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string>Averaging factor</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="0">
-                <widget class="QLabel" name="label_14">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>110</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string>Frame size divisor</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="3" column="1">
-                <widget class="QDoubleSpinBox" name="doubleSpinBoxStabilizerDampingFactor">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>100</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="toolTip">
-                  <string>Decrease to dampen frame movements</string>
-                 </property>
-                 <property name="maximum">
-                  <double>1.000000000000000</double>
-                 </property>
-                 <property name="singleStep">
-                  <double>0.100000000000000</double>
-                 </property>
-                 <property name="value">
-                  <double>0.500000000000000</double>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="1">
-                <widget class="QSpinBox" name="spinBoxStabilizerFrameSizeDivisor">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>100</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="toolTip">
-                  <string>Increase to decrease the frame size used for analysis (will be faster)</string>
-                 </property>
-                 <property name="minimum">
-                  <number>1</number>
-                 </property>
-                 <property name="maximum">
-                  <number>99999</number>
-                 </property>
-                 <property name="value">
-                  <number>8</number>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="1">
-                <widget class="QCheckBox" name="checkBoxStabilizerEnabled">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>100</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="toolTip">
-                  <string>Whether to enable video stabilization</string>
-                 </property>
-                 <property name="text">
-                  <string/>
-                 </property>
-                 <property name="checked">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="1">
-                <widget class="QDoubleSpinBox" name="doubleSpinBoxStabilizerAveragingFactor">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>100</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="toolTip">
-                  <string>Increase to make centering faster and less effective stabilization</string>
-                 </property>
-                 <property name="maximum">
-                  <double>1.000000000000000</double>
-                 </property>
-                 <property name="singleStep">
-                  <double>0.100000000000000</double>
-                 </property>
-                 <property name="value">
-                  <double>0.100000000000000</double>
-                 </property>
-                </widget>
-               </item>
-               <item row="3" column="0">
-                <widget class="QLabel" name="label_25">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>110</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string>Damping factor</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="4" column="0">
-                <widget class="QLabel" name="label_30">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>110</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string>Disable video clear</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="4" column="1">
-                <widget class="QCheckBox" name="checkBoxStabilizerDisableVideoClear">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>100</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="toolTip">
-                  <string>Whether to show the info panel (fps and other info)</string>
-                 </property>
-                 <property name="text">
-                  <string/>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="2">
-                <spacer name="horizontalSpacer_3">
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>40</width>
-                   <height>20</height>
-                  </size>
-                 </property>
-                </spacer>
-               </item>
-               <item row="5" column="0">
-                <widget class="QLabel" name="label_31">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>110</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string>Inpaint border width</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="5" column="1">
-                <widget class="QSpinBox" name="spinBoxStabilizerInpaintBorderWidth">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>100</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="toolTip">
-                  <string>Increase to decrease the frame size used for analysis (will be faster)</string>
-                 </property>
-                 <property name="minimum">
-                  <number>0</number>
-                 </property>
-                 <property name="maximum">
-                  <number>99999</number>
-                 </property>
-                 <property name="value">
-                  <number>0</number>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </widget>
-            </item>
-            <item>
-             <widget class="QGroupBox" name="groupBoxShaders">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="title">
-               <string>Shaders</string>
-              </property>
-              <layout class="QGridLayout" name="gridLayout_4">
-               <item row="1" column="1">
-                <widget class="QComboBox" name="comboBoxMapPanelShader">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>100</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="toolTip">
-                  <string>Select which vertex and fragment shaders will be used for texture handling</string>
-                 </property>
-                 <property name="editable">
-                  <bool>true</bool>
-                 </property>
-                 <property name="currentIndex">
-                  <number>0</number>
-                 </property>
-                 <item>
-                  <property name="text">
-                   <string>default</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>bilinear</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>bicubic</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>legacy</string>
-                  </property>
-                 </item>
-                </widget>
-               </item>
-               <item row="0" column="1">
-                <widget class="QComboBox" name="comboBoxVideoPanelShader">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>100</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="toolTip">
-                  <string>Select which vertex and fragment shaders will be used for texture handling</string>
-                 </property>
-                 <property name="editable">
-                  <bool>true</bool>
-                 </property>
-                 <property name="currentIndex">
-                  <number>0</number>
-                 </property>
-                 <item>
-                  <property name="text">
-                   <string>default</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>bilinear</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>bicubic</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>legacy</string>
-                  </property>
-                 </item>
-                </widget>
-               </item>
-               <item row="0" column="0">
-                <widget class="QLabel" name="label_12">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>100</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string>Video panel</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="0">
-                <widget class="QLabel" name="label_13">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>100</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string>Map panel</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="2">
-                <spacer name="horizontalSpacer_4">
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>40</width>
-                   <height>20</height>
-                  </size>
-                 </property>
-                </spacer>
-               </item>
-              </layout>
-             </widget>
-            </item>
-            <item>
-             <widget class="QGroupBox" name="groupBoxEncoder">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="title">
-               <string>Encoder</string>
-              </property>
-              <layout class="QGridLayout" name="gridLayout_8">
-               <item row="1" column="1">
-                <widget class="QComboBox" name="comboBoxEncoderProfile">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>100</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="toolTip">
-                  <string>Select which H.264 profile will be applied</string>
-                 </property>
-                 <property name="editable">
-                  <bool>true</bool>
-                 </property>
-                 <property name="currentText">
-                  <string>high</string>
-                 </property>
-                 <property name="currentIndex">
-                  <number>2</number>
-                 </property>
-                 <item>
-                  <property name="text">
-                   <string>baseline</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>main</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>high</string>
-                  </property>
-                 </item>
-                </widget>
-               </item>
-               <item row="2" column="1">
-                <widget class="QSpinBox" name="spinBoxEncoderCrf">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>100</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="toolTip">
-                  <string>Constant Rate Factor - select the quality of the encoded video (lower is better)</string>
-                 </property>
-                 <property name="minimum">
-                  <number>1</number>
-                 </property>
-                 <property name="maximum">
-                  <number>51</number>
-                 </property>
-                 <property name="value">
-                  <number>23</number>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="0">
-                <widget class="QLabel" name="label_20">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>100</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string>Profile</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="0">
-                <widget class="QLabel" name="label_21">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>100</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string>Preset</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="0">
-                <widget class="QLabel" name="label_22">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>100</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string>CRF</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="1">
-                <widget class="QComboBox" name="comboBoxEncoderPreset">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>100</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="toolTip">
-                  <string>Select which x264 encoding preset will be applied</string>
-                 </property>
-                 <property name="editable">
-                  <bool>true</bool>
-                 </property>
-                 <property name="currentText">
-                  <string>veryfast</string>
-                 </property>
-                 <property name="currentIndex">
-                  <number>2</number>
-                 </property>
-                 <item>
-                  <property name="text">
-                   <string>ultrafast</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>superfast</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>veryfast</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>faster</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>fast</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>medium</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>slow</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>slower</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>veryslow</string>
-                  </property>
-                 </item>
-                </widget>
-               </item>
-               <item row="0" column="2">
-                <spacer name="horizontalSpacer_5">
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>40</width>
-                   <height>20</height>
-                  </size>
-                 </property>
-                </spacer>
-               </item>
-              </layout>
-             </widget>
-            </item>
-            <item>
-             <spacer name="verticalSpacer_2">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
-          </widget>
+             </item>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QCheckBox" name="checkBoxFullscreen">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>100</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>Whether to open the window fullscreen</string>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="2">
+            <spacer name="horizontalSpacer">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
          </widget>
+        </item>
+        <item>
+         <spacer name="verticalSpacer_4">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tabAppearance">
+       <attribute name="title">
+        <string>Appearance</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_5">
+        <item>
+         <widget class="QGroupBox" name="groupBoxAppearanceSettings">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="title">
+           <string>Settings</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_7">
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_17">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>90</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Map panel width</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QCheckBox" name="checkBoxShowInfoPanel">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>100</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>Whether to show the info panel (fps and other info)</string>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="label_26">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>90</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Video panel scale</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_19">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>90</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Show info panel</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0">
+            <widget class="QLabel" name="label_27">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>90</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Map panel scale</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="QDoubleSpinBox" name="doubleSpinBoxMapPanelScale">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>100</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>Initial scale of the video panel</string>
+             </property>
+             <property name="maximum">
+              <double>99999.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.100000000000000</double>
+             </property>
+             <property name="value">
+              <double>1.000000000000000</double>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QDoubleSpinBox" name="doubleSpinBoxMapPanelWidth">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>100</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>Relative width of the map panel</string>
+             </property>
+             <property name="maximum">
+              <double>1.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.100000000000000</double>
+             </property>
+             <property name="value">
+              <double>0.300000000000000</double>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QDoubleSpinBox" name="doubleSpinBoxVideoPanelScale">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>100</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>Initial scale of the video panel</string>
+             </property>
+             <property name="maximum">
+              <double>99999.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.100000000000000</double>
+             </property>
+             <property name="value">
+              <double>1.000000000000000</double>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="2">
+            <spacer name="horizontalSpacer_7">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="groupBox">
+          <property name="title">
+           <string>Background colors</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_9">
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_29">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>90</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Video panel</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QLineEdit" name="lineEditBackgroundColorMapPanel">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>100</width>
+               <height>16777215</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="3">
+            <widget class="QPushButton" name="pushButtonPickVideoPanelBackgroundColor">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>25</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>...</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="3">
+            <widget class="QPushButton" name="pushButtonPickMapPanelBackgroundColor">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>25</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>...</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_18">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>90</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Map panel</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLineEdit" name="lineEditBackgroundColorVideoPanel">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>100</width>
+               <height>16777215</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="4">
+            <spacer name="horizontalSpacer_8">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="groupBoxShaders">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="title">
+           <string>Shaders</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_4">
+           <item row="1" column="1">
+            <widget class="QComboBox" name="comboBoxMapPanelShader">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>100</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>Select which vertex and fragment shaders will be used for texture handling</string>
+             </property>
+             <property name="editable">
+              <bool>true</bool>
+             </property>
+             <property name="currentIndex">
+              <number>0</number>
+             </property>
+             <item>
+              <property name="text">
+               <string>default</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>bilinear</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>bicubic</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>legacy</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QComboBox" name="comboBoxVideoPanelShader">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>100</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>Select which vertex and fragment shaders will be used for texture handling</string>
+             </property>
+             <property name="editable">
+              <bool>true</bool>
+             </property>
+             <property name="currentIndex">
+              <number>0</number>
+             </property>
+             <item>
+              <property name="text">
+               <string>default</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>bilinear</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>bicubic</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>legacy</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_12">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>90</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Video panel</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_13">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>90</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Map panel</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="2">
+            <spacer name="horizontalSpacer_4">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <spacer name="verticalSpacer_5">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tabVideoStabilizer">
+       <attribute name="title">
+        <string>Video stabilizer</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_6">
+        <item>
+         <widget class="QGroupBox" name="groupBoxStabilizerSettings">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="title">
+           <string>Settings</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_5">
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_11">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>110</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Enabled</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_24">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>110</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Averaging factor</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_14">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>110</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Frame size divisor</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QDoubleSpinBox" name="doubleSpinBoxStabilizerDampingFactor">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>100</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>Decrease to dampen frame movements</string>
+             </property>
+             <property name="maximum">
+              <double>1.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.100000000000000</double>
+             </property>
+             <property name="value">
+              <double>0.500000000000000</double>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QSpinBox" name="spinBoxStabilizerFrameSizeDivisor">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>100</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>Increase to decrease the frame size used for analysis (will be faster)</string>
+             </property>
+             <property name="minimum">
+              <number>1</number>
+             </property>
+             <property name="maximum">
+              <number>99999</number>
+             </property>
+             <property name="value">
+              <number>8</number>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QCheckBox" name="checkBoxStabilizerEnabled">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>100</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>Whether to enable video stabilization</string>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QDoubleSpinBox" name="doubleSpinBoxStabilizerAveragingFactor">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>100</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>Increase to make centering faster and less effective stabilization</string>
+             </property>
+             <property name="maximum">
+              <double>1.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.100000000000000</double>
+             </property>
+             <property name="value">
+              <double>0.100000000000000</double>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="label_25">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>110</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Damping factor</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0">
+            <widget class="QLabel" name="label_30">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>110</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Disable video clear</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="QCheckBox" name="checkBoxStabilizerDisableVideoClear">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>100</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>Whether to show the info panel (fps and other info)</string>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="2">
+            <spacer name="horizontalSpacer_3">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item row="5" column="0">
+            <widget class="QLabel" name="label_31">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>110</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Inpaint border width</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="1">
+            <widget class="QSpinBox" name="spinBoxStabilizerInpaintBorderWidth">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>100</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>Increase to decrease the frame size used for analysis (will be faster)</string>
+             </property>
+             <property name="minimum">
+              <number>0</number>
+             </property>
+             <property name="maximum">
+              <number>99999</number>
+             </property>
+             <property name="value">
+              <number>0</number>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <spacer name="verticalSpacer_6">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tabVideoEncoder">
+       <attribute name="title">
+        <string>Video encoder</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_7">
+        <item>
+         <widget class="QGroupBox" name="groupBoxOutputVideoFile">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="title">
+           <string>Output video file</string>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_4">
+           <item>
+            <widget class="QLineEdit" name="lineEditOutputVideoFile"/>
+           </item>
+           <item>
+            <widget class="QPushButton" name="pushButtonBrowseOutputVideoFile">
+             <property name="text">
+              <string>Browse</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="groupBoxEncoderSettings">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="title">
+           <string>Settings</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_8">
+           <item row="1" column="1">
+            <widget class="QComboBox" name="comboBoxEncoderProfile">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>100</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>Select which H.264 profile will be applied</string>
+             </property>
+             <property name="editable">
+              <bool>true</bool>
+             </property>
+             <property name="currentText">
+              <string>high</string>
+             </property>
+             <property name="currentIndex">
+              <number>2</number>
+             </property>
+             <item>
+              <property name="text">
+               <string>baseline</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>main</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>high</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QSpinBox" name="spinBoxEncoderCrf">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>100</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>Constant Rate Factor - select the quality of the encoded video (lower is better)</string>
+             </property>
+             <property name="minimum">
+              <number>1</number>
+             </property>
+             <property name="maximum">
+              <number>51</number>
+             </property>
+             <property name="value">
+              <number>23</number>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_20">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>40</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Profile</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_21">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>40</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Preset</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_22">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>40</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>CRF</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QComboBox" name="comboBoxEncoderPreset">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>100</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>Select which x264 encoding preset will be applied</string>
+             </property>
+             <property name="editable">
+              <bool>true</bool>
+             </property>
+             <property name="currentText">
+              <string>veryfast</string>
+             </property>
+             <property name="currentIndex">
+              <number>2</number>
+             </property>
+             <item>
+              <property name="text">
+               <string>ultrafast</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>superfast</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>veryfast</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>faster</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>fast</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>medium</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>slow</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>slower</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>veryslow</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="0" column="2">
+            <spacer name="horizontalSpacer_5">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <spacer name="verticalSpacer_7">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tabLog">
+       <attribute name="title">
+        <string>Log</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_9">
+        <item>
+         <widget class="QListView" name="listViewLog"/>
         </item>
        </layout>
       </widget>
@@ -1948,14 +2136,12 @@
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <tabstops>
-  <tabstop>scrollAreaFiles</tabstop>
   <tabstop>lineEditInputVideoFile</tabstop>
   <tabstop>pushButtonBrowseInputVideoFile</tabstop>
   <tabstop>lineEditAlternativeMapImageFile</tabstop>
   <tabstop>pushButtonBrowseAlternativeMapImageFile</tabstop>
   <tabstop>lineEditOutputVideoFile</tabstop>
   <tabstop>pushButtonBrowseOutputVideoFile</tabstop>
-  <tabstop>scrollAreaSettings</tabstop>
   <tabstop>spinBoxWindowWidth</tabstop>
   <tabstop>spinBoxWindowHeight</tabstop>
   <tabstop>comboBoxMultisamples</tabstop>
