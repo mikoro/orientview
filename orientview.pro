@@ -1,4 +1,4 @@
-CONFIG += qt release
+CONFIG += qt release c++11 warn_on
 QT += core gui opengl svg xml
 HEADERS += src/*.h
 SOURCES += src/*.cpp
@@ -6,7 +6,9 @@ FORMS += src/*.ui
 RESOURCES += src/*.qrc
 LIBS += -lavcodec -lavformat -lavutil -lswscale -lopencv_core -lopencv_imgproc -lopencv_photo -lopencv_video -lx264 -llsmash
 INCLUDEPATH += include
-QMAKE_CXXFLAGS += -std=c++11 -O3
+QMAKE_CXX = gcc
+#QMAKE_CXX = clang
+QMAKE_CXXFLAGS += -O3
 OBJECTS_DIR = build
 MOC_DIR = build
 RCC_DIR = build
