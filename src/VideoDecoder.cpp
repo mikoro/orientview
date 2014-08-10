@@ -29,9 +29,9 @@ namespace
 		strncpy(lineClipped, line, length - 1);
 
 		if (level <= AV_LOG_WARNING)
-			qWarning(lineClipped);
+			qWarning("%s", lineClipped);
 		else if (enableVerboseLogging && level <= AV_LOG_DEBUG)
-			qDebug(lineClipped);
+			qDebug("%s", lineClipped);
 	}
 
 	bool openCodecContext(int* streamIndex, AVFormatContext* formatContext, AVMediaType mediaType)

@@ -129,6 +129,8 @@ void InputHandler::handleInput(double frameTime)
 			default: break;
 		}
 
+		assert(targetPanel != nullptr);
+
 		if (videoWindow->keyIsDown(Qt::Key_R))
 		{
 			targetPanel->userX = 0.0;

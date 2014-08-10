@@ -130,6 +130,8 @@ bool Renderer::initialize(VideoWindow* videoWindow, VideoDecoder* videoDecoder, 
 
 	routePath = new QPainterPath();
 
+	(void)quickRouteReader;
+
 	/*int routePointCount = quickRouteReader->getRouteData().routePoints.size();
 
 	if (routePointCount >= 2)
