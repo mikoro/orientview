@@ -95,7 +95,7 @@ namespace OrientView
 	private:
 
 		bool loadShaders(Panel* panel, const QString& shaderName);
-		void loadBuffer(Panel* panel, GLfloat* buffer, int size);
+		void loadBuffer(Panel* panel, GLfloat* buffer, size_t size);
 		void renderVideoPanel();
 		void renderMapPanel();
 		void renderInfoPanel();

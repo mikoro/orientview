@@ -131,7 +131,7 @@ void VideoEncoder::readFrameData(FrameData* frameData)
 {
 	encodeTimer.restart();
 
-	sws_scale(swsContext, &frameData->data, &frameData->rowLength, 0, frameData->height, convertedPicture->img.plane, convertedPicture->img.i_stride);
+	sws_scale(swsContext, &frameData->data, (int*)(&frameData->rowLength), 0, frameData->height, convertedPicture->img.plane, convertedPicture->img.i_stride);
 }
 
 int VideoEncoder::encodeFrame()
@@ -145,7 +145,7 @@ int VideoEncoder::encodeFrame()
 	int frameSize = x264_encoder_encode(encoder, &nal, &nalCount, convertedPicture, &encodedPicture);
 	
 	if (frameSize > 0)
-		mp4File->writeFrame(nal[0].p_payload, frameSize, &encodedPicture);
+		mp4File->writeFrame(nal[0].p_payload, (size_t)frameSize, &encodedPicture);
 	else
 		qWarning("Could not encode frame");
 

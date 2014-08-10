@@ -57,8 +57,8 @@ bool RenderOffScreenThread::initialize(MainWindow* mainWindow, EncodeWindow* enc
 	}
 
 	renderedFrameData = FrameData();
-	renderedFrameData.dataLength = framebufferWidth * framebufferHeight * 4;
-	renderedFrameData.rowLength = framebufferWidth * 4;
+	renderedFrameData.dataLength = (size_t)(framebufferWidth * framebufferHeight * 4);
+	renderedFrameData.rowLength = (size_t)(framebufferWidth * 4);
 	renderedFrameData.data = new uint8_t[renderedFrameData.dataLength];
 	renderedFrameData.width = framebufferWidth;
 	renderedFrameData.height = framebufferHeight;

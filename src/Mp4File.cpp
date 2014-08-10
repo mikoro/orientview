@@ -56,7 +56,7 @@ namespace OrientView
 		uint64_t timeIncrement;
 		int64_t startOffset;
 		uint64_t firstCts;
-		uint32_t seiSize;
+		size_t seiSize;
 		uint8_t* seiBuffer;
 		int frameNumber;
 		int64_t initDelta;
@@ -162,7 +162,7 @@ bool Mp4File::writeHeaders(x264_nal_t* nal)
 	uint8_t* sei = nal[2].p_payload;
 	uint32_t spsSize = nal[0].i_payload - H264_NALU_LENGTH_SIZE;
 	uint32_t ppsSize = nal[1].i_payload - H264_NALU_LENGTH_SIZE;
-	uint32_t seiSize = nal[2].i_payload;
+	size_t seiSize = (size_t)nal[2].i_payload;
 
 	lsmash_codec_specific_t* cs = lsmash_create_codec_specific_data(LSMASH_CODEC_SPECIFIC_DATA_TYPE_ISOM_VIDEO_H264, LSMASH_CODEC_SPECIFIC_FORMAT_STRUCTURED);
 	lsmash_h264_specific_parameters_t* param = (lsmash_h264_specific_parameters_t*)cs->data.structured;
@@ -193,7 +193,7 @@ bool Mp4File::writeHeaders(x264_nal_t* nal)
 	return true;
 }
 
-bool Mp4File::writeFrame(uint8_t* payload, int size, x264_picture_t* picture)
+bool Mp4File::writeFrame(uint8_t* payload, size_t size, x264_picture_t* picture)
 {
 	if (!mp4Handle->frameNumber)
 	{
@@ -201,7 +201,7 @@ bool Mp4File::writeFrame(uint8_t* payload, int size, x264_picture_t* picture)
 		mp4Handle->firstCts = mp4Handle->startOffset * mp4Handle->timeIncrement;
 	}
 
-	lsmash_sample_t* p_sample = lsmash_create_sample(size + mp4Handle->seiSize);
+	lsmash_sample_t* p_sample = lsmash_create_sample((uint32_t)(size + mp4Handle->seiSize));
 	RETURN_IF_ERR(!p_sample, "Failed to create a video sample data");
 
 	if (mp4Handle->seiBuffer)

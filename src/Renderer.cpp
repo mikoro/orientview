@@ -184,13 +184,13 @@ bool Renderer::loadShaders(Panel* panel, const QString& shaderName)
 	return true;
 }
 
-void Renderer::loadBuffer(Panel* panel, GLfloat* buffer, int size)
+void Renderer::loadBuffer(Panel* panel, GLfloat* buffer, size_t size)
 {
 	panel->buffer = new QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
 	panel->buffer->setUsagePattern(QOpenGLBuffer::StaticDraw);
 	panel->buffer->create();
 	panel->buffer->bind();
-	panel->buffer->allocate(buffer, sizeof(GLfloat) * size);
+	panel->buffer->allocate(buffer, (int)(sizeof(GLfloat) * size));
 	panel->buffer->release();
 }
 
@@ -280,7 +280,7 @@ void Renderer::uploadFrameData(FrameData* frameData)
 {
 	QOpenGLPixelTransferOptions options;
 
-	options.setRowLength(frameData->rowLength / 4);
+	options.setRowLength((int)(frameData->rowLength / 4));
 	options.setImageHeight(frameData->height);
 	options.setAlignment(1);
 
@@ -585,10 +585,12 @@ void Renderer::renderPanel(Panel* panel)
 	panel->buffer->bind();
 	panel->texture->bind();
 
+	int* textureCoordinateOffset = (int*)(sizeof(GLfloat) * 12);
+
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(panel->vertexPositionAttribute, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	glVertexAttribPointer(panel->vertexTextureCoordinateAttribute, 2, GL_FLOAT, GL_FALSE, 0, (void*)(sizeof(GLfloat) * 12));
+	glVertexAttribPointer(panel->vertexTextureCoordinateAttribute, 2, GL_FLOAT, GL_FALSE, 0, textureCoordinateOffset);
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);

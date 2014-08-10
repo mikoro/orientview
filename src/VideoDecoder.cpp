@@ -24,7 +24,7 @@ namespace
 		int printPrefix = 1;
 		char line[1024] = { 0 };
 		av_log_format_line(ptr, level, fmt, vl, line, 1024, &printPrefix);
-		int length = strlen(line);
+		size_t length = strlen(line);
 		char lineClipped[1024] = { 0 };
 		strncpy(lineClipped, line, length - 1);
 
@@ -45,7 +45,7 @@ namespace
 		}
 		else
 		{
-			AVCodecContext* codecContext = formatContext->streams[*streamIndex]->codec;
+			AVCodecContext* codecContext = formatContext->streams[(size_t)(*streamIndex)]->codec;
 			AVCodec* codec = avcodec_find_decoder(codecContext->codec_id);
 
 			if (!codec)
@@ -107,7 +107,7 @@ bool VideoDecoder::initialize(Settings* settings)
 	packet.data = nullptr;
 	packet.size = 0;
 
-	videoStream = formatContext->streams[videoStreamIndex];
+	videoStream = formatContext->streams[(size_t)videoStreamIndex];
 	videoCodecContext = videoStream->codec;
 
 	frameWidth = videoCodecContext->width / settings->decoder.frameSizeDivisor;
@@ -265,8 +265,8 @@ bool VideoDecoder::getNextFrame(FrameData* frameData, FrameData* frameDataGraysc
 					sws_scale(swsContext, frame->data, frame->linesize, 0, frame->height, convertedPicture->data, convertedPicture->linesize);
 
 					frameData->data = convertedPicture->data[0];
-					frameData->dataLength = frameHeight * convertedPicture->linesize[0];
-					frameData->rowLength = convertedPicture->linesize[0];
+					frameData->dataLength = (size_t)(frameHeight * convertedPicture->linesize[0]);
+					frameData->rowLength = (size_t)(convertedPicture->linesize[0]);
 					frameData->width = frameWidth;
 					frameData->height = frameHeight;
 					frameData->duration = (int)av_rescale((frame->best_effort_timestamp - lastFrameTimestamp) * 1000000 / frameDurationDivisor, videoStream->time_base.num, videoStream->time_base.den);
@@ -280,8 +280,8 @@ bool VideoDecoder::getNextFrame(FrameData* frameData, FrameData* frameDataGraysc
 						sws_scale(swsContextGrayscale, frame->data, frame->linesize, 0, frame->height, convertedPictureGrayscale->data, convertedPictureGrayscale->linesize);
 
 						frameDataGrayscale->data = convertedPictureGrayscale->data[0];
-						frameDataGrayscale->dataLength = grayscalePictureHeight * convertedPictureGrayscale->linesize[0];
-						frameDataGrayscale->rowLength = convertedPictureGrayscale->linesize[0];
+						frameDataGrayscale->dataLength = (size_t)(grayscalePictureHeight * convertedPictureGrayscale->linesize[0]);
+						frameDataGrayscale->rowLength = (size_t)(convertedPictureGrayscale->linesize[0]);
 						frameDataGrayscale->width = grayscalePictureWidth;
 						frameDataGrayscale->height = grayscalePictureHeight;
 						frameDataGrayscale->duration = frameData->duration;
@@ -326,7 +326,7 @@ void VideoDecoder::seekRelative(int seconds)
 	if (targetTimeStamp > totalDuration)
 		targetTimeStamp = totalDuration;
 
-	if (avformat_seek_file(formatContext, videoStreamIndex, 0, targetTimeStamp, targetTimeStamp, 0) >= 0)
+	if (avformat_seek_file(formatContext, (int)videoStreamIndex, 0, targetTimeStamp, targetTimeStamp, 0) >= 0)
 	{
 		avcodec_flush_buffers(videoCodecContext);
 
