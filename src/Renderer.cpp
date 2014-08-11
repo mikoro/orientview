@@ -34,8 +34,8 @@ bool Renderer::initialize(VideoDecoder* videoDecoder, QuickRouteReader* quickRou
 	mapPanel.texelWidth = 1.0 / mapPanel.textureWidth;
 	mapPanel.texelHeight = 1.0 / mapPanel.textureHeight;
 	mapPanel.clearColor = settings->appearance.mapPanelBackgroundColor;
+	mapPanel.relativeWidth = settings->appearance.mapPanelWidth;
 
-	mapPanelRelativeWidth = settings->appearance.mapPanelWidth;
 	showInfoPanel = settings->appearance.showInfoPanel;
 	multisamples = settings->window.multisamples;
 
@@ -392,8 +392,8 @@ void Renderer::renderVideoPanel()
 
 	if (renderMode != RenderMode::VIDEO)
 	{
-		videoPanelOffsetX += (windowWidth / 2.0) - (((1.0 - mapPanelRelativeWidth) * windowWidth) / 2.0);
-		videoPanel.scale = ((1.0 - mapPanelRelativeWidth) * windowWidth) / videoPanel.textureWidth;
+		videoPanelOffsetX += (windowWidth / 2.0) - (((1.0 - mapPanel.relativeWidth) * windowWidth) / 2.0);
+		videoPanel.scale = ((1.0 - mapPanel.relativeWidth) * windowWidth) / videoPanel.textureWidth;
 	}
 	else
 		videoPanel.scale = windowWidth / videoPanel.textureWidth;
@@ -464,7 +464,7 @@ void Renderer::renderMapPanel()
 
 	mapPanel.clippingEnabled = (renderMode == RenderMode::ALL);
 
-	int mapBorderX = (int)(mapPanelRelativeWidth * windowWidth + 0.5);
+	int mapBorderX = (int)(mapPanel.relativeWidth * windowWidth + 0.5);
 
 	if (fullClearRequested)
 	{
@@ -544,7 +544,7 @@ void Renderer::renderInfoPanel()
 
 	textY += lineSpacing;
 
-	painter->drawText(textX, textY += lineSpacing, lineWidth1, lineHeight, 0, "selected:");
+	painter->drawText(textX, textY += lineSpacing, lineWidth1, lineHeight, 0, "edit:");
 	painter->drawText(textX, textY += lineSpacing, lineWidth1, lineHeight, 0, "render:");
 
 	textY += lineSpacing;
@@ -582,11 +582,12 @@ void Renderer::renderInfoPanel()
 	QString selectedText;
 	QString renderText;
 
-	switch (inputHandler->getSelectedPanel())
+	switch (inputHandler->getEditMode())
 	{
-		case SelectedPanel::NONE: selectedText = "none"; break;
-		case SelectedPanel::VIDEO: selectedText = "video"; break;
-		case SelectedPanel::MAP: selectedText = "map"; break;
+		case EditMode::NONE: selectedText = "none"; break;
+		case EditMode::VIDEO: selectedText = "video"; break;
+		case EditMode::MAP: selectedText = "map"; break;
+		case EditMode::MAP_WIDTH: selectedText = "map width"; break;
 		default: selectedText = "unknown"; break;
 	}
 
@@ -629,7 +630,7 @@ void Renderer::renderRoute()
 	if (renderMode != RenderMode::MAP)
 	{
 		painter->setClipping(true);
-		painter->setClipRect(0, 0, (int)(mapPanelRelativeWidth * windowWidth + 0.5), (int)windowHeight);
+		painter->setClipRect(0, 0, (int)(mapPanel.relativeWidth * windowWidth + 0.5), (int)windowHeight);
 	}
 	else
 		painter->setClipping(false);

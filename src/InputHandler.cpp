@@ -30,11 +30,12 @@ void InputHandler::handleInput(double frameTime)
 
 	if (videoWindow->keyIsDownOnce(Qt::Key_F2))
 	{
-		switch (selectedPanel)
+		switch (editMode)
 		{
-			case SelectedPanel::NONE: selectedPanel = SelectedPanel::VIDEO; break;
-			case SelectedPanel::VIDEO: selectedPanel = SelectedPanel::MAP; break;
-			case SelectedPanel::MAP: selectedPanel = SelectedPanel::NONE; break;
+			case EditMode::NONE: editMode = EditMode::VIDEO; break;
+			case EditMode::VIDEO: editMode = EditMode::MAP; break;
+			case EditMode::MAP: editMode = EditMode::MAP_WIDTH; break;
+			case EditMode::MAP_WIDTH: editMode = EditMode::NONE; break;
 			default: break;
 		}
 	}
@@ -93,7 +94,9 @@ void InputHandler::handleInput(double frameTime)
 		videoWindow->keyIsDownOnce(Qt::Key_Space); // clear key state
 	}
 
-	if (selectedPanel == SelectedPanel::NONE)
+	bool shouldRequestFullClear = false;
+
+	if (editMode == EditMode::NONE)
 	{
 		if (keyIsDownWithRepeat(Qt::Key_Left, seekBackwardRepeatHandler))
 		{
@@ -111,15 +114,36 @@ void InputHandler::handleInput(double frameTime)
 			videoStabilizer->reset();
 		}
 	}
+	else if (editMode == EditMode::MAP_WIDTH)
+	{
+		if (videoWindow->keyIsDown(Qt::Key_Left))
+		{
+			renderer->getMapPanel()->relativeWidth -= translateVelocity * 0.001;
+
+			if (renderer->getMapPanel()->relativeWidth < 0.0)
+				renderer->getMapPanel()->relativeWidth = 0.0;
+
+			shouldRequestFullClear = true;
+		}
+
+		if (videoWindow->keyIsDown(Qt::Key_Right))
+		{
+			renderer->getMapPanel()->relativeWidth += translateVelocity * 0.001;
+
+			if (renderer->getMapPanel()->relativeWidth > 1.0)
+				renderer->getMapPanel()->relativeWidth = 1.0;
+
+			shouldRequestFullClear = true;
+		}
+	}
 	else
 	{
 		Panel* targetPanel = nullptr;
-		bool panelHasMoved = false;
 
-		switch (selectedPanel)
+		switch (editMode)
 		{
-			case SelectedPanel::VIDEO: targetPanel = renderer->getVideoPanel(); break;
-			case SelectedPanel::MAP: targetPanel = renderer->getMapPanel(); break;
+			case EditMode::VIDEO: targetPanel = renderer->getVideoPanel(); break;
+			case EditMode::MAP: targetPanel = renderer->getMapPanel(); break;
 			default: break;
 		}
 
@@ -131,65 +155,65 @@ void InputHandler::handleInput(double frameTime)
 			targetPanel->userY = 0.0;
 			targetPanel->userAngle = 0.0;
 			targetPanel->userScale = 1.0;
-			panelHasMoved = true;
+			shouldRequestFullClear = true;
 		}
 
 		if (videoWindow->keyIsDown(Qt::Key_Left))
 		{
 			targetPanel->userX -= translateVelocity;
-			panelHasMoved = true;
+			shouldRequestFullClear = true;
 		}
 
 		if (videoWindow->keyIsDown(Qt::Key_Right))
 		{
 			targetPanel->userX += translateVelocity;
-			panelHasMoved = true;
+			shouldRequestFullClear = true;
 		}
 
 		if (videoWindow->keyIsDown(Qt::Key_Up))
 		{
 			targetPanel->userY += translateVelocity;
-			panelHasMoved = true;
+			shouldRequestFullClear = true;
 		}
 
 		if (videoWindow->keyIsDown(Qt::Key_Down))
 		{
 			targetPanel->userY -= translateVelocity;
-			panelHasMoved = true;
+			shouldRequestFullClear = true;
 		}
 
 		if (videoWindow->keyIsDown(Qt::Key_W))
 		{
 			targetPanel->userAngle += rotateVelocity;
-			panelHasMoved = true;
+			shouldRequestFullClear = true;
 		}
 
 		if (videoWindow->keyIsDown(Qt::Key_S))
 		{
 			targetPanel->userAngle -= rotateVelocity;
-			panelHasMoved = true;
+			shouldRequestFullClear = true;
 		}
 
 		if (videoWindow->keyIsDown(Qt::Key_Q))
 		{
 			targetPanel->userScale *= (1.0 + frameTime / scaleConstant);
-			panelHasMoved = true;
+			shouldRequestFullClear = true;
 		}
 
 		if (videoWindow->keyIsDown(Qt::Key_A))
 		{
 			targetPanel->userScale *= (1.0 - frameTime / scaleConstant);
-			panelHasMoved = true;
+			shouldRequestFullClear = true;
 		}
-
-		if (panelHasMoved)
-			renderer->requestFullClear();
 	}
+
+	if (shouldRequestFullClear)
+		renderer->requestFullClear();
 }
 
-SelectedPanel InputHandler::getSelectedPanel() const
+EditMode InputHandler::getEditMode() const
 {
-	return selectedPanel;
+	return editMode;
 }
 
 bool InputHandler::keyIsDownWithRepeat(int key, RepeatHandler& repeatHandler)

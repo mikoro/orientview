@@ -16,7 +16,7 @@ namespace OrientView
 	class Renderer;
 	struct Settings;
 
-	enum class SelectedPanel { NONE, VIDEO, MAP };
+	enum class EditMode { NONE, VIDEO, MAP, MAP_WIDTH };
 
 	struct RepeatHandler
 	{
@@ -34,7 +34,7 @@ namespace OrientView
 		void initialize(VideoWindow* videoWindow, Renderer* renderer, VideoDecoder* videoDecoder, VideoDecoderThread* videoDecoderThread, VideoStabilizer* videoStabilizer, RenderOnScreenThread* renderOnScreenThread, Settings* settings);
 		void handleInput(double frameTime);
 
-		SelectedPanel getSelectedPanel() const;
+		EditMode getEditMode() const;
 
 	private:
 
@@ -48,7 +48,7 @@ namespace OrientView
 		RenderOnScreenThread* renderOnScreenThread = nullptr;
 		Settings* settings = nullptr;
 
-		SelectedPanel selectedPanel = SelectedPanel::NONE;
+		EditMode editMode = EditMode::NONE;
 
 		const int firstRepeatDelay = 800;
 		const int repeatDelay = 50;

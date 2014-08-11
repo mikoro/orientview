@@ -53,6 +53,8 @@ namespace OrientView
 		double userAngle = 0.0;
 		double userScale = 1.0;
 
+		double relativeWidth = 1.0;
+
 		int vertexMatrixUniform = 0;
 		int vertexPositionAttribute = 0;
 		int vertexTextureCoordinateAttribute = 0;
@@ -107,7 +109,6 @@ namespace OrientView
 		bool showInfoPanel = false;
 		bool fullClearRequested = true;
 
-		double mapPanelRelativeWidth = 0.0;
 		double windowWidth = 0.0;
 		double windowHeight = 0.0;
 		double currentTime = 0.0;
