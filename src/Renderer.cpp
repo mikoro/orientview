@@ -125,7 +125,23 @@ bool Renderer::initialize(VideoDecoder* videoDecoder, QuickRouteReader* quickRou
 
 	routePath = new QPainterPath();
 
-	(void)quickRouteReader;
+	int routePointCount = quickRouteReader->getRouteData().routePoints.size();
+
+	if (routePointCount >= 2)
+	{
+		for (int i = 0; i < routePointCount; ++i)
+		{
+			RoutePoint rp = quickRouteReader->getRouteData().routePoints.at(i);
+
+			double x = rp.position.x();
+			double y = -rp.position.y();
+
+			if (i == 0)
+				routePath->moveTo(x, y);
+			else
+				routePath->lineTo(x, y);
+		}
+	}
 
 	return true;
 }
@@ -437,7 +453,7 @@ void Renderer::renderVideoPanel()
 		glClearColor(videoPanel.clearColor.redF(), videoPanel.clearColor.greenF(), videoPanel.clearColor.blueF(), 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 	}
-	
+
 	renderPanel(&videoPanel);
 	glDisable(GL_SCISSOR_TEST);
 }
@@ -478,7 +494,7 @@ void Renderer::renderMapPanel()
 		glEnable(GL_SCISSOR_TEST);
 		glScissor(0, 0, mapBorderX, (int)windowHeight);
 	}
-	
+
 	if (mapPanel.clearEnabled)
 	{
 		glClearColor(mapPanel.clearColor.redF(), mapPanel.clearColor.greenF(), mapPanel.clearColor.blueF(), 0.0f);
@@ -578,7 +594,7 @@ void Renderer::renderInfoPanel()
 		painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString("%1 ms").arg(QString::number(averageSpareTime.getAverage(), 'f', 2)));
 		painter->setPen(textColor);
 	}
-	
+
 	QString selectedText;
 	QString renderText;
 
