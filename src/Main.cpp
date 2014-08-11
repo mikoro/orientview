@@ -11,7 +11,7 @@
 
 namespace
 {
-	OrientView::SimpleLogger logger("orientview.log");
+	OrientView::SimpleLogger logger;
 
 	void messageHandler(QtMsgType type, const QMessageLogContext& context, const QString& message)
 	{
@@ -23,10 +23,8 @@ int main(int argc, char *argv[])
 {
 	try
 	{
-		qInstallMessageHandler(messageHandler);
-
-		QCoreApplication::setOrganizationName("Mikko Ronkainen");
-		QCoreApplication::setOrganizationDomain("mikkoronkainen.com");
+		QCoreApplication::setOrganizationName("OrientView");
+		QCoreApplication::setOrganizationDomain("orientview.com");
 		QCoreApplication::setApplicationName("OrientView");
 		QCoreApplication::addLibraryPath("data/plugins");
 
@@ -38,6 +36,10 @@ int main(int argc, char *argv[])
 		QFontDatabase::addApplicationFont("data/fonts/dejavu-sans-mono-bold.ttf");
 		
 		OrientView::MainWindow mainWindow;
+
+		logger.initialize("orientview.log", &mainWindow);
+		qInstallMessageHandler(messageHandler);
+
 		mainWindow.show();
 		app.exec();
 	}

@@ -28,14 +28,52 @@ using namespace OrientView;
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
 	ui->setupUi(this);
+
+	logDataModel = new QStandardItemModel(0, 3);
 	settings = new Settings();
+
 	readSettings();
+
+	QStringList logLabels;
+	logLabels.append("Time");
+	logLabels.append("Level");
+	logLabels.append("Message");
+	logDataModel->setHorizontalHeaderLabels(logLabels);
+	ui->treeViewLog->setModel(logDataModel);
 }
 
 MainWindow::~MainWindow()
 {
-	delete settings;
-	delete ui;
+	if (logDataModel != nullptr)
+	{
+		delete logDataModel;
+		logDataModel = nullptr;
+	}
+
+	if (settings != nullptr)
+	{
+		delete settings;
+		settings = nullptr;
+	}
+
+	if (ui != nullptr)
+	{
+		delete ui;
+		ui = nullptr;
+	}
+}
+
+void MainWindow::addLogMessage(QString timeString, QString typeString, QString messageString)
+{
+	QList<QStandardItem*> newRow;
+	QStandardItem* firstColumn = new QStandardItem(timeString);
+
+	newRow.append(firstColumn);
+	newRow.append(new QStandardItem(typeString));
+	newRow.append(new QStandardItem(messageString));
+
+	logDataModel->appendRow(newRow);
+	ui->treeViewLog->scrollTo(firstColumn->index(), QAbstractItemView::PositionAtBottom);
 }
 
 void MainWindow::on_actionLoadSettings_triggered()

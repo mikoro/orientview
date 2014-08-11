@@ -4,6 +4,7 @@
 #pragma once
 
 #include <QMainWindow>
+#include <QStandardItemModel>
 
 namespace Ui
 {
@@ -37,6 +38,8 @@ namespace OrientView
 		explicit MainWindow(QWidget *parent = 0);
 		~MainWindow();
 
+		void addLogMessage(QString timeString, QString typeString, QString messageString);
+
 	private slots:
 
 		void on_actionLoadSettings_triggered();
@@ -53,10 +56,10 @@ namespace OrientView
 		void on_pushButtonPickVideoPanelBackgroundColor_clicked();
 		void on_pushButtonPickMapPanelBackgroundColor_clicked();
 
+	private:
+
 		void playVideoFinished();
 		void encodeVideoFinished();
-
-	private:
 
 		void readSettings();
 		void writeSettings();
@@ -64,6 +67,7 @@ namespace OrientView
 		void closeEvent(QCloseEvent* event);
 
 		Ui::MainWindow* ui = nullptr;
+		QStandardItemModel* logDataModel = nullptr;
 		Settings* settings = nullptr;
 		VideoWindow* videoWindow = nullptr;
 		EncodeWindow* encodeWindow = nullptr;

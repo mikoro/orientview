@@ -1,23 +1,29 @@
 // Copyright © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
 // License: GPLv3, see the LICENSE file.
 
+#include <QTime>
+
 #ifdef _WIN32
 #include <windows.h>
 #endif
 
 #include "SimpleLogger.h"
+#include "MainWindow.h"
 
 using namespace OrientView;
 
-SimpleLogger::SimpleLogger(const QString& fileName)
+SimpleLogger::~SimpleLogger()
+{
+	if (logFile.isOpen())
+		logFile.close();
+}
+
+void SimpleLogger::initialize(const QString& fileName, MainWindow* mainWindow)
 {
 	logFile.setFileName(fileName);
 	logFile.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text);
-}
 
-SimpleLogger::~SimpleLogger()
-{
-	logFile.close();
+	this->mainWindow = mainWindow;
 }
 
 void SimpleLogger::handleMessage(QtMsgType type, const QMessageLogContext& context, const QString& message)
@@ -41,7 +47,8 @@ void SimpleLogger::handleMessage(QtMsgType type, const QMessageLogContext& conte
 			typeString = "Fatal";
 	}
 
-	QString messageText = QString("%1: %2\n").arg(typeString, message);
+	QString timeString = QTime::currentTime().toString("HH:mm:ss.zzz");
+	QString messageText = QString("%1 [%2] - %3\n").arg(timeString, typeString, message);
 
 	if (logFile.isOpen())
 	{
@@ -52,6 +59,8 @@ void SimpleLogger::handleMessage(QtMsgType type, const QMessageLogContext& conte
 #ifdef _WIN32
 	OutputDebugStringA(qPrintable(messageText));
 #endif
+
+	mainWindow->addLogMessage(timeString, typeString, message);
 
 	if (type == QtFatalMsg)
 		abort();

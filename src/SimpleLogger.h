@@ -7,18 +7,22 @@
 
 namespace OrientView
 {
+	class MainWindow;
+
 	// Log all the messages to file and to other possible debug outputs.
 	class SimpleLogger
 	{
+
 	public:
 
-		SimpleLogger(const QString& fileName);
 		~SimpleLogger();
 
+		void initialize(const QString& fileName, MainWindow* mainWindow);
 		void handleMessage(QtMsgType type, const QMessageLogContext& context, const QString& message);
 
 	private:
 
 		QFile logFile;
+		MainWindow* mainWindow;
 	};
 }

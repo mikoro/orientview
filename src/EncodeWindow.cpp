@@ -34,7 +34,11 @@ EncodeWindow::~EncodeWindow()
 		surface = nullptr;
 	}
 
-	delete ui;
+	if (ui != nullptr)
+	{
+		delete ui;
+		ui = nullptr;
+	}
 }
 
 bool EncodeWindow::initialize(VideoDecoder* videoDecoder, VideoEncoderThread* videoEncoderThread, Settings* settings)
