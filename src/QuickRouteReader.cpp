@@ -435,7 +435,7 @@ namespace
 
 bool QuickRouteReader::initialize(Settings* settings)
 {
-	qDebug("Initializing QuickRouteReader (%s)", qPrintable(settings->files.quickRouteJpegMapImageFilePath));
+	qDebug("Initializing the QuickRoute reader (%s)", qPrintable(settings->files.quickRouteJpegMapImageFilePath));
 
 	QFile file(settings->files.quickRouteJpegMapImageFilePath);
 

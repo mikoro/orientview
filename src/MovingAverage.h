@@ -19,7 +19,7 @@ namespace OrientView
 	private:
 
 		double alpha = 1.0;
-		double smoothValue = 0.0;
-		double previousSmoothValue = 0.0;
+		double averageValue = 0.0;
+		double previousAverageValue = 0.0;
 	};
 }

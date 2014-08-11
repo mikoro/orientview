@@ -20,8 +20,8 @@ namespace OrientView
 
 	public:
 
-		bool initialize(Settings* settings);
-		void shutdown();
+		void initialize(Settings* settings);
+		~VideoStabilizer();
 
 		void processFrame(FrameData* frameDataGrayscale);
 

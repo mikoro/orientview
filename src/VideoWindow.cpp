@@ -17,7 +17,7 @@ VideoWindow::VideoWindow(QWindow* parent) : QWindow(parent)
 
 bool VideoWindow::initialize(Settings* settings)
 {
-	qDebug("Initializing VideoWindow");
+	qDebug("Initializing the video window");
 
 	setSurfaceType(QWindow::OpenGLSurface);
 	setIcon(QIcon(":/icons/misc/icons/orientview.ico"));
@@ -27,8 +27,6 @@ bool VideoWindow::initialize(Settings* settings)
 	setWindowState(settings->window.fullscreen ? Qt::WindowFullScreen : Qt::WindowNoState);
 	setCursor(settings->window.hideCursor ? Qt::BlankCursor : Qt::ArrowCursor);
 	
-	qDebug("Creating OpenGL context");
-
 	QSurfaceFormat surfaceFormat;
 	surfaceFormat.setSamples(settings->window.multisamples);
 	this->setFormat(surfaceFormat);
@@ -48,22 +46,18 @@ bool VideoWindow::initialize(Settings* settings)
 		return false;
 	}
 
-	initialized = true;
+	isInitialized = true;
 
 	return true;
 }
 
-void VideoWindow::shutdown()
+VideoWindow::~VideoWindow()
 {
-	qDebug("Shutting down VideoWindow");
-
 	if (context != nullptr)
 	{
 		delete context;
 		context = nullptr;
 	}
-
-	initialized = false;
 }
 
 QOpenGLContext* VideoWindow::getContext() const
@@ -71,9 +65,9 @@ QOpenGLContext* VideoWindow::getContext() const
 	return context;
 }
 
-bool VideoWindow::isInitialized() const
+bool VideoWindow::getIsInitialized() const
 {
-	return initialized;
+	return isInitialized;
 }
 
 bool VideoWindow::keyIsDown(int key)

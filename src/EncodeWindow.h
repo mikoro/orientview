@@ -30,11 +30,10 @@ namespace OrientView
 		~EncodeWindow();
 
 		bool initialize(VideoDecoder* videoDecoder, VideoEncoderThread* videoEncoderThread, Settings* settings);
-		void shutdown();
 
 		QOffscreenSurface* getSurface() const;
 		QOpenGLContext* getContext() const;
-		bool isInitialized() const;
+		bool getIsInitialized() const;
 
 	signals:
 
@@ -62,8 +61,8 @@ namespace OrientView
 		QOffscreenSurface* surface = nullptr;
 		QOpenGLContext* context = nullptr;
 
-		bool initialized = false;
-		bool isRunning = false;
+		bool isInitialized = false;
+		bool isRunning = true;
 		int totalFrameCount = 0;
 		double currentSize = 0.0;
 		QString videoFilePath;

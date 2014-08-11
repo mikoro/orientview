@@ -11,7 +11,7 @@ using namespace OrientView;
 
 bool VideoEncoder::initialize(VideoDecoder* videoDecoder, Settings* settings)
 {
-	qDebug("Initializing VideoEncoder (%s)", qPrintable(settings->files.outputVideoFilePath));
+	qDebug("Initializing the video encoder (%s)", qPrintable(settings->files.outputVideoFilePath));
 
 	x264_param_t param;
 	
@@ -75,7 +75,7 @@ bool VideoEncoder::initialize(VideoDecoder* videoDecoder, Settings* settings)
 	if (!mp4File->open(settings->files.outputVideoFilePath))
 		return false;
 
-	if (!mp4File->setParam(&param))
+	if (!mp4File->setParameters(&param))
 		return false;
 
 	x264_nal_t* nal;
@@ -90,16 +90,11 @@ bool VideoEncoder::initialize(VideoDecoder* videoDecoder, Settings* settings)
 	if (!mp4File->writeHeaders(nal))
 		return false;
 
-	frameNumber = 0;
-	lastEncodeTime = 0.0;
-
 	return true;
 }
 
-void VideoEncoder::shutdown()
+VideoEncoder::~VideoEncoder()
 {
-	qDebug("Shutting down VideoEncoder");
-
 	if (mp4File != nullptr)
 	{
 		mp4File->close(frameNumber);

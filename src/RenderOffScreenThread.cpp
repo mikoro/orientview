@@ -17,10 +17,8 @@
 
 using namespace OrientView;
 
-bool RenderOffScreenThread::initialize(MainWindow* mainWindow, EncodeWindow* encodeWindow, VideoDecoder* videoDecoder, VideoDecoderThread* videoDecoderThread, VideoStabilizer* videoStabilizer, Renderer* renderer, VideoEncoder* videoEncoder, Settings* settings)
+void RenderOffScreenThread::initialize(MainWindow* mainWindow, EncodeWindow* encodeWindow, VideoDecoder* videoDecoder, VideoDecoderThread* videoDecoderThread, VideoStabilizer* videoStabilizer, Renderer* renderer, VideoEncoder* videoEncoder, Settings* settings)
 {
-	qDebug("Initializing RenderOffScreenThread");
-
 	this->mainWindow = mainWindow;
 	this->encodeWindow = encodeWindow;
 	this->videoDecoder = videoDecoder;
@@ -41,7 +39,7 @@ bool RenderOffScreenThread::initialize(MainWindow* mainWindow, EncodeWindow* enc
 	if (!mainFramebuffer->isValid())
 	{
 		qWarning("Could not create main frame buffer");
-		return false;
+		return;
 	}
 
 	QOpenGLFramebufferObjectFormat secondaryFboFormat;
@@ -53,7 +51,7 @@ bool RenderOffScreenThread::initialize(MainWindow* mainWindow, EncodeWindow* enc
 	if (!secondaryFramebuffer->isValid())
 	{
 		qWarning("Could not create secondary frame buffer");
-		return false;
+		return;
 	}
 
 	renderedFrameData = FrameData();
@@ -66,13 +64,11 @@ bool RenderOffScreenThread::initialize(MainWindow* mainWindow, EncodeWindow* enc
 	frameReadSemaphore = new QSemaphore();
 	frameAvailableSemaphore = new QSemaphore();
 
-	return true;
+	return;
 }
 
-void RenderOffScreenThread::shutdown()
+RenderOffScreenThread::~RenderOffScreenThread()
 {
-	qDebug("Shutting down RenderOffScreenThread");
-
 	if (frameAvailableSemaphore != nullptr)
 	{
 		delete frameAvailableSemaphore;

@@ -19,8 +19,8 @@ namespace OrientView
 
 	public:
 
-		bool initialize(VideoDecoder* videoDecoder);
-		void shutdown();
+		void initialize(VideoDecoder* videoDecoder);
+		~VideoDecoderThread();
 
 		bool tryGetNextFrame(FrameData* frameData, FrameData* frameDataGrayscale, int timeout);
 		void signalFrameRead();

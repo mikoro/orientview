@@ -12,16 +12,16 @@ void MovingAverage::setAlpha(double value)
 
 void MovingAverage::addMeasurement(double value)
 {
-	smoothValue = alpha * value + (1.0 - alpha) * previousSmoothValue;
-	previousSmoothValue = smoothValue;
+	averageValue = alpha * value + (1.0 - alpha) * previousAverageValue;
+	previousAverageValue = averageValue;
 }
 
 double MovingAverage::getAverage() const
 {
-	return smoothValue;
+	return averageValue;
 }
 
 void MovingAverage::reset()
 {
-	smoothValue = previousSmoothValue = 0.0;
+	averageValue = previousAverageValue = 0.0;
 }

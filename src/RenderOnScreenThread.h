@@ -4,6 +4,7 @@
 #pragma once
 
 #include <QThread>
+#include <QMutex>
 
 namespace OrientView
 {
@@ -22,18 +23,23 @@ namespace OrientView
 
 	public:
 
-		bool initialize(MainWindow* mainWindow, VideoWindow* videoWindow, VideoDecoder* videoDecoder, VideoDecoderThread* videoDecoderThread, VideoStabilizer* videoStabilizer, Renderer* renderer, InputHandler* inputHandler);
-		void shutdown();
+		void initialize(MainWindow* mainWindow, VideoWindow* videoWindow, VideoDecoder* videoDecoder, VideoDecoderThread* videoDecoderThread, VideoStabilizer* videoStabilizer, Renderer* renderer, InputHandler* inputHandler);
 
-		bool isPaused() const;
 		void togglePaused();
 		void advanceOneFrame();
+
+		bool getIsPaused();
 
 	protected:
 
 		void run();
 
 	private:
+
+		bool getShouldAdvanceOneFrame();
+		void setShouldAdvanceOneFrame(bool value);
+
+		QMutex renderOnScreenThreadMutex;
 
 		MainWindow* mainWindow = nullptr;
 		VideoWindow* videoWindow = nullptr;
@@ -43,7 +49,7 @@ namespace OrientView
 		Renderer* renderer = nullptr;
 		InputHandler* inputHandler = nullptr;
 
-		bool paused = false;
+		bool isPaused = false;
 		bool shouldAdvanceOneFrame = false;
 	};
 }

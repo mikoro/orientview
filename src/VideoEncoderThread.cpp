@@ -8,20 +8,11 @@
 
 using namespace OrientView;
 
-bool VideoEncoderThread::initialize(VideoDecoder* videoDecoder, VideoEncoder* videoEncoder, RenderOffScreenThread* renderOffScreenThread)
+void VideoEncoderThread::initialize(VideoDecoder* videoDecoder, VideoEncoder* videoEncoder, RenderOffScreenThread* renderOffScreenThread)
 {
-	qDebug("Initializing VideoEncoderThread");
-
 	this->videoDecoder = videoDecoder;
 	this->videoEncoder = videoEncoder;
 	this->renderOffScreenThread = renderOffScreenThread;
-
-	return true;
-}
-
-void VideoEncoderThread::shutdown()
-{
-	qDebug("Shutting down VideoEncoderThread");
 }
 
 void VideoEncoderThread::run()
@@ -38,7 +29,7 @@ void VideoEncoderThread::run()
 
 			emit frameProcessed(renderedFrameData.number, frameSize);
 		}
-		else if (videoDecoder->isFinished())
+		else if (videoDecoder->getIsFinished())
 			break;
 	}
 

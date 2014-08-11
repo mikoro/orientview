@@ -13,19 +13,19 @@ namespace Ui
 namespace OrientView
 {
 	struct Settings;
+	class VideoWindow;
+	class EncodeWindow;
 	class VideoDecoder;
+	class VideoEncoder;
 	class QuickRouteReader;
 	class MapImageReader;
 	class VideoStabilizer;
 	class InputHandler;
 	class Renderer;
-	class VideoEncoder;
 	class VideoDecoderThread;
 	class RenderOnScreenThread;
 	class RenderOffScreenThread;
 	class VideoEncoderThread;
-	class VideoWindow;
-	class EncodeWindow;
 
 	// Main window is the first window shown and houses all the other parts of the program.
 	class MainWindow : public QMainWindow
@@ -53,8 +53,8 @@ namespace OrientView
 		void on_pushButtonPickVideoPanelBackgroundColor_clicked();
 		void on_pushButtonPickMapPanelBackgroundColor_clicked();
 
-		void videoWindowClosing();
-		void encodeWindowClosing();
+		void playVideoFinished();
+		void encodeVideoFinished();
 
 	private:
 
@@ -65,18 +65,18 @@ namespace OrientView
 
 		Ui::MainWindow* ui = nullptr;
 		Settings* settings = nullptr;
+		VideoWindow* videoWindow = nullptr;
+		EncodeWindow* encodeWindow = nullptr;
 		VideoDecoder* videoDecoder = nullptr;
+		VideoEncoder* videoEncoder = nullptr;
 		QuickRouteReader* quickRouteReader = nullptr;
 		MapImageReader* mapImageReader = nullptr;
 		VideoStabilizer* videoStabilizer = nullptr;
 		InputHandler* inputHandler = nullptr;
 		Renderer* renderer = nullptr;
-		VideoEncoder* videoEncoder = nullptr;
 		VideoDecoderThread* videoDecoderThread = nullptr;
 		RenderOnScreenThread* renderOnScreenThread = nullptr;
 		RenderOffScreenThread* renderOffScreenThread = nullptr;
 		VideoEncoderThread* videoEncoderThread = nullptr;
-		VideoWindow* videoWindow = nullptr;
-		EncodeWindow* encodeWindow = nullptr;
 	};
 }

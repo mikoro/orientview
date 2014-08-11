@@ -27,7 +27,7 @@ namespace OrientView
 	public:
 
 		bool initialize(VideoDecoder* videoDecoder, Settings* settings);
-		void shutdown();
+		~VideoEncoder();
 
 		void readFrameData(FrameData* frameData);
 		int encodeFrame();

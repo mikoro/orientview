@@ -16,6 +16,7 @@ namespace OrientView
 	public:
 
 		bool initialize(Settings* settings);
+
 		QImage getMapImage() const;
 
 	private:

@@ -69,7 +69,7 @@ namespace
 
 bool VideoDecoder::initialize(Settings* settings)
 {
-	qDebug("Initializing VideoDecoder (%s)", qPrintable(settings->files.inputVideoFilePath));
+	qDebug("Initializing the video decoder (%s)", qPrintable(settings->files.inputVideoFilePath));
 
 	enableVerboseLogging = settings->decoder.enableVerboseLogging;
 
@@ -164,23 +164,14 @@ bool VideoDecoder::initialize(Settings* settings)
 	frameDuration = (int64_t)(((double)videoStream->avg_frame_rate.den / videoStream->avg_frame_rate.num) / ((double)videoStream->time_base.num / videoStream->time_base.den) + 0.5);
 	totalDuration = videoStream->duration;
 	totalDurationInSeconds = ((double)videoStream->time_base.num / videoStream->time_base.den) * totalDuration;
-	lastFrameTimestamp = 0;
-
-	if (totalFrameCount == 0)
-		qWarning("Frame count reported as zero");
-
-	currentFrameNumber = 0;
-	currentTime = 0.0;
-	finished = false;
-	lastDecodeTime = 0.0;
+	
+	isInitialized = true;
 
 	return true;
 }
 
-void VideoDecoder::shutdown()
+VideoDecoder::~VideoDecoder()
 {
-	qDebug("Shutting down VideoDecoder");
-
 	if (videoCodecContext != nullptr)
 	{
 		avcodec_close(videoCodecContext);
@@ -192,8 +183,6 @@ void VideoDecoder::shutdown()
 		avformat_close_input(&formatContext);
 		formatContext = nullptr;
 	}
-
-	videoStream = nullptr;
 
 	if (frame != nullptr)
 	{
@@ -229,6 +218,9 @@ void VideoDecoder::shutdown()
 bool VideoDecoder::getNextFrame(FrameData* frameData, FrameData* frameDataGrayscale)
 {
 	QMutexLocker locker(&decoderMutex);
+
+	if (!isInitialized)
+		return false;
 
 	int framesRead = 0;
 	int readResult = 0;
@@ -290,7 +282,7 @@ bool VideoDecoder::getNextFrame(FrameData* frameData, FrameData* frameDataGraysc
 
 					currentTime = ((double)frame->best_effort_timestamp / totalDuration) * totalDurationInSeconds;
 
-					finished = false;
+					isFinished = false;
 					lastFrameTimestamp = frame->best_effort_timestamp;
 					lastDecodeTime = decodeTimer.nsecsElapsed() / 1000000.0;
 
@@ -306,7 +298,7 @@ bool VideoDecoder::getNextFrame(FrameData* frameData, FrameData* frameDataGraysc
 			if (readResult != AVERROR_EOF)
 				qWarning("Could not read a frame: %d", readResult);
 
-			finished = true;
+			isFinished = true;
 
 			return false;
 		}
@@ -316,6 +308,9 @@ bool VideoDecoder::getNextFrame(FrameData* frameData, FrameData* frameDataGraysc
 void VideoDecoder::seekRelative(int seconds)
 {
 	QMutexLocker locker(&decoderMutex);
+
+	if (!isInitialized)
+		return;
 
 	double realFps = (double)videoStream->avg_frame_rate.num / videoStream->avg_frame_rate.den;
 	int64_t targetTimeStamp = lastFrameTimestamp + (int64_t)(frameDuration * realFps + 0.5) * seconds;
@@ -348,7 +343,7 @@ void VideoDecoder::seekRelative(int seconds)
 				if (readResult != AVERROR_EOF)
 					qWarning("Could not read a frame: %d", readResult);
 
-				finished = true;
+				isFinished = true;
 				return;
 			}
 		}
@@ -371,11 +366,11 @@ double VideoDecoder::getCurrentTime()
 	return currentTime;
 }
 
-bool VideoDecoder::isFinished()
+bool VideoDecoder::getIsFinished()
 {
 	QMutexLocker locker(&decoderMutex);
 
-	return finished;
+	return isFinished;
 }
 
 double VideoDecoder::getLastDecodeTime()

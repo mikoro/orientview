@@ -27,8 +27,8 @@ namespace OrientView
 
 	public:
 
-		bool initialize(MainWindow* mainWindow, EncodeWindow* encodeWindow, VideoDecoder* videoDecoder, VideoDecoderThread* videoDecoderThread, VideoStabilizer* videoStabilizer, Renderer* renderer, VideoEncoder* videoEncoder, Settings* settings);
-		void shutdown();
+		void initialize(MainWindow* mainWindow, EncodeWindow* encodeWindow, VideoDecoder* videoDecoder, VideoDecoderThread* videoDecoderThread, VideoStabilizer* videoStabilizer, Renderer* renderer, VideoEncoder* videoEncoder, Settings* settings);
+		~RenderOffScreenThread();
 
 		bool tryGetNextFrame(FrameData* frameData, int timeout);
 		void signalFrameRead();

@@ -14,20 +14,15 @@
 
 using namespace OrientView;
 
-bool VideoStabilizer::initialize(Settings* settings)
+void VideoStabilizer::initialize(Settings* settings)
 {
-	qDebug("Initializing VideoStabilizer");
-
 	reset();
 
-	isFirstImage = true;
 	isEnabled = settings->stabilizer.enabled;
 	dampingFactor = settings->stabilizer.dampingFactor;
 	currentXAverage.setAlpha(settings->stabilizer.averagingFactor);
 	currentYAverage.setAlpha(settings->stabilizer.averagingFactor);
 	currentAngleAverage.setAlpha(settings->stabilizer.averagingFactor);
-
-	lastProcessTime = 0.0;
 
 	if (outputData)
 	{
@@ -35,14 +30,10 @@ bool VideoStabilizer::initialize(Settings* settings)
 		dataOutputFile.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text);
 		dataOutputFile.write("currentX;currentXAverage;normalizedX;currentY;currentYAverage;normalizedY;currentAngle;currentAngleAverage;normalizedAngle\n");
 	}
-
-	return true;
 }
 
-void VideoStabilizer::shutdown()
+VideoStabilizer::~VideoStabilizer()
 {
-	qDebug("Shutting down VideoStabilizer");
-
 	if (dataOutputFile.isOpen())
 		dataOutputFile.close();
 }

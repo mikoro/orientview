@@ -21,17 +21,18 @@ namespace OrientView
 	// Encapsulate the FFmpeg library for reading and decoding video files.
 	class VideoDecoder
 	{
+
 	public:
 
 		bool initialize(Settings* settings);
-		void shutdown();
+		~VideoDecoder();
 
 		bool getNextFrame(FrameData* frameData, FrameData* frameDataGrayscale);
 		void seekRelative(int seconds);
 
 		int getCurrentFrameNumber();
 		double getCurrentTime();
-		bool isFinished();
+		bool getIsFinished();
 		double getLastDecodeTime();
 
 		int getFrameWidth() const;
@@ -79,7 +80,8 @@ namespace OrientView
 		int64_t totalDuration = 0; // video stream time base
 		int64_t frameDuration = 0; // video stream time base
 		int64_t lastFrameTimestamp = 0; // video stream time base
-		bool finished = false;
+		bool isInitialized = false;
+		bool isFinished = false;
 
 		QElapsedTimer decodeTimer;
 		double lastDecodeTime = 0.0;

@@ -6,24 +6,18 @@
 
 using namespace OrientView;
 
-bool VideoDecoderThread::initialize(VideoDecoder* videoDecoder)
+void VideoDecoderThread::initialize(VideoDecoder* videoDecoder)
 {
-	qDebug("Initializing VideoDecoderThread");
-
 	this->videoDecoder = videoDecoder;
 
 	frameReadSemaphore = new QSemaphore();
 	frameAvailableSemaphore = new QSemaphore();
 	decodedFrameData = FrameData();
 	decodedFrameDataGrayscale = FrameData();
-
-	return true;
 }
 
-void VideoDecoderThread::shutdown()
+VideoDecoderThread::~VideoDecoderThread()
 {
-	qDebug("Shutting down VideoDecoderThread");
-
 	if (frameAvailableSemaphore != nullptr)
 	{
 		delete frameAvailableSemaphore;

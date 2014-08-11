@@ -15,7 +15,6 @@
 
 namespace OrientView
 {
-	class VideoWindow;
 	class VideoDecoder;
 	class QuickRouteReader;
 	class MapImageReader;
@@ -70,8 +69,8 @@ namespace OrientView
 
 	public:
 
-		bool initialize(VideoWindow* videoWindow, VideoDecoder* videoDecoder, QuickRouteReader* quickRouteReader, MapImageReader* mapImageReader, VideoStabilizer* videoStabilizer, InputHandler* inputHandler, Settings* settings);
-		void shutdown();
+		bool initialize(VideoDecoder* videoDecoder, QuickRouteReader* quickRouteReader, MapImageReader* mapImageReader, VideoStabilizer* videoStabilizer, InputHandler* inputHandler, Settings* settings);
+		~Renderer();
 
 		void startRendering(double windowWidth, double windowHeight, double currentTime, double frameTime, double spareTime, double decoderTime, double stabilizerTime, double encoderTime);
 		void uploadFrameData(FrameData* frameData);

@@ -21,12 +21,25 @@ EncodeWindow::EncodeWindow(QWidget *parent) : QDialog(parent), ui(new Ui::Encode
 
 EncodeWindow::~EncodeWindow()
 {
+	if (context != nullptr)
+	{
+		delete context;
+		context = nullptr;
+	}
+
+	if (surface != nullptr)
+	{
+		surface->destroy();
+		delete surface;
+		surface = nullptr;
+	}
+
 	delete ui;
 }
 
 bool EncodeWindow::initialize(VideoDecoder* videoDecoder, VideoEncoderThread* videoEncoderThread, Settings* settings)
 {
-	qDebug("Initializing EncodeWindow");
+	qDebug("Initializing the encode window");
 
 	this->videoEncoderThread = videoEncoderThread;
 
@@ -34,8 +47,6 @@ bool EncodeWindow::initialize(VideoDecoder* videoDecoder, VideoEncoderThread* vi
 
 	QSurfaceFormat surfaceFormat;
 	surfaceFormat.setSamples(settings->window.multisamples);
-
-	qDebug("Creating offscreen surface");
 
 	surface = new QOffscreenSurface();
 	surface->setFormat(surfaceFormat);
@@ -46,8 +57,6 @@ bool EncodeWindow::initialize(VideoDecoder* videoDecoder, VideoEncoderThread* vi
 		qWarning("Could not create offscreen surface");
 		return false;
 	}
-
-	qDebug("Creating OpenGL context");
 
 	context = new QOpenGLContext();
 	context->setFormat(surfaceFormat);
@@ -64,10 +73,7 @@ bool EncodeWindow::initialize(VideoDecoder* videoDecoder, VideoEncoderThread* vi
 		return false;
 	}
 
-	initialized = true;
-	isRunning = true;
 	totalFrameCount = videoDecoder->getTotalFrameCount();
-	currentSize = 0.0;
 	videoFilePath = settings->files.outputVideoFilePath;
 
 	ui->progressBarMain->setValue(0);
@@ -77,27 +83,9 @@ bool EncodeWindow::initialize(VideoDecoder* videoDecoder, VideoEncoderThread* vi
 
 	startTime.restart();
 
+	isInitialized = true;
+
 	return true;
-}
-
-void EncodeWindow::shutdown()
-{
-	qDebug("Shutting down EncodeWindow");
-
-	if (context != nullptr)
-	{
-		delete context;
-		context = nullptr;
-	}
-
-	if (surface != nullptr)
-	{
-		surface->destroy();
-		delete surface;
-		surface = nullptr;
-	}
-
-	initialized = false;
 }
 
 QOffscreenSurface* EncodeWindow::getSurface() const
@@ -110,9 +98,9 @@ QOpenGLContext* EncodeWindow::getContext() const
 	return context;
 }
 
-bool EncodeWindow::isInitialized() const
+bool EncodeWindow::getIsInitialized() const
 {
-	return initialized;
+	return isInitialized;
 }
 
 void EncodeWindow::frameProcessed(int frameNumber, int frameSize)

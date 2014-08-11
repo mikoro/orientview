@@ -18,8 +18,7 @@ namespace OrientView
 
 	public:
 
-		bool initialize(VideoDecoder* videoDecoder, VideoEncoder* videoEncoder, RenderOffScreenThread* renderOffScreenThread);
-		void shutdown();
+		void initialize(VideoDecoder* videoDecoder, VideoEncoder* videoEncoder, RenderOffScreenThread* renderOffScreenThread);
 
 	signals:
 

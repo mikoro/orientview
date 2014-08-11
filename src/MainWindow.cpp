@@ -9,68 +9,33 @@
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
 #include "Settings.h"
+#include "VideoWindow.h"
+#include "EncodeWindow.h"
 #include "VideoDecoder.h"
+#include "VideoEncoder.h"
 #include "QuickRouteReader.h"
 #include "MapImageReader.h"
 #include "VideoStabilizer.h"
 #include "InputHandler.h"
 #include "Renderer.h"
-#include "VideoEncoder.h"
 #include "VideoDecoderThread.h"
 #include "RenderOnScreenThread.h"
 #include "RenderOffScreenThread.h"
 #include "VideoEncoderThread.h"
-#include "VideoWindow.h"
-#include "EncodeWindow.h"
-#include "QuickRouteReader.h"
 
 using namespace OrientView;
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
 	ui->setupUi(this);
-
 	settings = new Settings();
-	videoDecoder = new VideoDecoder();
-	quickRouteReader = new QuickRouteReader();
-	mapImageReader = new MapImageReader();
-	videoStabilizer = new VideoStabilizer();
-	inputHandler = new InputHandler();
-	renderer = new Renderer();
-	videoEncoder = new VideoEncoder();
-	videoDecoderThread = new VideoDecoderThread();
-	renderOnScreenThread = new RenderOnScreenThread();
-	renderOffScreenThread = new RenderOffScreenThread();
-	videoEncoderThread = new VideoEncoderThread();
-	videoWindow = new VideoWindow();
-	encodeWindow = new EncodeWindow(this);
-
-	connect(videoWindow, &VideoWindow::closing, this, &MainWindow::videoWindowClosing);
-	connect(videoWindow, &VideoWindow::resizing, renderer, &Renderer::windowResized);
-	connect(encodeWindow, &EncodeWindow::closing, this, &MainWindow::encodeWindowClosing);
-	connect(videoEncoderThread, &VideoEncoderThread::frameProcessed, encodeWindow, &EncodeWindow::frameProcessed);
-	connect(videoEncoderThread, &VideoEncoderThread::encodingFinished, encodeWindow, &EncodeWindow::encodingFinished);
-
 	readSettings();
 }
 
 MainWindow::~MainWindow()
 {
-	delete ui;
 	delete settings;
-	delete videoDecoder;
-	delete quickRouteReader;
-	delete mapImageReader;
-	delete videoStabilizer;
-	delete inputHandler;
-	delete renderer;
-	delete videoEncoder;
-	delete videoDecoderThread;
-	delete renderOnScreenThread;
-	delete renderOffScreenThread;
-	delete videoEncoderThread;
-	delete videoWindow;
-	delete encodeWindow;
+	delete ui;
 }
 
 void MainWindow::on_actionLoadSettings_triggered()
@@ -120,38 +85,68 @@ void MainWindow::on_actionPlayVideo_triggered()
 {
 	this->setCursor(Qt::WaitCursor);
 
+	settings->update(ui);
+
 	try
 	{
-		settings->update(ui);
+		videoDecoder = new VideoDecoder();
 
 		if (!videoDecoder->initialize(settings))
-			throw std::runtime_error("Could not initialize VideoDecoder");
+		{
+			if (QMessageBox::warning(this, "OrientView - Warning", QString("Could not open the video file.\n\nDo you want to continue anyway?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
+				throw std::runtime_error("Could not initialize the video decoder");
+		}
+
+		quickRouteReader = new QuickRouteReader();
 
 		if (!quickRouteReader->initialize(settings))
-			throw std::runtime_error("Could not initialize QuickRouteReader");
+		{
+			if (QMessageBox::warning(this, "OrientView - Warning", QString("Could not read the QuickRoute file.\n\nDo you want to continue anyway?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
+				throw std::runtime_error("Could not initialize the QuickRoute reader");
+		}
+
+		mapImageReader = new MapImageReader();
 
 		if (!mapImageReader->initialize(settings))
-			throw std::runtime_error("Could not initialize MapImageReader");
+		{
+			if (QMessageBox::warning(this, "OrientView - Warning", QString("Could not read the map image file.\n\nDo you want to continue anyway?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
+				throw std::runtime_error("Could not initialize the map image reader");
+		}
+	}
+	catch (const std::exception& ex)
+	{
+		qWarning("%s", ex.what());
 
-		if (!videoStabilizer->initialize(settings))
-			throw std::runtime_error("Could not initialize VideoStabilizer");
+		this->setCursor(Qt::ArrowCursor);
+		playVideoFinished();
 
-		if (!inputHandler->initialize(videoWindow, renderer, videoDecoder, videoDecoderThread, videoStabilizer, renderOnScreenThread, settings))
-			throw std::runtime_error("Could not initialize InputHandler");
+		return;
+	}
+
+	try
+	{
+		videoWindow = new VideoWindow();
+		renderer = new Renderer();
+		videoStabilizer = new VideoStabilizer();
+		inputHandler = new InputHandler();
+		videoDecoderThread = new VideoDecoderThread();
+		renderOnScreenThread = new RenderOnScreenThread();
 
 		videoWindow->show();
 
 		if (!videoWindow->initialize(settings))
-			throw std::runtime_error("Could not initialize VideoWindow");
+			throw std::runtime_error("Could not initialize the video window");
 
-		if (!renderer->initialize(videoWindow, videoDecoder, quickRouteReader, mapImageReader, videoStabilizer, inputHandler, settings))
-			throw std::runtime_error("Could not initialize Renderer");
+		if (!renderer->initialize(videoDecoder, quickRouteReader, mapImageReader, videoStabilizer, inputHandler, settings))
+			throw std::runtime_error("Could not initialize the renderer");
 
-		if (!videoDecoderThread->initialize(videoDecoder))
-			throw std::runtime_error("Could not initialize VideoDecoderThread");
+		videoStabilizer->initialize(settings);
+		inputHandler->initialize(videoWindow, renderer, videoDecoder, videoDecoderThread, videoStabilizer, renderOnScreenThread, settings);
+		videoDecoderThread->initialize(videoDecoder);
+		renderOnScreenThread->initialize(this, videoWindow, videoDecoder, videoDecoderThread, videoStabilizer, renderer, inputHandler);
 
-		if (!renderOnScreenThread->initialize(this, videoWindow, videoDecoder, videoDecoderThread, videoStabilizer, renderer, inputHandler))
-			throw std::runtime_error("Could not initialize RenderOnScreenThread");
+		connect(videoWindow, &VideoWindow::closing, this, &MainWindow::playVideoFinished);
+		connect(videoWindow, &VideoWindow::resizing, renderer, &Renderer::windowResized);
 
 		videoWindow->getContext()->doneCurrent();
 		videoWindow->getContext()->moveToThread(renderOnScreenThread);
@@ -166,54 +161,154 @@ void MainWindow::on_actionPlayVideo_triggered()
 	}
 	catch (const std::exception& ex)
 	{
-		qWarning("Could not run video: %s", ex.what());
+		qWarning("%s", ex.what());
 
 		videoWindow->close();
-		videoWindowClosing();
+		playVideoFinished();
 
-		QMessageBox::critical(this, "OrientView - Error", QString("Could not run video: %1\n\nPlease check the application log for details.").arg(ex.what()), QMessageBox::Ok);
+		QMessageBox::critical(this, "OrientView - Error", QString("%1.\n\nCheck the application log for details.").arg(ex.what()), QMessageBox::Ok);
 	}
 
 	this->setCursor(Qt::ArrowCursor);
+}
+
+void MainWindow::playVideoFinished()
+{
+	if (renderOnScreenThread != nullptr)
+	{
+		renderOnScreenThread->requestInterruption();
+		renderOnScreenThread->wait();
+		delete renderOnScreenThread;
+		renderOnScreenThread = nullptr;
+	}
+
+	if (videoDecoderThread != nullptr)
+	{
+		videoDecoderThread->requestInterruption();
+		videoDecoderThread->wait();
+		delete videoDecoderThread;
+		videoDecoderThread = nullptr;
+	}
+
+	if (videoWindow != nullptr && videoWindow->getIsInitialized())
+		videoWindow->getContext()->makeCurrent(videoWindow);
+
+	if (inputHandler != nullptr)
+	{
+		delete inputHandler;
+		inputHandler = nullptr;
+	}
+
+	if (videoStabilizer != nullptr)
+	{
+		delete videoStabilizer;
+		videoStabilizer = nullptr;
+	}
+
+	if (renderer != nullptr)
+	{
+		delete renderer;
+		renderer = nullptr;
+	}
+
+	if (videoWindow != nullptr)
+	{
+		videoWindow->deleteLater();
+		videoWindow = nullptr;
+	}
+	
+	if (mapImageReader != nullptr)
+	{
+		delete mapImageReader;
+		mapImageReader = nullptr;
+	}
+
+	if (quickRouteReader != nullptr)
+	{
+		delete quickRouteReader;
+		quickRouteReader = nullptr;
+	}
+
+	if (videoDecoder != nullptr)
+	{
+		delete videoDecoder;
+		videoDecoder = nullptr;
+	}
+
+	this->show();
+	this->activateWindow();
 }
 
 void MainWindow::on_actionEncodeVideo_triggered()
 {
 	this->setCursor(Qt::WaitCursor);
 
+	settings->update(ui);
+
 	try
 	{
-		settings->update(ui);
+		videoDecoder = new VideoDecoder();
 
 		if (!videoDecoder->initialize(settings))
-			throw std::runtime_error("Could not initialize VideoDecoder");
+		{
+			if (QMessageBox::warning(this, "OrientView - Warning", QString("Could not open the video file.\n\nDo you want to continue anyway?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
+				throw std::runtime_error("Could not initialize the video decoder");
+		}
+
+		quickRouteReader = new QuickRouteReader();
 
 		if (!quickRouteReader->initialize(settings))
-			throw std::runtime_error("Could not initialize QuickRouteReader");
+		{
+			if (QMessageBox::warning(this, "OrientView - Warning", QString("Could not read the QuickRoute file.\n\nDo you want to continue anyway?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
+				throw std::runtime_error("Could not initialize the QuickRoute reader");
+		}
+
+		mapImageReader = new MapImageReader();
 
 		if (!mapImageReader->initialize(settings))
-			throw std::runtime_error("Could not initialize MapImageReader");
+		{
+			if (QMessageBox::warning(this, "OrientView - Warning", QString("Could not read the map image file.\n\nDo you want to continue anyway?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
+				throw std::runtime_error("Could not initialize the map image reader");
+		}
+	}
+	catch (const std::exception& ex)
+	{
+		qWarning("%s", ex.what());
+
+		this->setCursor(Qt::ArrowCursor);
+		encodeVideoFinished();
+
+		return;
+	}
+
+	try
+	{
+		encodeWindow = new EncodeWindow(this);
+		videoEncoder = new VideoEncoder();
+		renderer = new Renderer();
+		videoStabilizer = new VideoStabilizer();
+		inputHandler = new InputHandler();
+		videoDecoderThread = new VideoDecoderThread();
+		renderOffScreenThread = new RenderOffScreenThread();
+		videoEncoderThread = new VideoEncoderThread();
+		
+		if (!encodeWindow->initialize(videoDecoder, videoEncoderThread, settings))
+			throw std::runtime_error("Could not initialize the encode window");
 
 		if (!videoEncoder->initialize(videoDecoder, settings))
-			throw std::runtime_error("Could not initialize VideoEncoder");
+			throw std::runtime_error("Could not initialize the video encoder");
 
-		if (!videoStabilizer->initialize(settings))
-			throw std::runtime_error("Could not initialize VideoStabilizer");
+		if (!renderer->initialize(videoDecoder, quickRouteReader, mapImageReader, videoStabilizer, inputHandler, settings))
+			throw std::runtime_error("Could not initialize the renderer");
 
-		if (!encodeWindow->initialize(videoDecoder, videoEncoderThread, settings))
-			throw std::runtime_error("Could not initialize EncodeWindow");
+		videoStabilizer->initialize(settings);
+		videoDecoderThread->initialize(videoDecoder);
+		renderOffScreenThread->initialize(this, encodeWindow, videoDecoder, videoDecoderThread, videoStabilizer, renderer, videoEncoder, settings);
+		videoEncoderThread->initialize(videoDecoder, videoEncoder, renderOffScreenThread);
 
-		if (!renderer->initialize(videoWindow, videoDecoder, quickRouteReader, mapImageReader, videoStabilizer, inputHandler, settings))
-			throw std::runtime_error("Could not initialize Renderer");
-
-		if (!videoDecoderThread->initialize(videoDecoder))
-			throw std::runtime_error("Could not initialize VideoDecoderThread");
-
-		if (!renderOffScreenThread->initialize(this, encodeWindow, videoDecoder, videoDecoderThread, videoStabilizer, renderer, videoEncoder, settings))
-			throw std::runtime_error("Could not initialize RenderOffScreenThread");
-
-		if (!videoEncoderThread->initialize(videoDecoder, videoEncoder, renderOffScreenThread))
-			throw std::runtime_error("Could not initialize VideoEncoderThread");
+		connect(encodeWindow, &EncodeWindow::closing, this, &MainWindow::encodeVideoFinished);
+		connect(videoEncoderThread, &VideoEncoderThread::frameProcessed, encodeWindow, &EncodeWindow::frameProcessed);
+		connect(videoEncoderThread, &VideoEncoderThread::encodingFinished, encodeWindow, &EncodeWindow::encodingFinished);
 
 		encodeWindow->setModal(true);
 		encodeWindow->show();
@@ -230,12 +325,12 @@ void MainWindow::on_actionEncodeVideo_triggered()
 	}
 	catch (const std::exception& ex)
 	{
-		qWarning("Could not encode video: %s", ex.what());
+		qWarning("%s", ex.what());
 
 		encodeWindow->close();
-		encodeWindowClosing();
+		encodeVideoFinished();
 
-		QMessageBox::critical(this, "OrientView - Error", QString("Could not encode video: %1\n\nPlease check the application log for details.").arg(ex.what()), QMessageBox::Ok);
+		QMessageBox::critical(this, "OrientView - Error", QString("%1.\n\nCheck the application log for details.").arg(ex.what()), QMessageBox::Ok);
 	}
 
 	this->setCursor(Qt::ArrowCursor);
@@ -246,53 +341,82 @@ void MainWindow::on_actionExit_triggered()
 	close();
 }
 
-void MainWindow::videoWindowClosing()
+void MainWindow::encodeVideoFinished()
 {
-	renderOnScreenThread->requestInterruption();
-	videoDecoderThread->requestInterruption();
+	if (videoEncoderThread != nullptr)
+	{
+		videoEncoderThread->requestInterruption();
+		videoEncoderThread->wait();
+		delete videoEncoderThread;
+		videoEncoderThread = nullptr;
+	}
 
-	renderOnScreenThread->wait();
-	videoDecoderThread->wait();
+	if (renderOffScreenThread != nullptr)
+	{
+		renderOffScreenThread->requestInterruption();
+		renderOffScreenThread->wait();
+		delete renderOffScreenThread;
+		renderOffScreenThread = nullptr;
+	}
 
-	renderOnScreenThread->shutdown();
-	videoDecoderThread->shutdown();
+	if (videoDecoderThread != nullptr)
+	{
+		videoDecoderThread->requestInterruption();
+		videoDecoderThread->wait();
+		delete videoDecoderThread;
+		videoDecoderThread = nullptr;
+	}
 
-	if (videoWindow->isInitialized())
-		videoWindow->getContext()->makeCurrent(videoWindow);
-
-	renderer->shutdown();
-	videoWindow->shutdown();
-	videoStabilizer->shutdown();
-	videoDecoder->shutdown();
-
-	this->show();
-	this->activateWindow();
-
-	QApplication::restoreOverrideCursor();
-}
-
-void MainWindow::encodeWindowClosing()
-{
-	videoEncoderThread->requestInterruption();
-	renderOffScreenThread->requestInterruption();
-	videoDecoderThread->requestInterruption();
-
-	videoEncoderThread->wait();
-	renderOffScreenThread->wait();
-	videoDecoderThread->wait();
-
-	videoEncoderThread->shutdown();
-	renderOffScreenThread->shutdown();
-	videoDecoderThread->shutdown();
-
-	if (encodeWindow->isInitialized())
+	if (encodeWindow != nullptr && encodeWindow->getIsInitialized())
 		encodeWindow->getContext()->makeCurrent(encodeWindow->getSurface());
 
-	renderer->shutdown();
-	encodeWindow->shutdown();
-	videoStabilizer->shutdown();
-	videoEncoder->shutdown();
-	videoDecoder->shutdown();
+	if (inputHandler != nullptr)
+	{
+		delete inputHandler;
+		inputHandler = nullptr;
+	}
+
+	if (videoStabilizer != nullptr)
+	{
+		delete videoStabilizer;
+		videoStabilizer = nullptr;
+	}
+
+	if (renderer != nullptr)
+	{
+		delete renderer;
+		renderer = nullptr;
+	}
+
+	if (videoEncoder != nullptr)
+	{
+		delete videoEncoder;
+		videoEncoder = nullptr;
+	}
+
+	if (encodeWindow != nullptr)
+	{
+		encodeWindow->deleteLater();
+		encodeWindow = nullptr;
+	}
+
+	if (mapImageReader != nullptr)
+	{
+		delete mapImageReader;
+		mapImageReader = nullptr;
+	}
+
+	if (quickRouteReader != nullptr)
+	{
+		delete quickRouteReader;
+		quickRouteReader = nullptr;
+	}
+
+	if (videoDecoder != nullptr)
+	{
+		delete videoDecoder;
+		videoDecoder = nullptr;
+	}
 }
 
 void MainWindow::on_pushButtonBrowseInputVideoFile_clicked()

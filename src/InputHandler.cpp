@@ -12,10 +12,8 @@
 
 using namespace OrientView;
 
-bool InputHandler::initialize(VideoWindow* videoWindow, Renderer* renderer, VideoDecoder* videoDecoder, VideoDecoderThread* videoDecoderThread, VideoStabilizer* videoStabilizer, RenderOnScreenThread* renderOnScreenThread, Settings* settings)
+void InputHandler::initialize(VideoWindow* videoWindow, Renderer* renderer, VideoDecoder* videoDecoder, VideoDecoderThread* videoDecoderThread, VideoStabilizer* videoStabilizer, RenderOnScreenThread* renderOnScreenThread, Settings* settings)
 {
-	qDebug("Initializing InputHandler");
-
 	this->videoWindow = videoWindow;
 	this->renderer = renderer;
 	this->videoDecoder = videoDecoder;
@@ -23,10 +21,6 @@ bool InputHandler::initialize(VideoWindow* videoWindow, Renderer* renderer, Vide
 	this->videoStabilizer = videoStabilizer;
 	this->renderOnScreenThread = renderOnScreenThread;
 	this->settings = settings;
-
-	selectedPanel = SelectedPanel::NONE;
-
-	return true;
 }
 
 void InputHandler::handleInput(double frameTime)
@@ -92,7 +86,7 @@ void InputHandler::handleInput(double frameTime)
 		renderOnScreenThread->togglePaused();
 	else if (videoWindow->keyIsDown(Qt::Key_Control) && keyIsDownWithRepeat(Qt::Key_Space, advanceOneFrameRepeatHandler))
 	{
-		if (!renderOnScreenThread->isPaused())
+		if (!renderOnScreenThread->getIsPaused())
 			renderOnScreenThread->togglePaused();
 
 		renderOnScreenThread->advanceOneFrame();

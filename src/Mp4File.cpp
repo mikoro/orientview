@@ -84,7 +84,7 @@ bool Mp4File::open(const QString& fileName)
 	return true;
 }
 
-bool Mp4File::setParam(x264_param_t* param)
+bool Mp4File::setParameters(x264_param_t* param)
 {
 	uint64_t mediaTimescale = (uint64_t)param->i_timebase_den;
 	mp4Handle->timeIncrement = (uint64_t)param->i_timebase_num;

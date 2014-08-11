@@ -5,7 +5,6 @@
 #include <QTime>
 
 #include "Renderer.h"
-#include "VideoWindow.h"
 #include "VideoDecoder.h"
 #include "QuickRouteReader.h"
 #include "MapImageReader.h"
@@ -16,14 +15,13 @@
 
 using namespace OrientView;
 
-bool Renderer::initialize(VideoWindow* videoWindow, VideoDecoder* videoDecoder, QuickRouteReader* quickRouteReader, MapImageReader* mapImageReader, VideoStabilizer* videoStabilizer, InputHandler* inputHandler, Settings* settings)
+bool Renderer::initialize(VideoDecoder* videoDecoder, QuickRouteReader* quickRouteReader, MapImageReader* mapImageReader, VideoStabilizer* videoStabilizer, InputHandler* inputHandler, Settings* settings)
 {
-	qDebug("Initializing Renderer");
+	qDebug("Initializing the renderer");
 
 	this->videoStabilizer = videoStabilizer;
 	this->inputHandler = inputHandler;
 
-	videoPanel = Panel();
 	videoPanel.textureWidth = videoDecoder->getFrameWidth();
 	videoPanel.textureHeight = videoDecoder->getFrameHeight();
 	videoPanel.texelWidth = 1.0 / videoPanel.textureWidth;
@@ -32,20 +30,17 @@ bool Renderer::initialize(VideoWindow* videoWindow, VideoDecoder* videoDecoder, 
 	videoPanel.clearColor = settings->appearance.videoPanelBackgroundColor;
 	videoPanel.clearEnabled = !settings->stabilizer.disableVideoClear;
 
-	mapPanel = Panel();
 	mapPanel.textureWidth = mapImageReader->getMapImage().width();
 	mapPanel.textureHeight = mapImageReader->getMapImage().height();
 	mapPanel.texelWidth = 1.0 / mapPanel.textureWidth;
 	mapPanel.texelHeight = 1.0 / mapPanel.textureHeight;
 	mapPanel.clearColor = settings->appearance.mapPanelBackgroundColor;
 
-	renderMode = RenderMode::ALL;
 	mapPanelRelativeWidth = settings->appearance.mapPanelWidth;
-	windowWidth = videoWindow->width();
-	windowHeight = videoWindow->height();
+	windowWidth = settings->window.width;
+	windowHeight = settings->window.height;
 
 	showInfoPanel = settings->appearance.showInfoPanel;
-	fullClearRequested = true;
 
 	const double movingAverageAlpha = 0.1;
 	averageFps.reset();
@@ -196,10 +191,8 @@ void Renderer::loadBuffer(Panel* panel, GLfloat* buffer, size_t size)
 	panel->buffer->release();
 }
 
-void Renderer::shutdown()
+Renderer::~Renderer()
 {
-	qDebug("Shutting down Renderer");
-
 	if (routePath != nullptr)
 	{
 		delete routePath;

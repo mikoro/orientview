@@ -18,12 +18,12 @@ namespace OrientView
 	public:
 
 		explicit VideoWindow(QWindow* parent = 0);
+		~VideoWindow();
 
 		bool initialize(Settings* settings);
-		void shutdown();
 
 		QOpenGLContext* getContext() const;
-		bool isInitialized() const;
+		bool getIsInitialized() const;
 		bool keyIsDown(int key);
 		bool keyIsDownOnce(int key);
 
@@ -39,7 +39,9 @@ namespace OrientView
 	private:
 
 		QOpenGLContext* context = nullptr;
-		bool initialized = false;
+
+		bool isInitialized = false;
+
 		std::map<int, bool> keyMap;
 		std::map<int, bool> keyMapOnce;
 	};

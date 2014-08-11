@@ -10,7 +10,7 @@ bool MapImageReader::initialize(Settings* settings)
 {
 	QString fileName = settings->files.alternativeMapImageFilePath.isEmpty() ? settings->files.quickRouteJpegMapImageFilePath : settings->files.alternativeMapImageFilePath;
 
-	qDebug("Initializing MapImageReader (%s)", qPrintable(fileName));
+	qDebug("Initializing the map image reader (%s)", qPrintable(fileName));
 
 	if (!mapImage.load(fileName))
 	{
