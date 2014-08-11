@@ -184,7 +184,7 @@ void MainWindow::on_actionPlayVideo_triggered()
 		renderOnScreenThread->initialize(this, videoWindow, videoDecoder, videoDecoderThread, videoStabilizer, renderer, inputHandler);
 
 		connect(videoWindow, &VideoWindow::closing, this, &MainWindow::playVideoFinished);
-		connect(videoWindow, &VideoWindow::resizing, renderer, &Renderer::windowResized);
+		connect(videoWindow, &VideoWindow::resizing, renderOnScreenThread, &RenderOnScreenThread::windowResized);
 
 		videoWindow->getContext()->doneCurrent();
 		videoWindow->getContext()->moveToThread(renderOnScreenThread);

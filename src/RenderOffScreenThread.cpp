@@ -2,7 +2,6 @@
 // License: GPLv3, see the LICENSE file.
 
 #include <QElapsedTimer>
-#include <QOpenGLFramebufferObjectFormat>
 
 #include "RenderOffScreenThread.h"
 #include "MainWindow.h"
@@ -27,44 +26,8 @@ void RenderOffScreenThread::initialize(MainWindow* mainWindow, EncodeWindow* enc
 	this->renderer = renderer;
 	this->videoEncoder = videoEncoder;
 
-	framebufferWidth = settings->window.width;
-	framebufferHeight = settings->window.height;
-
-	QOpenGLFramebufferObjectFormat mainFboFormat;
-	mainFboFormat.setSamples(settings->window.multisamples);
-	mainFboFormat.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
-
-	mainFramebuffer = new QOpenGLFramebufferObject(framebufferWidth, framebufferHeight, mainFboFormat);
-
-	if (!mainFramebuffer->isValid())
-	{
-		qWarning("Could not create main frame buffer");
-		return;
-	}
-
-	QOpenGLFramebufferObjectFormat secondaryFboFormat;
-	secondaryFboFormat.setSamples(0);
-	secondaryFboFormat.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
-
-	secondaryFramebuffer = new QOpenGLFramebufferObject(framebufferWidth, framebufferHeight, secondaryFboFormat);
-
-	if (!secondaryFramebuffer->isValid())
-	{
-		qWarning("Could not create secondary frame buffer");
-		return;
-	}
-
-	renderedFrameData = FrameData();
-	renderedFrameData.dataLength = (size_t)(framebufferWidth * framebufferHeight * 4);
-	renderedFrameData.rowLength = (size_t)(framebufferWidth * 4);
-	renderedFrameData.data = new uint8_t[renderedFrameData.dataLength];
-	renderedFrameData.width = framebufferWidth;
-	renderedFrameData.height = framebufferHeight;
-
 	frameReadSemaphore = new QSemaphore();
 	frameAvailableSemaphore = new QSemaphore();
-
-	return;
 }
 
 RenderOffScreenThread::~RenderOffScreenThread()
@@ -79,24 +42,6 @@ RenderOffScreenThread::~RenderOffScreenThread()
 	{
 		delete frameReadSemaphore;
 		frameReadSemaphore = nullptr;
-	}
-
-	if (renderedFrameData.data)
-	{
-		delete renderedFrameData.data;
-		renderedFrameData.data = nullptr;
-	}
-
-	if (secondaryFramebuffer != nullptr)
-	{
-		delete secondaryFramebuffer;
-		secondaryFramebuffer = nullptr;
-	}
-
-	if (mainFramebuffer != nullptr)
-	{
-		delete mainFramebuffer;
-		mainFramebuffer = nullptr;
 	}
 }
 
@@ -117,11 +62,8 @@ void RenderOffScreenThread::run()
 		{
 			videoStabilizer->processFrame(&decodedFrameDataGrayscale);
 
-			// direct the rendering to offscreen framebuffer
 			encodeWindow->getContext()->makeCurrent(encodeWindow->getSurface());
-			mainFramebuffer->bind();
-
-			renderer->startRendering(framebufferWidth, framebufferHeight, videoDecoder->getCurrentTime(), frameDuration, 0.0, videoDecoder->getLastDecodeTime(), videoStabilizer->getLastProcessTime(), videoEncoder->getLastEncodeTime());
+			renderer->startRendering(videoDecoder->getCurrentTime(), frameDuration, 0.0, videoDecoder->getLastDecodeTime(), videoStabilizer->getLastProcessTime(), videoEncoder->getLastEncodeTime());
 			renderer->uploadFrameData(&decodedFrameData);
 			videoDecoderThread->signalFrameRead();
 			renderer->renderAll();
@@ -132,7 +74,7 @@ void RenderOffScreenThread::run()
 			if (isInterruptionRequested())
 				break;
 
-			readDataFromFramebuffer(mainFramebuffer);
+			renderer->getRenderedFrame(&renderedFrameData);
 			renderedFrameData.duration = decodedFrameData.duration;
 			renderedFrameData.number = decodedFrameData.number;
 
@@ -151,14 +93,7 @@ bool RenderOffScreenThread::tryGetNextFrame(FrameData* frameData, int timeout)
 {
 	if (frameAvailableSemaphore->tryAcquire(1, timeout))
 	{
-		frameData->data = renderedFrameData.data;
-		frameData->dataLength = renderedFrameData.dataLength;
-		frameData->rowLength = renderedFrameData.rowLength;
-		frameData->width = renderedFrameData.width;
-		frameData->height = renderedFrameData.height;
-		frameData->duration = renderedFrameData.duration;
-		frameData->number = renderedFrameData.number;
-
+		*frameData = renderedFrameData;
 		return true;
 	}
 	else
@@ -168,21 +103,4 @@ bool RenderOffScreenThread::tryGetNextFrame(FrameData* frameData, int timeout)
 void RenderOffScreenThread::signalFrameRead()
 {
 	frameReadSemaphore->release(1);
-}
-
-void RenderOffScreenThread::readDataFromFramebuffer(QOpenGLFramebufferObject* sourceFbo)
-{
-	// pixels cannot be directly read from a multisampled framebuffer
-	// copy the framebuffer to a non-multisampled framebuffer and try again
-	if (sourceFbo->format().samples() != 0)
-	{
-		QRect rect(0, 0, framebufferWidth, framebufferHeight);
-		QOpenGLFramebufferObject::blitFramebuffer(secondaryFramebuffer, rect, sourceFbo, rect);
-		readDataFromFramebuffer(secondaryFramebuffer);
-
-		return;
-	}
-
-	sourceFbo->bind();
-	glReadPixels(0, 0, framebufferWidth, framebufferHeight, GL_RGBA, GL_UNSIGNED_BYTE, renderedFrameData.data);
 }

@@ -4,8 +4,6 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 
-#include <QElapsedTimer>
-
 #include "VideoStabilizer.h"
 #include "Settings.h"
 #include "FrameData.h"

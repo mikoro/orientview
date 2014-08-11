@@ -10,8 +10,10 @@
 #include <QPainter>
 #include <QOpenGLBuffer>
 #include <QOpenGLTexture>
+#include <QOpenGLFramebufferObject>
 
 #include "MovingAverage.h"
+#include "FrameData.h"
 
 namespace OrientView
 {
@@ -21,7 +23,6 @@ namespace OrientView
 	class VideoStabilizer;
 	class InputHandler;
 	struct Settings;
-	struct FrameData;
 	struct Panel;
 
 	enum class RenderMode { ALL, VIDEO, MAP };
@@ -63,19 +64,20 @@ namespace OrientView
 	};
 
 	// Does the actual drawing using OpenGL.
-	class Renderer : public QObject, protected QOpenGLFunctions
+	class Renderer : protected QOpenGLFunctions
 	{
-		Q_OBJECT
 
 	public:
 
 		bool initialize(VideoDecoder* videoDecoder, QuickRouteReader* quickRouteReader, MapImageReader* mapImageReader, VideoStabilizer* videoStabilizer, InputHandler* inputHandler, Settings* settings);
+		bool resizeWindow(int newWidth, int newHeight);
 		~Renderer();
 
-		void startRendering(double windowWidth, double windowHeight, double currentTime, double frameTime, double spareTime, double decoderTime, double stabilizerTime, double encoderTime);
+		void startRendering(double currentTime, double frameTime, double spareTime, double decoderTime, double stabilizerTime, double encoderTime);
 		void uploadFrameData(FrameData* frameData);
 		void renderAll();
 		void stopRendering();
+		void getRenderedFrame(FrameData* frameData);
 
 		Panel* getVideoPanel();
 		Panel* getMapPanel();
@@ -86,10 +88,6 @@ namespace OrientView
 		void setIsEncoding(bool value);
 		void toggleShowInfoPanel();
 		void requestFullClear();
-
-	public slots:
-
-		void windowResized();
 
 	private:
 
@@ -114,6 +112,7 @@ namespace OrientView
 		double windowHeight = 0.0;
 		double currentTime = 0.0;
 		double frameTime = 0.0;
+		int multisamples = 0;
 
 		Panel videoPanel;
 		Panel mapPanel;
@@ -133,5 +132,9 @@ namespace OrientView
 		QOpenGLPaintDevice* paintDevice = nullptr;
 		QPainter* painter = nullptr;
 		QPainterPath* routePath = nullptr;
+
+		QOpenGLFramebufferObject* outputFramebuffer = nullptr;
+		QOpenGLFramebufferObject* outputFramebufferNonMultisample = nullptr;
+		FrameData renderedFrameData;
 	};
 }

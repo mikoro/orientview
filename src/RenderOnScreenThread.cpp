@@ -2,7 +2,6 @@
 // License: GPLv3, see the LICENSE file.
 
 #include <QElapsedTimer>
-#include <QTime>
 
 #include "RenderOnScreenThread.h"
 #include "MainWindow.h"
@@ -51,19 +50,18 @@ void RenderOnScreenThread::run()
 
 		bool gotFrame = false;
 
-		if (!getIsPaused() || getShouldAdvanceOneFrame())
+		if (!isPaused || shouldAdvanceOneFrame)
 		{
 			gotFrame = videoDecoderThread->tryGetNextFrame(&frameData, &frameDataGrayscale, 0);
-			setShouldAdvanceOneFrame(false);
+			shouldAdvanceOneFrame = false;
 		}
 
 		if (gotFrame)
 			videoStabilizer->processFrame(&frameDataGrayscale);
 
-		// direct the rendering to the video window
 		videoWindow->getContext()->makeCurrent(videoWindow);
 
-		renderer->startRendering(videoWindow->width(), videoWindow->height(), videoDecoder->getCurrentTime(), frameDuration, spareTime, videoDecoder->getLastDecodeTime(), videoStabilizer->getLastProcessTime(), 0.0);
+		renderer->startRendering(videoDecoder->getCurrentTime(), frameDuration, spareTime, videoDecoder->getLastDecodeTime(), videoStabilizer->getLastProcessTime(), 0.0);
 
 		if (gotFrame)
 		{
@@ -75,6 +73,12 @@ void RenderOnScreenThread::run()
 		renderer->stopRendering();
 
 		inputHandler->handleInput(frameDuration);
+
+		if (shouldResizeWindow)
+		{
+			renderer->resizeWindow(newWindowWidth, newWindowHeight);
+			shouldResizeWindow = false;
+		}
 
 		spareTime = (frameData.duration - (spareTimer.nsecsElapsed() / 1000.0)) / 1000.0;
 
@@ -105,38 +109,25 @@ void RenderOnScreenThread::run()
 	videoWindow->getContext()->moveToThread(mainWindow->thread());
 }
 
+bool RenderOnScreenThread::getIsPaused()
+{
+	return isPaused;
+}
+
 void RenderOnScreenThread::togglePaused()
 {
-	QMutexLocker locker(&renderOnScreenThreadMutex);
-
 	isPaused = !isPaused;
 	shouldAdvanceOneFrame = false;
 }
 
 void RenderOnScreenThread::advanceOneFrame()
 {
-	QMutexLocker locker(&renderOnScreenThreadMutex);
-
 	shouldAdvanceOneFrame = true;
 }
 
-bool RenderOnScreenThread::getIsPaused()
+void RenderOnScreenThread::windowResized(int newWidth, int newHeight)
 {
-	QMutexLocker locker(&renderOnScreenThreadMutex);
-
-	return isPaused;
-}
-
-bool RenderOnScreenThread::getShouldAdvanceOneFrame()
-{
-	QMutexLocker locker(&renderOnScreenThreadMutex);
-
-	return shouldAdvanceOneFrame;
-}
-
-void RenderOnScreenThread::setShouldAdvanceOneFrame(bool value)
-{
-	QMutexLocker locker(&renderOnScreenThreadMutex);
-
-	shouldAdvanceOneFrame = value;
+	newWindowWidth = newWidth;
+	newWindowHeight = newHeight;
+	shouldResizeWindow = true;
 }

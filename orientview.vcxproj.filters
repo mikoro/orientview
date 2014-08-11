@@ -140,12 +140,6 @@
     <ClCompile Include="build\GeneratedFiles\qrc_OrientView.cpp">
       <Filter>Generated Files</Filter>
     </ClCompile>
-    <ClCompile Include="build\GeneratedFiles\Debug\moc_Renderer.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="build\GeneratedFiles\Release\moc_Renderer.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="src\MainWindow.h">

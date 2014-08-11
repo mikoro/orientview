@@ -5,6 +5,7 @@
 #include "VideoDecoder.h"
 #include "VideoEncoder.h"
 #include "RenderOffScreenThread.h"
+#include "FrameData.h"
 
 using namespace OrientView;
 

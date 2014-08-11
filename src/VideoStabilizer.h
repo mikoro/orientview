@@ -4,6 +4,7 @@
 #pragma once
 
 #include <QFile>
+#include <QElapsedTimer>
 
 #include "opencv2/opencv.hpp"
 

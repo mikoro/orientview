@@ -53,21 +53,8 @@ bool VideoDecoderThread::tryGetNextFrame(FrameData* frameData, FrameData* frameD
 {
 	if (frameAvailableSemaphore->tryAcquire(1, timeout))
 	{
-		frameData->data = decodedFrameData.data;
-		frameData->dataLength = decodedFrameData.dataLength;
-		frameData->rowLength = decodedFrameData.rowLength;
-		frameData->width = decodedFrameData.width;
-		frameData->height = decodedFrameData.height;
-		frameData->duration = decodedFrameData.duration;
-		frameData->number = decodedFrameData.number;
-
-		frameDataGrayscale->data = decodedFrameDataGrayscale.data;
-		frameDataGrayscale->dataLength = decodedFrameDataGrayscale.dataLength;
-		frameDataGrayscale->rowLength = decodedFrameDataGrayscale.rowLength;
-		frameDataGrayscale->width = decodedFrameDataGrayscale.width;
-		frameDataGrayscale->height = decodedFrameDataGrayscale.height;
-		frameDataGrayscale->duration = decodedFrameDataGrayscale.duration;
-		frameDataGrayscale->number = decodedFrameDataGrayscale.number;
+		*frameData = decodedFrameData;
+		*frameDataGrayscale = decodedFrameDataGrayscale;
 
 		return true;
 	}
