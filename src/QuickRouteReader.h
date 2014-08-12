@@ -10,6 +10,7 @@
 
 namespace OrientView
 {
+	class MapImageReader;
 	struct Settings;
 
 	struct RoutePoint
@@ -26,13 +27,13 @@ namespace OrientView
 		double pace = 0.0;
 	};
 
-	// Read route and calibration data from QuickRoute JPEG files.
+	// Read route point data from QuickRoute JPEG files.
 	class QuickRouteReader
 	{
 
 	public:
 
-		bool initialize(Settings* settings);
+		bool initialize(MapImageReader* mapImageReader, Settings* settings);
 		const std::vector<RoutePoint>& getRoutePoints() const;
 
 	private:
@@ -52,9 +53,13 @@ namespace OrientView
 		struct RoutePointHandle
 		{
 			double routePointIndex = 0.0;
-			QMatrix transformationMatrix;
+			QMatrix transformation;
 		};
 
+		double mapImageWidth = 0.0;
+		double mapImageHeight = 0.0;
+		double quickRouteImageWidth = 0.0;
+		double quickRouteImageHeight = 0.0;
 		QPointF projectionOriginCoordinate;
 		std::vector<RoutePoint> routePoints;
 		std::vector<RoutePointHandle> routePointHandles;

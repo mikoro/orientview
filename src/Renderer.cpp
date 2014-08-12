@@ -133,8 +133,8 @@ bool Renderer::initialize(VideoDecoder* videoDecoder, QuickRouteReader* quickRou
 		{
 			RoutePoint rp = quickRouteReader->getRoutePoints().at(i);
 
-			double x = rp.transformedPosition.x() - mapPanel.textureWidth / 2.0;
-			double y = rp.transformedPosition.y() - mapPanel.textureHeight / 2.0 + 65;
+			double x = rp.transformedPosition.x();
+			double y = rp.transformedPosition.y();
 
 			if (i == 0)
 				routePath->moveTo(x, y);

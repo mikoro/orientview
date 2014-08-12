@@ -135,20 +135,20 @@ void MainWindow::on_actionPlayVideo_triggered()
 				throw std::runtime_error("Could not initialize the video decoder");
 		}
 
-		quickRouteReader = new QuickRouteReader();
-
-		if (!quickRouteReader->initialize(settings))
-		{
-			if (QMessageBox::warning(this, "OrientView - Warning", QString("Could not read the QuickRoute file.\n\nDo you want to continue anyway?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
-				throw std::runtime_error("Could not initialize the QuickRoute reader");
-		}
-
 		mapImageReader = new MapImageReader();
 
 		if (!mapImageReader->initialize(settings))
 		{
 			if (QMessageBox::warning(this, "OrientView - Warning", QString("Could not read the map image file.\n\nDo you want to continue anyway?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
 				throw std::runtime_error("Could not initialize the map image reader");
+		}
+
+		quickRouteReader = new QuickRouteReader();
+
+		if (!quickRouteReader->initialize(mapImageReader, settings))
+		{
+			if (QMessageBox::warning(this, "OrientView - Warning", QString("Could not read the QuickRoute file.\n\nDo you want to continue anyway?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
+				throw std::runtime_error("Could not initialize the QuickRoute reader");
 		}
 	}
 	catch (const std::exception& ex)
@@ -293,20 +293,20 @@ void MainWindow::on_actionEncodeVideo_triggered()
 				throw std::runtime_error("Could not initialize the video decoder");
 		}
 
-		quickRouteReader = new QuickRouteReader();
-
-		if (!quickRouteReader->initialize(settings))
-		{
-			if (QMessageBox::warning(this, "OrientView - Warning", QString("Could not read the QuickRoute file.\n\nDo you want to continue anyway?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
-				throw std::runtime_error("Could not initialize the QuickRoute reader");
-		}
-
 		mapImageReader = new MapImageReader();
 
 		if (!mapImageReader->initialize(settings))
 		{
 			if (QMessageBox::warning(this, "OrientView - Warning", QString("Could not read the map image file.\n\nDo you want to continue anyway?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
 				throw std::runtime_error("Could not initialize the map image reader");
+		}
+
+		quickRouteReader = new QuickRouteReader();
+
+		if (!quickRouteReader->initialize(mapImageReader, settings))
+		{
+			if (QMessageBox::warning(this, "OrientView - Warning", QString("Could not read the QuickRoute file.\n\nDo you want to continue anyway?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
+				throw std::runtime_error("Could not initialize the QuickRoute reader");
 		}
 	}
 	catch (const std::exception& ex)

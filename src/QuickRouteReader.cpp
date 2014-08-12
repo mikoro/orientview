@@ -6,13 +6,17 @@
 #include <cstdint>
 
 #include "QuickRouteReader.h"
+#include "MapImageReader.h"
 #include "Settings.h"
 
 using namespace OrientView;
 
-bool QuickRouteReader::initialize(Settings* settings)
+bool QuickRouteReader::initialize(MapImageReader* mapImageReader, Settings* settings)
 {
 	qDebug("Initializing the QuickRoute reader (%s)", qPrintable(settings->files.quickRouteJpegMapImageFilePath));
+
+	mapImageWidth = mapImageReader->getMapImage().width();
+	mapImageHeight = mapImageReader->getMapImage().height();
 
 	QFile file(settings->files.quickRouteJpegMapImageFilePath);
 
@@ -80,7 +84,7 @@ bool QuickRouteReader::extractDataPartFromJpeg(QFile& file, QByteArray& buffer)
 			if (!readBytes(file, readBuffer, 2))
 				return false;
 
-			uint32_t length = (uint32_t)readBuffer.at(1) + 256 * (uint32_t)readBuffer.at(0);
+			uint32_t length = (uint8_t)readBuffer.at(1) + 256 * (uint8_t)readBuffer.at(0);
 
 			if (length >= (quickRouteIdLength + 2))
 			{
@@ -149,6 +153,18 @@ void QuickRouteReader::processDataPart(QDataStream& dataStream)
 				else
 					dataStream.skipRawData(tagLength);
 			}
+		}
+		else if (tag == 4) // image dimensions
+		{
+			uint16_t x, y, width, height;
+
+			dataStream >> x;
+			dataStream >> y;
+			dataStream >> width;
+			dataStream >> height;
+
+			quickRouteImageWidth = width;
+			quickRouteImageHeight = height;
 		}
 		else
 			dataStream.skipRawData(tagLength);
@@ -260,7 +276,7 @@ void QuickRouteReader::readHandles(QDataStream& dataStream)
 		dataStream >> routePointIndex;
 
 		rph.routePointIndex = routePointIndex;
-		rph.transformationMatrix.setMatrix(matrix[0], matrix[1], matrix[3], matrix[4], matrix[2], matrix[5]);
+		rph.transformation.setMatrix(matrix[0], matrix[1], matrix[3], matrix[4], matrix[2], matrix[5]);
 
 		if (segmentIndex == 0)
 			routePointHandles.push_back(rph);
@@ -306,7 +322,6 @@ QDateTime QuickRouteReader::readDateTime(QDataStream& dataStream, QDateTime& pre
 void QuickRouteReader::processRoutePoints()
 {
 	int handleIndex = 0;
-
 	RoutePointHandle currentHandle;
 	RoutePointHandle nextHandle;
 	nextHandle.routePointIndex = DBL_MAX;
@@ -316,6 +331,11 @@ void QuickRouteReader::processRoutePoints()
 
 	if (++handleIndex < routePointHandles.size())
 		nextHandle = routePointHandles.at(handleIndex);
+
+	// move origin to the center and scale points if map images have different dimensions
+	QMatrix extraTransformation;
+	extraTransformation.scale(mapImageWidth / quickRouteImageWidth, mapImageHeight / quickRouteImageHeight);
+	extraTransformation.translate(quickRouteImageWidth / -2.0, quickRouteImageHeight / -2.0);
 
 	// transform points using the previous handle
 	// use first handle if no previous handle
@@ -334,7 +354,8 @@ void QuickRouteReader::processRoutePoints()
 		}
 
 		routePoints.at(i).projectedPosition = projectCoordinate(routePoints.at(i).coordinate, projectionOriginCoordinate);
-		routePoints.at(i).transformedPosition = currentHandle.transformationMatrix.map(routePoints.at(i).projectedPosition);
+		routePoints.at(i).transformedPosition = currentHandle.transformation.map(routePoints.at(i).projectedPosition);
+		routePoints.at(i).transformedPosition = extraTransformation.map(routePoints.at(i).transformedPosition);
 	}
 
 	// calculate delta times, delta distances, and paces
@@ -351,6 +372,7 @@ void QuickRouteReader::processRoutePoints()
 
 QPointF QuickRouteReader::projectCoordinate(const QPointF& coordinate, const QPointF& projectionOriginCoordinate)
 {
+	// http://en.wikipedia.org/wiki/Orthographic_projection_%28cartography%29
 	const double R = 6378200.0;
 
 	double lambda0 = projectionOriginCoordinate.x() * M_PI / 180.0;
@@ -368,6 +390,7 @@ QPointF QuickRouteReader::projectCoordinate(const QPointF& coordinate, const QPo
 
 double QuickRouteReader::coordinateDistance(const QPointF& coordinate1, const QPointF& coordinate2)
 {
+	// http://en.wikipedia.org/wiki/Haversine_formula
 	const double R = 6378200.0;
 
 	double lat1 = coordinate1.y() * M_PI / 180.0;
