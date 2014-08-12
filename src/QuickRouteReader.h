@@ -6,7 +6,7 @@
 #include <QFile>
 #include <QDateTime>
 #include <QPointF>
-#include <QTransform>
+#include <QMatrix>
 
 namespace OrientView
 {
@@ -14,27 +14,16 @@ namespace OrientView
 
 	struct RoutePoint
 	{
-		int segmentIndex = 0;
 		QDateTime dateTime;
 		QPointF coordinate;
-		QPointF position;
+		QPointF projectedPosition;
+		QPointF transformedPosition;
 		double elevation = 0.0;
 		double heartRate = 0.0;
+		double distanceToPrevious = 0.0;
+		double timeToPrevious = 0.0;
+		double timeSinceStart = 0.0;
 		double pace = 0.0;
-	};
-
-	struct RoutePointHandle
-	{
-		int segmentIndex = 0;
-		double routePointIndex = 0.0;
-		QTransform transformationMatrix;
-	};
-
-	struct RouteData
-	{
-		QPointF projectionOriginCoordinate;
-		std::vector<RoutePoint> routePoints;
-		std::vector<RoutePointHandle> routePointHandles;
 	};
 
 	// Read route and calibration data from QuickRoute JPEG files.
@@ -44,7 +33,7 @@ namespace OrientView
 	public:
 
 		bool initialize(Settings* settings);
-		const RouteData& getRouteData() const;
+		const std::vector<RoutePoint>& getRoutePoints() const;
 
 	private:
 
@@ -56,9 +45,18 @@ namespace OrientView
 		void readHandles(QDataStream& dataStream);
 		double readCoordinate(QDataStream& dataStream);
 		QDateTime readDateTime(QDataStream& dataStream, QDateTime& previous);
+		void processRoutePoints();
+		QPointF projectCoordinate(const QPointF& coordinate, const QPointF& projectionOriginCoordinate);
+		double coordinateDistance(const QPointF& coordinate1, const QPointF& coordinate2);
 
-		static void projectRoutePoint(RoutePoint& rp, const QPointF& projectionOriginCoordinate);
+		struct RoutePointHandle
+		{
+			double routePointIndex = 0.0;
+			QMatrix transformationMatrix;
+		};
 
-		RouteData routeData;
+		QPointF projectionOriginCoordinate;
+		std::vector<RoutePoint> routePoints;
+		std::vector<RoutePointHandle> routePointHandles;
 	};
 }

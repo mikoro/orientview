@@ -32,15 +32,20 @@ bool QuickRouteReader::initialize(Settings* settings)
 
 	processDataPart(dataStream);
 
-	for (RoutePoint& rp : routeData.routePoints)
-		projectRoutePoint(rp, routeData.projectionOriginCoordinate);
+	if (projectionOriginCoordinate.isNull())
+	{
+		qWarning("Could not find projection origin");
+		return false;
+	}
+
+	processRoutePoints();
 
 	return true;
 }
 
-const RouteData& QuickRouteReader::getRouteData() const
+const std::vector<RoutePoint>& QuickRouteReader::getRoutePoints() const
 {
-	return routeData;
+	return routePoints;
 }
 
 bool QuickRouteReader::extractDataPartFromJpeg(QFile& file, QByteArray& buffer)
@@ -171,8 +176,8 @@ void QuickRouteReader::readSession(QDataStream& dataStream, uint32_t length)
 			double lon = readCoordinate(dataStream);
 			double lat = readCoordinate(dataStream);
 
-			routeData.projectionOriginCoordinate.setX(lon);
-			routeData.projectionOriginCoordinate.setY(lat);
+			projectionOriginCoordinate.setX(lon);
+			projectionOriginCoordinate.setY(lat);
 		}
 		else
 			dataStream.skipRawData(tagLength);
@@ -201,7 +206,6 @@ void QuickRouteReader::readRoute(QDataStream& dataStream)
 		for (uint32_t j = 0; j < waypointCount; j++)
 		{
 			RoutePoint rp;
-			rp.segmentIndex = i;
 
 			double lon = readCoordinate(dataStream);
 			double lat = readCoordinate(dataStream);
@@ -228,7 +232,8 @@ void QuickRouteReader::readRoute(QDataStream& dataStream)
 				rp.elevation = elevation;
 			}
 
-			routeData.routePoints.push_back(rp);
+			if (i == 0)
+				routePoints.push_back(rp);
 
 			dataStream.skipRawData(extraWaypointAttributesLength);
 		}
@@ -254,11 +259,11 @@ void QuickRouteReader::readHandles(QDataStream& dataStream)
 		double routePointIndex;
 		dataStream >> routePointIndex;
 
-		rph.segmentIndex = segmentIndex;
 		rph.routePointIndex = routePointIndex;
-		rph.transformationMatrix.setMatrix(matrix[0], matrix[1], matrix[2], matrix[3], matrix[4], matrix[5], matrix[6], matrix[7], matrix[8]);
+		rph.transformationMatrix.setMatrix(matrix[0], matrix[1], matrix[3], matrix[4], matrix[2], matrix[5]);
 
-		routeData.routePointHandles.push_back(rph);
+		if (segmentIndex == 0)
+			routePointHandles.push_back(rph);
 
 		dataStream.skipRawData(18);
 	}
@@ -298,14 +303,80 @@ QDateTime QuickRouteReader::readDateTime(QDataStream& dataStream, QDateTime& pre
 	}
 }
 
-void QuickRouteReader::projectRoutePoint(RoutePoint& rp, const QPointF& projectionOriginCoordinate)
+void QuickRouteReader::processRoutePoints()
 {
-	const double R = 6378200;
+	int handleIndex = 0;
+
+	RoutePointHandle currentHandle;
+	RoutePointHandle nextHandle;
+	nextHandle.routePointIndex = DBL_MAX;
+
+	if (handleIndex < routePointHandles.size())
+		currentHandle = routePointHandles.at(handleIndex);
+
+	if (++handleIndex < routePointHandles.size())
+		nextHandle = routePointHandles.at(handleIndex);
+
+	// transform points using the previous handle
+	// use first handle if no previous handle
+	// do not use the last handle at all (use second to last handle instead for the last points)
+	for (int i = 0; i < routePoints.size(); ++i)
+	{
+		if ((double)i > nextHandle.routePointIndex)
+		{
+			if (++handleIndex < routePointHandles.size())
+			{
+				currentHandle = nextHandle;
+				nextHandle = routePointHandles.at(handleIndex);
+			}
+			else
+				nextHandle.routePointIndex = DBL_MAX;
+		}
+
+		routePoints.at(i).projectedPosition = projectCoordinate(routePoints.at(i).coordinate, projectionOriginCoordinate);
+		routePoints.at(i).transformedPosition = currentHandle.transformationMatrix.map(routePoints.at(i).projectedPosition);
+	}
+
+	// calculate delta times, delta distances, and paces
+	for (int i = 1; i < routePoints.size(); ++i)
+	{
+		routePoints.at(i).timeToPrevious = (routePoints.at(i).dateTime.toMSecsSinceEpoch() - routePoints.at(i - 1).dateTime.toMSecsSinceEpoch()) / 1000.0;
+		routePoints.at(i).distanceToPrevious = coordinateDistance(routePoints.at(i - 1).coordinate, routePoints.at(i).coordinate);
+		routePoints.at(i).timeSinceStart = (routePoints.at(i).dateTime.toMSecsSinceEpoch() - routePoints.at(0).dateTime.toMSecsSinceEpoch()) / 1000.0;
+
+		if (routePoints.at(i).distanceToPrevious > 0.0)
+			routePoints.at(i).pace = (routePoints.at(i).timeToPrevious / 60.0) / (routePoints.at(i).distanceToPrevious / 1000.0);
+	}
+}
+
+QPointF QuickRouteReader::projectCoordinate(const QPointF& coordinate, const QPointF& projectionOriginCoordinate)
+{
+	const double R = 6378200.0;
+
 	double lambda0 = projectionOriginCoordinate.x() * M_PI / 180.0;
 	double phi0 = projectionOriginCoordinate.y() * M_PI / 180.0;
-	double lambda = rp.coordinate.x() * M_PI / 180.0;
-	double phi = rp.coordinate.y() * M_PI / 180.0;
+	double lambda = coordinate.x() * M_PI / 180.0;
+	double phi = coordinate.y() * M_PI / 180.0;
 
-	rp.position.setX(R * cos(phi) * sin(lambda - lambda0));
-	rp.position.setY(R * (cos(phi0) * sin(phi) - sin(phi0) * cos(phi) * cos(lambda - lambda0)));
+	QPointF position;
+
+	position.setX(R * cos(phi) * sin(lambda - lambda0));
+	position.setY(R * (cos(phi0) * sin(phi) - sin(phi0) * cos(phi) * cos(lambda - lambda0)));
+
+	return position;
+}
+
+double QuickRouteReader::coordinateDistance(const QPointF& coordinate1, const QPointF& coordinate2)
+{
+	const double R = 6378200.0;
+
+	double lat1 = coordinate1.y() * M_PI / 180.0;
+	double lat2 = coordinate2.y() * M_PI / 180.0;
+	double deltaLon = (coordinate2.x() - coordinate1.x()) * M_PI / 180.0;
+	double deltaLat = (coordinate2.y() - coordinate1.y()) * M_PI / 180.0;
+
+	double a = pow(sin(deltaLat / 2.0), 2.0) + cos(lat1) * cos(lat2) * pow(sin(deltaLon / 2.0), 2.0);
+	double distance = 2.0 * R * atan2(sqrt(a), sqrt(1.0 - a));
+
+	return distance;
 }

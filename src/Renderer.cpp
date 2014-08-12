@@ -125,16 +125,16 @@ bool Renderer::initialize(VideoDecoder* videoDecoder, QuickRouteReader* quickRou
 
 	routePath = new QPainterPath();
 
-	int routePointCount = quickRouteReader->getRouteData().routePoints.size();
+	int routePointCount = quickRouteReader->getRoutePoints().size();
 
 	if (routePointCount >= 2)
 	{
 		for (int i = 0; i < routePointCount; ++i)
 		{
-			RoutePoint rp = quickRouteReader->getRouteData().routePoints.at(i);
+			RoutePoint rp = quickRouteReader->getRoutePoints().at(i);
 
-			double x = rp.position.x();
-			double y = -rp.position.y();
+			double x = rp.transformedPosition.x() - mapPanel.textureWidth / 2.0;
+			double y = rp.transformedPosition.y() - mapPanel.textureHeight / 2.0 + 65;
 
 			if (i == 0)
 				routePath->moveTo(x, y);
