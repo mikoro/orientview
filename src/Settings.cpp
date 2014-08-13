@@ -9,7 +9,7 @@
 
 using namespace OrientView;
 
-void Settings::read(QSettings* settings)
+void Settings::readFromQSettings(QSettings* settings)
 {
 	qDebug("Reading settings from %s", qPrintable(settings->fileName()));
 
@@ -70,7 +70,7 @@ void Settings::read(QSettings* settings)
 	inputHandler.largeScaleConstant = settings->value("inputHandler/largeScaleConstant", defaultSettings.inputHandler.largeScaleConstant).toDouble();
 }
 
-void Settings::write(QSettings* settings)
+void Settings::writeToQSettings(QSettings* settings)
 {
 	qDebug("Writing settings to %s", qPrintable(settings->fileName()));
 
@@ -129,7 +129,7 @@ void Settings::write(QSettings* settings)
 	settings->setValue("inputHandler/largeScaleConstant", inputHandler.largeScaleConstant);
 }
 
-void Settings::update(Ui::MainWindow* ui)
+void Settings::readFromUI(Ui::MainWindow* ui)
 {
 	videoDecoder.inputVideoFilePath = ui->lineEditInputVideoFile->text();
 	videoDecoder.frameCountDivisor = ui->spinBoxVideoDecoderFrameCountDivisor->value();
@@ -172,7 +172,7 @@ void Settings::update(Ui::MainWindow* ui)
 	videoEncoder.constantRateFactor = ui->spinBoxVideoEncoderCrf->value();
 }
 
-void Settings::apply(Ui::MainWindow* ui)
+void Settings::writeToUI(Ui::MainWindow* ui)
 {
 	ui->lineEditInputVideoFile->setText(videoDecoder.inputVideoFilePath);
 	ui->spinBoxVideoDecoderFrameCountDivisor->setValue(videoDecoder.frameCountDivisor);

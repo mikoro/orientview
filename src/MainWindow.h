@@ -38,7 +38,11 @@ namespace OrientView
 		explicit MainWindow(QWidget *parent = 0);
 		~MainWindow();
 
-		void addLogMessage(QString timeString, QString typeString, QString messageString);
+		void readSettingsFromLocal();
+		void writeSettingsToLocal();
+		void readSettingsFromIniFile(const QString& fileName);
+		void writeSettingsToIniFile(const QString& fileName);
+		void addLogMessage(const QString& timeString, const QString& typeString, const QString& messageString);
 
 	private slots:
 
@@ -60,11 +64,6 @@ namespace OrientView
 
 		void playVideoFinished();
 		void encodeVideoFinished();
-
-		void readSettings();
-		void writeSettings();
-
-		void closeEvent(QCloseEvent* event);
 
 		Ui::MainWindow* ui = nullptr;
 		QStandardItemModel* logDataModel = nullptr;

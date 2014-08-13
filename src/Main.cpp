@@ -37,13 +37,20 @@ int main(int argc, char *argv[])
 		QFontDatabase::addApplicationFont("data/fonts/dejavu-sans-bold.ttf");
 		QFontDatabase::addApplicationFont("data/fonts/dejavu-sans-mono.ttf");
 		QFontDatabase::addApplicationFont("data/fonts/dejavu-sans-mono-bold.ttf");
-		
+
 		OrientView::MainWindow mainWindow;
 
 		logger.setMainWindow(&mainWindow);
 
+		if (argc >= 2 && QFile::exists(QString(argv[1])))
+			mainWindow.readSettingsFromIniFile(QString(argv[1]));
+		else
+			mainWindow.readSettingsFromLocal();
+
 		mainWindow.show();
 		app.exec();
+
+		mainWindow.writeSettingsToLocal();
 	}
 	catch (const std::exception& ex)
 	{

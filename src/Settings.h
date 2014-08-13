@@ -20,10 +20,10 @@ namespace OrientView
 
 	public:
 
-		void read(QSettings* settings);
-		void write(QSettings* settings);
-		void update(Ui::MainWindow* ui);
-		void apply(Ui::MainWindow* ui);
+		void readFromQSettings(QSettings* settings);	// Read values from a QSettings instance.
+		void writeToQSettings(QSettings* settings);		// Write values to a QSettings instance.
+		void readFromUI(Ui::MainWindow* ui);			// Read values from the UI.
+		void writeToUI(Ui::MainWindow* ui);				// Write values to the UI.
 
 		struct VideoDecoder
 		{

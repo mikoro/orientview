@@ -32,8 +32,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	logDataModel = new QStandardItemModel(0, 3);
 	settings = new Settings();
 
-	readSettings();
-
 	QStringList logLabels;
 	logLabels.append("Time");
 	logLabels.append("Level");
@@ -65,7 +63,35 @@ MainWindow::~MainWindow()
 	}
 }
 
-void MainWindow::addLogMessage(QString timeString, QString typeString, QString messageString)
+void MainWindow::readSettingsFromLocal()
+{
+	QSettings localSettings;
+	settings->readFromQSettings(&localSettings);
+	settings->writeToUI(ui);
+}
+
+void MainWindow::writeSettingsToLocal()
+{
+	QSettings localSettings;
+	settings->readFromUI(ui);
+	settings->writeToQSettings(&localSettings);
+}
+
+void MainWindow::readSettingsFromIniFile(const QString& fileName)
+{
+	QSettings iniFileSettings(fileName, QSettings::IniFormat);
+	settings->readFromQSettings(&iniFileSettings);
+	settings->writeToUI(ui);
+}
+
+void MainWindow::writeSettingsToIniFile(const QString& fileName)
+{
+	QSettings iniFileSettings(fileName, QSettings::IniFormat);
+	settings->readFromUI(ui);
+	settings->writeToQSettings(&iniFileSettings);
+}
+
+void MainWindow::addLogMessage(const QString& timeString, const QString& typeString, const QString& messageString)
 {
 	QList<QStandardItem*> newRow;
 	QStandardItem* firstColumn = new QStandardItem(timeString);
@@ -86,11 +112,7 @@ void MainWindow::on_actionLoadSettings_triggered()
 	fileDialog.setNameFilter(tr("OrientView settings files (*.orv)"));
 
 	if (fileDialog.exec())
-	{
-		QSettings userSettings(fileDialog.selectedFiles().at(0), QSettings::IniFormat);
-		settings->read(&userSettings);
-		settings->apply(ui);
-	}
+		readSettingsFromIniFile(fileDialog.selectedFiles().at(0));
 }
 
 void MainWindow::on_actionSaveSettings_triggered()
@@ -101,23 +123,23 @@ void MainWindow::on_actionSaveSettings_triggered()
 	fileDialog.setNameFilter(tr("OrientView settings files (*.orv)"));
 	fileDialog.setDefaultSuffix(tr("orv"));
 	fileDialog.setAcceptMode(QFileDialog::AcceptSave);
-	QStringList fileNames;
 
 	if (fileDialog.exec())
-	{
-		QSettings userSettings(fileDialog.selectedFiles().at(0), QSettings::IniFormat);
-		settings->update(ui);
-		settings->write(&userSettings);
-	}
+		writeSettingsToIniFile(fileDialog.selectedFiles().at(0));
 }
 
 void MainWindow::on_actionDefaultSettings_triggered()
 {
 	if (QMessageBox::warning(this, "OrientView - Warning", QString("Do you really want reset all settings to defaults?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
 	{
-		delete settings;
+		if (settings != nullptr)
+		{
+			delete settings;
+			settings = nullptr;
+		}
+
 		settings = new Settings();
-		settings->apply(ui);
+		settings->writeToUI(ui);
 	}
 }
 
@@ -125,7 +147,7 @@ void MainWindow::on_actionPlayVideo_triggered()
 {
 	this->setCursor(Qt::WaitCursor);
 
-	settings->update(ui);
+	settings->readFromUI(ui);
 
 	try
 	{
@@ -283,7 +305,7 @@ void MainWindow::on_actionEncodeVideo_triggered()
 {
 	this->setCursor(Qt::WaitCursor);
 
-	settings->update(ui);
+	settings->readFromUI(ui);
 
 	try
 	{
@@ -507,7 +529,7 @@ void MainWindow::on_pushButtonBrowseOutputVideoFile_clicked()
 
 void MainWindow::on_pushButtonPickVideoPanelBackgroundColor_clicked()
 {
-	settings->update(ui);
+	settings->readFromUI(ui);
 
 	QColorDialog colorDialog;
 	QColor resultColor = colorDialog.getColor(settings->appearance.videoPanelBackgroundColor, this, "Pick video panel background color");
@@ -515,12 +537,12 @@ void MainWindow::on_pushButtonPickVideoPanelBackgroundColor_clicked()
 	if (resultColor.isValid())
 		settings->appearance.videoPanelBackgroundColor = resultColor;
 
-	settings->apply(ui);
+	settings->writeToUI(ui);
 }
 
 void MainWindow::on_pushButtonPickMapPanelBackgroundColor_clicked()
 {
-	settings->update(ui);
+	settings->readFromUI(ui);
 
 	QColorDialog colorDialog;
 	QColor resultColor = colorDialog.getColor(settings->appearance.mapPanelBackgroundColor, this, "Pick map panel background color");
@@ -528,26 +550,5 @@ void MainWindow::on_pushButtonPickMapPanelBackgroundColor_clicked()
 	if (resultColor.isValid())
 		settings->appearance.mapPanelBackgroundColor = resultColor;
 
-	settings->apply(ui);
-}
-
-void MainWindow::readSettings()
-{
-	QSettings localSettings;
-	settings->read(&localSettings);
-	settings->apply(ui);
-}
-
-void MainWindow::writeSettings()
-{
-	QSettings localSettings;
-	settings->update(ui);
-	settings->write(&localSettings);
-}
-
-void MainWindow::closeEvent(QCloseEvent* event)
-{
-	Q_UNUSED(event);
-
-	writeSettings();
+	settings->writeToUI(ui);
 }
