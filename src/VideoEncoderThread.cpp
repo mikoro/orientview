@@ -1,4 +1,4 @@
-// Copyright © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
+// Copyright Â© 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
 // License: GPLv3, see the LICENSE file.
 
 #include "VideoEncoderThread.h"
