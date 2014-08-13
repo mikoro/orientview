@@ -17,6 +17,7 @@
 #include "MapImageReader.h"
 #include "VideoStabilizer.h"
 #include "InputHandler.h"
+#include "SplitTimeManager.h"
 #include "Renderer.h"
 #include "VideoDecoderThread.h"
 #include "RenderOnScreenThread.h"
@@ -191,6 +192,7 @@ void MainWindow::on_actionPlayVideo_triggered()
 		renderer = new Renderer();
 		videoStabilizer = new VideoStabilizer();
 		inputHandler = new InputHandler();
+		splitTimeManager = new SplitTimeManager();
 		videoDecoderThread = new VideoDecoderThread();
 		renderOnScreenThread = new RenderOnScreenThread();
 
@@ -204,6 +206,7 @@ void MainWindow::on_actionPlayVideo_triggered()
 
 		videoStabilizer->initialize(settings);
 		inputHandler->initialize(videoWindow, renderer, videoDecoder, videoDecoderThread, videoStabilizer, renderOnScreenThread, settings);
+		splitTimeManager->initialize(settings);
 		videoDecoderThread->initialize(videoDecoder);
 		renderOnScreenThread->initialize(this, videoWindow, videoDecoder, videoDecoderThread, videoStabilizer, renderer, inputHandler);
 
@@ -254,6 +257,12 @@ void MainWindow::playVideoFinished()
 
 	if (videoWindow != nullptr && videoWindow->getIsInitialized())
 		videoWindow->getContext()->makeCurrent(videoWindow);
+
+	if (splitTimeManager != nullptr)
+	{
+		delete splitTimeManager;
+		splitTimeManager = nullptr;
+	}
 
 	if (inputHandler != nullptr)
 	{
@@ -350,6 +359,7 @@ void MainWindow::on_actionEncodeVideo_triggered()
 		renderer = new Renderer();
 		videoStabilizer = new VideoStabilizer();
 		inputHandler = new InputHandler();
+		splitTimeManager = new SplitTimeManager();
 		videoDecoderThread = new VideoDecoderThread();
 		renderOffScreenThread = new RenderOffScreenThread();
 		videoEncoderThread = new VideoEncoderThread();
@@ -364,6 +374,7 @@ void MainWindow::on_actionEncodeVideo_triggered()
 			throw std::runtime_error("Could not initialize the renderer");
 
 		videoStabilizer->initialize(settings);
+		splitTimeManager->initialize(settings);
 		videoDecoderThread->initialize(videoDecoder);
 		renderOffScreenThread->initialize(this, encodeWindow, videoDecoder, videoDecoderThread, videoStabilizer, renderer, videoEncoder, settings);
 		videoEncoderThread->initialize(videoDecoder, videoEncoder, renderOffScreenThread);
@@ -431,6 +442,12 @@ void MainWindow::encodeVideoFinished()
 
 	if (encodeWindow != nullptr && encodeWindow->getIsInitialized())
 		encodeWindow->getContext()->makeCurrent(encodeWindow->getSurface());
+
+	if (splitTimeManager != nullptr)
+	{
+		delete splitTimeManager;
+		splitTimeManager = nullptr;
+	}
 
 	if (inputHandler != nullptr)
 	{

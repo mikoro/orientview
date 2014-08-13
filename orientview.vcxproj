@@ -72,6 +72,7 @@
     <ClCompile Include="src\RenderOnScreenThread.cpp" />
     <ClCompile Include="src\Settings.cpp" />
     <ClCompile Include="src\SimpleLogger.cpp" />
+    <ClCompile Include="src\SplitTimeManager.cpp" />
     <ClCompile Include="src\VideoDecoder.cpp" />
     <ClCompile Include="src\VideoDecoderThread.cpp" />
     <ClCompile Include="src\VideoEncoder.cpp" />
@@ -91,6 +92,7 @@
     <ClInclude Include="src\Mp4File.h" />
     <ClInclude Include="src\QuickRouteReader.h" />
     <ClInclude Include="src\RoutePoint.h" />
+    <ClInclude Include="src\SplitTimeManager.h" />
     <ClInclude Include="src\VideoStabilizer.h" />
     <CustomBuild Include="src\EncodeWindow.h">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>

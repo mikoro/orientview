@@ -140,6 +140,9 @@
     <ClCompile Include="build\GeneratedFiles\qrc_OrientView.cpp">
       <Filter>Generated Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\SplitTimeManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="src\MainWindow.h">
@@ -220,6 +223,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\RoutePoint.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SplitTimeManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

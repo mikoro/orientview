@@ -22,6 +22,7 @@ namespace OrientView
 	class MapImageReader;
 	class VideoStabilizer;
 	class InputHandler;
+	class SplitTimeManager;
 	class Renderer;
 	class VideoDecoderThread;
 	class RenderOnScreenThread;
@@ -76,6 +77,7 @@ namespace OrientView
 		MapImageReader* mapImageReader = nullptr;
 		VideoStabilizer* videoStabilizer = nullptr;
 		InputHandler* inputHandler = nullptr;
+		SplitTimeManager* splitTimeManager = nullptr;
 		Renderer* renderer = nullptr;
 		VideoDecoderThread* videoDecoderThread = nullptr;
 		RenderOnScreenThread* renderOnScreenThread = nullptr;
