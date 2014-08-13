@@ -28,15 +28,7 @@ namespace OrientView
 
 	enum class RenderMode { ALL, VIDEO, MAP };
 
-	struct UserEditableObject
-	{
-		double userX = 0.0;
-		double userY = 0.0;
-		double userAngle = 0.0;
-		double userScale = 1.0;
-	};
-
-	struct Panel : public UserEditableObject
+	struct Panel
 	{
 		QOpenGLShaderProgram* program = nullptr;
 		QOpenGLBuffer* buffer = nullptr;
@@ -52,6 +44,10 @@ namespace OrientView
 		double y = 0.0;
 		double angle = 0.0;
 		double scale = 1.0;
+		double userX = 0.0;
+		double userY = 0.0;
+		double userAngle = 0.0;
+		double userScale = 1.0;
 
 		double textureWidth = 0.0;
 		double textureHeight = 0.0;
@@ -70,7 +66,7 @@ namespace OrientView
 		int texelHeightUniform = 0;
 	};
 
-	struct Route : public UserEditableObject
+	struct Route
 	{
 		std::vector<RoutePoint> routePoints;
 		std::vector<RoutePoint> currentSegmentRoutePoints;

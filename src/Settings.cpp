@@ -46,6 +46,7 @@ void Settings::readFromQSettings(QSettings* settings)
 	videoStabilizer.frameSizeDivisor = settings->value("videoStabilizer/frameSizeDivisor", defaultSettings.videoStabilizer.frameSizeDivisor).toInt();
 	videoStabilizer.averagingFactor = settings->value("videoStabilizer/averagingFactor", defaultSettings.videoStabilizer.averagingFactor).toDouble();
 	videoStabilizer.dampingFactor = settings->value("videoStabilizer/dampingFactor", defaultSettings.videoStabilizer.dampingFactor).toDouble();
+	videoStabilizer.maxDisplacementFactor = settings->value("videoStabilizer/maxDisplacementFactor", defaultSettings.videoStabilizer.maxDisplacementFactor).toDouble();
 	videoStabilizer.enableClipping = settings->value("videoStabilizer/enableClipping", defaultSettings.videoStabilizer.enableClipping).toBool();
 	videoStabilizer.enableClearing = settings->value("videoStabilizer/enableClearing", defaultSettings.videoStabilizer.enableClearing).toBool();
 	videoStabilizer.inpaintBorderWidth = settings->value("videoStabilizer/inpaintBorderWidth", defaultSettings.videoStabilizer.inpaintBorderWidth).toInt();
@@ -105,6 +106,7 @@ void Settings::writeToQSettings(QSettings* settings)
 	settings->setValue("videoStabilizer/frameSizeDivisor", videoStabilizer.frameSizeDivisor);
 	settings->setValue("videoStabilizer/averagingFactor", videoStabilizer.averagingFactor);
 	settings->setValue("videoStabilizer/dampingFactor", videoStabilizer.dampingFactor);
+	settings->setValue("videoStabilizer/maxDisplacementFactor", videoStabilizer.maxDisplacementFactor);
 	settings->setValue("videoStabilizer/enableClipping", videoStabilizer.enableClipping);
 	settings->setValue("videoStabilizer/enableClearing", videoStabilizer.enableClearing);
 	settings->setValue("videoStabilizer/inpaintBorderWidth", videoStabilizer.inpaintBorderWidth);
@@ -162,6 +164,7 @@ void Settings::readFromUI(Ui::MainWindow* ui)
 	videoStabilizer.frameSizeDivisor = ui->spinBoxVideoStabilizerFrameSizeDivisor->value();
 	videoStabilizer.averagingFactor = ui->doubleSpinBoxVideoStabilizerAveragingFactor->value();
 	videoStabilizer.dampingFactor = ui->doubleSpinBoxVideoStabilizerDampingFactor->value();
+	videoStabilizer.maxDisplacementFactor = ui->doubleSpinBoxVideoStabilizerMaxDisplacementFactor->value();
 	videoStabilizer.enableClipping = ui->checkBoxVideoStabilizerEnableClipping->isChecked();
 	videoStabilizer.enableClearing = ui->checkBoxVideoStabilizerEnableClearing->isChecked();
 	videoStabilizer.inpaintBorderWidth = ui->spinBoxVideoStabilizerInpaintBorderWidth->value();
@@ -205,6 +208,7 @@ void Settings::writeToUI(Ui::MainWindow* ui)
 	ui->spinBoxVideoStabilizerFrameSizeDivisor->setValue(videoStabilizer.frameSizeDivisor);
 	ui->doubleSpinBoxVideoStabilizerAveragingFactor->setValue(videoStabilizer.averagingFactor);
 	ui->doubleSpinBoxVideoStabilizerDampingFactor->setValue(videoStabilizer.dampingFactor);
+	ui->doubleSpinBoxVideoStabilizerMaxDisplacementFactor->setValue(videoStabilizer.maxDisplacementFactor);
 	ui->checkBoxVideoStabilizerEnableClipping->setChecked(videoStabilizer.enableClipping);
 	ui->checkBoxVideoStabilizerEnableClearing->setChecked(videoStabilizer.enableClearing);
 	ui->spinBoxVideoStabilizerInpaintBorderWidth->setValue(videoStabilizer.inpaintBorderWidth);

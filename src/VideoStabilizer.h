@@ -48,6 +48,7 @@ namespace OrientView
 		double normalizedAngle = 0.0;
 
 		double dampingFactor = 0.0;
+		double maxDisplacementFactor = 0.0;
 
 		MovingAverage currentXAverage;
 		MovingAverage currentYAverage;

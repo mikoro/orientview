@@ -18,6 +18,7 @@ void VideoStabilizer::initialize(Settings* settings)
 
 	isEnabled = settings->videoStabilizer.enabled;
 	dampingFactor = settings->videoStabilizer.dampingFactor;
+	maxDisplacementFactor = settings->videoStabilizer.maxDisplacementFactor;
 	currentXAverage.setAlpha(settings->videoStabilizer.averagingFactor);
 	currentYAverage.setAlpha(settings->videoStabilizer.averagingFactor);
 	currentAngleAverage.setAlpha(settings->videoStabilizer.averagingFactor);
@@ -107,6 +108,9 @@ void VideoStabilizer::processFrame(FrameData* frameDataGrayscale)
 	normalizedX = (currentXAverage.getAverage() - currentX) * dampingFactor;
 	normalizedY = (currentYAverage.getAverage() - currentY) * dampingFactor;
 	normalizedAngle = (currentAngleAverage.getAverage() - currentAngle) * dampingFactor;
+
+	normalizedX = std::max(-maxDisplacementFactor, std::min(normalizedX, maxDisplacementFactor));
+	normalizedY = std::max(-maxDisplacementFactor, std::min(normalizedY, maxDisplacementFactor));
 
 	// calculate exponential moving average of the current values
 	currentXAverage.addMeasurement(currentX);
