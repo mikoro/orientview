@@ -14,7 +14,7 @@ namespace OrientView
 	class VideoStabilizer;
 	class RenderOnScreenThread;
 	class Renderer;
-	struct Settings;
+	class Settings;
 
 	enum class EditMode { NONE, VIDEO, MAP, MAP_WIDTH };
 

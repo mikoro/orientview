@@ -16,11 +16,11 @@ void VideoStabilizer::initialize(Settings* settings)
 {
 	reset();
 
-	isEnabled = settings->stabilizer.enabled;
-	dampingFactor = settings->stabilizer.dampingFactor;
-	currentXAverage.setAlpha(settings->stabilizer.averagingFactor);
-	currentYAverage.setAlpha(settings->stabilizer.averagingFactor);
-	currentAngleAverage.setAlpha(settings->stabilizer.averagingFactor);
+	isEnabled = settings->videoStabilizer.enabled;
+	dampingFactor = settings->videoStabilizer.dampingFactor;
+	currentXAverage.setAlpha(settings->videoStabilizer.averagingFactor);
+	currentYAverage.setAlpha(settings->videoStabilizer.averagingFactor);
+	currentAngleAverage.setAlpha(settings->videoStabilizer.averagingFactor);
 
 	if (outputData)
 	{

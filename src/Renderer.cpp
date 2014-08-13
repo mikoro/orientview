@@ -27,7 +27,8 @@ bool Renderer::initialize(VideoDecoder* videoDecoder, QuickRouteReader* quickRou
 	videoPanel.texelHeight = 1.0 / videoPanel.textureHeight;
 	videoPanel.userScale = settings->appearance.videoPanelScale;
 	videoPanel.clearColor = settings->appearance.videoPanelBackgroundColor;
-	videoPanel.clearEnabled = !settings->stabilizer.disableVideoClear;
+	videoPanel.clippingEnabled = settings->videoStabilizer.enableClipping;
+	videoPanel.clearingEnabled = settings->videoStabilizer.enableClearing;
 
 	mapPanel.textureWidth = mapImageReader->getMapImage().width();
 	mapPanel.textureHeight = mapImageReader->getMapImage().height();
@@ -60,10 +61,10 @@ bool Renderer::initialize(VideoDecoder* videoDecoder, QuickRouteReader* quickRou
 	if (!resizeWindow(settings->window.width, settings->window.height))
 		return false;
 
-	if (!loadShaders(&videoPanel, settings->shaders.videoPanelShader))
+	if (!loadShaders(&videoPanel, settings->appearance.videoPanelShader))
 		return false;
 
-	if (!loadShaders(&mapPanel, settings->shaders.mapPanelShader))
+	if (!loadShaders(&mapPanel, settings->appearance.mapPanelShader))
 		return false;
 
 	// 1 2
@@ -448,7 +449,7 @@ void Renderer::renderVideoPanel()
 			(int)(videoPanelHeight + 0.5));
 	}
 
-	if (videoPanel.clearEnabled)
+	if (videoPanel.clearingEnabled)
 	{
 		glClearColor(videoPanel.clearColor.redF(), videoPanel.clearColor.greenF(), videoPanel.clearColor.blueF(), 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -495,7 +496,7 @@ void Renderer::renderMapPanel()
 		glScissor(0, 0, mapBorderX, (int)windowHeight);
 	}
 
-	if (mapPanel.clearEnabled)
+	if (mapPanel.clearingEnabled)
 	{
 		glClearColor(mapPanel.clearColor.redF(), mapPanel.clearColor.greenF(), mapPanel.clearColor.blueF(), 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT);

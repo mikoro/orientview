@@ -16,7 +16,7 @@ extern "C"
 namespace OrientView
 {
 	class VideoDecoder;
-	struct Settings;
+	class Settings;
 	struct FrameData;
 	class Mp4File;
 

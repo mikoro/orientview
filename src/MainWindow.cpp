@@ -472,22 +472,22 @@ void MainWindow::on_pushButtonBrowseQuickRouteJpegMapImageFile_clicked()
 {
 	QFileDialog fileDialog(this);
 	fileDialog.setFileMode(QFileDialog::ExistingFile);
-	fileDialog.setWindowTitle(tr("Select QuickRoute JPEG map image file"));
-	fileDialog.setNameFilter(tr("QuickRoute JPEG map image files (*.jpg);;All files (*.*)"));
+	fileDialog.setWindowTitle(tr("Select QuickRoute JPEG file"));
+	fileDialog.setNameFilter(tr("QuickRoute JPEG files (*.jpg);;All files (*.*)"));
 	
 	if (fileDialog.exec())
-		ui->lineEditQuickRouteJpegMapImageFile->setText(fileDialog.selectedFiles().at(0));
+		ui->lineEditQuickRouteJpegFile->setText(fileDialog.selectedFiles().at(0));
 }
 
 void MainWindow::on_pushButtonBrowseAlternativeMapImageFile_clicked()
 {
 	QFileDialog fileDialog(this);
 	fileDialog.setFileMode(QFileDialog::ExistingFile);
-	fileDialog.setWindowTitle(tr("Select alternative map image file"));
+	fileDialog.setWindowTitle(tr("Select map image file"));
 	fileDialog.setNameFilter(tr("Image files (*.jpg *.png *.tiff *.tif);;All files (*.*)"));
 
 	if (fileDialog.exec())
-		ui->lineEditAlternativeMapImageFile->setText(fileDialog.selectedFiles().at(0));
+		ui->lineEditMapImageFile->setText(fileDialog.selectedFiles().at(0));
 }
 
 void MainWindow::on_pushButtonBrowseOutputVideoFile_clicked()

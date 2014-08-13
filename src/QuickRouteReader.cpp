@@ -13,12 +13,12 @@ using namespace OrientView;
 
 bool QuickRouteReader::initialize(MapImageReader* mapImageReader, Settings* settings)
 {
-	qDebug("Initializing the QuickRoute reader (%s)", qPrintable(settings->files.quickRouteJpegMapImageFilePath));
+	qDebug("Initializing the QuickRoute reader (%s)", qPrintable(settings->mapAndRoute.quickRouteJpegFilePath));
 
 	mapImageWidth = mapImageReader->getMapImage().width();
 	mapImageHeight = mapImageReader->getMapImage().height();
 
-	QFile file(settings->files.quickRouteJpegMapImageFilePath);
+	QFile file(settings->mapAndRoute.quickRouteJpegFilePath);
 
 	if (!file.open(QIODevice::ReadOnly))
 	{
@@ -248,6 +248,7 @@ void QuickRouteReader::readRoute(QDataStream& dataStream)
 				rp.elevation = elevation;
 			}
 
+			// only use the first segment for now
 			if (i == 0)
 				routePoints.push_back(rp);
 
@@ -278,9 +279,11 @@ void QuickRouteReader::readHandles(QDataStream& dataStream)
 		rph.routePointIndex = routePointIndex;
 		rph.transformation.setMatrix(matrix[0], matrix[1], matrix[3], matrix[4], matrix[2], matrix[5]);
 
+		// only use the first segment for now
 		if (segmentIndex == 0)
 			routePointHandles.push_back(rph);
 
+		// ignore handle pixel location and type
 		dataStream.skipRawData(18);
 	}
 }
@@ -298,9 +301,9 @@ QDateTime QuickRouteReader::readDateTime(QDataStream& dataStream, QDateTime& pre
 	uint8_t timeType;
 	dataStream >> timeType;
 
-	// absolute
-	if (timeType == 0)
+	if (timeType == 0) // absolute
 	{
+		// .NET DateTime serialized value
 		uint64_t timeValue;
 		dataStream >> timeValue;
 
@@ -309,8 +312,7 @@ QDateTime QuickRouteReader::readDateTime(QDataStream& dataStream, QDateTime& pre
 
 		return QDateTime::fromMSecsSinceEpoch(timeValue / 10000);
 	}
-	// relative
-	else
+	else // relative
 	{
 		uint16_t timeValue;
 		dataStream >> timeValue;

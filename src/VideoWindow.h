@@ -8,7 +8,7 @@
 
 namespace OrientView
 {
-	struct Settings;
+	class Settings;
 
 	// Display the live video in a window.
 	class VideoWindow : public QWindow

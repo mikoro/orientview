@@ -22,7 +22,7 @@ namespace OrientView
 	class MapImageReader;
 	class VideoStabilizer;
 	class InputHandler;
-	struct Settings;
+	class Settings;
 	struct Panel;
 
 	enum class RenderMode { ALL, VIDEO, MAP };
@@ -36,8 +36,8 @@ namespace OrientView
 		QMatrix4x4 vertexMatrix;
 
 		QColor clearColor = QColor(0, 0, 0);
-		bool clearEnabled = true;
 		bool clippingEnabled = true;
+		bool clearingEnabled = true;
 
 		double textureWidth = 0.0;
 		double textureHeight = 0.0;

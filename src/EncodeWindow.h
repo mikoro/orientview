@@ -17,7 +17,7 @@ namespace OrientView
 {
 	class VideoDecoder;
 	class VideoEncoderThread;
-	struct Settings;
+	class Settings;
 
 	// Display the progress of the encoding process.
 	class EncodeWindow : public QDialog

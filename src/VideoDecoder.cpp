@@ -69,15 +69,15 @@ namespace
 
 bool VideoDecoder::initialize(Settings* settings)
 {
-	qDebug("Initializing the video decoder (%s)", qPrintable(settings->files.inputVideoFilePath));
+	qDebug("Initializing the video decoder (%s)", qPrintable(settings->videoDecoder.inputVideoFilePath));
 
-	enableVerboseLogging = settings->decoder.enableVerboseLogging;
+	enableVerboseLogging = settings->videoDecoder.enableVerboseLogging;
 
 	av_log_set_level(enableVerboseLogging ? AV_LOG_DEBUG : AV_LOG_WARNING);
 	av_log_set_callback(ffmpegLogCallback);
 	av_register_all();
 
-	if (avformat_open_input(&formatContext, settings->files.inputVideoFilePath.toUtf8().constData(), nullptr, nullptr) < 0)
+	if (avformat_open_input(&formatContext, settings->videoDecoder.inputVideoFilePath.toUtf8().constData(), nullptr, nullptr) < 0)
 	{
 		qWarning("Could not open source file");
 		return false;
@@ -110,8 +110,8 @@ bool VideoDecoder::initialize(Settings* settings)
 	videoStream = formatContext->streams[(size_t)videoStreamIndex];
 	videoCodecContext = videoStream->codec;
 
-	frameWidth = videoCodecContext->width / settings->decoder.frameSizeDivisor;
-	frameHeight = videoCodecContext->height / settings->decoder.frameSizeDivisor;
+	frameWidth = videoCodecContext->width / settings->videoDecoder.frameSizeDivisor;
+	frameHeight = videoCodecContext->height / settings->videoDecoder.frameSizeDivisor;
 
 	swsContext = sws_getContext(videoCodecContext->width, videoCodecContext->height, videoCodecContext->pix_fmt, frameWidth, frameHeight, PIX_FMT_RGBA, SWS_BILINEAR, nullptr, nullptr, nullptr);
 
@@ -129,9 +129,9 @@ bool VideoDecoder::initialize(Settings* settings)
 		return false;
 	}
 
-	generateGrayscalePicture = settings->stabilizer.enabled;
-	grayscalePictureWidth = videoCodecContext->width / settings->stabilizer.frameSizeDivisor;
-	grayscalePictureHeight = videoCodecContext->height / settings->stabilizer.frameSizeDivisor;
+	generateGrayscalePicture = settings->videoStabilizer.enabled;
+	grayscalePictureWidth = videoCodecContext->width / settings->videoStabilizer.frameSizeDivisor;
+	grayscalePictureHeight = videoCodecContext->height / settings->videoStabilizer.frameSizeDivisor;
 
 	swsContextGrayscale = sws_getContext(videoCodecContext->width, videoCodecContext->height, videoCodecContext->pix_fmt, grayscalePictureWidth, grayscalePictureHeight, PIX_FMT_GRAY8, SWS_BILINEAR, nullptr, nullptr, nullptr);
 
@@ -151,8 +151,8 @@ bool VideoDecoder::initialize(Settings* settings)
 
 	frameDataLength = frameHeight * convertedPicture->linesize[0];
 
-	frameCountDivisor = settings->decoder.frameCountDivisor;
-	frameDurationDivisor = settings->decoder.frameDurationDivisor;
+	frameCountDivisor = settings->videoDecoder.frameCountDivisor;
+	frameDurationDivisor = settings->videoDecoder.frameDurationDivisor;
 
 	totalFrameCount = videoStream->nb_frames / frameCountDivisor;
 

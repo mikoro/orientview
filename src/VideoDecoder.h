@@ -15,7 +15,7 @@ extern "C"
 
 namespace OrientView
 {
-	struct Settings;
+	class Settings;
 	struct FrameData;
 
 	// Encapsulate the FFmpeg library for reading and decoding video files.

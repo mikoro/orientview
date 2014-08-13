@@ -11,7 +11,7 @@
 namespace OrientView
 {
 	class MapImageReader;
-	struct Settings;
+	class Settings;
 
 	struct RoutePoint
 	{

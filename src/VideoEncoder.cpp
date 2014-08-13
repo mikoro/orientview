@@ -11,11 +11,11 @@ using namespace OrientView;
 
 bool VideoEncoder::initialize(VideoDecoder* videoDecoder, Settings* settings)
 {
-	qDebug("Initializing the video encoder (%s)", qPrintable(settings->files.outputVideoFilePath));
+	qDebug("Initializing the video encoder (%s)", qPrintable(settings->videoEncoder.outputVideoFilePath));
 
 	x264_param_t param;
 	
-	if (x264_param_default_preset(&param, qPrintable(settings->encoder.preset), "zerolatency") < 0)
+	if (x264_param_default_preset(&param, qPrintable(settings->videoEncoder.preset), "zerolatency") < 0)
 	{
 		qWarning("Could not apply presets");
 		return false;
@@ -29,12 +29,12 @@ bool VideoEncoder::initialize(VideoDecoder* videoDecoder, Settings* settings)
 	param.i_timebase_den = param.i_fps_num;
 	param.i_csp = X264_CSP_I420;
 	param.rc.i_rc_method = X264_RC_CRF;
-	param.rc.f_rf_constant = settings->encoder.constantRateFactor;
+	param.rc.f_rf_constant = settings->videoEncoder.constantRateFactor;
 	param.i_log_level = X264_LOG_NONE;
 	
 	x264_param_apply_fastfirstpass(&param);
 
-	if (x264_param_apply_profile(&param, qPrintable(settings->encoder.profile)) < 0)
+	if (x264_param_apply_profile(&param, qPrintable(settings->videoEncoder.profile)) < 0)
 	{
 		qWarning("Could not apply profile");
 		return false;
@@ -72,7 +72,7 @@ bool VideoEncoder::initialize(VideoDecoder* videoDecoder, Settings* settings)
 
 	mp4File = new Mp4File();
 
-	if (!mp4File->open(settings->files.outputVideoFilePath))
+	if (!mp4File->open(settings->videoEncoder.outputVideoFilePath))
 		return false;
 
 	if (!mp4File->setParameters(&param))

@@ -17,7 +17,7 @@ namespace OrientView
 	class VideoStabilizer;
 	class Renderer;
 	class VideoEncoder;
-	struct Settings;
+	class Settings;
 
 	// Run renderer on a thread and draw to hidden framebuffers.
 	class RenderOffScreenThread : public QThread

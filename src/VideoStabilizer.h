@@ -12,7 +12,7 @@
 
 namespace OrientView
 {
-	struct Settings;
+	class Settings;
 	struct FrameData;
 
 	// Use the OpenCV library to do real-time video stabilization.

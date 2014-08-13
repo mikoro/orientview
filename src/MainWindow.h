@@ -13,7 +13,7 @@ namespace Ui
 
 namespace OrientView
 {
-	struct Settings;
+	class Settings;
 	class VideoWindow;
 	class EncodeWindow;
 	class VideoDecoder;

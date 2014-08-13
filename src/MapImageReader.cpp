@@ -8,11 +8,9 @@ using namespace OrientView;
 
 bool MapImageReader::initialize(Settings* settings)
 {
-	QString fileName = settings->files.alternativeMapImageFilePath.isEmpty() ? settings->files.quickRouteJpegMapImageFilePath : settings->files.alternativeMapImageFilePath;
+	qDebug("Initializing the map image reader (%s)", qPrintable(settings->mapAndRoute.mapImageFilePath));
 
-	qDebug("Initializing the map image reader (%s)", qPrintable(fileName));
-
-	if (!mapImage.load(fileName))
+	if (!mapImage.load(settings->mapAndRoute.mapImageFilePath))
 	{
 		qWarning("Could not load map image");
 		return false;

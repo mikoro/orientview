@@ -7,7 +7,7 @@
 
 namespace OrientView
 {
-	struct Settings;
+	class Settings;
 
 	// Read image data from normal image files.
 	class MapImageReader
