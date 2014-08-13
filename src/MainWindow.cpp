@@ -40,6 +40,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	logLabels.append("Message");
 	logDataModel->setHorizontalHeaderLabels(logLabels);
 	ui->treeViewLog->setModel(logDataModel);
+
+	ui->tabWidgetMain->setCurrentIndex(0);
 }
 
 MainWindow::~MainWindow()
