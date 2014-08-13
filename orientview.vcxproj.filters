@@ -213,13 +213,13 @@
     <ClInclude Include="src\Mp4File.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\RouteData.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\GpxReader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\InputHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RoutePoint.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

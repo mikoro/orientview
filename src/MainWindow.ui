@@ -40,7 +40,7 @@
     <item>
      <widget class="QTabWidget" name="tabWidgetMain">
       <property name="currentIndex">
-       <number>0</number>
+       <number>5</number>
       </property>
       <widget class="QWidget" name="tabVideoDecoder">
        <attribute name="title">
@@ -1538,7 +1538,7 @@
               <double>0.100000000000000</double>
              </property>
              <property name="value">
-              <double>0.100000000000000</double>
+              <double>0.050000000000000</double>
              </property>
             </widget>
            </item>
@@ -1566,7 +1566,7 @@
               <double>0.100000000000000</double>
              </property>
              <property name="value">
-              <double>1.000000000000000</double>
+              <double>0.500000000000000</double>
              </property>
             </widget>
            </item>

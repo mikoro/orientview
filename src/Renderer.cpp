@@ -124,25 +124,7 @@ bool Renderer::initialize(VideoDecoder* videoDecoder, QuickRouteReader* quickRou
 	painter->setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform | QPainter::HighQualityAntialiasing);
 	painter->end();
 
-	routePath = new QPainterPath();
-
-	int routePointCount = quickRouteReader->getRoutePoints().size();
-
-	if (routePointCount >= 2)
-	{
-		for (int i = 0; i < routePointCount; ++i)
-		{
-			RoutePoint rp = quickRouteReader->getRoutePoints().at(i);
-
-			double x = rp.transformedPosition.x();
-			double y = rp.transformedPosition.y();
-
-			if (i == 0)
-				routePath->moveTo(x, y);
-			else
-				routePath->lineTo(x, y);
-		}
-	}
+	initializeRoute(&defaultRoute, quickRouteReader->getRoutePoints());
 
 	return true;
 }
@@ -222,12 +204,6 @@ Renderer::~Renderer()
 	{
 		delete outputFramebuffer;
 		outputFramebuffer = nullptr;
-	}
-
-	if (routePath != nullptr)
-	{
-		delete routePath;
-		routePath = nullptr;
 	}
 
 	if (painter != nullptr)
@@ -320,6 +296,27 @@ void Renderer::loadBuffer(Panel* panel, GLfloat* buffer, size_t size)
 	panel->buffer->bind();
 	panel->buffer->allocate(buffer, (int)(sizeof(GLfloat) * size));
 	panel->buffer->release();
+}
+
+void Renderer::initializeRoute(Route* route, const std::vector<RoutePoint>& routePoints)
+{
+	size_t routePointCount = routePoints.size();
+
+	if (routePointCount >= 2)
+	{
+		for (size_t i = 0; i < routePointCount; ++i)
+		{
+			RoutePoint rp = routePoints.at(i);
+
+			double x = rp.transformedPosition.x();
+			double y = rp.transformedPosition.y();
+
+			if (i == 0)
+				route->wholeRoutePath.moveTo(x, y);
+			else
+				route->wholeRoutePath.lineTo(x, y);
+		}
+	}
 }
 
 void Renderer::startRendering(double currentTime, double frameTime, double spareTime, double decoderTime, double stabilizerTime, double encoderTime)
@@ -418,15 +415,13 @@ void Renderer::renderVideoPanel()
 	if (videoPanel.scale * videoPanel.textureHeight > windowHeight)
 		videoPanel.scale = windowHeight / videoPanel.textureHeight;
 
-	videoPanel.scale *= videoPanel.userScale;
-
 	videoPanel.vertexMatrix.translate(
-		videoPanelOffsetX + videoPanel.x + videoPanel.userX + videoStabilizer->getX() * videoPanel.textureWidth * videoPanel.scale,
-		videoPanel.y + videoPanel.userY - videoStabilizer->getY() * videoPanel.textureHeight * videoPanel.scale,
+		videoPanelOffsetX + videoPanel.x + videoPanel.userX + videoStabilizer->getX() * videoPanel.textureWidth * videoPanel.scale * videoPanel.userScale,
+		videoPanel.y + videoPanel.userY - videoStabilizer->getY() * videoPanel.textureHeight * videoPanel.scale * videoPanel.userScale,
 		0.0f);
 
 	videoPanel.vertexMatrix.rotate(videoPanel.angle + videoPanel.userAngle - videoStabilizer->getAngle(), 0.0f, 0.0f, 1.0f);
-	videoPanel.vertexMatrix.scale(videoPanel.scale);
+	videoPanel.vertexMatrix.scale(videoPanel.scale * videoPanel.userScale);
 
 	if (fullClearRequested)
 	{
@@ -437,8 +432,8 @@ void Renderer::renderVideoPanel()
 
 	if (videoPanel.clippingEnabled)
 	{
-		double videoPanelWidth = videoPanel.scale * videoPanel.textureWidth;
-		double videoPanelHeight = videoPanel.scale * videoPanel.textureHeight;
+		double videoPanelWidth = videoPanel.scale * videoPanel.userScale * videoPanel.textureWidth;
+		double videoPanelHeight = videoPanel.scale * videoPanel.userScale * videoPanel.textureHeight;
 		double leftMargin = (windowWidth - videoPanelWidth) / 2.0;
 		double bottomMargin = (windowHeight - videoPanelHeight) / 2.0;
 
@@ -473,12 +468,10 @@ void Renderer::renderMapPanel()
 	if (mapPanel.scale * mapPanel.textureHeight > windowHeight)
 		mapPanel.scale = windowHeight / mapPanel.textureHeight;
 
-	mapPanel.scale *= mapPanel.userScale;
-
-	mapPanel.vertexMatrix.translate(mapPanel.x + mapPanel.userX, mapPanel.y + mapPanel.userY);
+	mapPanel.vertexMatrix.scale(mapPanel.scale * mapPanel.userScale);
 	mapPanel.vertexMatrix.rotate(mapPanel.angle + mapPanel.userAngle, 0.0f, 0.0f, 1.0f);
-	mapPanel.vertexMatrix.scale(mapPanel.scale);
-
+	mapPanel.vertexMatrix.translate(mapPanel.x + mapPanel.userX, mapPanel.y + mapPanel.userY);
+	
 	mapPanel.clippingEnabled = (renderMode == RenderMode::ALL);
 
 	int mapBorderX = (int)(mapPanel.relativeWidth * windowWidth + 0.5);
@@ -505,7 +498,7 @@ void Renderer::renderMapPanel()
 	renderPanel(&mapPanel);
 	glDisable(GL_SCISSOR_TEST);
 
-	renderRoute();
+	renderRoute(&defaultRoute);
 
 	if (mapPanel.clippingEnabled)
 	{
@@ -629,18 +622,19 @@ void Renderer::renderInfoPanel()
 	painter->end();
 }
 
-void Renderer::renderRoute()
+void Renderer::renderRoute(Route* route)
 {
 	QPen pen;
-	pen.setColor(QColor(200, 0, 0, 128));
-	pen.setWidth(15);
+	pen.setColor(route->wholeRouteColor);
+	pen.setWidth(route->wholeRouteWidth);
 	pen.setCapStyle(Qt::PenCapStyle::RoundCap);
 	pen.setJoinStyle(Qt::PenJoinStyle::RoundJoin);
 
 	QMatrix m;
-	m.translate(windowWidth / 2.0 + mapPanel.x + mapPanel.userX, windowHeight / 2.0 - mapPanel.y - mapPanel.userY);
-	m.scale(mapPanel.scale, mapPanel.scale);
+	m.translate(windowWidth / 2.0, windowHeight / 2.0);
+	m.scale(mapPanel.scale * mapPanel.userScale, mapPanel.scale * mapPanel.userScale);
 	m.rotate(-(mapPanel.angle + mapPanel.userAngle));
+	m.translate(mapPanel.x + mapPanel.userX, -(mapPanel.y + mapPanel.userY));
 
 	painter->begin(paintDevice);
 
@@ -654,7 +648,7 @@ void Renderer::renderRoute()
 
 	painter->setPen(pen);
 	painter->setWorldMatrix(m);
-	painter->drawPath(*routePath);
+	painter->drawPath(route->wholeRoutePath);
 	painter->end();
 }
 

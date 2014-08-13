@@ -90,7 +90,7 @@
     <ClInclude Include="src\MovingAverage.h" />
     <ClInclude Include="src\Mp4File.h" />
     <ClInclude Include="src\QuickRouteReader.h" />
-    <ClInclude Include="src\RouteData.h" />
+    <ClInclude Include="src\RoutePoint.h" />
     <ClInclude Include="src\VideoStabilizer.h" />
     <CustomBuild Include="src\EncodeWindow.h">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>

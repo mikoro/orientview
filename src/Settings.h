@@ -76,8 +76,8 @@ namespace OrientView
 		{
 			bool enabled = false;
 			int frameSizeDivisor = 8;
-			double averagingFactor = 0.1;
-			double dampingFactor = 1.0;
+			double averagingFactor = 0.05;
+			double dampingFactor = 0.5;
 			bool enableClipping = true;
 			bool enableClearing = true;
 			int inpaintBorderWidth = 0;

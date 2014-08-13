@@ -1,4 +1,4 @@
-// Copyright © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
+// Copyright ï¿½ 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
 // License: GPLv3, see the LICENSE file.
 
 #pragma once
@@ -12,6 +12,7 @@
 #include <QOpenGLTexture>
 #include <QOpenGLFramebufferObject>
 
+#include "RoutePoint.h"
 #include "MovingAverage.h"
 #include "FrameData.h"
 
@@ -27,7 +28,15 @@ namespace OrientView
 
 	enum class RenderMode { ALL, VIDEO, MAP };
 
-	struct Panel
+	struct UserEditableObject
+	{
+		double userX = 0.0;
+		double userY = 0.0;
+		double userAngle = 0.0;
+		double userScale = 1.0;
+	};
+
+	struct Panel : public UserEditableObject
 	{
 		QOpenGLShaderProgram* program = nullptr;
 		QOpenGLBuffer* buffer = nullptr;
@@ -39,19 +48,15 @@ namespace OrientView
 		bool clippingEnabled = true;
 		bool clearingEnabled = true;
 
-		double textureWidth = 0.0;
-		double textureHeight = 0.0;
-		double texelWidth = 0.0;
-		double texelHeight = 0.0;
-
 		double x = 0.0;
 		double y = 0.0;
 		double angle = 0.0;
 		double scale = 1.0;
-		double userX = 0.0;
-		double userY = 0.0;
-		double userAngle = 0.0;
-		double userScale = 1.0;
+
+		double textureWidth = 0.0;
+		double textureHeight = 0.0;
+		double texelWidth = 0.0;
+		double texelHeight = 0.0;
 
 		double relativeWidth = 1.0;
 
@@ -63,6 +68,24 @@ namespace OrientView
 		int textureHeightUniform = 0;
 		int texelWidthUniform = 0;
 		int texelHeightUniform = 0;
+	};
+
+	struct Route : public UserEditableObject
+	{
+		std::vector<RoutePoint> routePoints;
+		std::vector<RoutePoint> currentSegmentRoutePoints;
+
+		QPainterPath wholeRoutePath;
+		QColor wholeRouteColor = QColor(255, 0, 0);
+		double wholeRouteWidth = 15.0;
+
+		std::vector<QPointF> controlLocations;
+		QColor controlColor = QColor(0, 0, 255);
+		double controlRadius = 10.0;
+
+		QPointF runnerLocation;
+		QColor runnerColor = QColor(0, 0, 255);
+		double runnerRadius = 10.0;
 	};
 
 	// Does the actual drawing using OpenGL.
@@ -95,11 +118,12 @@ namespace OrientView
 
 		bool loadShaders(Panel* panel, const QString& shaderName);
 		void loadBuffer(Panel* panel, GLfloat* buffer, size_t size);
+		void initializeRoute(Route* route, const std::vector<RoutePoint>& routePoints);
 		void renderVideoPanel();
 		void renderMapPanel();
 		void renderInfoPanel();
 		void renderPanel(Panel* panel);
-		void renderRoute();
+		void renderRoute(Route* route);
 
 		VideoStabilizer* videoStabilizer = nullptr;
 		InputHandler* inputHandler = nullptr;
@@ -119,6 +143,8 @@ namespace OrientView
 		Panel mapPanel;
 		RenderMode renderMode = RenderMode::ALL;
 
+		Route defaultRoute;
+
 		QElapsedTimer renderTimer;
 		double lastRenderTime = 0.0;
 
@@ -132,7 +158,6 @@ namespace OrientView
 
 		QOpenGLPaintDevice* paintDevice = nullptr;
 		QPainter* painter = nullptr;
-		QPainterPath* routePath = nullptr;
 
 		QOpenGLFramebufferObject* outputFramebuffer = nullptr;
 		QOpenGLFramebufferObject* outputFramebufferNonMultisample = nullptr;
