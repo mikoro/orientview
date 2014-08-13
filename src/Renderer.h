@@ -48,6 +48,8 @@ namespace OrientView
 		double userY = 0.0;
 		double userAngle = 0.0;
 		double userScale = 1.0;
+		double offsetX = 0.0;
+		double offsetY = 0.0;
 
 		double textureWidth = 0.0;
 		double textureHeight = 0.0;

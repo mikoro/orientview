@@ -402,25 +402,25 @@ void Renderer::renderVideoPanel()
 	else
 		videoPanel.vertexMatrix.ortho(-windowWidth / 2, windowWidth / 2, windowHeight / 2, -windowHeight / 2, 0.0f, 1.0f);
 
-	double videoPanelOffsetX = 0.0;
-
 	if (renderMode != RenderMode::VIDEO)
 	{
-		videoPanelOffsetX += (windowWidth / 2.0) - (((1.0 - mapPanel.relativeWidth) * windowWidth) / 2.0);
+		videoPanel.offsetX = (windowWidth / 2.0) - (((1.0 - mapPanel.relativeWidth) * windowWidth) / 2.0);
 		videoPanel.scale = ((1.0 - mapPanel.relativeWidth) * windowWidth) / videoPanel.textureWidth;
 	}
 	else
+	{
+		videoPanel.offsetX = 0.0;
 		videoPanel.scale = windowWidth / videoPanel.textureWidth;
+	}
 
 	if (videoPanel.scale * videoPanel.textureHeight > windowHeight)
 		videoPanel.scale = windowHeight / videoPanel.textureHeight;
 
-	videoPanel.vertexMatrix.translate(
-		videoPanelOffsetX + videoPanel.x + videoPanel.userX + videoStabilizer->getX() * videoPanel.textureWidth * videoPanel.scale * videoPanel.userScale,
-		videoPanel.y + videoPanel.userY - videoStabilizer->getY() * videoPanel.textureHeight * videoPanel.scale * videoPanel.userScale,
-		0.0f);
-
+	videoPanel.vertexMatrix.translate(videoPanel.offsetX, videoPanel.offsetY); // window coordinate units
 	videoPanel.vertexMatrix.rotate(videoPanel.angle + videoPanel.userAngle - videoStabilizer->getAngle(), 0.0f, 0.0f, 1.0f);
+	videoPanel.vertexMatrix.translate( // scaled map pixel units
+		videoPanel.x + videoPanel.userX + videoStabilizer->getX() * videoPanel.textureWidth * videoPanel.scale * videoPanel.userScale,
+		videoPanel.y + videoPanel.userY - videoStabilizer->getY() * videoPanel.textureHeight * videoPanel.scale * videoPanel.userScale);
 	videoPanel.vertexMatrix.scale(videoPanel.scale * videoPanel.userScale);
 
 	if (fullClearRequested)
@@ -438,8 +438,9 @@ void Renderer::renderVideoPanel()
 		double bottomMargin = (windowHeight - videoPanelHeight) / 2.0;
 
 		glEnable(GL_SCISSOR_TEST);
-		glScissor((int)(leftMargin + videoPanelOffsetX + videoPanel.x + videoPanel.userX + 0.5),
-			(int)(bottomMargin + videoPanel.y + videoPanel.userY + 0.5),
+
+		glScissor((int)(leftMargin + videoPanel.x + videoPanel.userX + videoPanel.offsetX + 0.5),
+			(int)(bottomMargin + videoPanel.y + videoPanel.userY + videoPanel.offsetY + 0.5),
 			(int)(videoPanelWidth + 0.5),
 			(int)(videoPanelHeight + 0.5));
 	}
@@ -463,18 +464,22 @@ void Renderer::renderMapPanel()
 	else
 		mapPanel.vertexMatrix.ortho(-windowWidth / 2, windowWidth / 2, windowHeight / 2, -windowHeight / 2, 0.0f, 1.0f);
 
+	if (renderMode != RenderMode::MAP)
+		mapPanel.offsetX = -((windowWidth / 2.0) - ((mapPanel.relativeWidth * windowWidth) / 2.0));
+	else
+		mapPanel.offsetX = 0.0;
+
 	mapPanel.scale = windowWidth / mapPanel.textureWidth;
 
 	if (mapPanel.scale * mapPanel.textureHeight > windowHeight)
 		mapPanel.scale = windowHeight / mapPanel.textureHeight;
 
-	mapPanel.vertexMatrix.scale(mapPanel.scale * mapPanel.userScale);
+	mapPanel.vertexMatrix.translate(mapPanel.offsetX, mapPanel.offsetY); // window coordinate units
 	mapPanel.vertexMatrix.rotate(mapPanel.angle + mapPanel.userAngle, 0.0f, 0.0f, 1.0f);
-	mapPanel.vertexMatrix.translate(mapPanel.x + mapPanel.userX, mapPanel.y + mapPanel.userY);
-	
-	mapPanel.clippingEnabled = (renderMode == RenderMode::ALL);
+	mapPanel.vertexMatrix.scale(mapPanel.scale * mapPanel.userScale);
+	mapPanel.vertexMatrix.translate(mapPanel.x + mapPanel.userX, mapPanel.y + mapPanel.userY); // map pixel units
 
-	int mapBorderX = (int)(mapPanel.relativeWidth * windowWidth + 0.5);
+	mapPanel.clippingEnabled = (renderMode == RenderMode::ALL);
 
 	if (fullClearRequested)
 	{
@@ -483,10 +488,12 @@ void Renderer::renderMapPanel()
 		fullClearRequested = false;
 	}
 
+	int mapRightBorderX = (int)(mapPanel.relativeWidth * windowWidth + 0.5);
+
 	if (mapPanel.clippingEnabled)
 	{
 		glEnable(GL_SCISSOR_TEST);
-		glScissor(0, 0, mapBorderX, (int)windowHeight);
+		glScissor(0, 0, mapRightBorderX, (int)windowHeight);
 	}
 
 	if (mapPanel.clearingEnabled)
@@ -504,7 +511,7 @@ void Renderer::renderMapPanel()
 	{
 		painter->begin(paintDevice);
 		painter->setPen(QColor(0, 0, 0));
-		painter->drawLine(mapBorderX, 0, mapBorderX, (int)windowHeight);
+		painter->drawLine(mapRightBorderX, 0, mapRightBorderX, (int)windowHeight);
 		painter->end();
 	}
 }
@@ -632,8 +639,9 @@ void Renderer::renderRoute(Route* route)
 
 	QMatrix m;
 	m.translate(windowWidth / 2.0, windowHeight / 2.0);
-	m.scale(mapPanel.scale * mapPanel.userScale, mapPanel.scale * mapPanel.userScale);
+	m.translate(mapPanel.offsetX, mapPanel.offsetY);
 	m.rotate(-(mapPanel.angle + mapPanel.userAngle));
+	m.scale(mapPanel.scale * mapPanel.userScale, mapPanel.scale * mapPanel.userScale);
 	m.translate(mapPanel.x + mapPanel.userX, -(mapPanel.y + mapPanel.userY));
 
 	painter->begin(paintDevice);
