@@ -18,6 +18,7 @@
 #include "VideoStabilizer.h"
 #include "InputHandler.h"
 #include "SplitTimeManager.h"
+#include "RouteManager.h"
 #include "Renderer.h"
 #include "VideoDecoderThread.h"
 #include "RenderOnScreenThread.h"
@@ -193,6 +194,7 @@ void MainWindow::on_actionPlayVideo_triggered()
 		videoStabilizer = new VideoStabilizer();
 		inputHandler = new InputHandler();
 		splitTimeManager = new SplitTimeManager();
+		routeManager = new RouteManager();
 		videoDecoderThread = new VideoDecoderThread();
 		renderOnScreenThread = new RenderOnScreenThread();
 
@@ -201,12 +203,13 @@ void MainWindow::on_actionPlayVideo_triggered()
 		if (!videoWindow->initialize(settings))
 			throw std::runtime_error("Could not initialize the video window");
 
-		if (!renderer->initialize(videoDecoder, quickRouteReader, mapImageReader, videoStabilizer, inputHandler, settings))
+		if (!renderer->initialize(videoDecoder, mapImageReader, videoStabilizer, inputHandler, routeManager, settings))
 			throw std::runtime_error("Could not initialize the renderer");
 
 		videoStabilizer->initialize(settings);
 		inputHandler->initialize(videoWindow, renderer, videoDecoder, videoDecoderThread, videoStabilizer, renderOnScreenThread, settings);
 		splitTimeManager->initialize(settings);
+		routeManager->initialize(quickRouteReader, splitTimeManager);
 		videoDecoderThread->initialize(videoDecoder);
 		renderOnScreenThread->initialize(this, videoWindow, videoDecoder, videoDecoderThread, videoStabilizer, renderer, inputHandler);
 
@@ -257,6 +260,12 @@ void MainWindow::playVideoFinished()
 
 	if (videoWindow != nullptr && videoWindow->getIsInitialized())
 		videoWindow->getContext()->makeCurrent(videoWindow);
+
+	if (routeManager != nullptr)
+	{
+		delete routeManager;
+		routeManager = nullptr;
+	}
 
 	if (splitTimeManager != nullptr)
 	{
@@ -360,6 +369,7 @@ void MainWindow::on_actionEncodeVideo_triggered()
 		videoStabilizer = new VideoStabilizer();
 		inputHandler = new InputHandler();
 		splitTimeManager = new SplitTimeManager();
+		routeManager = new RouteManager();
 		videoDecoderThread = new VideoDecoderThread();
 		renderOffScreenThread = new RenderOffScreenThread();
 		videoEncoderThread = new VideoEncoderThread();
@@ -370,11 +380,12 @@ void MainWindow::on_actionEncodeVideo_triggered()
 		if (!videoEncoder->initialize(videoDecoder, settings))
 			throw std::runtime_error("Could not initialize the video encoder");
 
-		if (!renderer->initialize(videoDecoder, quickRouteReader, mapImageReader, videoStabilizer, inputHandler, settings))
+		if (!renderer->initialize(videoDecoder, mapImageReader, videoStabilizer, inputHandler, routeManager, settings))
 			throw std::runtime_error("Could not initialize the renderer");
 
 		videoStabilizer->initialize(settings);
 		splitTimeManager->initialize(settings);
+		routeManager->initialize(quickRouteReader, splitTimeManager);
 		videoDecoderThread->initialize(videoDecoder);
 		renderOffScreenThread->initialize(this, encodeWindow, videoDecoder, videoDecoderThread, videoStabilizer, renderer, videoEncoder, settings);
 		videoEncoderThread->initialize(videoDecoder, videoEncoder, renderOffScreenThread);
@@ -442,6 +453,12 @@ void MainWindow::encodeVideoFinished()
 
 	if (encodeWindow != nullptr && encodeWindow->getIsInitialized())
 		encodeWindow->getContext()->makeCurrent(encodeWindow->getSurface());
+
+	if (routeManager != nullptr)
+	{
+		delete routeManager;
+		routeManager = nullptr;
+	}
 
 	if (splitTimeManager != nullptr)
 	{

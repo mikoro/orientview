@@ -15,6 +15,7 @@ namespace OrientView
 	public:
 
 		void initialize(Settings* settings);
+
 		const std::vector<double>& getSplitTimes() const;
 
 	private:

@@ -23,6 +23,7 @@ namespace OrientView
 	class VideoStabilizer;
 	class InputHandler;
 	class SplitTimeManager;
+	class RouteManager;
 	class Renderer;
 	class VideoDecoderThread;
 	class RenderOnScreenThread;
@@ -78,6 +79,7 @@ namespace OrientView
 		VideoStabilizer* videoStabilizer = nullptr;
 		InputHandler* inputHandler = nullptr;
 		SplitTimeManager* splitTimeManager = nullptr;
+		RouteManager* routeManager = nullptr;
 		Renderer* renderer = nullptr;
 		VideoDecoderThread* videoDecoderThread = nullptr;
 		RenderOnScreenThread* renderOnScreenThread = nullptr;

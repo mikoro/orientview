@@ -5,21 +5,22 @@
 
 #include "Renderer.h"
 #include "VideoDecoder.h"
-#include "QuickRouteReader.h"
 #include "MapImageReader.h"
 #include "VideoStabilizer.h"
 #include "InputHandler.h"
+#include "RouteManager.h"
 #include "Settings.h"
 #include "FrameData.h"
 
 using namespace OrientView;
 
-bool Renderer::initialize(VideoDecoder* videoDecoder, QuickRouteReader* quickRouteReader, MapImageReader* mapImageReader, VideoStabilizer* videoStabilizer, InputHandler* inputHandler, Settings* settings)
+bool Renderer::initialize(VideoDecoder* videoDecoder, MapImageReader* mapImageReader, VideoStabilizer* videoStabilizer, InputHandler* inputHandler, RouteManager* routeManager, Settings* settings)
 {
 	qDebug("Initializing the renderer");
 
 	this->videoStabilizer = videoStabilizer;
 	this->inputHandler = inputHandler;
+	this->routeManager = routeManager;
 
 	videoPanel.textureWidth = videoDecoder->getFrameWidth();
 	videoPanel.textureHeight = videoDecoder->getFrameHeight();
@@ -123,8 +124,6 @@ bool Renderer::initialize(VideoDecoder* videoDecoder, QuickRouteReader* quickRou
 	painter->begin(paintDevice);
 	painter->setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform | QPainter::HighQualityAntialiasing);
 	painter->end();
-
-	initializeRoute(&defaultRoute, quickRouteReader->getRoutePoints());
 
 	return true;
 }
@@ -298,27 +297,6 @@ void Renderer::loadBuffer(Panel* panel, GLfloat* buffer, size_t size)
 	panel->buffer->release();
 }
 
-void Renderer::initializeRoute(Route* route, const std::vector<RoutePoint>& routePoints)
-{
-	size_t routePointCount = routePoints.size();
-
-	if (routePointCount >= 2)
-	{
-		for (size_t i = 0; i < routePointCount; ++i)
-		{
-			RoutePoint rp = routePoints.at(i);
-
-			double x = rp.transformedPosition.x();
-			double y = rp.transformedPosition.y();
-
-			if (i == 0)
-				route->wholeRoutePath.moveTo(x, y);
-			else
-				route->wholeRoutePath.lineTo(x, y);
-		}
-	}
-}
-
 void Renderer::startRendering(double currentTime, double frameTime, double spareTime, double decoderTime, double stabilizerTime, double encoderTime)
 {
 	renderTimer.restart();
@@ -451,7 +429,7 @@ void Renderer::renderVideoPanel()
 		glClear(GL_COLOR_BUFFER_BIT);
 	}
 
-	renderPanel(&videoPanel);
+	renderPanel(videoPanel);
 	glDisable(GL_SCISSOR_TEST);
 }
 
@@ -502,10 +480,10 @@ void Renderer::renderMapPanel()
 		glClear(GL_COLOR_BUFFER_BIT);
 	}
 
-	renderPanel(&mapPanel);
+	renderPanel(mapPanel);
 	glDisable(GL_SCISSOR_TEST);
 
-	renderRoute(&defaultRoute);
+	renderRoute(routeManager->getDefaultRoute());
 
 	if (mapPanel.clippingEnabled)
 	{
@@ -629,11 +607,11 @@ void Renderer::renderInfoPanel()
 	painter->end();
 }
 
-void Renderer::renderRoute(Route* route)
+void Renderer::renderRoute(const Route& route)
 {
 	QPen pen;
-	pen.setColor(route->wholeRouteColor);
-	pen.setWidth(route->wholeRouteWidth);
+	pen.setColor(route.wholeRouteColor);
+	pen.setWidth(route.wholeRouteWidth);
 	pen.setCapStyle(Qt::PenCapStyle::RoundCap);
 	pen.setJoinStyle(Qt::PenJoinStyle::RoundJoin);
 
@@ -656,48 +634,48 @@ void Renderer::renderRoute(Route* route)
 
 	painter->setPen(pen);
 	painter->setWorldMatrix(m);
-	painter->drawPath(route->wholeRoutePath);
+	painter->drawPath(route.wholeRoutePath);
 	painter->end();
 }
 
-void Renderer::renderPanel(Panel* panel)
+void Renderer::renderPanel(const Panel& panel)
 {
-	panel->program->bind();
+	panel.program->bind();
 
-	if (panel->vertexMatrixUniform >= 0)
-		panel->program->setUniformValue((GLuint)panel->vertexMatrixUniform, panel->vertexMatrix);
+	if (panel.vertexMatrixUniform >= 0)
+		panel.program->setUniformValue((GLuint)panel.vertexMatrixUniform, panel.vertexMatrix);
 
-	if (panel->textureSamplerUniform >= 0)
-		panel->program->setUniformValue((GLuint)panel->textureSamplerUniform, 0);
+	if (panel.textureSamplerUniform >= 0)
+		panel.program->setUniformValue((GLuint)panel.textureSamplerUniform, 0);
 
-	if (panel->textureWidthUniform >= 0)
-		panel->program->setUniformValue((GLuint)panel->textureWidthUniform, (float)panel->textureWidth);
+	if (panel.textureWidthUniform >= 0)
+		panel.program->setUniformValue((GLuint)panel.textureWidthUniform, (float)panel.textureWidth);
 
-	if (panel->textureHeightUniform >= 0)
-		panel->program->setUniformValue((GLuint)panel->textureHeightUniform, (float)panel->textureHeight);
+	if (panel.textureHeightUniform >= 0)
+		panel.program->setUniformValue((GLuint)panel.textureHeightUniform, (float)panel.textureHeight);
 
-	if (panel->texelWidthUniform >= 0)
-		panel->program->setUniformValue((GLuint)panel->texelWidthUniform, (float)panel->texelWidth);
+	if (panel.texelWidthUniform >= 0)
+		panel.program->setUniformValue((GLuint)panel.texelWidthUniform, (float)panel.texelWidth);
 
-	if (panel->texelHeightUniform >= 0)
-		panel->program->setUniformValue((GLuint)panel->texelHeightUniform, (float)panel->texelHeight);
+	if (panel.texelHeightUniform >= 0)
+		panel.program->setUniformValue((GLuint)panel.texelHeightUniform, (float)panel.texelHeight);
 
-	panel->buffer->bind();
-	panel->texture->bind();
+	panel.buffer->bind();
+	panel.texture->bind();
 
 	int* textureCoordinateOffset = (int*)(sizeof(GLfloat) * 12);
 
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(panel->vertexPositionAttribute, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	glVertexAttribPointer(panel->vertexTextureCoordinateAttribute, 2, GL_FLOAT, GL_FALSE, 0, textureCoordinateOffset);
+	glVertexAttribPointer(panel.vertexPositionAttribute, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glVertexAttribPointer(panel.vertexTextureCoordinateAttribute, 2, GL_FLOAT, GL_FALSE, 0, textureCoordinateOffset);
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
 
-	panel->texture->release();
-	panel->buffer->release();
-	panel->program->release();
+	panel.texture->release();
+	panel.buffer->release();
+	panel.program->release();
 }
 
 Panel* Renderer::getVideoPanel()

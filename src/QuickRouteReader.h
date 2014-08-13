@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <cstdint>
+
 #include <QFile>
 #include <QMatrix>
 

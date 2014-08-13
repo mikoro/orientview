@@ -70,6 +70,7 @@
     <ClCompile Include="src\QuickRouteReader.cpp" />
     <ClCompile Include="src\RenderOffScreenThread.cpp" />
     <ClCompile Include="src\RenderOnScreenThread.cpp" />
+    <ClCompile Include="src\RouteManager.cpp" />
     <ClCompile Include="src\Settings.cpp" />
     <ClCompile Include="src\SimpleLogger.cpp" />
     <ClCompile Include="src\SplitTimeManager.cpp" />
@@ -91,6 +92,7 @@
     <ClInclude Include="src\MovingAverage.h" />
     <ClInclude Include="src\Mp4File.h" />
     <ClInclude Include="src\QuickRouteReader.h" />
+    <ClInclude Include="src\RouteManager.h" />
     <ClInclude Include="src\RoutePoint.h" />
     <ClInclude Include="src\SplitTimeManager.h" />
     <ClInclude Include="src\VideoStabilizer.h" />
