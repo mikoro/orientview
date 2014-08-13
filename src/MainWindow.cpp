@@ -470,7 +470,7 @@ void MainWindow::on_pushButtonBrowseInputVideoFile_clicked()
 		ui->lineEditInputVideoFile->setText(fileDialog.selectedFiles().at(0));
 }
 
-void MainWindow::on_pushButtonBrowseQuickRouteJpegMapImageFile_clicked()
+void MainWindow::on_pushButtonBrowseQuickRouteJpegFile_clicked()
 {
 	QFileDialog fileDialog(this);
 	fileDialog.setFileMode(QFileDialog::ExistingFile);
@@ -481,7 +481,7 @@ void MainWindow::on_pushButtonBrowseQuickRouteJpegMapImageFile_clicked()
 		ui->lineEditQuickRouteJpegFile->setText(fileDialog.selectedFiles().at(0));
 }
 
-void MainWindow::on_pushButtonBrowseAlternativeMapImageFile_clicked()
+void MainWindow::on_pushButtonBrowseMapImageFile_clicked()
 {
 	QFileDialog fileDialog(this);
 	fileDialog.setFileMode(QFileDialog::ExistingFile);
