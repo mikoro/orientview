@@ -4,6 +4,7 @@
 #include <typeinfo>
 
 #include <QApplication>
+#include <QDir>
 #include <QFontDatabase>
 
 #include "MainWindow.h"
@@ -21,17 +22,19 @@ namespace
 
 int main(int argc, char *argv[])
 {
-	logger.initialize("orientview.log");
-	qInstallMessageHandler(messageHandler);
-
 	try
 	{
+		QApplication app(argc, argv);
+
+		QDir::setCurrent(QCoreApplication::applicationDirPath());
+
+		logger.initialize("orientview.log");
+		qInstallMessageHandler(messageHandler);
+
 		QCoreApplication::setOrganizationName("OrientView");
 		QCoreApplication::setOrganizationDomain("orientview.com");
 		QCoreApplication::setApplicationName("OrientView");
 		QCoreApplication::addLibraryPath("data/plugins");
-
-		QApplication app(argc, argv);
 
 		QFontDatabase::addApplicationFont("data/fonts/dejavu-sans.ttf");
 		QFontDatabase::addApplicationFont("data/fonts/dejavu-sans-bold.ttf");
