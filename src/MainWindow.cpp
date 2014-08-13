@@ -158,7 +158,7 @@ void MainWindow::on_actionPlayVideo_triggered()
 		if (!videoDecoder->initialize(settings))
 		{
 			if (QMessageBox::warning(this, "OrientView - Warning", QString("Could not open the video file.\n\nDo you want to continue anyway?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
-				throw std::runtime_error("Could not initialize the video decoder");
+				throw std::runtime_error("Could not initialize video decoder");
 		}
 
 		mapImageReader = new MapImageReader();
@@ -166,7 +166,7 @@ void MainWindow::on_actionPlayVideo_triggered()
 		if (!mapImageReader->initialize(settings))
 		{
 			if (QMessageBox::warning(this, "OrientView - Warning", QString("Could not read the map image file.\n\nDo you want to continue anyway?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
-				throw std::runtime_error("Could not initialize the map image reader");
+				throw std::runtime_error("Could not initialize map image reader");
 		}
 
 		quickRouteReader = new QuickRouteReader();
@@ -174,7 +174,7 @@ void MainWindow::on_actionPlayVideo_triggered()
 		if (!quickRouteReader->initialize(mapImageReader, settings))
 		{
 			if (QMessageBox::warning(this, "OrientView - Warning", QString("Could not read the QuickRoute file.\n\nDo you want to continue anyway?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
-				throw std::runtime_error("Could not initialize the QuickRoute reader");
+				throw std::runtime_error("Could not initialize QuickRoute reader");
 		}
 	}
 	catch (const std::exception& ex)
@@ -201,10 +201,10 @@ void MainWindow::on_actionPlayVideo_triggered()
 		videoWindow->show();
 
 		if (!videoWindow->initialize(settings))
-			throw std::runtime_error("Could not initialize the video window");
+			throw std::runtime_error("Could not initialize video window");
 
 		if (!renderer->initialize(videoDecoder, mapImageReader, videoStabilizer, inputHandler, routeManager, settings))
-			throw std::runtime_error("Could not initialize the renderer");
+			throw std::runtime_error("Could not initialize renderer");
 
 		videoStabilizer->initialize(settings);
 		inputHandler->initialize(videoWindow, renderer, videoDecoder, videoDecoderThread, videoStabilizer, renderOnScreenThread, settings);
@@ -332,7 +332,7 @@ void MainWindow::on_actionEncodeVideo_triggered()
 		if (!videoDecoder->initialize(settings))
 		{
 			if (QMessageBox::warning(this, "OrientView - Warning", QString("Could not open the video file.\n\nDo you want to continue anyway?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
-				throw std::runtime_error("Could not initialize the video decoder");
+				throw std::runtime_error("Could not initialize video decoder");
 		}
 
 		mapImageReader = new MapImageReader();
@@ -340,7 +340,7 @@ void MainWindow::on_actionEncodeVideo_triggered()
 		if (!mapImageReader->initialize(settings))
 		{
 			if (QMessageBox::warning(this, "OrientView - Warning", QString("Could not read the map image file.\n\nDo you want to continue anyway?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
-				throw std::runtime_error("Could not initialize the map image reader");
+				throw std::runtime_error("Could not initialize map image reader");
 		}
 
 		quickRouteReader = new QuickRouteReader();
@@ -348,7 +348,7 @@ void MainWindow::on_actionEncodeVideo_triggered()
 		if (!quickRouteReader->initialize(mapImageReader, settings))
 		{
 			if (QMessageBox::warning(this, "OrientView - Warning", QString("Could not read the QuickRoute file.\n\nDo you want to continue anyway?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
-				throw std::runtime_error("Could not initialize the QuickRoute reader");
+				throw std::runtime_error("Could not initialize QuickRoute reader");
 		}
 	}
 	catch (const std::exception& ex)
@@ -375,13 +375,13 @@ void MainWindow::on_actionEncodeVideo_triggered()
 		videoEncoderThread = new VideoEncoderThread();
 		
 		if (!encodeWindow->initialize(videoDecoder, videoEncoderThread, settings))
-			throw std::runtime_error("Could not initialize the encode window");
+			throw std::runtime_error("Could not initialize encode window");
 
 		if (!videoEncoder->initialize(videoDecoder, settings))
-			throw std::runtime_error("Could not initialize the video encoder");
+			throw std::runtime_error("Could not initialize video encoder");
 
 		if (!renderer->initialize(videoDecoder, mapImageReader, videoStabilizer, inputHandler, routeManager, settings))
-			throw std::runtime_error("Could not initialize the renderer");
+			throw std::runtime_error("Could not initialize renderer");
 
 		videoStabilizer->initialize(settings);
 		splitTimeManager->initialize(settings);

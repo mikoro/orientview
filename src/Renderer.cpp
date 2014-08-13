@@ -16,7 +16,7 @@ using namespace OrientView;
 
 bool Renderer::initialize(VideoDecoder* videoDecoder, MapImageReader* mapImageReader, VideoStabilizer* videoStabilizer, InputHandler* inputHandler, RouteManager* routeManager, Settings* settings)
 {
-	qDebug("Initializing the renderer");
+	qDebug("Initializing renderer");
 
 	this->videoStabilizer = videoStabilizer;
 	this->inputHandler = inputHandler;

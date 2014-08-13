@@ -43,7 +43,7 @@ EncodeWindow::~EncodeWindow()
 
 bool EncodeWindow::initialize(VideoDecoder* videoDecoder, VideoEncoderThread* videoEncoderThread, Settings* settings)
 {
-	qDebug("Initializing the encode window");
+	qDebug("Initializing encode window");
 
 	this->videoEncoderThread = videoEncoderThread;
 

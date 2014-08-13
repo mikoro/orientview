@@ -17,7 +17,7 @@ VideoWindow::VideoWindow(QWindow* parent) : QWindow(parent)
 
 bool VideoWindow::initialize(Settings* settings)
 {
-	qDebug("Initializing the video window");
+	qDebug("Initializing video window");
 
 	setSurfaceType(QWindow::OpenGLSurface);
 	setIcon(QIcon(":/icons/misc/icons/orientview.ico"));

@@ -11,7 +11,7 @@ using namespace OrientView;
 
 bool VideoEncoder::initialize(VideoDecoder* videoDecoder, Settings* settings)
 {
-	qDebug("Initializing the video encoder (%s)", qPrintable(settings->videoEncoder.outputVideoFilePath));
+	qDebug("Initializing video encoder (%s)", qPrintable(settings->videoEncoder.outputVideoFilePath));
 
 	x264_param_t param;
 	

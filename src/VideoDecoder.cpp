@@ -69,7 +69,7 @@ namespace
 
 bool VideoDecoder::initialize(Settings* settings)
 {
-	qDebug("Initializing the video decoder (%s)", qPrintable(settings->videoDecoder.inputVideoFilePath));
+	qDebug("Initializing video decoder (%s)", qPrintable(settings->videoDecoder.inputVideoFilePath));
 
 	enableVerboseLogging = settings->videoDecoder.enableVerboseLogging;
 
