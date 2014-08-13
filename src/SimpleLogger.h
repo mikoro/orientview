@@ -17,12 +17,13 @@ namespace OrientView
 
 		~SimpleLogger();
 
-		void initialize(const QString& fileName, MainWindow* mainWindow);
+		void initialize(const QString& fileName);
+		void setMainWindow(MainWindow* mainWindow);
 		void handleMessage(QtMsgType type, const QMessageLogContext& context, const QString& message);
 
 	private:
 
 		QFile logFile;
-		MainWindow* mainWindow;
+		MainWindow* mainWindow = nullptr;
 	};
 }

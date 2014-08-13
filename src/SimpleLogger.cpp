@@ -1,6 +1,8 @@
 // Copyright © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
 // License: GPLv3, see the LICENSE file.
 
+#include <iostream>
+
 #include <QTime>
 
 #ifdef _WIN32
@@ -18,11 +20,14 @@ SimpleLogger::~SimpleLogger()
 		logFile.close();
 }
 
-void SimpleLogger::initialize(const QString& fileName, MainWindow* mainWindow)
+void SimpleLogger::initialize(const QString& fileName)
 {
 	logFile.setFileName(fileName);
 	logFile.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text);
+}
 
+void SimpleLogger::setMainWindow(MainWindow* mainWindow)
+{
 	this->mainWindow = mainWindow;
 }
 
@@ -50,6 +55,8 @@ void SimpleLogger::handleMessage(QtMsgType type, const QMessageLogContext& conte
 	QString timeString = QTime::currentTime().toString("HH:mm:ss.zzz");
 	QString messageText = QString("%1 [%2] - %3\n").arg(timeString, typeString, message);
 
+	std::cout << messageText.toStdString() << std::endl;
+
 	if (logFile.isOpen())
 	{
 		logFile.write(messageText.toUtf8());
@@ -60,7 +67,8 @@ void SimpleLogger::handleMessage(QtMsgType type, const QMessageLogContext& conte
 	OutputDebugStringA(qPrintable(messageText));
 #endif
 
-	mainWindow->addLogMessage(timeString, typeString, message);
+	if (mainWindow != nullptr)
+		mainWindow->addLogMessage(timeString, typeString, message);
 
 	if (type == QtFatalMsg)
 		abort();

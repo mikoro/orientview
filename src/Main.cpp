@@ -21,6 +21,9 @@ namespace
 
 int main(int argc, char *argv[])
 {
+	logger.initialize("orientview.log");
+	qInstallMessageHandler(messageHandler);
+
 	try
 	{
 		QCoreApplication::setOrganizationName("OrientView");
@@ -37,8 +40,7 @@ int main(int argc, char *argv[])
 		
 		OrientView::MainWindow mainWindow;
 
-		logger.initialize("orientview.log", &mainWindow);
-		qInstallMessageHandler(messageHandler);
+		logger.setMainWindow(&mainWindow);
 
 		mainWindow.show();
 		app.exec();
