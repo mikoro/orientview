@@ -308,7 +308,7 @@ QDateTime QuickRouteReader::readDateTime(QDataStream& dataStream, QDateTime& pre
 
 	if (timeType == 0) // absolute
 	{
-		uint64_t timeValue;
+		quint64 timeValue;
 		dataStream >> timeValue;		 // .NET DateTime serialized value
 		timeValue &= 0x3FFFFFFFFFFFFFFF; // remove kind data
 		timeValue -= 621355968000000000; // offset to epoch start
@@ -330,10 +330,10 @@ void QuickRouteReader::processRoutePoints()
 	if (routePoints.size() < 1)
 		return;
 
-	int handleIndex = 0;
+	size_t handleIndex = 0;
 	RoutePointHandle currentHandle;
 	RoutePointHandle nextHandle;
-	nextHandle.routePointIndex = DBL_MAX;
+	nextHandle.routePointIndex = std::numeric_limits<double>::max();
 
 	if (handleIndex < routePointHandles.size())
 		currentHandle = routePointHandles.at(handleIndex);
@@ -349,7 +349,7 @@ void QuickRouteReader::processRoutePoints()
 	// transform points using the previous handle
 	// use first handle if no previous handle
 	// do not use the last handle at all (use second to last handle instead for the last points)
-	for (int i = 0; i < routePoints.size(); ++i)
+	for (size_t i = 0; i < routePoints.size(); ++i)
 	{
 		if ((double)i > nextHandle.routePointIndex)
 		{
@@ -359,7 +359,7 @@ void QuickRouteReader::processRoutePoints()
 				nextHandle = routePointHandles.at(handleIndex);
 			}
 			else
-				nextHandle.routePointIndex = DBL_MAX;
+				nextHandle.routePointIndex = std::numeric_limits<double>::max();
 		}
 
 		QPointF position = projectCoordinate(routePoints.at(i).coordinate, projectionOriginCoordinate);;
@@ -371,7 +371,7 @@ void QuickRouteReader::processRoutePoints()
 		return;
 
 	// calculate cumulative time, delta times, delta distances, and paces
-	for (int i = 1; i < routePoints.size(); ++i)
+	for (size_t i = 1; i < routePoints.size(); ++i)
 	{
 		routePoints.at(i).time = (routePoints.at(i).dateTime.toMSecsSinceEpoch() - routePoints.at(0).dateTime.toMSecsSinceEpoch()) / 1000.0;
 
@@ -387,11 +387,11 @@ void QuickRouteReader::processRoutePoints()
 	RoutePoint alignedRoutePoint;
 
 	// align and interpolate route point data to one second intervals
-	for (int i = 0; i < routePoints.size() - 1;)
+	for (size_t i = 0; i < routePoints.size() - 1;)
 	{
-		int nextIndex = 0;
+		size_t nextIndex = 0;
 
-		for (int j = i + 1; j < routePoints.size(); ++j)
+		for (size_t j = i + 1; j < routePoints.size(); ++j)
 		{
 			if (routePoints.at(j).time - currentRoutePoint.time > 1.0)
 			{

@@ -11,12 +11,11 @@
 #include "VideoStabilizer.h"
 #include "Renderer.h"
 #include "VideoEncoder.h"
-#include "Settings.h"
 #include "FrameData.h"
 
 using namespace OrientView;
 
-void RenderOffScreenThread::initialize(MainWindow* mainWindow, EncodeWindow* encodeWindow, VideoDecoder* videoDecoder, VideoDecoderThread* videoDecoderThread, VideoStabilizer* videoStabilizer, Renderer* renderer, VideoEncoder* videoEncoder, Settings* settings)
+void RenderOffScreenThread::initialize(MainWindow* mainWindow, EncodeWindow* encodeWindow, VideoDecoder* videoDecoder, VideoDecoderThread* videoDecoderThread, VideoStabilizer* videoStabilizer, Renderer* renderer, VideoEncoder* videoEncoder)
 {
 	this->mainWindow = mainWindow;
 	this->encodeWindow = encodeWindow;

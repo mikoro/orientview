@@ -651,7 +651,7 @@ void Renderer::renderRoute(const Route& route)
 	painter->setPen(controlPen);
 	painter->setBrush(controlBrush);
 
-	for (int i = 0; i < routeManager->getDefaultRoute().controlPositions.size(); ++i)
+	for (size_t i = 0; i < routeManager->getDefaultRoute().controlPositions.size(); ++i)
 		painter->drawEllipse(routeManager->getDefaultRoute().controlPositions.at(i), route.controlRadius, route.controlRadius);
 
 	QPen runnerPen;

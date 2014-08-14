@@ -70,7 +70,7 @@ void RouteManager::calculateControlLocations()
 {
 	defaultRoute.controlPositions.clear();
 
-	for (int i = 0; i < defaultRoute.splitTimes.splitTimes.size(); ++i)
+	for (size_t i = 0; i < defaultRoute.splitTimes.splitTimes.size(); ++i)
 	{
 		SplitTime splitTime = defaultRoute.splitTimes.splitTimes.at(i);
 

@@ -387,7 +387,7 @@ void MainWindow::on_actionEncodeVideo_triggered()
 		splitTimeManager->initialize(settings);
 		routeManager->initialize(quickRouteReader, splitTimeManager, settings);
 		videoDecoderThread->initialize(videoDecoder);
-		renderOffScreenThread->initialize(this, encodeWindow, videoDecoder, videoDecoderThread, videoStabilizer, renderer, videoEncoder, settings);
+		renderOffScreenThread->initialize(this, encodeWindow, videoDecoder, videoDecoderThread, videoStabilizer, renderer, videoEncoder);
 		videoEncoderThread->initialize(videoDecoder, videoEncoder, renderOffScreenThread);
 
 		connect(encodeWindow, &EncodeWindow::closing, this, &MainWindow::encodeVideoFinished);

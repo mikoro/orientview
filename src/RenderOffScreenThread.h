@@ -17,7 +17,6 @@ namespace OrientView
 	class VideoStabilizer;
 	class Renderer;
 	class VideoEncoder;
-	class Settings;
 
 	// Run renderer on a thread and draw to hidden framebuffers.
 	class RenderOffScreenThread : public QThread
@@ -26,7 +25,7 @@ namespace OrientView
 
 	public:
 
-		void initialize(MainWindow* mainWindow, EncodeWindow* encodeWindow, VideoDecoder* videoDecoder, VideoDecoderThread* videoDecoderThread, VideoStabilizer* videoStabilizer, Renderer* renderer, VideoEncoder* videoEncoder, Settings* settings);
+		void initialize(MainWindow* mainWindow, EncodeWindow* encodeWindow, VideoDecoder* videoDecoder, VideoDecoderThread* videoDecoderThread, VideoStabilizer* videoStabilizer, Renderer* renderer, VideoEncoder* videoEncoder);
 		~RenderOffScreenThread();
 
 		bool tryGetNextFrame(FrameData& frameData, int timeout);
