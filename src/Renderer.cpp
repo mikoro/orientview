@@ -62,10 +62,10 @@ bool Renderer::initialize(VideoDecoder* videoDecoder, MapImageReader* mapImageRe
 	if (!resizeWindow(settings->window.width, settings->window.height))
 		return false;
 
-	if (!loadShaders(&videoPanel, settings->appearance.videoPanelShader))
+	if (!loadShaders(videoPanel, settings->appearance.videoPanelShader))
 		return false;
 
-	if (!loadShaders(&mapPanel, settings->appearance.mapPanelShader))
+	if (!loadShaders(mapPanel, settings->appearance.mapPanelShader))
 		return false;
 
 	// 1 2
@@ -98,8 +98,8 @@ bool Renderer::initialize(VideoDecoder* videoDecoder, MapImageReader* mapImageRe
 		0.0f, 1.0f  // 4
 	};
 
-	loadBuffer(&videoPanel, videoPanelBuffer, 20);
-	loadBuffer(&mapPanel, mapPanelBuffer, 20);
+	loadBuffer(videoPanel, videoPanelBuffer, 20);
+	loadBuffer(mapPanel, mapPanelBuffer, 20);
 
 	videoPanel.texture = new QOpenGLTexture(QOpenGLTexture::Target2D);
 	videoPanel.texture->create();
@@ -254,47 +254,47 @@ Renderer::~Renderer()
 	}
 }
 
-bool Renderer::loadShaders(Panel* panel, const QString& shaderName)
+bool Renderer::loadShaders(Panel& panel, const QString& shaderName)
 {
-	panel->program = new QOpenGLShaderProgram();
+	panel.program = new QOpenGLShaderProgram();
 
-	if (!panel->program->addShaderFromSourceFile(QOpenGLShader::Vertex, QString("data/shaders/%1.vert").arg(shaderName)))
+	if (!panel.program->addShaderFromSourceFile(QOpenGLShader::Vertex, QString("data/shaders/%1.vert").arg(shaderName)))
 		return false;
 
-	if (!panel->program->addShaderFromSourceFile(QOpenGLShader::Fragment, QString("data/shaders/%1.frag").arg(shaderName)))
+	if (!panel.program->addShaderFromSourceFile(QOpenGLShader::Fragment, QString("data/shaders/%1.frag").arg(shaderName)))
 		return false;
 
-	if (!panel->program->link())
+	if (!panel.program->link())
 		return false;
 
-	if ((panel->vertexMatrixUniform = panel->program->uniformLocation("vertexMatrix")) == -1)
+	if ((panel.vertexMatrixUniform = panel.program->uniformLocation("vertexMatrix")) == -1)
 		qWarning("Could not find vertexMatrix uniform");
 
-	if ((panel->vertexPositionAttribute = panel->program->attributeLocation("vertexPosition")) == -1)
+	if ((panel.vertexPositionAttribute = panel.program->attributeLocation("vertexPosition")) == -1)
 		qWarning("Could not find vertexPosition attribute");
 
-	if ((panel->vertexTextureCoordinateAttribute = panel->program->attributeLocation("vertexTextureCoordinate")) == -1)
+	if ((panel.vertexTextureCoordinateAttribute = panel.program->attributeLocation("vertexTextureCoordinate")) == -1)
 		qWarning("Could not find vertexTextureCoordinate attribute");
 
-	if ((panel->textureSamplerUniform = panel->program->uniformLocation("textureSampler")) == -1)
+	if ((panel.textureSamplerUniform = panel.program->uniformLocation("textureSampler")) == -1)
 		qWarning("Could not find textureSampler uniform");
 
-	panel->textureWidthUniform = panel->program->uniformLocation("textureWidth");
-	panel->textureHeightUniform = panel->program->uniformLocation("textureHeight");
-	panel->texelWidthUniform = panel->program->uniformLocation("texelWidth");
-	panel->texelHeightUniform = panel->program->uniformLocation("texelHeight");
+	panel.textureWidthUniform = panel.program->uniformLocation("textureWidth");
+	panel.textureHeightUniform = panel.program->uniformLocation("textureHeight");
+	panel.texelWidthUniform = panel.program->uniformLocation("texelWidth");
+	panel.texelHeightUniform = panel.program->uniformLocation("texelHeight");
 
 	return true;
 }
 
-void Renderer::loadBuffer(Panel* panel, GLfloat* buffer, size_t size)
+void Renderer::loadBuffer(Panel& panel, GLfloat* buffer, size_t size)
 {
-	panel->buffer = new QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
-	panel->buffer->setUsagePattern(QOpenGLBuffer::StaticDraw);
-	panel->buffer->create();
-	panel->buffer->bind();
-	panel->buffer->allocate(buffer, (int)(sizeof(GLfloat) * size));
-	panel->buffer->release();
+	panel.buffer = new QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
+	panel.buffer->setUsagePattern(QOpenGLBuffer::StaticDraw);
+	panel.buffer->create();
+	panel.buffer->bind();
+	panel.buffer->allocate(buffer, (int)(sizeof(GLfloat) * size));
+	panel.buffer->release();
 }
 
 void Renderer::startRendering(double currentTime, double frameTime, double spareTime, double decoderTime, double stabilizerTime, double encoderTime)
@@ -317,15 +317,15 @@ void Renderer::startRendering(double currentTime, double frameTime, double spare
 	glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 
-void Renderer::uploadFrameData(FrameData* frameData)
+void Renderer::uploadFrameData(const FrameData& frameData)
 {
 	QOpenGLPixelTransferOptions options;
 
-	options.setRowLength((int)(frameData->rowLength / 4));
-	options.setImageHeight(frameData->height);
+	options.setRowLength((int)(frameData.rowLength / 4));
+	options.setImageHeight(frameData.height);
 	options.setAlignment(1);
 
-	videoPanel.texture->setData(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, frameData->data, &options);
+	videoPanel.texture->setData(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, frameData.data, &options);
 }
 
 void Renderer::renderAll()
@@ -333,10 +333,10 @@ void Renderer::renderAll()
 	if (isEncoding)
 		outputFramebuffer->bind();
 
-	if (renderMode == RenderMode::ALL || renderMode == RenderMode::VIDEO)
+	if (renderMode == RenderMode::All || renderMode == RenderMode::Video)
 		renderVideoPanel();
 
-	if (renderMode == RenderMode::ALL || renderMode == RenderMode::MAP)
+	if (renderMode == RenderMode::All || renderMode == RenderMode::Map)
 		renderMapPanel();
 
 	if (showInfoPanel)
@@ -351,7 +351,7 @@ void Renderer::stopRendering()
 	lastRenderTime = renderTimer.nsecsElapsed() / 1000000.0;
 }
 
-void Renderer::getRenderedFrame(FrameData* frameData)
+FrameData Renderer::getRenderedFrame()
 {
 	QOpenGLFramebufferObject* sourceFbo = outputFramebuffer;
 
@@ -368,7 +368,7 @@ void Renderer::getRenderedFrame(FrameData* frameData)
 	glReadPixels(0, 0, windowWidth, windowHeight, GL_RGBA, GL_UNSIGNED_BYTE, renderedFrameData.data);
 	sourceFbo->release();
 
-	*frameData = renderedFrameData;
+	return renderedFrameData;
 }
 
 void Renderer::renderVideoPanel()
@@ -380,7 +380,7 @@ void Renderer::renderVideoPanel()
 	else
 		videoPanel.vertexMatrix.ortho(-windowWidth / 2, windowWidth / 2, windowHeight / 2, -windowHeight / 2, 0.0f, 1.0f);
 
-	if (renderMode != RenderMode::VIDEO)
+	if (renderMode != RenderMode::Video)
 	{
 		videoPanel.offsetX = (windowWidth / 2.0) - (((1.0 - mapPanel.relativeWidth) * windowWidth) / 2.0);
 		videoPanel.scale = ((1.0 - mapPanel.relativeWidth) * windowWidth) / videoPanel.textureWidth;
@@ -442,7 +442,7 @@ void Renderer::renderMapPanel()
 	else
 		mapPanel.vertexMatrix.ortho(-windowWidth / 2, windowWidth / 2, windowHeight / 2, -windowHeight / 2, 0.0f, 1.0f);
 
-	if (renderMode != RenderMode::MAP)
+	if (renderMode != RenderMode::Map)
 		mapPanel.offsetX = -((windowWidth / 2.0) - ((mapPanel.relativeWidth * windowWidth) / 2.0));
 	else
 		mapPanel.offsetX = 0.0;
@@ -457,7 +457,7 @@ void Renderer::renderMapPanel()
 	mapPanel.vertexMatrix.scale(mapPanel.scale * mapPanel.userScale);
 	mapPanel.vertexMatrix.translate(mapPanel.x + mapPanel.userX, mapPanel.y + mapPanel.userY); // map pixel units
 
-	mapPanel.clippingEnabled = (renderMode == RenderMode::ALL);
+	mapPanel.clippingEnabled = (renderMode == RenderMode::All);
 
 	if (fullClearRequested)
 	{
@@ -583,18 +583,18 @@ void Renderer::renderInfoPanel()
 
 	switch (inputHandler->getEditMode())
 	{
-		case EditMode::NONE: selectedText = "none"; break;
-		case EditMode::VIDEO: selectedText = "video"; break;
-		case EditMode::MAP: selectedText = "map"; break;
-		case EditMode::MAP_WIDTH: selectedText = "map width"; break;
+		case EditMode::None: selectedText = "none"; break;
+		case EditMode::Video: selectedText = "video"; break;
+		case EditMode::Map: selectedText = "map"; break;
+		case EditMode::MapWidth: selectedText = "map width"; break;
 		default: selectedText = "unknown"; break;
 	}
 
 	switch (renderMode)
 	{
-		case RenderMode::ALL: renderText = "both"; break;
-		case RenderMode::VIDEO: renderText = "video"; break;
-		case RenderMode::MAP: renderText = "map"; break;
+		case RenderMode::All: renderText = "both"; break;
+		case RenderMode::Video: renderText = "video"; break;
+		case RenderMode::Map: renderText = "map"; break;
 		default: renderText = "unknown"; break;
 	}
 
@@ -627,13 +627,11 @@ void Renderer::renderRoute(const Route& route)
 	painter->begin(paintDevice);
 	painter->setWorldMatrix(m);
 
-	if (renderMode != RenderMode::MAP)
+	if (renderMode != RenderMode::Map)
 	{
 		painter->setClipping(true);
 		painter->setClipRect(0, 0, (int)(mapPanel.relativeWidth * windowWidth + 0.5), (int)windowHeight);
 	}
-	else
-		painter->setClipping(false);
 
 	QPen wholeRoutePen;
 	wholeRoutePen.setColor(route.wholeRouteColor);
@@ -666,6 +664,7 @@ void Renderer::renderRoute(const Route& route)
 	painter->setBrush(runnerBrush);
 	painter->drawEllipse(routeManager->getDefaultRoute().runnerPosition, route.runnerRadius, route.runnerRadius);
 
+	painter->setClipping(false);
 	painter->end();
 }
 
@@ -721,14 +720,14 @@ QColor Renderer::interpolateFromGreenToRed(double lowValue, double highValue, do
 	return QColor::fromRgbF(r, g, b, 0.8);
 }
 
-Panel* Renderer::getVideoPanel()
+Panel& Renderer::getVideoPanel()
 {
-	return &videoPanel;
+	return videoPanel;
 }
 
-Panel* Renderer::getMapPanel()
+Panel& Renderer::getMapPanel()
 {
-	return &mapPanel;
+	return mapPanel;
 }
 
 RenderMode Renderer::getRenderMode() const

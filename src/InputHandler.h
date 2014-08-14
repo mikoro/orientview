@@ -17,7 +17,7 @@ namespace OrientView
 	class Renderer;
 	class Settings;
 
-	enum class EditMode { NONE, VIDEO, MAP, MAP_WIDTH };
+	enum class EditMode { None, Video, Map, MapWidth };
 
 	struct RepeatHandler
 	{
@@ -50,7 +50,7 @@ namespace OrientView
 		RenderOnScreenThread* renderOnScreenThread = nullptr;
 		Settings* settings = nullptr;
 
-		EditMode editMode = EditMode::NONE;
+		EditMode editMode = EditMode::None;
 
 		const int firstRepeatDelay = 800;
 		const int repeatDelay = 50;

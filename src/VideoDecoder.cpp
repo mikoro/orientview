@@ -215,7 +215,7 @@ VideoDecoder::~VideoDecoder()
 	}
 }
 
-bool VideoDecoder::getNextFrame(FrameData* frameData, FrameData* frameDataGrayscale)
+bool VideoDecoder::getNextFrame(FrameData& frameData, FrameData& frameDataGrayscale)
 {
 	QMutexLocker locker(&decoderMutex);
 
@@ -256,28 +256,28 @@ bool VideoDecoder::getNextFrame(FrameData* frameData, FrameData* frameDataGraysc
 				{
 					sws_scale(swsContext, frame->data, frame->linesize, 0, frame->height, convertedPicture->data, convertedPicture->linesize);
 
-					frameData->data = convertedPicture->data[0];
-					frameData->dataLength = (size_t)(frameHeight * convertedPicture->linesize[0]);
-					frameData->rowLength = (size_t)(convertedPicture->linesize[0]);
-					frameData->width = frameWidth;
-					frameData->height = frameHeight;
-					frameData->duration = (int)av_rescale((frame->best_effort_timestamp - lastFrameTimestamp) * 1000000 / frameDurationDivisor, videoStream->time_base.num, videoStream->time_base.den);
-					frameData->number = currentFrameNumber;
+					frameData.data = convertedPicture->data[0];
+					frameData.dataLength = (size_t)(frameHeight * convertedPicture->linesize[0]);
+					frameData.rowLength = (size_t)(convertedPicture->linesize[0]);
+					frameData.width = frameWidth;
+					frameData.height = frameHeight;
+					frameData.duration = (int)av_rescale((frame->best_effort_timestamp - lastFrameTimestamp) * 1000000 / frameDurationDivisor, videoStream->time_base.num, videoStream->time_base.den);
+					frameData.number = currentFrameNumber;
 
-					if (frameData->duration <= 0 || frameData->duration > 1000000)
-						frameData->duration = (int)(averageFrameDuration * 1000);
+					if (frameData.duration <= 0 || frameData.duration > 1000000)
+						frameData.duration = (int)(averageFrameDuration * 1000);
 
 					if (generateGrayscalePicture)
 					{
 						sws_scale(swsContextGrayscale, frame->data, frame->linesize, 0, frame->height, convertedPictureGrayscale->data, convertedPictureGrayscale->linesize);
 
-						frameDataGrayscale->data = convertedPictureGrayscale->data[0];
-						frameDataGrayscale->dataLength = (size_t)(grayscalePictureHeight * convertedPictureGrayscale->linesize[0]);
-						frameDataGrayscale->rowLength = (size_t)(convertedPictureGrayscale->linesize[0]);
-						frameDataGrayscale->width = grayscalePictureWidth;
-						frameDataGrayscale->height = grayscalePictureHeight;
-						frameDataGrayscale->duration = frameData->duration;
-						frameDataGrayscale->number = frameData->number;
+						frameDataGrayscale.data = convertedPictureGrayscale->data[0];
+						frameDataGrayscale.dataLength = (size_t)(grayscalePictureHeight * convertedPictureGrayscale->linesize[0]);
+						frameDataGrayscale.rowLength = (size_t)(convertedPictureGrayscale->linesize[0]);
+						frameDataGrayscale.width = grayscalePictureWidth;
+						frameDataGrayscale.height = grayscalePictureHeight;
+						frameDataGrayscale.duration = frameData.duration;
+						frameDataGrayscale.number = frameData.number;
 					}
 
 					currentTime = ((double)frame->best_effort_timestamp / totalDuration) * totalDurationInSeconds;

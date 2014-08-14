@@ -37,18 +37,18 @@ VideoStabilizer::~VideoStabilizer()
 		dataOutputFile.close();
 }
 
-void VideoStabilizer::processFrame(FrameData* frameDataGrayscale)
+void VideoStabilizer::processFrame(const FrameData& frameDataGrayscale)
 {
 	if (!isEnabled)
 		return;
 
 	processTimer.restart();
 
-	cv::Mat currentImage(frameDataGrayscale->height, frameDataGrayscale->width, CV_8UC1, frameDataGrayscale->data);
+	cv::Mat currentImage(frameDataGrayscale.height, frameDataGrayscale.width, CV_8UC1, frameDataGrayscale.data);
 
 	if (isFirstImage)
 	{
-		previousImage = cv::Mat(frameDataGrayscale->height, frameDataGrayscale->width, CV_8UC1);
+		previousImage = cv::Mat(frameDataGrayscale.height, frameDataGrayscale.width, CV_8UC1);
 		currentImage.copyTo(previousImage);
 		isFirstImage = false;
 
@@ -92,8 +92,8 @@ void VideoStabilizer::processFrame(FrameData* frameDataGrayscale)
 
 	currentTransformation.copyTo(previousTransformation);
 
-	double deltaX = tx / frameDataGrayscale->width;
-	double deltaY = ty / frameDataGrayscale->height;
+	double deltaX = tx / frameDataGrayscale.width;
+	double deltaY = ty / frameDataGrayscale.height;
 	double deltaAngle = atan2(c, d) * 180.0 / M_PI;
 	//double deltaScale = sign(a) * sqrt(a * a + b * b); // not used, only causes jitter
 

@@ -27,7 +27,7 @@ namespace OrientView
 		bool initialize(Settings* settings);
 		~VideoDecoder();
 
-		bool getNextFrame(FrameData* frameData, FrameData* frameDataGrayscale);
+		bool getNextFrame(FrameData& frameData, FrameData& frameDataGrayscale);
 		void seekRelative(int seconds);
 
 		int getCurrentFrameNumber();

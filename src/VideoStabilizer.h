@@ -24,7 +24,7 @@ namespace OrientView
 		void initialize(Settings* settings);
 		~VideoStabilizer();
 
-		void processFrame(FrameData* frameDataGrayscale);
+		void processFrame(const FrameData& frameDataGrayscale);
 
 		void toggleEnabled();
 		void reset();

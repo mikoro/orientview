@@ -58,13 +58,13 @@ void RenderOffScreenThread::run()
 
 	while (!isInterruptionRequested())
 	{
-		if (videoDecoderThread->tryGetNextFrame(&decodedFrameData, &decodedFrameDataGrayscale, 100))
+		if (videoDecoderThread->tryGetNextFrame(decodedFrameData, decodedFrameDataGrayscale, 100))
 		{
-			videoStabilizer->processFrame(&decodedFrameDataGrayscale);
+			videoStabilizer->processFrame(decodedFrameDataGrayscale);
 
 			encodeWindow->getContext()->makeCurrent(encodeWindow->getSurface());
 			renderer->startRendering(videoDecoder->getCurrentTime(), frameDuration, 0.0, videoDecoder->getLastDecodeTime(), videoStabilizer->getLastProcessTime(), videoEncoder->getLastEncodeTime());
-			renderer->uploadFrameData(&decodedFrameData);
+			renderer->uploadFrameData(decodedFrameData);
 			videoDecoderThread->signalFrameRead();
 			renderer->renderAll();
 			renderer->stopRendering();
@@ -74,7 +74,7 @@ void RenderOffScreenThread::run()
 			if (isInterruptionRequested())
 				break;
 
-			renderer->getRenderedFrame(&renderedFrameData);
+			renderedFrameData = renderer->getRenderedFrame();
 			renderedFrameData.duration = decodedFrameData.duration;
 			renderedFrameData.number = decodedFrameData.number;
 
@@ -89,11 +89,11 @@ void RenderOffScreenThread::run()
 	encodeWindow->getContext()->moveToThread(mainWindow->thread());
 }
 
-bool RenderOffScreenThread::tryGetNextFrame(FrameData* frameData, int timeout)
+bool RenderOffScreenThread::tryGetNextFrame(FrameData& frameData, int timeout)
 {
 	if (frameAvailableSemaphore->tryAcquire(1, timeout))
 	{
-		*frameData = renderedFrameData;
+		frameData = renderedFrameData;
 		return true;
 	}
 	else

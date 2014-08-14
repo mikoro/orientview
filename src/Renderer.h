@@ -25,7 +25,7 @@ namespace OrientView
 	class Settings;
 	struct Route;
 
-	enum class RenderMode { ALL, VIDEO, MAP };
+	enum class RenderMode { All, Video, Map };
 
 	struct Panel
 	{
@@ -78,13 +78,13 @@ namespace OrientView
 		~Renderer();
 
 		void startRendering(double currentTime, double frameTime, double spareTime, double decoderTime, double stabilizerTime, double encoderTime);
-		void uploadFrameData(FrameData* frameData);
+		void uploadFrameData(const FrameData& frameData);
 		void renderAll();
 		void stopRendering();
-		void getRenderedFrame(FrameData* frameData);
+		FrameData getRenderedFrame();
 
-		Panel* getVideoPanel();
-		Panel* getMapPanel();
+		Panel& getVideoPanel();
+		Panel& getMapPanel();
 		RenderMode getRenderMode() const;
 
 		void setRenderMode(RenderMode mode);
@@ -95,8 +95,8 @@ namespace OrientView
 
 	private:
 
-		bool loadShaders(Panel* panel, const QString& shaderName);
-		void loadBuffer(Panel* panel, GLfloat* buffer, size_t size);
+		bool loadShaders(Panel& panel, const QString& shaderName);
+		void loadBuffer(Panel& panel, GLfloat* buffer, size_t size);
 		void renderVideoPanel();
 		void renderMapPanel();
 		void renderInfoPanel();
@@ -121,7 +121,7 @@ namespace OrientView
 
 		Panel videoPanel;
 		Panel mapPanel;
-		RenderMode renderMode = RenderMode::ALL;
+		RenderMode renderMode = RenderMode::All;
 
 		QElapsedTimer renderTimer;
 		double lastRenderTime = 0.0;

@@ -42,19 +42,19 @@ void VideoDecoderThread::run()
 		if (isInterruptionRequested())
 			break;
 
-		if (videoDecoder->getNextFrame(&decodedFrameData, &decodedFrameDataGrayscale))
+		if (videoDecoder->getNextFrame(decodedFrameData, decodedFrameDataGrayscale))
 			frameAvailableSemaphore->release(1);
 		else
 			QThread::msleep(100);
 	}
 }
 
-bool VideoDecoderThread::tryGetNextFrame(FrameData* frameData, FrameData* frameDataGrayscale, int timeout)
+bool VideoDecoderThread::tryGetNextFrame(FrameData& frameData, FrameData& frameDataGrayscale, int timeout)
 {
 	if (frameAvailableSemaphore->tryAcquire(1, timeout))
 	{
-		*frameData = decodedFrameData;
-		*frameDataGrayscale = decodedFrameDataGrayscale;
+		frameData = decodedFrameData;
+		frameDataGrayscale = decodedFrameDataGrayscale;
 
 		return true;
 	}

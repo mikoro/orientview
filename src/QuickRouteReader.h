@@ -22,6 +22,7 @@ namespace OrientView
 	public:
 
 		bool initialize(MapImageReader* mapImageReader, Settings* settings);
+
 		const std::vector<RoutePoint>& getRoutePoints() const;
 		const std::vector<RoutePoint>& getAlignedRoutePoints() const;
 

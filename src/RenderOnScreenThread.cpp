@@ -54,12 +54,12 @@ void RenderOnScreenThread::run()
 
 		if (!isPaused || shouldAdvanceOneFrame)
 		{
-			gotFrame = videoDecoderThread->tryGetNextFrame(&frameData, &frameDataGrayscale, 0);
+			gotFrame = videoDecoderThread->tryGetNextFrame(frameData, frameDataGrayscale, 0);
 			shouldAdvanceOneFrame = false;
 		}
 
 		if (gotFrame)
-			videoStabilizer->processFrame(&frameDataGrayscale);
+			videoStabilizer->processFrame(frameDataGrayscale);
 
 		routeManager->update(videoDecoder->getCurrentTime());
 
@@ -68,7 +68,7 @@ void RenderOnScreenThread::run()
 
 		if (gotFrame)
 		{
-			renderer->uploadFrameData(&frameData);
+			renderer->uploadFrameData(frameData);
 			videoDecoderThread->signalFrameRead();
 		}
 

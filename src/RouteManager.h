@@ -32,7 +32,7 @@ namespace OrientView
 		double runnerRadius = 10.0;
 
 		QPainterPath wholeRoutePath;
-		QColor wholeRouteColor = QColor(255, 0, 0, 64);
+		QColor wholeRouteColor = QColor(255, 0, 0, 128);
 		double wholeRouteWidth = 15.0;
 	};
 

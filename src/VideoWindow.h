@@ -24,6 +24,7 @@ namespace OrientView
 
 		QOpenGLContext* getContext() const;
 		bool getIsInitialized() const;
+
 		bool keyIsDown(int key);
 		bool keyIsDownOnce(int key);
 

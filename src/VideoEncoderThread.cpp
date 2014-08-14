@@ -22,9 +22,9 @@ void VideoEncoderThread::run()
 
 	while (!isInterruptionRequested())
 	{
-		if (renderOffScreenThread->tryGetNextFrame(&renderedFrameData, 100))
+		if (renderOffScreenThread->tryGetNextFrame(renderedFrameData, 100))
 		{
-			videoEncoder->readFrameData(&renderedFrameData);
+			videoEncoder->readFrameData(renderedFrameData);
 			renderOffScreenThread->signalFrameRead();
 			int frameSize = videoEncoder->encodeFrame();
 
