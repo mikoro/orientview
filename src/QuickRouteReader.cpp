@@ -380,6 +380,7 @@ void QuickRouteReader::processRoutePoints()
 
 	double alignedTime = 0.0;
 	RoutePoint currentRoutePoint = routePoints.at(0);
+	RoutePoint alignedRoutePoint;
 
 	// align and interpolate route point data to one second intervals
 	for (int i = 0; i < routePoints.size() - 1;)
@@ -401,7 +402,6 @@ void QuickRouteReader::processRoutePoints()
 		i = nextIndex;
 
 		RoutePoint nextRoutePoint = routePoints.at(nextIndex);
-		RoutePoint alignedRoutePoint;
 
 		alignedRoutePoint.dateTime = currentRoutePoint.dateTime;
 		alignedRoutePoint.coordinate = currentRoutePoint.coordinate;
@@ -433,6 +433,8 @@ void QuickRouteReader::processRoutePoints()
 		currentRoutePoint.dateTime = nextRoutePoint.dateTime;
 		currentRoutePoint.coordinate = nextRoutePoint.coordinate;
 	}
+
+	alignedRoutePoints.push_back(alignedRoutePoint);
 }
 
 QPointF QuickRouteReader::projectCoordinate(const QPointF& coordinate, const QPointF& projectionOriginCoordinate)
