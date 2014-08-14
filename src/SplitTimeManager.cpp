@@ -8,7 +8,7 @@ using namespace OrientView;
 
 void SplitTimeManager::initialize(Settings* settings)
 {
-	QStringList timeStrings = settings->splitTimes.splitTimes.split(QRegExp("[;|]"), QString::SkipEmptyParts);
+	QStringList timeStrings = settings->splits.splitTimes.split(QRegExp("[;|]"), QString::SkipEmptyParts);
 
 	for (int i = 0; i < timeStrings.size(); ++i)
 	{

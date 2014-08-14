@@ -8,9 +8,9 @@ using namespace OrientView;
 
 bool MapImageReader::initialize(Settings* settings)
 {
-	qDebug("Initializing map image reader (%s)", qPrintable(settings->mapAndRoute.mapImageFilePath));
+	qDebug("Initializing map image reader (%s)", qPrintable(settings->map.mapImageFilePath));
 
-	if (!mapImage.load(settings->mapAndRoute.mapImageFilePath))
+	if (!mapImage.load(settings->map.mapImageFilePath))
 	{
 		qWarning("Could not load map image");
 		return false;

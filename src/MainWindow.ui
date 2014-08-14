@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>655</width>
-    <height>450</height>
+    <width>789</width>
+    <height>453</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -39,12 +39,223 @@
    <layout class="QVBoxLayout" name="verticalLayout_8">
     <item>
      <widget class="QTabWidget" name="tabWidgetMain">
-      <property name="currentIndex">
-       <number>5</number>
+      <property name="tabPosition">
+       <enum>QTabWidget::North</enum>
       </property>
-      <widget class="QWidget" name="tabVideoDecoder">
+      <property name="currentIndex">
+       <number>8</number>
+      </property>
+      <property name="movable">
+       <bool>false</bool>
+      </property>
+      <widget class="QWidget" name="tabMap">
        <attribute name="title">
-        <string>Video decoder</string>
+        <string>Map</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <item>
+         <widget class="QGroupBox" name="groupBox_6">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="title">
+           <string>Map image file</string>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_2">
+           <item>
+            <widget class="QLineEdit" name="lineEditMapImageFile">
+             <property name="toolTip">
+              <string>The map image file</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="pushButtonBrowseMapImageFile">
+             <property name="text">
+              <string>Browse</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <spacer name="verticalSpacer_3">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tabRoute">
+       <attribute name="title">
+        <string>Route</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <item>
+         <widget class="QGroupBox" name="groupBox_5">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="title">
+           <string>QuickRoute JPEG file</string>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_3">
+           <item>
+            <widget class="QLineEdit" name="lineEditQuickRouteJpegFile">
+             <property name="toolTip">
+              <string>The JPEG image file exported from QuickRoute (contains route data)</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="pushButtonBrowseQuickRouteJpegFile">
+             <property name="text">
+              <string>Browse</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <spacer name="verticalSpacer_8">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tabSplits">
+       <attribute name="title">
+        <string>Splits</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_10">
+        <item>
+         <widget class="QGroupBox" name="groupBox_8">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="title">
+           <string>Split times</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_2">
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_32">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>70</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Start offset</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QDoubleSpinBox" name="doubleSpinBoxSplitTimesStartOffset">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>100</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>How many seconds to offset the route start</string>
+             </property>
+             <property name="minimum">
+              <double>-99999.000000000000000</double>
+             </property>
+             <property name="maximum">
+              <double>99999.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>1.000000000000000</double>
+             </property>
+             <property name="value">
+              <double>0.000000000000000</double>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0" colspan="3">
+            <widget class="QLineEdit" name="lineEditSplitTimes">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="toolTip">
+              <string>Relative split times (e.g. 1:23) separated by &quot;|&quot; or &quot;;&quot;</string>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <spacer name="verticalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tabVideo">
+       <attribute name="title">
+        <string>Video</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
@@ -85,7 +296,7 @@
            </sizepolicy>
           </property>
           <property name="title">
-           <string>Settings</string>
+           <string>General</string>
           </property>
           <layout class="QGridLayout" name="gridLayout_6">
            <item row="1" column="0">
@@ -319,213 +530,6 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="tabMapAndRoute">
-       <attribute name="title">
-        <string>Map and route</string>
-       </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_2">
-        <item>
-         <widget class="QGroupBox" name="groupBox_5">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="title">
-           <string>QuickRoute JPEG file</string>
-          </property>
-          <layout class="QHBoxLayout" name="horizontalLayout_3">
-           <item>
-            <widget class="QLineEdit" name="lineEditQuickRouteJpegFile">
-             <property name="toolTip">
-              <string>The JPEG image file exported from QuickRoute (contains route data)</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="pushButtonBrowseQuickRouteJpegFile">
-             <property name="text">
-              <string>Browse</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QGroupBox" name="groupBox_6">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="title">
-           <string>Map image file</string>
-          </property>
-          <layout class="QHBoxLayout" name="horizontalLayout_2">
-           <item>
-            <widget class="QLineEdit" name="lineEditMapImageFile">
-             <property name="toolTip">
-              <string>The map image file</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="pushButtonBrowseMapImageFile">
-             <property name="text">
-              <string>Browse</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QGroupBox" name="groupBox_7">
-          <property name="title">
-           <string>Route calibration</string>
-          </property>
-          <layout class="QGridLayout" name="gridLayout">
-           <item row="0" column="2">
-            <spacer name="horizontalSpacer_6">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item row="0" column="0">
-            <widget class="QLabel" name="label_32">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>90</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>Start offset (s)</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QDoubleSpinBox" name="doubleSpinBoxRouteStartOffset">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>100</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="toolTip">
-              <string>How many seconds to offset the route start</string>
-             </property>
-             <property name="minimum">
-              <double>-99999.000000000000000</double>
-             </property>
-             <property name="maximum">
-              <double>99999.000000000000000</double>
-             </property>
-             <property name="singleStep">
-              <double>1.000000000000000</double>
-             </property>
-             <property name="value">
-              <double>0.000000000000000</double>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <spacer name="verticalSpacer_3">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="tabSplitTimes">
-       <attribute name="title">
-        <string>Split times</string>
-       </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_3">
-        <item>
-         <widget class="QGroupBox" name="groupBox_8">
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="title">
-           <string>Split times</string>
-          </property>
-          <layout class="QGridLayout" name="gridLayout_2">
-           <item row="0" column="0">
-            <widget class="QLineEdit" name="lineEditSplitTimes">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="toolTip">
-              <string>Relative split times separated by a vertical bar &quot;|&quot;</string>
-             </property>
-             <property name="text">
-              <string/>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <spacer name="verticalSpacer_2">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </widget>
       <widget class="QWidget" name="tabWindow">
        <attribute name="title">
         <string>Window</string>
@@ -540,7 +544,7 @@
            </sizepolicy>
           </property>
           <property name="title">
-           <string>Settings</string>
+           <string>General</string>
           </property>
           <layout class="QGridLayout" name="gridLayout_3">
            <item row="0" column="0">
@@ -1009,7 +1013,7 @@
               </size>
              </property>
              <property name="toolTip">
-              <string>Initial scale of the video panel</string>
+              <string>Initial scale of the map panel</string>
              </property>
              <property name="maximum">
               <double>99999.000000000000000</double>
@@ -1126,7 +1130,7 @@
             </widget>
            </item>
            <item row="2" column="1">
-            <widget class="QLineEdit" name="lineEditBackgroundColorMapPanel">
+            <widget class="QLineEdit" name="lineEditMapPanelBackgroundColor">
              <property name="sizePolicy">
               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -1211,7 +1215,7 @@
             </widget>
            </item>
            <item row="0" column="1">
-            <widget class="QLineEdit" name="lineEditBackgroundColorVideoPanel">
+            <widget class="QLineEdit" name="lineEditVideoPanelBackgroundColor">
              <property name="sizePolicy">
               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -1431,9 +1435,9 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="tabVideoStabilizer">
+      <widget class="QWidget" name="tabStabilizer">
        <attribute name="title">
-        <string>Video stabilizer</string>
+        <string>Stabilizer</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_6">
         <item>
@@ -1445,7 +1449,7 @@
            </sizepolicy>
           </property>
           <property name="title">
-           <string>Settings</string>
+           <string>General</string>
           </property>
           <layout class="QGridLayout" name="gridLayout_5">
            <item row="6" column="0">
@@ -1588,7 +1592,7 @@
               </size>
              </property>
              <property name="toolTip">
-              <string>Whether to clear previous frames</string>
+              <string>Whether to clear previous frames from the background</string>
              </property>
              <property name="text">
               <string/>
@@ -1900,9 +1904,9 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="tabVideoEncoder">
+      <widget class="QWidget" name="tabEncoder">
        <attribute name="title">
-        <string>Video encoder</string>
+        <string>Encoder</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_7">
         <item>
@@ -1943,7 +1947,7 @@
            </sizepolicy>
           </property>
           <property name="title">
-           <string>Settings</string>
+           <string>General</string>
           </property>
           <layout class="QGridLayout" name="gridLayout_8">
            <item row="1" column="1">
@@ -2355,17 +2359,18 @@
  <layoutdefault spacing="6" margin="11"/>
  <tabstops>
   <tabstop>tabWidgetMain</tabstop>
+  <tabstop>lineEditMapImageFile</tabstop>
+  <tabstop>pushButtonBrowseMapImageFile</tabstop>
+  <tabstop>lineEditQuickRouteJpegFile</tabstop>
+  <tabstop>pushButtonBrowseQuickRouteJpegFile</tabstop>
+  <tabstop>lineEditSplitTimes</tabstop>
+  <tabstop>doubleSpinBoxSplitTimesStartOffset</tabstop>
   <tabstop>lineEditInputVideoFile</tabstop>
   <tabstop>pushButtonBrowseInputVideoFile</tabstop>
   <tabstop>spinBoxVideoDecoderFrameCountDivisor</tabstop>
   <tabstop>spinBoxVideoDecoderFrameDurationDivisor</tabstop>
   <tabstop>spinBoxVideoDecoderFrameSizeDivisor</tabstop>
-  <tabstop>lineEditQuickRouteJpegFile</tabstop>
-  <tabstop>pushButtonBrowseQuickRouteJpegFile</tabstop>
-  <tabstop>lineEditMapImageFile</tabstop>
-  <tabstop>pushButtonBrowseMapImageFile</tabstop>
-  <tabstop>doubleSpinBoxRouteStartOffset</tabstop>
-  <tabstop>lineEditSplitTimes</tabstop>
+  <tabstop>checkBoxVideoDecoderEnableVerboseLogging</tabstop>
   <tabstop>spinBoxWindowWidth</tabstop>
   <tabstop>spinBoxWindowHeight</tabstop>
   <tabstop>comboBoxWindowMultisamples</tabstop>
@@ -2375,9 +2380,9 @@
   <tabstop>doubleSpinBoxMapPanelWidth</tabstop>
   <tabstop>doubleSpinBoxVideoPanelScale</tabstop>
   <tabstop>doubleSpinBoxMapPanelScale</tabstop>
-  <tabstop>lineEditBackgroundColorVideoPanel</tabstop>
+  <tabstop>lineEditVideoPanelBackgroundColor</tabstop>
   <tabstop>pushButtonPickVideoPanelBackgroundColor</tabstop>
-  <tabstop>lineEditBackgroundColorMapPanel</tabstop>
+  <tabstop>lineEditMapPanelBackgroundColor</tabstop>
   <tabstop>pushButtonPickMapPanelBackgroundColor</tabstop>
   <tabstop>comboBoxVideoPanelShader</tabstop>
   <tabstop>comboBoxMapPanelShader</tabstop>
@@ -2385,6 +2390,7 @@
   <tabstop>spinBoxVideoStabilizerFrameSizeDivisor</tabstop>
   <tabstop>doubleSpinBoxVideoStabilizerAveragingFactor</tabstop>
   <tabstop>doubleSpinBoxVideoStabilizerDampingFactor</tabstop>
+  <tabstop>doubleSpinBoxVideoStabilizerMaxDisplacementFactor</tabstop>
   <tabstop>checkBoxVideoStabilizerEnableClipping</tabstop>
   <tabstop>checkBoxVideoStabilizerEnableClearing</tabstop>
   <tabstop>spinBoxVideoStabilizerInpaintBorderWidth</tabstop>

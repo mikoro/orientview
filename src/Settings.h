@@ -25,6 +25,25 @@ namespace OrientView
 		void readFromUI(Ui::MainWindow* ui);			// Read values from the UI.
 		void writeToUI(Ui::MainWindow* ui);				// Write values to the UI.
 
+		struct Map
+		{
+			QString mapImageFilePath = "";
+
+		} map;
+
+		struct Route
+		{
+			QString quickRouteJpegFilePath = "";
+
+		} route;
+
+		struct Splits
+		{
+			QString splitTimes = "";
+			double startOffset = 0.0;
+
+		} splits;
+
 		struct VideoDecoder
 		{
 			QString inputVideoFilePath = "";
@@ -34,20 +53,6 @@ namespace OrientView
 			bool enableVerboseLogging = false;
 
 		} videoDecoder;
-
-		struct MapAndRoute
-		{
-			QString quickRouteJpegFilePath = "";
-			QString mapImageFilePath = "";
-			double routeStartOffset = 0.0;
-
-		} mapAndRoute;
-
-		struct SplitTimes
-		{
-			QString splitTimes = "";
-
-		} splitTimes;
 
 		struct Window
 		{

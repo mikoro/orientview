@@ -15,17 +15,18 @@ void Settings::readFromQSettings(QSettings* settings)
 
 	Settings defaultSettings;
 
+	map.mapImageFilePath = settings->value("map/mapImageFilePath", defaultSettings.map.mapImageFilePath).toString();
+
+	route.quickRouteJpegFilePath = settings->value("route/quickRouteJpegFilePath", defaultSettings.route.quickRouteJpegFilePath).toString();
+
+	splits.splitTimes = settings->value("splits/splitTimes", defaultSettings.splits.splitTimes).toString();
+	splits.startOffset = settings->value("splits/startOffset", defaultSettings.splits.startOffset).toDouble();
+
 	videoDecoder.inputVideoFilePath = settings->value("videoDecoder/inputVideoFilePath", defaultSettings.videoDecoder.inputVideoFilePath).toString();
 	videoDecoder.frameCountDivisor = settings->value("videoDecoder/frameCountDivisor", defaultSettings.videoDecoder.frameCountDivisor).toInt();
 	videoDecoder.frameDurationDivisor = settings->value("videoDecoder/frameDurationDivisor", defaultSettings.videoDecoder.frameDurationDivisor).toInt();
 	videoDecoder.frameSizeDivisor = settings->value("videoDecoder/frameSizeDivisor", defaultSettings.videoDecoder.frameSizeDivisor).toInt();
 	videoDecoder.enableVerboseLogging = settings->value("videoDecoder/enableVerboseLogging", defaultSettings.videoDecoder.enableVerboseLogging).toBool();
-
-	mapAndRoute.quickRouteJpegFilePath = settings->value("mapAndRoute/quickRouteJpegFilePath", defaultSettings.mapAndRoute.quickRouteJpegFilePath).toString();
-	mapAndRoute.mapImageFilePath = settings->value("mapAndRoute/mapImageFilePath", defaultSettings.mapAndRoute.mapImageFilePath).toString();
-	mapAndRoute.routeStartOffset = settings->value("mapAndRoute/routeStartOffset", defaultSettings.mapAndRoute.routeStartOffset).toDouble();
-
-	splitTimes.splitTimes = settings->value("splitTimes/splitTimes", defaultSettings.splitTimes.splitTimes).toString();
 
 	window.width = settings->value("window/width", defaultSettings.window.width).toInt();
 	window.height = settings->value("window/height", defaultSettings.window.height).toInt();
@@ -75,17 +76,18 @@ void Settings::writeToQSettings(QSettings* settings)
 {
 	qDebug("Writing settings to %s", qPrintable(settings->fileName()));
 
+	settings->setValue("map/mapImageFilePath", map.mapImageFilePath);
+
+	settings->setValue("route/quickRouteJpegFilePath", route.quickRouteJpegFilePath);
+	
+	settings->setValue("splits/splitTimes", splits.splitTimes);
+	settings->setValue("splits/startOffset", splits.startOffset);
+
 	settings->setValue("videoDecoder/inputVideoFilePath", videoDecoder.inputVideoFilePath);
 	settings->setValue("videoDecoder/frameCountDivisor", videoDecoder.frameCountDivisor);
 	settings->setValue("videoDecoder/frameDurationDivisor", videoDecoder.frameDurationDivisor);
 	settings->setValue("videoDecoder/frameSizeDivisor", videoDecoder.frameSizeDivisor);
 	settings->setValue("videoDecoder/enableVerboseLogging", videoDecoder.enableVerboseLogging);
-
-	settings->setValue("mapAndRoute/quickRouteJpegFilePath", mapAndRoute.quickRouteJpegFilePath);
-	settings->setValue("mapAndRoute/mapImageFilePath", mapAndRoute.mapImageFilePath);
-	settings->setValue("mapAndRoute/routeStartOffset", mapAndRoute.routeStartOffset);
-
-	settings->setValue("splitTimes/splitTimes", splitTimes.splitTimes);
 
 	settings->setValue("window/width", window.width);
 	settings->setValue("window/height", window.height);
@@ -133,17 +135,18 @@ void Settings::writeToQSettings(QSettings* settings)
 
 void Settings::readFromUI(Ui::MainWindow* ui)
 {
+	map.mapImageFilePath = ui->lineEditMapImageFile->text();
+
+	route.quickRouteJpegFilePath = ui->lineEditQuickRouteJpegFile->text();
+
+	splits.splitTimes = ui->lineEditSplitTimes->text();
+	splits.startOffset = ui->doubleSpinBoxSplitTimesStartOffset->value();
+
 	videoDecoder.inputVideoFilePath = ui->lineEditInputVideoFile->text();
 	videoDecoder.frameCountDivisor = ui->spinBoxVideoDecoderFrameCountDivisor->value();
 	videoDecoder.frameDurationDivisor = ui->spinBoxVideoDecoderFrameDurationDivisor->value();
 	videoDecoder.frameSizeDivisor = ui->spinBoxVideoDecoderFrameSizeDivisor->value();
 	videoDecoder.enableVerboseLogging = ui->checkBoxVideoDecoderEnableVerboseLogging->isChecked();
-
-	mapAndRoute.quickRouteJpegFilePath = ui->lineEditQuickRouteJpegFile->text();
-	mapAndRoute.mapImageFilePath = ui->lineEditMapImageFile->text();
-	mapAndRoute.routeStartOffset = ui->doubleSpinBoxRouteStartOffset->value();
-
-	splitTimes.splitTimes = ui->lineEditSplitTimes->text();
 
 	window.width = ui->spinBoxWindowWidth->value();
 	window.height = ui->spinBoxWindowHeight->value();
@@ -155,8 +158,8 @@ void Settings::readFromUI(Ui::MainWindow* ui)
 	appearance.mapPanelWidth = ui->doubleSpinBoxMapPanelWidth->value();
 	appearance.videoPanelScale = ui->doubleSpinBoxVideoPanelScale->value();
 	appearance.mapPanelScale = ui->doubleSpinBoxMapPanelScale->value();
-	appearance.videoPanelBackgroundColor = QColor(ui->lineEditBackgroundColorVideoPanel->text());
-	appearance.mapPanelBackgroundColor = QColor(ui->lineEditBackgroundColorMapPanel->text());
+	appearance.videoPanelBackgroundColor = QColor(ui->lineEditVideoPanelBackgroundColor->text());
+	appearance.mapPanelBackgroundColor = QColor(ui->lineEditMapPanelBackgroundColor->text());
 	appearance.videoPanelShader = ui->comboBoxVideoPanelShader->currentText();
 	appearance.mapPanelShader = ui->comboBoxMapPanelShader->currentText();
 
@@ -177,17 +180,18 @@ void Settings::readFromUI(Ui::MainWindow* ui)
 
 void Settings::writeToUI(Ui::MainWindow* ui)
 {
+	ui->lineEditMapImageFile->setText(map.mapImageFilePath);
+
+	ui->lineEditQuickRouteJpegFile->setText(route.quickRouteJpegFilePath);
+
+	ui->lineEditSplitTimes->setText(splits.splitTimes);
+	ui->doubleSpinBoxSplitTimesStartOffset->setValue(splits.startOffset);
+
 	ui->lineEditInputVideoFile->setText(videoDecoder.inputVideoFilePath);
 	ui->spinBoxVideoDecoderFrameCountDivisor->setValue(videoDecoder.frameCountDivisor);
 	ui->spinBoxVideoDecoderFrameDurationDivisor->setValue(videoDecoder.frameDurationDivisor);
 	ui->spinBoxVideoDecoderFrameSizeDivisor->setValue(videoDecoder.frameSizeDivisor);
 	ui->checkBoxVideoDecoderEnableVerboseLogging->setChecked(videoDecoder.enableVerboseLogging);
-
-	ui->lineEditQuickRouteJpegFile->setText(mapAndRoute.quickRouteJpegFilePath);
-	ui->lineEditMapImageFile->setText(mapAndRoute.mapImageFilePath);
-	ui->doubleSpinBoxRouteStartOffset->setValue(mapAndRoute.routeStartOffset);
-
-	ui->lineEditSplitTimes->setText(splitTimes.splitTimes);
 
 	ui->spinBoxWindowWidth->setValue(window.width);
 	ui->spinBoxWindowHeight->setValue(window.height);
@@ -199,8 +203,8 @@ void Settings::writeToUI(Ui::MainWindow* ui)
 	ui->doubleSpinBoxMapPanelWidth->setValue(appearance.mapPanelWidth);
 	ui->doubleSpinBoxVideoPanelScale->setValue(appearance.videoPanelScale);
 	ui->doubleSpinBoxMapPanelScale->setValue(appearance.mapPanelScale);
-	ui->lineEditBackgroundColorVideoPanel->setText(appearance.videoPanelBackgroundColor.name());
-	ui->lineEditBackgroundColorMapPanel->setText(appearance.mapPanelBackgroundColor.name());
+	ui->lineEditVideoPanelBackgroundColor->setText(appearance.videoPanelBackgroundColor.name());
+	ui->lineEditMapPanelBackgroundColor->setText(appearance.mapPanelBackgroundColor.name());
 	ui->comboBoxVideoPanelShader->setCurrentText(appearance.videoPanelShader);
 	ui->comboBoxMapPanelShader->setCurrentText(appearance.mapPanelShader);
 

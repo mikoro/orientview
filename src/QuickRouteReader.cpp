@@ -13,12 +13,12 @@ using namespace OrientView;
 
 bool QuickRouteReader::initialize(MapImageReader* mapImageReader, Settings* settings)
 {
-	qDebug("Initializing QuickRoute reader (%s)", qPrintable(settings->mapAndRoute.quickRouteJpegFilePath));
+	qDebug("Initializing QuickRoute reader (%s)", qPrintable(settings->route.quickRouteJpegFilePath));
 
 	mapImageWidth = mapImageReader->getMapImage().width();
 	mapImageHeight = mapImageReader->getMapImage().height();
 
-	QFile file(settings->mapAndRoute.quickRouteJpegFilePath);
+	QFile file(settings->route.quickRouteJpegFilePath);
 
 	if (!file.open(QIODevice::ReadOnly))
 	{
