@@ -50,6 +50,7 @@ namespace OrientView
 		double quickRouteImageHeight = 0.0;
 		QPointF projectionOriginCoordinate;
 		std::vector<RoutePoint> routePoints;
+		std::vector<RoutePoint> alignedRoutePoints;
 		std::vector<RoutePointHandle> routePointHandles;
 	};
 }

@@ -323,6 +323,9 @@ QDateTime QuickRouteReader::readDateTime(QDataStream& dataStream, QDateTime& pre
 
 void QuickRouteReader::processRoutePoints()
 {
+	if (routePoints.size() < 1)
+		return;
+
 	int handleIndex = 0;
 	RoutePointHandle currentHandle;
 	RoutePointHandle nextHandle;
@@ -355,20 +358,80 @@ void QuickRouteReader::processRoutePoints()
 				nextHandle.routePointIndex = DBL_MAX;
 		}
 
-		routePoints.at(i).projectedPosition = projectCoordinate(routePoints.at(i).coordinate, projectionOriginCoordinate);
-		routePoints.at(i).transformedPosition = currentHandle.transformation.map(routePoints.at(i).projectedPosition);
-		routePoints.at(i).transformedPosition = extraTransformation.map(routePoints.at(i).transformedPosition);
+		QPointF position = projectCoordinate(routePoints.at(i).coordinate, projectionOriginCoordinate);;
+		position = currentHandle.transformation.map(position);
+		routePoints.at(i).position = extraTransformation.map(position);
 	}
 
-	// calculate delta times, delta distances, and paces
+	if (routePoints.size() < 2)
+		return;
+
+	// calculate cumulative time, delta times, delta distances, and paces
 	for (int i = 1; i < routePoints.size(); ++i)
 	{
-		routePoints.at(i).timeToPrevious = (routePoints.at(i).dateTime.toMSecsSinceEpoch() - routePoints.at(i - 1).dateTime.toMSecsSinceEpoch()) / 1000.0;
-		routePoints.at(i).distanceToPrevious = coordinateDistance(routePoints.at(i - 1).coordinate, routePoints.at(i).coordinate);
-		routePoints.at(i).timeSinceStart = (routePoints.at(i).dateTime.toMSecsSinceEpoch() - routePoints.at(0).dateTime.toMSecsSinceEpoch()) / 1000.0;
+		routePoints.at(i).time = (routePoints.at(i).dateTime.toMSecsSinceEpoch() - routePoints.at(0).dateTime.toMSecsSinceEpoch()) / 1000.0;
 
-		if (routePoints.at(i).distanceToPrevious > 0.0)
-			routePoints.at(i).pace = (routePoints.at(i).timeToPrevious / 60.0) / (routePoints.at(i).distanceToPrevious / 1000.0);
+		double timeToPrevious = (routePoints.at(i).dateTime.toMSecsSinceEpoch() - routePoints.at(i - 1).dateTime.toMSecsSinceEpoch()) / 1000.0;
+		double distanceToPrevious = coordinateDistance(routePoints.at(i - 1).coordinate, routePoints.at(i).coordinate);
+		
+		if (distanceToPrevious > 0.0)
+			routePoints.at(i).pace = (timeToPrevious / 60.0) / (distanceToPrevious / 1000.0);
+	}
+
+	double alignedTime = 0.0;
+	RoutePoint currentRoutePoint = routePoints.at(0);
+
+	// align and interpolate route point data to one second intervals
+	for (int i = 0; i < routePoints.size() - 1;)
+	{
+		int nextIndex = 0;
+
+		for (int j = i + 1; j < routePoints.size(); ++j)
+		{
+			if (routePoints.at(j).time - currentRoutePoint.time > 1.0)
+			{
+				nextIndex = j;
+				break;
+			}
+		}
+
+		if (nextIndex <= i)
+			break;
+
+		i = nextIndex;
+
+		RoutePoint nextRoutePoint = routePoints.at(nextIndex);
+		RoutePoint alignedRoutePoint;
+
+		alignedRoutePoint.dateTime = currentRoutePoint.dateTime;
+		alignedRoutePoint.coordinate = currentRoutePoint.coordinate;
+
+		double timeDelta = nextRoutePoint.time - currentRoutePoint.time;
+		double alphaStep = 1.0 / timeDelta;
+		double alpha = 0.0;
+		int stepCount = (int)timeDelta;
+
+		for (int k = 0; k <= stepCount; ++k)
+		{
+			alignedRoutePoint.time = alignedTime;
+			alignedRoutePoint.position.setX((1.0 - alpha) * currentRoutePoint.position.x() + alpha * nextRoutePoint.position.x());
+			alignedRoutePoint.position.setY((1.0 - alpha) * currentRoutePoint.position.y() + alpha * nextRoutePoint.position.y());
+			alignedRoutePoint.elevation = (1.0 - alpha) * currentRoutePoint.elevation + alpha * nextRoutePoint.elevation;
+			alignedRoutePoint.heartRate = (1.0 - alpha) * currentRoutePoint.heartRate + alpha * nextRoutePoint.heartRate;
+			alignedRoutePoint.pace = (1.0 - alpha) * currentRoutePoint.pace + alpha * nextRoutePoint.pace;
+			
+			alpha += alphaStep;
+
+			if (k < stepCount)
+			{
+				alignedRoutePoints.push_back(alignedRoutePoint);
+				alignedTime += 1.0;
+			}
+		}
+
+		currentRoutePoint = alignedRoutePoint;
+		currentRoutePoint.dateTime = nextRoutePoint.dateTime;
+		currentRoutePoint.coordinate = nextRoutePoint.coordinate;
 	}
 }
 

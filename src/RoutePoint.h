@@ -10,15 +10,12 @@ namespace OrientView
 {
 	struct RoutePoint
 	{
-		QDateTime dateTime;
-		QPointF coordinate;
-		QPointF projectedPosition;
-		QPointF transformedPosition;
-		double elevation = 0.0;
-		double heartRate = 0.0;
-		double distanceToPrevious = 0.0;
-		double timeToPrevious = 0.0;
-		double timeSinceStart = 0.0;
-		double pace = 0.0;
+		QDateTime dateTime;			// Actual date and time of the point.
+		double time = 0.0;			// Time in seconds since the start.
+		QPointF coordinate;			// Coordinate of the point in world coordinates.
+		QPointF position;			// Position of the point in map pixel units.
+		double elevation = 0.0;		// Elevation in meters.
+		double heartRate = 0.0;		// Heart rate bpm.
+		double pace = 0.0;			// Pace in min / km.
 	};
 }

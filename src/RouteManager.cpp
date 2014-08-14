@@ -46,8 +46,8 @@ void RouteManager::constructWholeRoutePath(Route& route)
 		{
 			RoutePoint rp = route.routePoints.at(i);
 
-			double x = rp.transformedPosition.x();
-			double y = rp.transformedPosition.y();
+			double x = rp.position.x();
+			double y = rp.position.y();
 
 			if (i == 0)
 				route.wholeRoutePath.moveTo(x, y);

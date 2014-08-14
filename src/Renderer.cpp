@@ -678,6 +678,18 @@ void Renderer::renderPanel(const Panel& panel)
 	panel.program->release();
 }
 
+QColor Renderer::interpolateFromGreenToRed(double lowValue, double highValue, double value)
+{
+	double alpha = (value - lowValue) / (highValue - lowValue);
+	alpha = std::max(0.0, std::min(alpha, 1.0));
+
+	double r = (alpha > 0.5 ? 1.0 : 2.0 * alpha);
+	double g = (alpha > 0.5 ? 1.0 - 2.0 * (alpha - 0.5) : 1.0);
+	double b = 0.0;
+
+	return QColor::fromRgbF(r, g, b, 0.8);
+}
+
 Panel* Renderer::getVideoPanel()
 {
 	return &videoPanel;
