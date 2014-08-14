@@ -14,6 +14,8 @@ namespace Ui
 
 namespace OrientView
 {
+	enum SplitTimeType { Absolute, Relative };
+
 	// Central structure of all the settings of the program.
 	class Settings
 	{
@@ -34,13 +36,14 @@ namespace OrientView
 		struct Route
 		{
 			QString quickRouteJpegFilePath = "";
+			double startOffset = 0.0;
 
 		} route;
 
 		struct Splits
 		{
+			SplitTimeType type = SplitTimeType::Absolute;
 			QString splitTimes = "";
-			double startOffset = 0.0;
 
 		} splits;
 

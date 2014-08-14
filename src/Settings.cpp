@@ -18,10 +18,11 @@ void Settings::readFromQSettings(QSettings* settings)
 	map.mapImageFilePath = settings->value("map/mapImageFilePath", defaultSettings.map.mapImageFilePath).toString();
 
 	route.quickRouteJpegFilePath = settings->value("route/quickRouteJpegFilePath", defaultSettings.route.quickRouteJpegFilePath).toString();
+	route.startOffset = settings->value("route/startOffset", defaultSettings.route.startOffset).toDouble();
 
+	splits.type = (SplitTimeType)settings->value("splits/type", defaultSettings.splits.type).toInt();
 	splits.splitTimes = settings->value("splits/splitTimes", defaultSettings.splits.splitTimes).toString();
-	splits.startOffset = settings->value("splits/startOffset", defaultSettings.splits.startOffset).toDouble();
-
+	
 	videoDecoder.inputVideoFilePath = settings->value("videoDecoder/inputVideoFilePath", defaultSettings.videoDecoder.inputVideoFilePath).toString();
 	videoDecoder.frameCountDivisor = settings->value("videoDecoder/frameCountDivisor", defaultSettings.videoDecoder.frameCountDivisor).toInt();
 	videoDecoder.frameDurationDivisor = settings->value("videoDecoder/frameDurationDivisor", defaultSettings.videoDecoder.frameDurationDivisor).toInt();
@@ -79,9 +80,10 @@ void Settings::writeToQSettings(QSettings* settings)
 	settings->setValue("map/mapImageFilePath", map.mapImageFilePath);
 
 	settings->setValue("route/quickRouteJpegFilePath", route.quickRouteJpegFilePath);
-	
+	settings->setValue("route/startOffset", route.startOffset);
+
+	settings->setValue("splits/type", splits.type);
 	settings->setValue("splits/splitTimes", splits.splitTimes);
-	settings->setValue("splits/startOffset", splits.startOffset);
 
 	settings->setValue("videoDecoder/inputVideoFilePath", videoDecoder.inputVideoFilePath);
 	settings->setValue("videoDecoder/frameCountDivisor", videoDecoder.frameCountDivisor);
@@ -138,10 +140,11 @@ void Settings::readFromUI(Ui::MainWindow* ui)
 	map.mapImageFilePath = ui->lineEditMapImageFile->text();
 
 	route.quickRouteJpegFilePath = ui->lineEditQuickRouteJpegFile->text();
+	route.startOffset = ui->doubleSpinBoxRouteStartOffset->value();
 
+	splits.type = (SplitTimeType)ui->comboBoxSplitTimeType->currentIndex();
 	splits.splitTimes = ui->lineEditSplitTimes->text();
-	splits.startOffset = ui->doubleSpinBoxSplitTimesStartOffset->value();
-
+	
 	videoDecoder.inputVideoFilePath = ui->lineEditInputVideoFile->text();
 	videoDecoder.frameCountDivisor = ui->spinBoxVideoDecoderFrameCountDivisor->value();
 	videoDecoder.frameDurationDivisor = ui->spinBoxVideoDecoderFrameDurationDivisor->value();
@@ -183,9 +186,10 @@ void Settings::writeToUI(Ui::MainWindow* ui)
 	ui->lineEditMapImageFile->setText(map.mapImageFilePath);
 
 	ui->lineEditQuickRouteJpegFile->setText(route.quickRouteJpegFilePath);
+	ui->doubleSpinBoxRouteStartOffset->setValue(route.startOffset);
 
+	ui->comboBoxSplitTimeType->setCurrentIndex(splits.type);
 	ui->lineEditSplitTimes->setText(splits.splitTimes);
-	ui->doubleSpinBoxSplitTimesStartOffset->setValue(splits.startOffset);
 
 	ui->lineEditInputVideoFile->setText(videoDecoder.inputVideoFilePath);
 	ui->spinBoxVideoDecoderFrameCountDivisor->setValue(videoDecoder.frameCountDivisor);

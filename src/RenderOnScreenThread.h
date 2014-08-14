@@ -12,6 +12,7 @@ namespace OrientView
 	class VideoDecoder;
 	class VideoDecoderThread;
 	class VideoStabilizer;
+	class RouteManager;
 	class Renderer;
 	class InputHandler;
 	
@@ -22,7 +23,7 @@ namespace OrientView
 
 	public:
 
-		void initialize(MainWindow* mainWindow, VideoWindow* videoWindow, VideoDecoder* videoDecoder, VideoDecoderThread* videoDecoderThread, VideoStabilizer* videoStabilizer, Renderer* renderer, InputHandler* inputHandler);
+		void initialize(MainWindow* mainWindow, VideoWindow* videoWindow, VideoDecoder* videoDecoder, VideoDecoderThread* videoDecoderThread, VideoStabilizer* videoStabilizer, RouteManager* routeManager, Renderer* renderer, InputHandler* inputHandler);
 
 		bool getIsPaused();
 		void togglePaused();
@@ -43,6 +44,7 @@ namespace OrientView
 		VideoDecoder* videoDecoder = nullptr;
 		VideoDecoderThread* videoDecoderThread = nullptr;
 		VideoStabilizer* videoStabilizer = nullptr;
+		RouteManager* routeManager = nullptr;
 		Renderer* renderer = nullptr;
 		InputHandler* inputHandler = nullptr;
 

@@ -12,6 +12,7 @@ namespace OrientView
 	class VideoDecoder;
 	class VideoDecoderThread;
 	class VideoStabilizer;
+	class RouteManager;
 	class RenderOnScreenThread;
 	class Renderer;
 	class Settings;
@@ -31,7 +32,7 @@ namespace OrientView
 
 	public:
 
-		void initialize(VideoWindow* videoWindow, Renderer* renderer, VideoDecoder* videoDecoder, VideoDecoderThread* videoDecoderThread, VideoStabilizer* videoStabilizer, RenderOnScreenThread* renderOnScreenThread, Settings* settings);
+		void initialize(VideoWindow* videoWindow, Renderer* renderer, VideoDecoder* videoDecoder, VideoDecoderThread* videoDecoderThread, VideoStabilizer* videoStabilizer, RouteManager* routeManager, RenderOnScreenThread* renderOnScreenThread, Settings* settings);
 		void handleInput(double frameTime);
 
 		EditMode getEditMode() const;
@@ -45,6 +46,7 @@ namespace OrientView
 		VideoDecoder* videoDecoder = nullptr;
 		VideoDecoderThread* videoDecoderThread = nullptr;
 		VideoStabilizer* videoStabilizer = nullptr;
+		RouteManager* routeManager = nullptr;
 		RenderOnScreenThread* renderOnScreenThread = nullptr;
 		Settings* settings = nullptr;
 

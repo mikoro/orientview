@@ -9,34 +9,31 @@
 #include <QColor>
 
 #include "RoutePoint.h"
+#include "SplitTimeManager.h"
 
 namespace OrientView
 {
 	class QuickRouteReader;
-	class SplitTimeManager;
+	class Settings;
 
 	struct Route
 	{
 		std::vector<RoutePoint> routePoints;
-		std::vector<RoutePoint> splitRoutePoints;
-		std::vector<double> splitTimes;
+		std::vector<RoutePoint> alignedRoutePoints;
+		SplitTimes splitTimes;
 		double startOffset = 0.0;
 
-		std::vector<QPointF> controlLocations;
-		QColor controlColor = QColor(0, 0, 255);
+		std::vector<QPointF> controlPositions;
+		QColor controlColor = QColor(255, 0, 0);
 		double controlRadius = 10.0;
 
-		QPointF runnerLocation;
+		QPointF runnerPosition;
 		QColor runnerColor = QColor(0, 0, 255);
 		double runnerRadius = 10.0;
 
 		QPainterPath wholeRoutePath;
 		QColor wholeRouteColor = QColor(255, 0, 0, 64);
 		double wholeRouteWidth = 15.0;
-
-		QPainterPath splitRoutePath;
-		QColor splitRouteColor = QColor(255, 0, 0);
-		double splitRouteWidth = 15.0;
 	};
 
 	class RouteManager
@@ -44,20 +41,19 @@ namespace OrientView
 
 	public:
 
-		void initialize(QuickRouteReader* quickRouteReader, SplitTimeManager* splitTimeManager);
+		void initialize(QuickRouteReader* quickRouteReader, SplitTimeManager* splitTimeManager, Settings* settings);
 		void update(double currentTime);
+		void requestFullUpdate();
 
-		const Route& getDefaultRoute() const;
+		Route& getDefaultRoute();
 
 	private:
 
-		void calculateSplitRoutePoints(Route& route);
-		void calculateControlLocations(Route& route);
-		void calculateRunnerLocation(Route& route);
-		void constructWholeRoutePath(Route& route);
-		void constructSplitRoutePath(Route& route);
+		void constructWholeRoutePath();
+		void calculateControlLocations();
 
 		Route defaultRoute;
-		double currentTime = 0.0;
+
+		bool fullUpdateRequested = false;
 	};
 }

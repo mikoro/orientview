@@ -7,18 +7,20 @@
 #include "VideoDecoder.h"
 #include "VideoDecoderThread.h"
 #include "VideoStabilizer.h"
+#include "RouteManager.h"
 #include "RenderOnScreenThread.h"
 #include "Settings.h"
 
 using namespace OrientView;
 
-void InputHandler::initialize(VideoWindow* videoWindow, Renderer* renderer, VideoDecoder* videoDecoder, VideoDecoderThread* videoDecoderThread, VideoStabilizer* videoStabilizer, RenderOnScreenThread* renderOnScreenThread, Settings* settings)
+void InputHandler::initialize(VideoWindow* videoWindow, Renderer* renderer, VideoDecoder* videoDecoder, VideoDecoderThread* videoDecoderThread, VideoStabilizer* videoStabilizer, RouteManager* routeManager, RenderOnScreenThread* renderOnScreenThread, Settings* settings)
 {
 	this->videoWindow = videoWindow;
 	this->renderer = renderer;
 	this->videoDecoder = videoDecoder;
 	this->videoDecoderThread = videoDecoderThread;
 	this->videoStabilizer = videoStabilizer;
+	this->routeManager = routeManager;
 	this->renderOnScreenThread = renderOnScreenThread;
 	this->settings = settings;
 }
@@ -95,6 +97,18 @@ void InputHandler::handleInput(double frameTime)
 	rotateVelocity *= frameTime;
 
 	bool shouldRequestFullClear = false;
+
+	if (videoWindow->keyIsDown(Qt::Key_PageUp))
+	{
+		routeManager->getDefaultRoute().startOffset += translateVelocity * 0.1;
+		routeManager->requestFullUpdate();
+	}
+
+	if (videoWindow->keyIsDown(Qt::Key_PageDown))
+	{
+		routeManager->getDefaultRoute().startOffset -= translateVelocity * 0.1;
+		routeManager->requestFullUpdate();
+	}
 
 	if (editMode == EditMode::NONE)
 	{

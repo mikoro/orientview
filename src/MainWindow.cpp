@@ -207,11 +207,11 @@ void MainWindow::on_actionPlayVideo_triggered()
 			throw std::runtime_error("Could not initialize renderer");
 
 		videoStabilizer->initialize(settings);
-		inputHandler->initialize(videoWindow, renderer, videoDecoder, videoDecoderThread, videoStabilizer, renderOnScreenThread, settings);
+		inputHandler->initialize(videoWindow, renderer, videoDecoder, videoDecoderThread, videoStabilizer, routeManager, renderOnScreenThread, settings);
 		splitTimeManager->initialize(settings);
-		routeManager->initialize(quickRouteReader, splitTimeManager);
+		routeManager->initialize(quickRouteReader, splitTimeManager, settings);
 		videoDecoderThread->initialize(videoDecoder);
-		renderOnScreenThread->initialize(this, videoWindow, videoDecoder, videoDecoderThread, videoStabilizer, renderer, inputHandler);
+		renderOnScreenThread->initialize(this, videoWindow, videoDecoder, videoDecoderThread, videoStabilizer, routeManager, renderer, inputHandler);
 
 		connect(videoWindow, &VideoWindow::closing, this, &MainWindow::playVideoFinished);
 		connect(videoWindow, &VideoWindow::resizing, renderOnScreenThread, &RenderOnScreenThread::windowResized);
@@ -385,7 +385,7 @@ void MainWindow::on_actionEncodeVideo_triggered()
 
 		videoStabilizer->initialize(settings);
 		splitTimeManager->initialize(settings);
-		routeManager->initialize(quickRouteReader, splitTimeManager);
+		routeManager->initialize(quickRouteReader, splitTimeManager, settings);
 		videoDecoderThread->initialize(videoDecoder);
 		renderOffScreenThread->initialize(this, encodeWindow, videoDecoder, videoDecoderThread, videoStabilizer, renderer, videoEncoder, settings);
 		videoEncoderThread->initialize(videoDecoder, videoEncoder, renderOffScreenThread);

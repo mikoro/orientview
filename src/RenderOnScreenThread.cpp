@@ -9,19 +9,21 @@
 #include "VideoDecoder.h"
 #include "VideoDecoderThread.h"
 #include "VideoStabilizer.h"
+#include "RouteManager.h"
 #include "Renderer.h"
 #include "InputHandler.h"
 #include "Settings.h"
 
 using namespace OrientView;
 
-void RenderOnScreenThread::initialize(MainWindow* mainWindow, VideoWindow* videoWindow, VideoDecoder* videoDecoder, VideoDecoderThread* videoDecoderThread, VideoStabilizer* videoStabilizer, Renderer* renderer, InputHandler* inputHandler)
+void RenderOnScreenThread::initialize(MainWindow* mainWindow, VideoWindow* videoWindow, VideoDecoder* videoDecoder, VideoDecoderThread* videoDecoderThread, VideoStabilizer* videoStabilizer, RouteManager* routeManager, Renderer* renderer, InputHandler* inputHandler)
 {
 	this->mainWindow = mainWindow;
 	this->videoWindow = videoWindow;
 	this->videoDecoder = videoDecoder;
 	this->videoDecoderThread = videoDecoderThread;
 	this->videoStabilizer = videoStabilizer;
+	this->routeManager = routeManager;
 	this->renderer = renderer;
 	this->inputHandler = inputHandler;
 }
@@ -59,8 +61,9 @@ void RenderOnScreenThread::run()
 		if (gotFrame)
 			videoStabilizer->processFrame(&frameDataGrayscale);
 
-		videoWindow->getContext()->makeCurrent(videoWindow);
+		routeManager->update(videoDecoder->getCurrentTime());
 
+		videoWindow->getContext()->makeCurrent(videoWindow);
 		renderer->startRendering(videoDecoder->getCurrentTime(), frameDuration, spareTime, videoDecoder->getLastDecodeTime(), videoStabilizer->getLastProcessTime(), 0.0);
 
 		if (gotFrame)

@@ -5,9 +5,24 @@
 
 #include <vector>
 
+#include <QString>
+
 namespace OrientView
 {
 	class Settings;
+
+	struct SplitTime
+	{
+		double time = 0.0;
+		int position = 0;
+	};
+
+	struct SplitTimes
+	{
+		QString name = "";
+		int position = 0;
+		std::vector<SplitTime> splitTimes;
+	};
 
 	class SplitTimeManager
 	{
@@ -16,10 +31,10 @@ namespace OrientView
 
 		void initialize(Settings* settings);
 
-		const std::vector<double>& getSplitTimes() const;
+		const SplitTimes& getDefaultSplitTimes() const;
 
 	private:
 
-		std::vector<double> splitTimes;
+		SplitTimes defaultSplitTimes;
 	};
 }

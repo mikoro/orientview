@@ -52,6 +52,11 @@ const std::vector<RoutePoint>& QuickRouteReader::getRoutePoints() const
 	return routePoints;
 }
 
+const std::vector<RoutePoint>& QuickRouteReader::getAlignedRoutePoints() const
+{
+	return alignedRoutePoints;
+}
+
 bool QuickRouteReader::extractDataPartFromJpeg(QFile& file, QByteArray& buffer)
 {
 	const int quickRouteIdLength = 10;
@@ -303,21 +308,20 @@ QDateTime QuickRouteReader::readDateTime(QDataStream& dataStream, QDateTime& pre
 
 	if (timeType == 0) // absolute
 	{
-		// .NET DateTime serialized value
 		uint64_t timeValue;
-		dataStream >> timeValue;
-
+		dataStream >> timeValue;		 // .NET DateTime serialized value
 		timeValue &= 0x3FFFFFFFFFFFFFFF; // remove kind data
 		timeValue -= 621355968000000000; // offset to epoch start
+		timeValue /= 10000;				 // convert to ms
 
-		return QDateTime::fromMSecsSinceEpoch(timeValue / 10000);
+		return QDateTime::fromMSecsSinceEpoch(timeValue);
 	}
 	else // relative
 	{
 		uint16_t timeValue;
-		dataStream >> timeValue;
+		dataStream >> timeValue; // ms
 
-		return previous.addSecs(timeValue / 1000);
+		return previous.addMSecs(timeValue);
 	}
 }
 
