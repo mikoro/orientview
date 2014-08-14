@@ -23,7 +23,7 @@ void RouteManager::initialize(QuickRouteReader* quickRouteReader, SplitTimeManag
 void RouteManager::update(double currentTime)
 {
 	int timeBasedIndex = (int)round(currentTime + defaultRoute.startOffset);
-	int indexMax = defaultRoute.alignedRoutePoints.size() - 1;
+	int indexMax = (int)defaultRoute.alignedRoutePoints.size() - 1;
 
 	timeBasedIndex = std::max(0, std::min(timeBasedIndex, indexMax));
 	defaultRoute.runnerPosition = defaultRoute.alignedRoutePoints.at(timeBasedIndex).position;
@@ -75,7 +75,7 @@ void RouteManager::calculateControlLocations()
 		SplitTime splitTime = defaultRoute.splitTimes.splitTimes.at(i);
 
 		int timeBasedIndex = (int)round(splitTime.time + defaultRoute.startOffset);
-		int indexMax = defaultRoute.alignedRoutePoints.size() - 1;
+		int indexMax = (int)defaultRoute.alignedRoutePoints.size() - 1;
 
 		timeBasedIndex = std::max(0, std::min(timeBasedIndex, indexMax));
 		defaultRoute.controlPositions.push_back(defaultRoute.alignedRoutePoints.at(timeBasedIndex).position);
