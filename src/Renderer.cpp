@@ -625,13 +625,14 @@ void Renderer::renderRoute(const Route& route)
 	m.translate(mapPanel.x + mapPanel.userX, -(mapPanel.y + mapPanel.userY));
 
 	painter->begin(paintDevice);
-	painter->setWorldMatrix(m);
-
+	
 	if (renderMode != RenderMode::Map)
 	{
 		painter->setClipping(true);
 		painter->setClipRect(0, 0, (int)(mapPanel.relativeWidth * windowWidth + 0.5), (int)windowHeight);
 	}
+
+	painter->setWorldMatrix(m);
 
 	QPen wholeRoutePen;
 	wholeRoutePen.setColor(route.wholeRouteColor);
