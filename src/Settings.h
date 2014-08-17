@@ -7,6 +7,9 @@
 #include <QSettings>
 #include <QColor>
 
+#include "SplitTimeManager.h"
+#include "VideoStabilizer.h"
+
 namespace Ui
 {
 	class MainWindow;
@@ -14,8 +17,6 @@ namespace Ui
 
 namespace OrientView
 {
-	enum SplitTimeType { Absolute, Relative };
-
 	// Central structure of all the settings of the program.
 	class Settings
 	{
@@ -30,6 +31,10 @@ namespace OrientView
 		struct Map
 		{
 			QString mapImageFilePath = "";
+			double mapPanelWidth = 0.3;
+			double mapPanelScale = 1.0;
+			QColor mapPanelBackgroundColor = QColor("#ffffff");
+			QString mapPanelRescaleShader = "default";
 
 		} map;
 
@@ -47,15 +52,19 @@ namespace OrientView
 
 		} splits;
 
-		struct VideoDecoder
+		struct Video
 		{
 			QString inputVideoFilePath = "";
+			double startOffset = 0.0;
+			double videoPanelScale = 1.0;
+			QColor videoPanelBackgroundColor = QColor("#003200");
+			QString videoPanelRescaleShader = "default";
 			int frameCountDivisor = 1;
 			int frameDurationDivisor = 1;
 			int frameSizeDivisor = 1;
 			bool enableVerboseLogging = false;
 
-		} videoDecoder;
+		} video;
 
 		struct Window
 		{
@@ -64,43 +73,35 @@ namespace OrientView
 			int multisamples = 16;
 			bool fullscreen = false;
 			bool hideCursor = false;
+			bool showInfoPanel = false;
 
 		} window;
 
-		struct Appearance
-		{
-			bool showInfoPanel = false;
-			double mapPanelWidth = 0.3;
-			double videoPanelScale = 1.0;
-			double mapPanelScale = 1.0;
-			QColor videoPanelBackgroundColor = QColor("#003200");
-			QColor mapPanelBackgroundColor = QColor("#ffffff");
-			QString videoPanelShader = "default";
-			QString mapPanelShader = "default";
-
-		} appearance;
-
-		struct VideoStabilizer
+		struct Stabilizer
 		{
 			bool enabled = false;
-			int frameSizeDivisor = 8;
-			double averagingFactor = 0.05;
-			double dampingFactor = 0.5;
-			double maxDisplacementFactor = 1.0;
-			bool enableClipping = true;
+			VideoStabilizerMode mode = VideoStabilizerMode::RealTime;
+			QString inputDataFilePath = "";
+			bool enableClipping = false;
 			bool enableClearing = true;
-			int inpaintBorderWidth = 0;
+			double dampingFactor = 1.0;
+			double maxDisplacementFactor = 1.0;
+			int frameSizeDivisor = 8;
+			QString passOneOutputFilePath = "";
+			QString passTwoInputFilePath = "";
+			QString passTwoOutputFilePath = "";
+			int smoothingRadius = 15;
 
-		} videoStabilizer;
+		} stabilizer;
 
-		struct VideoEncoder
+		struct Encoder
 		{
 			QString outputVideoFilePath = "";
 			QString preset = "veryfast";
 			QString profile = "high";
 			int constantRateFactor = 23;
 
-		} videoEncoder;
+		} encoder;
 
 		struct InputHandler
 		{

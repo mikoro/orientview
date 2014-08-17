@@ -42,7 +42,7 @@ void VideoDecoderThread::run()
 		if (isInterruptionRequested())
 			break;
 
-		if (videoDecoder->getNextFrame(decodedFrameData, decodedFrameDataGrayscale))
+		if (videoDecoder->getNextFrame(&decodedFrameData, &decodedFrameDataGrayscale))
 			frameAvailableSemaphore->release(1);
 		else
 			QThread::msleep(100);

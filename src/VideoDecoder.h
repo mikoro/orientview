@@ -27,22 +27,18 @@ namespace OrientView
 		bool initialize(Settings* settings);
 		~VideoDecoder();
 
-		bool getNextFrame(FrameData& frameData, FrameData& frameDataGrayscale);
+		bool getNextFrame(FrameData* frameData, FrameData* frameDataGrayscale);
 		void seekRelative(int seconds);
 
-		int getCurrentFrameNumber();
 		double getCurrentTime();
 		bool getIsFinished();
 		double getLastDecodeTime();
 
 		int getFrameWidth() const;
 		int getFrameHeight() const;
-		int getFrameDataLength() const;
 		int getTotalFrameCount() const;
-		int getAverageFrameRateNum() const;
-		int getAverageFrameRateDen() const;
-		double getAverageFrameDuration() const;
-		double getAverageFrameRate() const;
+		int getFrameRateNum() const;
+		int getFrameRateDen() const;
 		
 	private:
 
@@ -60,26 +56,24 @@ namespace OrientView
 		AVPicture* convertedPicture = nullptr;
 		AVPicture* convertedPictureGrayscale = nullptr;
 
-		bool generateGrayscalePicture = false;
-		int grayscalePictureWidth = 0;
-		int grayscalePictureHeight = 0;
-
 		int frameWidth = 0;
 		int frameHeight = 0;
-		int frameDataLength = 0;
+		int grayscaleFrameWidth = 0;
+		int grayscaleFrameHeight = 0;
+
 		int frameCountDivisor = 0;
 		int frameDurationDivisor = 0;
-		int totalFrameCount = 0;
-		int currentFrameNumber = 0;
-		int averageFrameRateNum = 0;
-		int averageFrameRateDen = 0;
-		double averageFrameDuration = 0.0; // in ms
-		double averageFrameRate = 0.0;
-		double currentTime = 0.0; // in s
-		double totalDurationInSeconds = 0.0;
-		int64_t totalDuration = 0; // video stream time base
-		int64_t frameDuration = 0; // video stream time base
-		int64_t lastFrameTimestamp = 0; // video stream time base
+
+		int64_t totalFrameCount = 0;
+		int64_t cumulativeFrameNumber = 0;
+
+		int64_t frameRateNum = 0; // no unit
+		int64_t frameRateDen = 0; // no unit
+		int64_t frameDuration = 0.0; // microseconds
+		int64_t previousFrameTimestamp = 0; // video stream time base units
+
+		double currentTimeInSeconds = 0.0;
+
 		bool isInitialized = false;
 		bool isFinished = false;
 

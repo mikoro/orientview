@@ -5,12 +5,14 @@
 #include <QtGui>
 #include <QMessageBox>
 #include <QColorDialog>
+#include <QProgressDialog>
 
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
 #include "Settings.h"
 #include "VideoWindow.h"
 #include "EncodeWindow.h"
+#include "StabilizeWindow.h"
 #include "VideoDecoder.h"
 #include "VideoEncoder.h"
 #include "QuickRouteReader.h"
@@ -24,6 +26,7 @@
 #include "RenderOnScreenThread.h"
 #include "RenderOffScreenThread.h"
 #include "VideoEncoderThread.h"
+#include "VideoStabilizerThread.h"
 
 using namespace OrientView;
 
@@ -206,7 +209,9 @@ void MainWindow::on_actionPlayVideo_triggered()
 		if (!renderer->initialize(videoDecoder, mapImageReader, videoStabilizer, inputHandler, routeManager, settings))
 			throw std::runtime_error("Could not initialize renderer");
 
-		videoStabilizer->initialize(settings);
+		if (!videoStabilizer->initialize(settings, false))
+				throw std::runtime_error("Could not initialize video stabilizer");
+
 		inputHandler->initialize(videoWindow, renderer, videoDecoder, videoDecoderThread, videoStabilizer, routeManager, renderOnScreenThread, settings);
 		splitTimeManager->initialize(settings);
 		routeManager->initialize(quickRouteReader, splitTimeManager, settings);
@@ -383,7 +388,9 @@ void MainWindow::on_actionEncodeVideo_triggered()
 		if (!renderer->initialize(videoDecoder, mapImageReader, videoStabilizer, inputHandler, routeManager, settings))
 			throw std::runtime_error("Could not initialize renderer");
 
-		videoStabilizer->initialize(settings);
+		if (!videoStabilizer->initialize(settings, false))
+			throw std::runtime_error("Could not initialize video stabilizer");
+
 		splitTimeManager->initialize(settings);
 		routeManager->initialize(quickRouteReader, splitTimeManager, settings);
 		videoDecoderThread->initialize(videoDecoder);
@@ -418,11 +425,6 @@ void MainWindow::on_actionEncodeVideo_triggered()
 	}
 
 	this->setCursor(Qt::ArrowCursor);
-}
-
-void MainWindow::on_actionExit_triggered()
-{
-	close();
 }
 
 void MainWindow::encodeVideoFinished()
@@ -515,26 +517,9 @@ void MainWindow::encodeVideoFinished()
 	}
 }
 
-void MainWindow::on_pushButtonBrowseInputVideoFile_clicked()
+void MainWindow::on_actionExit_triggered()
 {
-	QFileDialog fileDialog(this);
-	fileDialog.setFileMode(QFileDialog::ExistingFile);
-	fileDialog.setWindowTitle(tr("Select input video file"));
-	fileDialog.setNameFilter(tr("Video files (*.mp4 *.avi *.mkv);;All files (*.*)"));
-
-	if (fileDialog.exec())
-		ui->lineEditInputVideoFile->setText(fileDialog.selectedFiles().at(0));
-}
-
-void MainWindow::on_pushButtonBrowseQuickRouteJpegFile_clicked()
-{
-	QFileDialog fileDialog(this);
-	fileDialog.setFileMode(QFileDialog::ExistingFile);
-	fileDialog.setWindowTitle(tr("Select QuickRoute JPEG file"));
-	fileDialog.setNameFilter(tr("QuickRoute JPEG files (*.jpg);;All files (*.*)"));
-	
-	if (fileDialog.exec())
-		ui->lineEditQuickRouteJpegFile->setText(fileDialog.selectedFiles().at(0));
+	close();
 }
 
 void MainWindow::on_pushButtonBrowseMapImageFile_clicked()
@@ -546,6 +531,28 @@ void MainWindow::on_pushButtonBrowseMapImageFile_clicked()
 
 	if (fileDialog.exec())
 		ui->lineEditMapImageFile->setText(fileDialog.selectedFiles().at(0));
+}
+
+void MainWindow::on_pushButtonBrowseQuickRouteJpegFile_clicked()
+{
+	QFileDialog fileDialog(this);
+	fileDialog.setFileMode(QFileDialog::ExistingFile);
+	fileDialog.setWindowTitle(tr("Select QuickRoute JPEG file"));
+	fileDialog.setNameFilter(tr("QuickRoute JPEG files (*.jpg);;All files (*.*)"));
+
+	if (fileDialog.exec())
+		ui->lineEditQuickRouteJpegFile->setText(fileDialog.selectedFiles().at(0));
+}
+
+void MainWindow::on_pushButtonBrowseInputVideoFile_clicked()
+{
+	QFileDialog fileDialog(this);
+	fileDialog.setFileMode(QFileDialog::ExistingFile);
+	fileDialog.setWindowTitle(tr("Select input video file"));
+	fileDialog.setNameFilter(tr("Video files (*.mp4 *.avi *.mkv);;All files (*.*)"));
+
+	if (fileDialog.exec())
+		ui->lineEditInputVideoFile->setText(fileDialog.selectedFiles().at(0));
 }
 
 void MainWindow::on_pushButtonBrowseOutputVideoFile_clicked()
@@ -566,10 +573,10 @@ void MainWindow::on_pushButtonPickVideoPanelBackgroundColor_clicked()
 	settings->readFromUI(ui);
 
 	QColorDialog colorDialog;
-	QColor resultColor = colorDialog.getColor(settings->appearance.videoPanelBackgroundColor, this, "Pick video panel background color");
+	QColor resultColor = colorDialog.getColor(settings->video.videoPanelBackgroundColor, this, "Pick video panel background color");
 
 	if (resultColor.isValid())
-		settings->appearance.videoPanelBackgroundColor = resultColor;
+		settings->video.videoPanelBackgroundColor = resultColor;
 
 	settings->writeToUI(ui);
 }
@@ -579,10 +586,168 @@ void MainWindow::on_pushButtonPickMapPanelBackgroundColor_clicked()
 	settings->readFromUI(ui);
 
 	QColorDialog colorDialog;
-	QColor resultColor = colorDialog.getColor(settings->appearance.mapPanelBackgroundColor, this, "Pick map panel background color");
+	QColor resultColor = colorDialog.getColor(settings->map.mapPanelBackgroundColor, this, "Pick map panel background color");
 
 	if (resultColor.isValid())
-		settings->appearance.mapPanelBackgroundColor = resultColor;
+		settings->map.mapPanelBackgroundColor = resultColor;
 
 	settings->writeToUI(ui);
+}
+
+void MainWindow::on_pushButtonVideoStabilizerBrowseInputDataFile_clicked()
+{
+	QFileDialog fileDialog(this);
+	fileDialog.setFileMode(QFileDialog::ExistingFile);
+	fileDialog.setWindowTitle(tr("Select video stabilizer data file"));
+	fileDialog.setNameFilter(tr("CSV files (*.csv);;All files (*.*)"));
+
+	if (fileDialog.exec())
+		ui->lineEditVideoStabilizerInputDataFile->setText(fileDialog.selectedFiles().at(0));
+}
+
+void MainWindow::on_pushButtonVideoStabilizerBrowsePassOneOutputFile_clicked()
+{
+	QFileDialog fileDialog(this);
+	fileDialog.setFileMode(QFileDialog::AnyFile);
+	fileDialog.setWindowTitle(tr("Select pass one output file"));
+	fileDialog.setNameFilter(tr("CSV files (*.csv)"));
+	fileDialog.setDefaultSuffix(tr("csv"));
+	fileDialog.setAcceptMode(QFileDialog::AcceptSave);
+
+	if (fileDialog.exec())
+		ui->lineEditVideoStabilizerPassOneOutputFile->setText(fileDialog.selectedFiles().at(0));
+}
+
+void MainWindow::on_pushButtonVideoStabilizerBrowsePassTwoInputFile_clicked()
+{
+	QFileDialog fileDialog(this);
+	fileDialog.setFileMode(QFileDialog::ExistingFile);
+	fileDialog.setWindowTitle(tr("Select pass two input file"));
+	fileDialog.setNameFilter(tr("CSV files (*.csv);;All files (*.*)"));
+
+	if (fileDialog.exec())
+		ui->lineEditVideoStabilizerPassTwoInputFile->setText(fileDialog.selectedFiles().at(0));
+}
+
+void MainWindow::on_pushButtonVideoStabilizerBrowsePassTwoOutputFile_clicked()
+{
+	QFileDialog fileDialog(this);
+	fileDialog.setFileMode(QFileDialog::AnyFile);
+	fileDialog.setWindowTitle(tr("Select pass two output file"));
+	fileDialog.setNameFilter(tr("CSV files (*.csv)"));
+	fileDialog.setDefaultSuffix(tr("csv"));
+	fileDialog.setAcceptMode(QFileDialog::AcceptSave);
+
+	if (fileDialog.exec())
+		ui->lineEditVideoStabilizerPassTwoOutputFile->setText(fileDialog.selectedFiles().at(0));
+}
+
+void MainWindow::on_pushButtonVideoStabilizerPassOneRun_clicked()
+{
+	this->setCursor(Qt::WaitCursor);
+
+	settings->readFromUI(ui);
+
+	try
+	{
+		stabilizeWindow = new StabilizeWindow(this);
+		videoDecoder = new VideoDecoder();
+		videoStabilizer = new VideoStabilizer();
+		videoStabilizerThread = new VideoStabilizerThread();
+
+		if (!videoDecoder->initialize(settings))
+			throw std::runtime_error("Could not initialize video decoder");
+
+		if (!videoStabilizerThread->initialize(videoDecoder, videoStabilizer, settings))
+			throw std::runtime_error("Could not initialize video stabilizer thread");
+
+		if (!videoStabilizer->initialize(settings, true))
+			throw std::runtime_error("Could not initialize video stabilizer");
+
+		stabilizeWindow->initialize(videoDecoder, videoStabilizerThread);
+		
+		connect(stabilizeWindow, &StabilizeWindow::closing, this, &MainWindow::stabilizeVideoFinished);
+		connect(videoStabilizerThread, &VideoStabilizerThread::frameProcessed, stabilizeWindow, &StabilizeWindow::frameProcessed);
+		connect(videoStabilizerThread, &VideoStabilizerThread::processingFinished, stabilizeWindow, &StabilizeWindow::processingFinished);
+
+		stabilizeWindow->setModal(true);
+		stabilizeWindow->show();
+
+		videoStabilizerThread->start();
+	}
+	catch (const std::exception& ex)
+	{
+		qWarning("%s", ex.what());
+
+		stabilizeWindow->close();
+		stabilizeVideoFinished();
+
+		QMessageBox::critical(this, "OrientView - Error", QString("%1.\n\nCheck the application log for details.").arg(ex.what()), QMessageBox::Ok);
+	}
+
+	this->setCursor(Qt::ArrowCursor);
+}
+
+void MainWindow::stabilizeVideoFinished()
+{
+	if (videoStabilizerThread != nullptr)
+	{
+		videoStabilizerThread->requestInterruption();
+		videoStabilizerThread->wait();
+		delete videoStabilizerThread;
+		videoStabilizerThread = nullptr;
+	}
+
+	if (videoStabilizer != nullptr)
+	{
+		delete videoStabilizer;
+		videoStabilizer = nullptr;
+	}
+
+	if (videoDecoder != nullptr)
+	{
+		delete videoDecoder;
+		videoDecoder = nullptr;
+	}
+
+	if (stabilizeWindow != nullptr)
+	{
+		stabilizeWindow->deleteLater();
+		stabilizeWindow = nullptr;
+	}
+}
+
+void MainWindow::on_pushButtonVideoStabilizerPassTwoRun_clicked()
+{
+	this->setCursor(Qt::WaitCursor);
+
+	settings->readFromUI(ui);
+
+	QFile fileIn(settings->stabilizer.passTwoInputFilePath);
+	QFile fileOut(settings->stabilizer.passTwoOutputFilePath);
+
+	try
+	{
+		if(!fileIn.open(QFile::ReadOnly | QFile::Text))
+			throw std::runtime_error("Could not open input file");
+
+		if(!fileOut.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text))
+			throw std::runtime_error("Could not open output file");
+
+		VideoStabilizer::convertCumulativeFramePositionsToNormalized(fileIn, fileOut, settings->stabilizer.smoothingRadius);
+		QMessageBox::information(this, "OrientView - Information", "Second preprocess pass completed successfully.", QMessageBox::Ok);
+	}
+	catch (const std::exception& ex)
+	{
+		qWarning("%s", ex.what());
+		QMessageBox::critical(this, "OrientView - Error", QString("%1.\n\nCheck the application log for details.").arg(ex.what()), QMessageBox::Ok);
+	}
+
+	if (fileIn.isOpen())
+		fileIn.close();
+
+	if (fileOut.isOpen())
+		fileOut.close();
+
+	this->setCursor(Qt::ArrowCursor);
 }

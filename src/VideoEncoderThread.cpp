@@ -28,7 +28,7 @@ void VideoEncoderThread::run()
 			renderOffScreenThread->signalFrameRead();
 			int frameSize = videoEncoder->encodeFrame();
 
-			emit frameProcessed(renderedFrameData.number, frameSize);
+			emit frameProcessed(renderedFrameData.cumulativeNumber, frameSize);
 		}
 		else if (videoDecoder->getIsFinished())
 			break;

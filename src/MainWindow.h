@@ -16,6 +16,7 @@ namespace OrientView
 	class Settings;
 	class VideoWindow;
 	class EncodeWindow;
+	class StabilizeWindow;
 	class VideoDecoder;
 	class VideoEncoder;
 	class QuickRouteReader;
@@ -29,6 +30,7 @@ namespace OrientView
 	class RenderOnScreenThread;
 	class RenderOffScreenThread;
 	class VideoEncoderThread;
+	class VideoStabilizerThread;
 
 	// Main window is the first window shown and houses all the other parts of the program.
 	class MainWindow : public QMainWindow
@@ -55,23 +57,36 @@ namespace OrientView
 		void on_actionEncodeVideo_triggered();
 		void on_actionExit_triggered();
 
-		void on_pushButtonBrowseInputVideoFile_clicked();
-		void on_pushButtonBrowseQuickRouteJpegFile_clicked();
 		void on_pushButtonBrowseMapImageFile_clicked();
+		void on_pushButtonBrowseQuickRouteJpegFile_clicked();
+		void on_pushButtonBrowseInputVideoFile_clicked();
 		void on_pushButtonBrowseOutputVideoFile_clicked();
+
 		void on_pushButtonPickVideoPanelBackgroundColor_clicked();
 		void on_pushButtonPickMapPanelBackgroundColor_clicked();
+
+		void on_pushButtonVideoStabilizerBrowseInputDataFile_clicked();
+		void on_pushButtonVideoStabilizerBrowsePassOneOutputFile_clicked();
+		void on_pushButtonVideoStabilizerBrowsePassTwoInputFile_clicked();
+		void on_pushButtonVideoStabilizerBrowsePassTwoOutputFile_clicked();
+		void on_pushButtonVideoStabilizerPassOneRun_clicked();
+		void on_pushButtonVideoStabilizerPassTwoRun_clicked();
+
+		
+		
 
 	private:
 
 		void playVideoFinished();
 		void encodeVideoFinished();
+		void stabilizeVideoFinished();
 
 		Ui::MainWindow* ui = nullptr;
 		QStandardItemModel* logDataModel = nullptr;
 		Settings* settings = nullptr;
 		VideoWindow* videoWindow = nullptr;
 		EncodeWindow* encodeWindow = nullptr;
+		StabilizeWindow* stabilizeWindow = nullptr;
 		VideoDecoder* videoDecoder = nullptr;
 		VideoEncoder* videoEncoder = nullptr;
 		QuickRouteReader* quickRouteReader = nullptr;
@@ -85,5 +100,6 @@ namespace OrientView
 		RenderOnScreenThread* renderOnScreenThread = nullptr;
 		RenderOffScreenThread* renderOffScreenThread = nullptr;
 		VideoEncoderThread* videoEncoderThread = nullptr;
+		VideoStabilizerThread* videoStabilizerThread = nullptr;
 	};
 }

@@ -55,20 +55,20 @@ void SimpleLogger::handleMessage(QtMsgType type, const QMessageLogContext& conte
 	QString timeString = QTime::currentTime().toString("HH:mm:ss.zzz");
 	QString messageText = QString("%1 [%2] - %3\n").arg(timeString, typeString, message);
 
-	std::cout << messageText.toStdString() << std::endl;
+	//std::cout << messageText.toStdString() << std::endl;
 
 	if (logFile.isOpen())
 	{
-		logFile.write(messageText.toUtf8());
-		logFile.flush();
+		//logFile.write(messageText.toUtf8());
+		//logFile.flush();
 	}
 
 #ifdef _WIN32
 	OutputDebugStringA(qPrintable(messageText));
 #endif
 
-	if (mainWindow != nullptr)
-		mainWindow->addLogMessage(timeString, typeString, message);
+	//if (mainWindow != nullptr)
+		//mainWindow->addLogMessage(timeString, typeString, message);
 
 	if (type == QtFatalMsg)
 		abort();

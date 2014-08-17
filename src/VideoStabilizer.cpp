@@ -3,6 +3,9 @@
 
 #define _USE_MATH_DEFINES
 #include <cmath>
+#include <cstdint>
+
+#include <QTextStream>
 
 #include "VideoStabilizer.h"
 #include "Settings.h"
@@ -12,29 +15,31 @@
 
 using namespace OrientView;
 
-void VideoStabilizer::initialize(Settings* settings)
+bool VideoStabilizer::initialize(Settings* settings, bool isPreprocessing)
 {
+	mode = settings->stabilizer.mode;
+	isEnabled = settings->stabilizer.enabled;
+	dampingFactor = settings->stabilizer.dampingFactor;
+	maxDisplacementFactor = settings->stabilizer.maxDisplacementFactor;
+
 	reset();
 
-	isEnabled = settings->videoStabilizer.enabled;
-	dampingFactor = settings->videoStabilizer.dampingFactor;
-	maxDisplacementFactor = settings->videoStabilizer.maxDisplacementFactor;
-	currentXAverage.setAlpha(settings->videoStabilizer.averagingFactor);
-	currentYAverage.setAlpha(settings->videoStabilizer.averagingFactor);
-	currentAngleAverage.setAlpha(settings->videoStabilizer.averagingFactor);
-
-	if (outputData)
+	if (!isPreprocessing && mode == VideoStabilizerMode::Preprocessed)
 	{
-		dataOutputFile.setFileName("stabilizer.txt");
-		dataOutputFile.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text);
-		dataOutputFile.write("currentX;currentXAverage;normalizedX;currentY;currentYAverage;normalizedY;currentAngle;currentAngleAverage;normalizedAngle\n");
+		if (!readNormalizedFramePositions(settings->stabilizer.inputDataFilePath))
+			return false;
 	}
+
+	return true;
 }
 
-VideoStabilizer::~VideoStabilizer()
+void VideoStabilizer::preProcessFrame(const FrameData& frameDataGrayscale, QFile& file)
 {
-	if (dataOutputFile.isOpen())
-		dataOutputFile.close();
+	FramePosition fp = calculateCumulativeFramePosition(frameDataGrayscale);
+
+	char buffer[1024];
+	sprintf(buffer, "%lld;%.16le;%.16le;%.16le\n", fp.timeStamp, fp.x, fp.y, fp.angle);
+	file.write(buffer);
 }
 
 void VideoStabilizer::processFrame(const FrameData& frameDataGrayscale)
@@ -44,6 +49,20 @@ void VideoStabilizer::processFrame(const FrameData& frameDataGrayscale)
 
 	processTimer.restart();
 
+	if (mode == VideoStabilizerMode::Preprocessed)
+		normalizedFramePosition = searchNormalizedFramePosition(frameDataGrayscale);
+
+	normalizedFramePosition.x *= dampingFactor;
+	normalizedFramePosition.y *= dampingFactor;
+
+	normalizedFramePosition.x = std::max(-maxDisplacementFactor, std::min(normalizedFramePosition.x, maxDisplacementFactor));
+	normalizedFramePosition.y = std::max(-maxDisplacementFactor, std::min(normalizedFramePosition.y, maxDisplacementFactor));
+
+	lastProcessTime = processTimer.nsecsElapsed() / 1000000.0;
+}
+
+FramePosition VideoStabilizer::calculateCumulativeFramePosition(const FrameData& frameDataGrayscale)
+{
 	cv::Mat currentImage(frameDataGrayscale.height, frameDataGrayscale.width, CV_8UC1, frameDataGrayscale.data);
 
 	if (isFirstImage)
@@ -51,16 +70,21 @@ void VideoStabilizer::processFrame(const FrameData& frameDataGrayscale)
 		previousImage = cv::Mat(frameDataGrayscale.height, frameDataGrayscale.width, CV_8UC1);
 		currentImage.copyTo(previousImage);
 		isFirstImage = false;
-
-		return;
 	}
+
+	std::vector<cv::Point2f> previousCorners;
+	std::vector<cv::Point2f> previousCornersFiltered;
+	std::vector<cv::Point2f> currentCorners;
+	std::vector<cv::Point2f> currentCornersFiltered;
+	std::vector<uchar> opticalFlowStatus;
+	std::vector<float> opticalFlowError;
 
 	// find good trackable feature points from the previous image
 	cv::goodFeaturesToTrack(previousImage, previousCorners, 200, 0.01, 30.0);
 
 	// find those same points in the current image
 	cv::calcOpticalFlowPyrLK(previousImage, currentImage, previousCorners, currentCorners, opticalFlowStatus, opticalFlowError);
-	
+
 	currentImage.copyTo(previousImage);
 
 	// filter out points which didn't have a good match
@@ -95,43 +119,133 @@ void VideoStabilizer::processFrame(const FrameData& frameDataGrayscale)
 	double deltaX = tx / frameDataGrayscale.width;
 	double deltaY = ty / frameDataGrayscale.height;
 	double deltaAngle = atan2(c, d) * 180.0 / M_PI;
-	//double deltaScale = sign(a) * sqrt(a * a + b * b); // not used, only causes jitter
+	
+	cumulativeX += deltaX;
+	cumulativeY += deltaY;
+	cumulativeAngle += deltaAngle;
 
-	// current* values track the cumulative trajectory of the image
-	// these are not bounded in anyway
-	currentX += deltaX;
-	currentY += deltaY;
-	currentAngle += deltaAngle;
+	FramePosition fp;
+	fp.timeStamp = frameDataGrayscale.timeStamp;
+	fp.x = cumulativeX;
+	fp.y = cumulativeY;
+	fp.angle = cumulativeAngle;
 
-	// normalized* filter out the trajectory and only give out delta values respect to the average trajectory
-	// these are centered at zero
-	normalizedX = (currentXAverage.getAverage() - currentX) * dampingFactor;
-	normalizedY = (currentYAverage.getAverage() - currentY) * dampingFactor;
-	normalizedAngle = (currentAngleAverage.getAverage() - currentAngle) * dampingFactor;
+	return fp;
+}
 
-	normalizedX = std::max(-maxDisplacementFactor, std::min(normalizedX, maxDisplacementFactor));
-	normalizedY = std::max(-maxDisplacementFactor, std::min(normalizedY, maxDisplacementFactor));
+FramePosition VideoStabilizer::searchNormalizedFramePosition(const FrameData& frameDataGrayscale)
+{
+	FramePosition result;
 
-	// calculate exponential moving average of the current values
-	currentXAverage.addMeasurement(currentX);
-	currentYAverage.addMeasurement(currentY);
-	currentAngleAverage.addMeasurement(currentAngle);
+	auto comparator = [](const OrientView::FramePosition& fp, const int64_t timeStamp) { return fp.timeStamp < timeStamp; };
+	auto searchResult = std::lower_bound(normalizedFramePositions.begin(), normalizedFramePositions.end(), frameDataGrayscale.timeStamp, comparator);
 
-	if (outputData)
+	if (searchResult != normalizedFramePositions.end() && (*searchResult).timeStamp >= frameDataGrayscale.timeStamp)
+		result = *searchResult;
+	
+	return result;
+}
+
+void VideoStabilizer::convertCumulativeFramePositionsToNormalized(QFile& fileIn, QFile& fileOut, int smoothingRadius)
+{
+	QTextStream fileInStream(&fileIn);
+	QString fileInString = fileInStream.readAll();
+
+	std::vector<FramePosition> positions;
+
+	QStringList lines = fileInString.split('\n');
+
+	for (int i = 1; i < lines.size(); ++i)
 	{
-		char buffer[1024];
-		sprintf(buffer, "%f;%f;%f;%f;%f;%f;%f;%f;%f;\n", currentX, currentXAverage.getAverage(), normalizedX, currentY, currentYAverage.getAverage(), normalizedY, currentAngle, currentAngleAverage.getAverage(), normalizedAngle);
-		dataOutputFile.write(buffer);
+		QStringList parts = lines[i].split(';');
+
+		if (parts.size() == 4)
+		{
+			FramePosition fp;
+
+			fp.timeStamp = (int64_t)parts[0].toLongLong();
+			fp.x = parts[1].toDouble();
+			fp.y = parts[2].toDouble();
+			fp.angle = parts[3].toDouble();
+
+			positions.push_back(fp);
+		}
 	}
 
-	previousCorners.clear();
-	currentCorners.clear();
-	previousCornersFiltered.clear();
-	currentCornersFiltered.clear();
-	opticalFlowStatus.clear();
-	opticalFlowError.clear();
+	fileOut.write("timeStamp;cumulativeX;averageX;normalizedX;cumulativeY;averageY;normalizedY;cumulativeAngle;averageAngle;normalizedAngle\n");
 
-	lastProcessTime = processTimer.nsecsElapsed() / 1000000.0;
+	for (int i = 0; i < positions.size(); ++i)
+	{
+		double sumX = 0.0;
+		double sumY = 0.0;
+		double sumAngle = 0.0;
+		int sumCount = 0;
+
+		for (int j = -smoothingRadius; j <= smoothingRadius; ++j)
+		{
+			if ((i + j) >= 0 && (i + j) < positions.size())
+			{
+				FramePosition fp = positions[i + j];
+
+				sumX += fp.x;
+				sumY += fp.y;
+				sumAngle += fp.angle;
+
+				sumCount++;
+			}
+		}
+
+		double averageX = sumX / (double)sumCount;
+		double averageY = sumY / (double)sumCount;
+		double averageAngle = sumAngle / (double)sumCount;
+
+		FramePosition currentFp = positions[i];
+		FramePosition normalizedFp;
+
+		normalizedFp.x = averageX - currentFp.x;
+		normalizedFp.y = averageY - currentFp.y;
+		normalizedFp.angle = averageAngle - currentFp.angle;
+
+		char buffer[1024];
+		sprintf(buffer, "%lld;%.16le;%.16le;%.16le;%.16le;%.16le;%.16le;%.16le;%.16le;%.16le\n", currentFp.timeStamp, currentFp.x, averageX, normalizedFp.x, currentFp.y, averageY, normalizedFp.y, currentFp.angle, averageAngle, normalizedFp.angle);
+		fileOut.write(buffer);
+	}
+}
+
+bool VideoStabilizer::readNormalizedFramePositions(const QString& fileName)
+{
+	QFile file(fileName);
+
+	if (!file.open(QFile::ReadOnly | QFile::Text))
+	{
+		qWarning("Could not open input file");
+		return false;
+	}
+
+	QTextStream fileStream(&file);
+	QString fileInString = fileStream.readAll();
+	file.close();
+
+	QStringList lines = fileInString.split('\n');
+
+	for (int i = 1; i < lines.size(); ++i)
+	{
+		QStringList parts = lines[i].split(';');
+
+		if (parts.size() == 10)
+		{
+			FramePosition fp;
+
+			fp.timeStamp = (int64_t)parts[0].toLongLong();
+			fp.x = parts[3].toDouble();
+			fp.y = parts[6].toDouble();
+			fp.angle = parts[9].toDouble();
+
+			normalizedFramePositions.push_back(fp);
+		}
+	}
+
+	return true;
 }
 
 void VideoStabilizer::toggleEnabled()
@@ -142,31 +256,27 @@ void VideoStabilizer::toggleEnabled()
 
 void VideoStabilizer::reset()
 {
-	currentX = 0.0;
-	currentY = 0.0;
-	currentAngle = 0.0;
-	normalizedX = 0.0;
-	normalizedY = 0.0;
-	normalizedAngle = 0.0;
-	currentXAverage.reset();
-	currentYAverage.reset();
-	currentAngleAverage.reset();
+	cumulativeX = 0.0;
+	cumulativeY = 0.0;
+	cumulativeAngle = 0.0;
+	normalizedFramePosition = FramePosition();
 	previousTransformation = cv::Mat::eye(2, 3, CV_64F);
+	isFirstImage = true;
 }
 
 double VideoStabilizer::getX() const
 {
-	return normalizedX;
+	return normalizedFramePosition.x;
 }
 
 double VideoStabilizer::getY() const
 {
-	return normalizedY;
+	return normalizedFramePosition.y;
 }
 
 double VideoStabilizer::getAngle() const
 {
-	return normalizedAngle;
+	return normalizedFramePosition.angle;
 }
 
 double VideoStabilizer::getLastProcessTime() const

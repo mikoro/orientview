@@ -78,7 +78,7 @@ bool EncodeWindow::initialize(VideoDecoder* videoDecoder, VideoEncoderThread* vi
 	}
 
 	totalFrameCount = videoDecoder->getTotalFrameCount();
-	videoFilePath = settings->videoEncoder.outputVideoFilePath;
+	videoFilePath = settings->encoder.outputVideoFilePath;
 
 	ui->progressBarMain->setValue(0);
 	ui->labelTotalFrames->setText(QString::number(totalFrameCount));

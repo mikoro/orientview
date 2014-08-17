@@ -3,17 +3,27 @@
 
 #pragma once
 
+#include <cstdint>
+
 #include <QFile>
 #include <QElapsedTimer>
 
 #include "opencv2/opencv.hpp"
 
-#include "MovingAverage.h"
-
 namespace OrientView
 {
 	class Settings;
 	struct FrameData;
+
+	struct FramePosition
+	{
+		int64_t timeStamp = 0;
+		double x = 0.0;
+		double y = 0.0;
+		double angle = 0.0;
+	};
+
+	enum VideoStabilizerMode { RealTime, Preprocessed };
 
 	// Use the OpenCV library to do real-time video stabilization.
 	class VideoStabilizer
@@ -21,10 +31,13 @@ namespace OrientView
 
 	public:
 
-		void initialize(Settings* settings);
-		~VideoStabilizer();
+		bool initialize(Settings* settings, bool isPreprocessing);
 
+		void preProcessFrame(const FrameData& frameDataGrayscale, QFile& file);
 		void processFrame(const FrameData& frameDataGrayscale);
+
+		static void convertCumulativeFramePositionsToNormalized(QFile& fileIn, QFile& fileOut, int smoothingRadius);
+		bool readNormalizedFramePositions(const QString& fileName);
 
 		void toggleEnabled();
 		void reset();
@@ -32,41 +45,34 @@ namespace OrientView
 		double getX() const;
 		double getY() const;
 		double getAngle() const;
-		double getScale() const;
+
 		double getLastProcessTime() const;
 
 	private:
 
+		FramePosition calculateCumulativeFramePosition(const FrameData& frameDataGrayscale);
+		FramePosition searchNormalizedFramePosition(const FrameData& frameDataGrayscale);
+
+		VideoStabilizerMode mode = VideoStabilizerMode::Preprocessed;
+
 		bool isFirstImage = true;
 		bool isEnabled = true;
-
-		double currentX = 0.0;
-		double currentY = 0.0;
-		double currentAngle = 0.0;
-		double normalizedX = 0.0;
-		double normalizedY = 0.0;
-		double normalizedAngle = 0.0;
 
 		double dampingFactor = 0.0;
 		double maxDisplacementFactor = 0.0;
 
-		MovingAverage currentXAverage;
-		MovingAverage currentYAverage;
-		MovingAverage currentAngleAverage;
+		double cumulativeX = 0.0;
+		double cumulativeY = 0.0;
+		double cumulativeAngle = 0.0;
 
+		std::vector<FramePosition> normalizedFramePositions;
+
+		FramePosition normalizedFramePosition;
+		
 		cv::Mat previousImage;
 		cv::Mat previousTransformation;
-		std::vector<cv::Point2f> previousCorners;
-		std::vector<cv::Point2f> currentCorners;
-		std::vector<cv::Point2f> previousCornersFiltered;
-		std::vector<cv::Point2f> currentCornersFiltered;
-		std::vector<uchar> opticalFlowStatus;
-		std::vector<float> opticalFlowError;
 		
 		QElapsedTimer processTimer;
 		double lastProcessTime = 0.0;
-
-		QFile dataOutputFile;
-		bool outputData = false;
 	};
 }

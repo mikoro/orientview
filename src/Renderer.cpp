@@ -26,20 +26,20 @@ bool Renderer::initialize(VideoDecoder* videoDecoder, MapImageReader* mapImageRe
 	videoPanel.textureHeight = videoDecoder->getFrameHeight();
 	videoPanel.texelWidth = 1.0 / videoPanel.textureWidth;
 	videoPanel.texelHeight = 1.0 / videoPanel.textureHeight;
-	videoPanel.userScale = settings->appearance.videoPanelScale;
-	videoPanel.clearColor = settings->appearance.videoPanelBackgroundColor;
-	videoPanel.clippingEnabled = settings->videoStabilizer.enableClipping;
-	videoPanel.clearingEnabled = settings->videoStabilizer.enableClearing;
+	videoPanel.userScale = settings->video.videoPanelScale;
+	videoPanel.clearColor = settings->video.videoPanelBackgroundColor;
+	videoPanel.clippingEnabled = settings->stabilizer.enableClipping;
+	videoPanel.clearingEnabled = settings->stabilizer.enableClearing;
 
 	mapPanel.textureWidth = mapImageReader->getMapImage().width();
 	mapPanel.textureHeight = mapImageReader->getMapImage().height();
 	mapPanel.texelWidth = 1.0 / mapPanel.textureWidth;
 	mapPanel.texelHeight = 1.0 / mapPanel.textureHeight;
-	mapPanel.clearColor = settings->appearance.mapPanelBackgroundColor;
-	mapPanel.relativeWidth = settings->appearance.mapPanelWidth;
+	mapPanel.clearColor = settings->map.mapPanelBackgroundColor;
+	mapPanel.relativeWidth = settings->map.mapPanelWidth;
 
-	showInfoPanel = settings->appearance.showInfoPanel;
 	multisamples = settings->window.multisamples;
+	showInfoPanel = settings->window.showInfoPanel;
 
 	const double movingAverageAlpha = 0.1;
 	averageFps.reset();
@@ -62,10 +62,10 @@ bool Renderer::initialize(VideoDecoder* videoDecoder, MapImageReader* mapImageRe
 	if (!resizeWindow(settings->window.width, settings->window.height))
 		return false;
 
-	if (!loadShaders(videoPanel, settings->appearance.videoPanelShader))
+	if (!loadShaders(videoPanel, settings->video.videoPanelRescaleShader))
 		return false;
 
-	if (!loadShaders(mapPanel, settings->appearance.mapPanelShader))
+	if (!loadShaders(mapPanel, settings->map.mapPanelRescaleShader))
 		return false;
 
 	// 1 2

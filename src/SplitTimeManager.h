@@ -11,6 +11,8 @@ namespace OrientView
 {
 	class Settings;
 
+	enum SplitTimeType { Absolute, Relative };
+
 	struct SplitTime
 	{
 		double time = 0.0;

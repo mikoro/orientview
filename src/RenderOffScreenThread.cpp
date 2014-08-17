@@ -75,7 +75,7 @@ void RenderOffScreenThread::run()
 
 			renderedFrameData = renderer->getRenderedFrame();
 			renderedFrameData.duration = decodedFrameData.duration;
-			renderedFrameData.number = decodedFrameData.number;
+			renderedFrameData.cumulativeNumber = decodedFrameData.cumulativeNumber;
 
 			frameAvailableSemaphore->release(1);
 
