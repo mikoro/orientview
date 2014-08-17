@@ -102,7 +102,6 @@ namespace OrientView
 		void renderInfoPanel();
 		void renderPanel(const Panel& panel);
 		void renderRoute(const Route& route);
-		QColor interpolateFromGreenToRed(double lowValue, double highValue, double value);
 
 		VideoStabilizer* videoStabilizer = nullptr;
 		InputHandler* inputHandler = nullptr;

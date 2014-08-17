@@ -1,6 +1,8 @@
 // Copyright © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
 // License: GPLv3, see the LICENSE file.
 
+#include <QPainterPathStroker>
+
 #include "RouteManager.h"
 #include "QuickRouteReader.h"
 #include "SplitTimeManager.h"
@@ -17,6 +19,7 @@ void RouteManager::initialize(QuickRouteReader* quickRouteReader, SplitTimeManag
 
 	constructWholeRoutePath();
 	calculateControlLocations();
+	calculateRoutePointColors();
 	update(0);
 }
 
@@ -31,6 +34,7 @@ void RouteManager::update(double currentTime)
 	if (fullUpdateRequested)
 	{
 		calculateControlLocations();
+		calculateRoutePointColors();
 		fullUpdateRequested = false;
 	}
 }
@@ -64,6 +68,12 @@ void RouteManager::constructWholeRoutePath()
 				defaultRoute.wholeRoutePath.lineTo(x, y);
 		}
 	}
+
+	QPainterPathStroker pathStroker;
+	pathStroker.setCapStyle(Qt::PenCapStyle::RoundCap);
+	pathStroker.setWidth(defaultRoute.wholeRouteWidth);
+
+	defaultRoute.wholeRoutePathStroked = pathStroker.createStroke(defaultRoute.wholeRoutePath);
 }
 
 void RouteManager::calculateControlLocations()
@@ -80,4 +90,25 @@ void RouteManager::calculateControlLocations()
 		timeBasedIndex = std::max(0, std::min(timeBasedIndex, indexMax));
 		defaultRoute.controlPositions.push_back(defaultRoute.alignedRoutePoints.at(timeBasedIndex).position);
 	}
+}
+
+void RouteManager::calculateRoutePointColors()
+{
+	for (RoutePoint& rp : defaultRoute.routePoints)
+		rp.color = interpolateFromGreenToRed(5.0, 15.0, rp.pace);
+
+	for (RoutePoint& rp : defaultRoute.alignedRoutePoints)
+		rp.color = interpolateFromGreenToRed(5.0, 15.0, rp.pace);
+}
+
+QColor RouteManager::interpolateFromGreenToRed(double lowValue, double highValue, double value)
+{
+	double alpha = (value - lowValue) / (highValue - lowValue);
+	alpha = std::max(0.0, std::min(alpha, 1.0));
+
+	double r = (alpha > 0.5 ? 1.0 : 2.0 * alpha);
+	double g = (alpha > 0.5 ? 1.0 - 2.0 * (alpha - 0.5) : 1.0);
+	double b = 0.0;
+
+	return QColor::fromRgbF(r, g, b);
 }

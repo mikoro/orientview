@@ -24,16 +24,24 @@ namespace OrientView
 		double startOffset = 0.0;
 
 		std::vector<QPointF> controlPositions;
-		QColor controlColor = QColor(255, 0, 0);
-		double controlRadius = 10.0;
+		QColor controlBorderColor = QColor(140, 40, 140);
+		double controlRadius = 15.0;
+		double controlBorderWidth = 5.0;
 
 		QPointF runnerPosition;
-		QColor runnerColor = QColor(0, 0, 255);
-		double runnerRadius = 10.0;
+		QColor runnerColor = QColor(60, 100, 255);
+		QColor runnerBorderColor = QColor(0, 0, 0);
+		double runnerRadius = 6.0;
+		double runnerBorderWidth = 2.0;
 
 		QPainterPath wholeRoutePath;
-		QColor wholeRouteColor = QColor(255, 0, 0, 128);
-		double wholeRouteWidth = 15.0;
+		QPainterPath wholeRoutePathStroked;
+		QColor wholeRouteColor = QColor(0, 0, 0, 50);
+		QColor wholeRouteBorderColor = QColor(0, 0, 0, 100);
+		double wholeRouteWidth = 10.0;
+		double wholeRouteBorderWidth = 1.0;
+
+		bool shouldRenderPace = false;
 	};
 
 	class RouteManager
@@ -51,6 +59,9 @@ namespace OrientView
 
 		void constructWholeRoutePath();
 		void calculateControlLocations();
+		void calculateRoutePointColors();
+
+		QColor interpolateFromGreenToRed(double lowValue, double highValue, double value);
 
 		Route defaultRoute;
 

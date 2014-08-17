@@ -5,6 +5,7 @@
 
 #include <QDateTime>
 #include <QPointF>
+#include <QColor>
 
 namespace OrientView
 {
@@ -17,5 +18,6 @@ namespace OrientView
 		double elevation = 0.0;		// Elevation in meters.
 		double heartRate = 0.0;		// Heart rate bpm.
 		double pace = 0.0;			// Pace in min / km.
+		QColor color;				// Color representing the pace.
 	};
 }

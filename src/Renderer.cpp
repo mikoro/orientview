@@ -635,34 +635,57 @@ void Renderer::renderRoute(const Route& route)
 	painter->setWorldMatrix(m);
 
 	QPen wholeRoutePen;
-	wholeRoutePen.setColor(route.wholeRouteColor);
-	wholeRoutePen.setWidth(route.wholeRouteWidth);
-	wholeRoutePen.setCapStyle(Qt::PenCapStyle::RoundCap);
-	wholeRoutePen.setJoinStyle(Qt::PenJoinStyle::RoundJoin);
+	QBrush wholeRouteBrush;
+	wholeRoutePen.setWidthF(route.wholeRouteBorderWidth);
+	wholeRoutePen.setColor(route.wholeRouteBorderColor);
+	wholeRouteBrush.setColor(route.wholeRouteColor);
+	wholeRouteBrush.setStyle(Qt::SolidPattern);
 
 	painter->setPen(wholeRoutePen);
-	painter->drawPath(route.wholeRoutePath);
+	painter->setBrush(wholeRouteBrush);
+	painter->drawPath(route.wholeRoutePathStroked);
+
+	QPen paceRoutePen;
+	paceRoutePen.setWidthF(route.wholeRouteWidth - route.wholeRouteBorderWidth);
+	paceRoutePen.setJoinStyle(Qt::PenJoinStyle::RoundJoin);
+	paceRoutePen.setCapStyle(Qt::PenCapStyle::RoundCap);
+
+	if (route.shouldRenderPace)
+	{
+		painter->setBrush(Qt::NoBrush);
+
+		for (size_t i = 1; i < routeManager->getDefaultRoute().routePoints.size(); ++i)
+		{
+			RoutePoint rp1 = routeManager->getDefaultRoute().routePoints.at(i - 1);
+			RoutePoint rp2 = routeManager->getDefaultRoute().routePoints.at(i);
+
+			paceRoutePen.setColor(rp2.color);
+
+			painter->setPen(paceRoutePen);
+			painter->drawLine(rp1.position, rp2.position);
+		}
+	}
 
 	QPen controlPen;
-	QBrush controlBrush;
-	controlPen.setColor(route.controlColor);
-	controlBrush.setColor(route.controlColor);
-	controlBrush.setStyle(Qt::SolidPattern);
+	controlPen.setColor(route.controlBorderColor);
+	controlPen.setWidthF(route.controlBorderWidth);
 	
 	painter->setPen(controlPen);
-	painter->setBrush(controlBrush);
+	painter->setBrush(Qt::NoBrush);
 
 	for (size_t i = 0; i < routeManager->getDefaultRoute().controlPositions.size(); ++i)
 		painter->drawEllipse(routeManager->getDefaultRoute().controlPositions.at(i), route.controlRadius, route.controlRadius);
 
 	QPen runnerPen;
 	QBrush runnerBrush;
-	runnerPen.setColor(route.runnerColor);
+	runnerPen.setColor(route.runnerBorderColor);
+	runnerPen.setWidthF(route.runnerBorderWidth);
 	runnerBrush.setColor(route.runnerColor);
 	runnerBrush.setStyle(Qt::SolidPattern);
 
 	painter->setPen(runnerPen);
 	painter->setBrush(runnerBrush);
+	
 	painter->drawEllipse(routeManager->getDefaultRoute().runnerPosition, route.runnerRadius, route.runnerRadius);
 
 	painter->setClipping(false);
@@ -707,18 +730,6 @@ void Renderer::renderPanel(const Panel& panel)
 	panel.texture->release();
 	panel.buffer->release();
 	panel.program->release();
-}
-
-QColor Renderer::interpolateFromGreenToRed(double lowValue, double highValue, double value)
-{
-	double alpha = (value - lowValue) / (highValue - lowValue);
-	alpha = std::max(0.0, std::min(alpha, 1.0));
-
-	double r = (alpha > 0.5 ? 1.0 : 2.0 * alpha);
-	double g = (alpha > 0.5 ? 1.0 - 2.0 * (alpha - 0.5) : 1.0);
-	double b = 0.0;
-
-	return QColor::fromRgbF(r, g, b, 0.8);
 }
 
 Panel& Renderer::getVideoPanel()

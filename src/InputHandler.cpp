@@ -58,6 +58,9 @@ void InputHandler::handleInput(double frameTime)
 	if (videoWindow->keyIsDownOnce(Qt::Key_F4))
 		videoStabilizer->toggleEnabled();
 
+	if (videoWindow->keyIsDownOnce(Qt::Key_F5))
+		routeManager->getDefaultRoute().shouldRenderPace = !routeManager->getDefaultRoute().shouldRenderPace;
+
 	if (!videoWindow->keyIsDown(Qt::Key_Control) && videoWindow->keyIsDownOnce(Qt::Key_Space))
 		renderOnScreenThread->togglePaused();
 	else if (videoWindow->keyIsDown(Qt::Key_Control) && keyIsDownWithRepeat(Qt::Key_Space, advanceOneFrameRepeatHandler))
