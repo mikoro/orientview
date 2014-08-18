@@ -106,7 +106,6 @@ void MainWindow::addLogMessage(const QString& timeString, const QString& typeStr
 	newRow.append(new QStandardItem(messageString));
 
 	logDataModel->appendRow(newRow);
-	ui->treeViewLog->scrollTo(firstColumn->index(), QAbstractItemView::PositionAtBottom);
 }
 
 void MainWindow::on_actionLoadSettings_triggered()
