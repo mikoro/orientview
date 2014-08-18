@@ -122,10 +122,6 @@ bool Renderer::initialize(VideoDecoder* videoDecoder, MapImageReader* mapImageRe
 	paintDevice = new QOpenGLPaintDevice();
 	painter = new QPainter();
 
-	painter->begin(paintDevice);
-	painter->setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform | QPainter::HighQualityAntialiasing);
-	painter->end();
-
 	return true;
 }
 
@@ -409,10 +405,10 @@ void Renderer::renderVideoPanel()
 		videoPanel.scale = windowHeight / videoPanel.textureHeight;
 
 	videoPanel.vertexMatrix.translate(videoPanel.offsetX, videoPanel.offsetY); // window coordinate units
-	videoPanel.vertexMatrix.rotate(videoPanel.angle + videoPanel.userAngle - videoStabilizer->getAngle(), 0.0f, 0.0f, 1.0f);
 	videoPanel.vertexMatrix.translate( // scaled map pixel units
 		videoPanel.x + videoPanel.userX + videoStabilizer->getX() * videoPanel.textureWidth * videoPanel.scale * videoPanel.userScale,
 		videoPanel.y + videoPanel.userY - videoStabilizer->getY() * videoPanel.textureHeight * videoPanel.scale * videoPanel.userScale);
+	videoPanel.vertexMatrix.rotate(videoPanel.angle + videoPanel.userAngle - videoStabilizer->getAngle(), 0.0f, 0.0f, 1.0f);
 	videoPanel.vertexMatrix.scale(videoPanel.scale * videoPanel.userScale);
 
 	if (fullClearRequested)
@@ -546,6 +542,7 @@ void Renderer::renderRoute(const Route& route)
 	m.translate(mapPanel.x + mapPanel.userX, -(mapPanel.y + mapPanel.userY));
 
 	painter->begin(paintDevice);
+	painter->setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform | QPainter::HighQualityAntialiasing);
 
 	if (renderMode != RenderMode::Map)
 	{
@@ -645,6 +642,8 @@ void Renderer::renderInfoPanel()
 	QColor textRedColor = QColor(255, 0, 0, 200);
 
 	painter->begin(paintDevice);
+	painter->setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform | QPainter::HighQualityAntialiasing);
+
 	painter->setPen(QColor(0, 0, 0));
 	painter->setBrush(QBrush(QColor(20, 20, 20, 220)));
 	painter->drawRoundedRect(-backgroundRadius, -backgroundRadius, backgroundWidth, backgroundHeight, backgroundRadius, backgroundRadius);
