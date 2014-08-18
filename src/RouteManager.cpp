@@ -27,7 +27,7 @@ void RouteManager::update(double currentTime)
 
 	if (fullUpdateRequested)
 	{
-		calculateControlLocations();
+		calculateControlPositions();
 		calculateRoutePointColors();
 		fullUpdateRequested = false;
 	}
@@ -64,7 +64,7 @@ void RouteManager::constructWholeRoutePath()
 	}
 }
 
-void RouteManager::calculateControlLocations()
+void RouteManager::calculateControlPositions()
 {
 	defaultRoute.controlPositions.clear();
 
@@ -72,11 +72,26 @@ void RouteManager::calculateControlLocations()
 	{
 		SplitTime splitTime = defaultRoute.splitTimes.splitTimes.at(i);
 
-		int index = (int)round(splitTime.time + defaultRoute.startOffset);
+		double offsetTime = splitTime.time + defaultRoute.startOffset;
+		double previousWholeSecond = floor(offsetTime);
+		double alpha = offsetTime - previousWholeSecond;
+
+		int firstIndex = (int)previousWholeSecond;
+		int secondIndex = firstIndex + 1;
 		int indexMax = (int)defaultRoute.alignedRoutePoints.size() - 1;
 
-		index = std::max(0, std::min(index, indexMax));
-		defaultRoute.controlPositions.push_back(defaultRoute.alignedRoutePoints.at(index).position);
+		firstIndex = std::max(0, std::min(firstIndex, indexMax));
+		secondIndex = std::max(0, std::min(secondIndex, indexMax));
+
+		if (firstIndex == secondIndex)
+			defaultRoute.controlPositions.push_back(defaultRoute.alignedRoutePoints.at(firstIndex).position);
+		else
+		{
+			RoutePoint rp1 = defaultRoute.alignedRoutePoints.at(firstIndex);
+			RoutePoint rp2 = defaultRoute.alignedRoutePoints.at(secondIndex);
+
+			defaultRoute.controlPositions.push_back((1.0 - alpha) * rp1.position + alpha * rp2.position);
+		}
 	}
 }
 

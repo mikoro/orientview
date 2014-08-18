@@ -62,7 +62,7 @@ namespace OrientView
 	private:
 
 		void constructWholeRoutePath();
-		void calculateControlLocations();
+		void calculateControlPositions();
 		void calculateRoutePointColors();
 		void calculateRunnerPosition(double currentTime);
 

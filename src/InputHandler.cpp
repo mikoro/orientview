@@ -186,7 +186,7 @@ void InputHandler::handleInput(double frameTime)
 
 		assert(targetPanel != nullptr);
 
-		if (videoWindow->keyIsDown(Qt::Key_R))
+		if (videoWindow->keyIsDown(Qt::Key_Backspace))
 		{
 			targetPanel->userX = 0.0;
 			targetPanel->userY = 0.0;
