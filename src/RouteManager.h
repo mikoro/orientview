@@ -41,6 +41,7 @@ namespace OrientView
 		double wholeRouteWidth = 10.0;
 		double wholeRouteBorderWidth = 1.0;
 
+		bool shouldRenderControls = true;
 		bool shouldRenderPace = false;
 	};
 

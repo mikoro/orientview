@@ -99,9 +99,9 @@ namespace OrientView
 		void loadBuffer(Panel& panel, GLfloat* buffer, size_t size);
 		void renderVideoPanel();
 		void renderMapPanel();
-		void renderInfoPanel();
 		void renderPanel(const Panel& panel);
 		void renderRoute(const Route& route);
+		void renderInfoPanel();
 
 		VideoStabilizer* videoStabilizer = nullptr;
 		InputHandler* inputHandler = nullptr;
@@ -115,7 +115,6 @@ namespace OrientView
 		double windowWidth = 0.0;
 		double windowHeight = 0.0;
 		double currentTime = 0.0;
-		double frameTime = 0.0;
 		int multisamples = 0;
 
 		Panel videoPanel;

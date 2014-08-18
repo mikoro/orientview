@@ -302,7 +302,6 @@ void Renderer::startRendering(double currentTime, double frameTime, double spare
 	renderTimer.restart();
 
 	this->currentTime = currentTime;
-	this->frameTime = frameTime;
 
 	averageFps.addMeasurement(1000.0 / frameTime);
 	averageFrameTime.addMeasurement(frameTime);
@@ -313,6 +312,7 @@ void Renderer::startRendering(double currentTime, double frameTime, double spare
 	averageSpareTime.addMeasurement(spareTime);
 
 	paintDevice->setSize(QSize(windowWidth, windowHeight));
+
 	glViewport(0, 0, windowWidth, windowHeight);
 	glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
@@ -335,9 +335,22 @@ void Renderer::renderAll()
 
 	if (renderMode == RenderMode::All || renderMode == RenderMode::Video)
 		renderVideoPanel();
-
+	
 	if (renderMode == RenderMode::All || renderMode == RenderMode::Map)
+	{
 		renderMapPanel();
+		renderRoute(routeManager->getDefaultRoute());
+
+		if (mapPanel.clippingEnabled)
+		{
+			int mapRightBorderX = (int)(mapPanel.relativeWidth * windowWidth + 0.5);
+
+			painter->begin(paintDevice);
+			painter->setPen(QColor(0, 0, 0));
+			painter->drawLine(mapRightBorderX, 0, mapRightBorderX, (int)windowHeight);
+			painter->end();
+		}
+	}
 
 	if (showInfoPanel)
 		renderInfoPanel();
@@ -466,12 +479,10 @@ void Renderer::renderMapPanel()
 		fullClearRequested = false;
 	}
 
-	int mapRightBorderX = (int)(mapPanel.relativeWidth * windowWidth + 0.5);
-
 	if (mapPanel.clippingEnabled)
 	{
 		glEnable(GL_SCISSOR_TEST);
-		glScissor(0, 0, mapRightBorderX, (int)windowHeight);
+		glScissor(0, 0, (int)(mapPanel.relativeWidth * windowWidth + 0.5), (int)windowHeight);
 	}
 
 	if (mapPanel.clearingEnabled)
@@ -482,16 +493,125 @@ void Renderer::renderMapPanel()
 
 	renderPanel(mapPanel);
 	glDisable(GL_SCISSOR_TEST);
+}
 
-	renderRoute(routeManager->getDefaultRoute());
+void Renderer::renderPanel(const Panel& panel)
+{
+	panel.program->bind();
 
-	if (mapPanel.clippingEnabled)
+	if (panel.vertexMatrixUniform >= 0)
+		panel.program->setUniformValue((GLuint)panel.vertexMatrixUniform, panel.vertexMatrix);
+
+	if (panel.textureSamplerUniform >= 0)
+		panel.program->setUniformValue((GLuint)panel.textureSamplerUniform, 0);
+
+	if (panel.textureWidthUniform >= 0)
+		panel.program->setUniformValue((GLuint)panel.textureWidthUniform, (float)panel.textureWidth);
+
+	if (panel.textureHeightUniform >= 0)
+		panel.program->setUniformValue((GLuint)panel.textureHeightUniform, (float)panel.textureHeight);
+
+	if (panel.texelWidthUniform >= 0)
+		panel.program->setUniformValue((GLuint)panel.texelWidthUniform, (float)panel.texelWidth);
+
+	if (panel.texelHeightUniform >= 0)
+		panel.program->setUniformValue((GLuint)panel.texelHeightUniform, (float)panel.texelHeight);
+
+	panel.buffer->bind();
+	panel.texture->bind();
+
+	int* textureCoordinateOffset = (int*)(sizeof(GLfloat) * 12);
+
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(panel.vertexPositionAttribute, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glVertexAttribPointer(panel.vertexTextureCoordinateAttribute, 2, GL_FLOAT, GL_FALSE, 0, textureCoordinateOffset);
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+	glDisableVertexAttribArray(0);
+	glDisableVertexAttribArray(1);
+
+	panel.texture->release();
+	panel.buffer->release();
+	panel.program->release();
+}
+
+void Renderer::renderRoute(const Route& route)
+{
+	QMatrix m;
+	m.translate(windowWidth / 2.0, windowHeight / 2.0);
+	m.translate(mapPanel.offsetX, mapPanel.offsetY);
+	m.rotate(-(mapPanel.angle + mapPanel.userAngle));
+	m.scale(mapPanel.scale * mapPanel.userScale, mapPanel.scale * mapPanel.userScale);
+	m.translate(mapPanel.x + mapPanel.userX, -(mapPanel.y + mapPanel.userY));
+
+	painter->begin(paintDevice);
+
+	if (renderMode != RenderMode::Map)
 	{
-		painter->begin(paintDevice);
-		painter->setPen(QColor(0, 0, 0));
-		painter->drawLine(mapRightBorderX, 0, mapRightBorderX, (int)windowHeight);
-		painter->end();
+		painter->setClipping(true);
+		painter->setClipRect(0, 0, (int)(mapPanel.relativeWidth * windowWidth + 0.5), (int)windowHeight);
 	}
+
+	painter->setWorldMatrix(m);
+
+	QPen wholeRoutePen;
+	QBrush wholeRouteBrush;
+	wholeRoutePen.setWidthF(route.wholeRouteBorderWidth);
+	wholeRoutePen.setColor(route.wholeRouteBorderColor);
+	wholeRouteBrush.setColor(route.wholeRouteColor);
+	wholeRouteBrush.setStyle(Qt::SolidPattern);
+
+	painter->setPen(wholeRoutePen);
+	painter->setBrush(wholeRouteBrush);
+	painter->drawPath(route.wholeRoutePathStroked);
+
+	if (route.shouldRenderPace)
+	{
+		QPen paceRoutePen;
+		paceRoutePen.setWidthF(route.wholeRouteWidth - route.wholeRouteBorderWidth);
+		paceRoutePen.setJoinStyle(Qt::PenJoinStyle::RoundJoin);
+		paceRoutePen.setCapStyle(Qt::PenCapStyle::RoundCap);
+
+		painter->setBrush(Qt::NoBrush);
+
+		for (size_t i = 1; i < routeManager->getDefaultRoute().routePoints.size(); ++i)
+		{
+			RoutePoint rp1 = routeManager->getDefaultRoute().routePoints.at(i - 1);
+			RoutePoint rp2 = routeManager->getDefaultRoute().routePoints.at(i);
+
+			paceRoutePen.setColor(rp2.color);
+
+			painter->setPen(paceRoutePen);
+			painter->drawLine(rp1.position, rp2.position);
+		}
+	}
+
+	if (route.shouldRenderControls)
+	{
+		QPen controlPen;
+		controlPen.setColor(route.controlBorderColor);
+		controlPen.setWidthF(route.controlBorderWidth);
+
+		painter->setPen(controlPen);
+		painter->setBrush(Qt::NoBrush);
+
+		for (size_t i = 0; i < routeManager->getDefaultRoute().controlPositions.size(); ++i)
+			painter->drawEllipse(routeManager->getDefaultRoute().controlPositions.at(i), route.controlRadius, route.controlRadius);
+	}
+
+	QPen runnerPen;
+	QBrush runnerBrush;
+	runnerPen.setColor(route.runnerBorderColor);
+	runnerPen.setWidthF(route.runnerBorderWidth);
+	runnerBrush.setColor(route.runnerColor);
+	runnerBrush.setStyle(Qt::SolidPattern);
+
+	painter->setPen(runnerPen);
+	painter->setBrush(runnerBrush);
+	painter->drawEllipse(routeManager->getDefaultRoute().runnerPosition, route.runnerRadius, route.runnerRadius);
+
+	painter->setClipping(false);
+	painter->end();
 }
 
 void Renderer::renderInfoPanel()
@@ -609,127 +729,10 @@ void Renderer::renderInfoPanel()
 	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString::number(mapPanel.userScale, 'f', 2));
 
 	textY += lineSpacing;
-	
+
 	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString("%1 s").arg(QString::number(routeManager->getDefaultRoute().startOffset, 'f', 2)));
 
 	painter->end();
-}
-
-void Renderer::renderRoute(const Route& route)
-{
-	QMatrix m;
-	m.translate(windowWidth / 2.0, windowHeight / 2.0);
-	m.translate(mapPanel.offsetX, mapPanel.offsetY);
-	m.rotate(-(mapPanel.angle + mapPanel.userAngle));
-	m.scale(mapPanel.scale * mapPanel.userScale, mapPanel.scale * mapPanel.userScale);
-	m.translate(mapPanel.x + mapPanel.userX, -(mapPanel.y + mapPanel.userY));
-
-	painter->begin(paintDevice);
-	
-	if (renderMode != RenderMode::Map)
-	{
-		painter->setClipping(true);
-		painter->setClipRect(0, 0, (int)(mapPanel.relativeWidth * windowWidth + 0.5), (int)windowHeight);
-	}
-
-	painter->setWorldMatrix(m);
-
-	QPen wholeRoutePen;
-	QBrush wholeRouteBrush;
-	wholeRoutePen.setWidthF(route.wholeRouteBorderWidth);
-	wholeRoutePen.setColor(route.wholeRouteBorderColor);
-	wholeRouteBrush.setColor(route.wholeRouteColor);
-	wholeRouteBrush.setStyle(Qt::SolidPattern);
-
-	painter->setPen(wholeRoutePen);
-	painter->setBrush(wholeRouteBrush);
-	painter->drawPath(route.wholeRoutePathStroked);
-
-	QPen paceRoutePen;
-	paceRoutePen.setWidthF(route.wholeRouteWidth - route.wholeRouteBorderWidth);
-	paceRoutePen.setJoinStyle(Qt::PenJoinStyle::RoundJoin);
-	paceRoutePen.setCapStyle(Qt::PenCapStyle::RoundCap);
-
-	if (route.shouldRenderPace)
-	{
-		painter->setBrush(Qt::NoBrush);
-
-		for (size_t i = 1; i < routeManager->getDefaultRoute().routePoints.size(); ++i)
-		{
-			RoutePoint rp1 = routeManager->getDefaultRoute().routePoints.at(i - 1);
-			RoutePoint rp2 = routeManager->getDefaultRoute().routePoints.at(i);
-
-			paceRoutePen.setColor(rp2.color);
-
-			painter->setPen(paceRoutePen);
-			painter->drawLine(rp1.position, rp2.position);
-		}
-	}
-
-	QPen controlPen;
-	controlPen.setColor(route.controlBorderColor);
-	controlPen.setWidthF(route.controlBorderWidth);
-	
-	painter->setPen(controlPen);
-	painter->setBrush(Qt::NoBrush);
-
-	for (size_t i = 0; i < routeManager->getDefaultRoute().controlPositions.size(); ++i)
-		painter->drawEllipse(routeManager->getDefaultRoute().controlPositions.at(i), route.controlRadius, route.controlRadius);
-
-	QPen runnerPen;
-	QBrush runnerBrush;
-	runnerPen.setColor(route.runnerBorderColor);
-	runnerPen.setWidthF(route.runnerBorderWidth);
-	runnerBrush.setColor(route.runnerColor);
-	runnerBrush.setStyle(Qt::SolidPattern);
-
-	painter->setPen(runnerPen);
-	painter->setBrush(runnerBrush);
-	
-	painter->drawEllipse(routeManager->getDefaultRoute().runnerPosition, route.runnerRadius, route.runnerRadius);
-
-	painter->setClipping(false);
-	painter->end();
-}
-
-void Renderer::renderPanel(const Panel& panel)
-{
-	panel.program->bind();
-
-	if (panel.vertexMatrixUniform >= 0)
-		panel.program->setUniformValue((GLuint)panel.vertexMatrixUniform, panel.vertexMatrix);
-
-	if (panel.textureSamplerUniform >= 0)
-		panel.program->setUniformValue((GLuint)panel.textureSamplerUniform, 0);
-
-	if (panel.textureWidthUniform >= 0)
-		panel.program->setUniformValue((GLuint)panel.textureWidthUniform, (float)panel.textureWidth);
-
-	if (panel.textureHeightUniform >= 0)
-		panel.program->setUniformValue((GLuint)panel.textureHeightUniform, (float)panel.textureHeight);
-
-	if (panel.texelWidthUniform >= 0)
-		panel.program->setUniformValue((GLuint)panel.texelWidthUniform, (float)panel.texelWidth);
-
-	if (panel.texelHeightUniform >= 0)
-		panel.program->setUniformValue((GLuint)panel.texelHeightUniform, (float)panel.texelHeight);
-
-	panel.buffer->bind();
-	panel.texture->bind();
-
-	int* textureCoordinateOffset = (int*)(sizeof(GLfloat) * 12);
-
-	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(panel.vertexPositionAttribute, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	glVertexAttribPointer(panel.vertexTextureCoordinateAttribute, 2, GL_FLOAT, GL_FALSE, 0, textureCoordinateOffset);
-	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-	glDisableVertexAttribArray(0);
-	glDisableVertexAttribArray(1);
-
-	panel.texture->release();
-	panel.buffer->release();
-	panel.program->release();
 }
 
 Panel& Renderer::getVideoPanel()
