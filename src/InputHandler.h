@@ -17,7 +17,7 @@ namespace OrientView
 	class Renderer;
 	class Settings;
 
-	enum class EditMode { None, Video, Map, MapWidth };
+	enum class EditMode { None, Video, Map };
 
 	struct RepeatHandler
 	{

@@ -554,21 +554,23 @@ void Renderer::renderRoute(const Route& route)
 
 	painter->setWorldMatrix(m);
 
-	QPen wholeRoutePen;
-	QBrush wholeRouteBrush;
-	wholeRoutePen.setWidthF(route.wholeRouteBorderWidth);
-	wholeRoutePen.setColor(route.wholeRouteBorderColor);
-	wholeRouteBrush.setColor(route.wholeRouteColor);
-	wholeRouteBrush.setStyle(Qt::SolidPattern);
+	if (route.renderMode == RouteRenderMode::Normal)
+	{
+		QPen wholeRoutePen;
+		wholeRoutePen.setWidthF(route.wholeRouteWidth * route.userScale);
+		wholeRoutePen.setColor(route.wholeRouteColor);
+		wholeRoutePen.setJoinStyle(Qt::PenJoinStyle::RoundJoin);
+		wholeRoutePen.setCapStyle(Qt::PenCapStyle::RoundCap);
 
-	painter->setPen(wholeRoutePen);
-	painter->setBrush(wholeRouteBrush);
-	painter->drawPath(route.wholeRoutePathStroked);
+		painter->setPen(wholeRoutePen);
+		painter->setBrush(Qt::NoBrush);
+		painter->drawPath(route.wholeRoutePath);
+	}
 
-	if (route.shouldRenderPace)
+	if (route.renderMode == RouteRenderMode::Pace)
 	{
 		QPen paceRoutePen;
-		paceRoutePen.setWidthF(route.wholeRouteWidth - route.wholeRouteBorderWidth);
+		paceRoutePen.setWidthF(route.wholeRouteWidth * route.userScale);
 		paceRoutePen.setJoinStyle(Qt::PenJoinStyle::RoundJoin);
 		paceRoutePen.setCapStyle(Qt::PenCapStyle::RoundCap);
 
@@ -586,29 +588,36 @@ void Renderer::renderRoute(const Route& route)
 		}
 	}
 
-	if (route.shouldRenderControls)
+	if (route.showControls)
 	{
 		QPen controlPen;
+		controlPen.setWidthF(route.controlBorderWidth * route.userScale);
 		controlPen.setColor(route.controlBorderColor);
-		controlPen.setWidthF(route.controlBorderWidth);
+
+		double controlRadius = route.controlRadius * route.userScale;
 
 		painter->setPen(controlPen);
 		painter->setBrush(Qt::NoBrush);
 
 		for (size_t i = 0; i < routeManager->getDefaultRoute().controlPositions.size(); ++i)
-			painter->drawEllipse(routeManager->getDefaultRoute().controlPositions.at(i), route.controlRadius, route.controlRadius);
+			painter->drawEllipse(routeManager->getDefaultRoute().controlPositions.at(i), controlRadius, controlRadius);
 	}
 
-	QPen runnerPen;
-	QBrush runnerBrush;
-	runnerPen.setColor(route.runnerBorderColor);
-	runnerPen.setWidthF(route.runnerBorderWidth);
-	runnerBrush.setColor(route.runnerColor);
-	runnerBrush.setStyle(Qt::SolidPattern);
+	if (route.showRunner)
+	{
+		QPen runnerPen;
+		QBrush runnerBrush;
+		runnerPen.setWidthF(route.runnerBorderWidth * route.userScale);
+		runnerPen.setColor(route.runnerBorderColor);
+		runnerBrush.setColor(route.runnerColor);
+		runnerBrush.setStyle(Qt::SolidPattern);
 
-	painter->setPen(runnerPen);
-	painter->setBrush(runnerBrush);
-	painter->drawEllipse(routeManager->getDefaultRoute().runnerPosition, route.runnerRadius, route.runnerRadius);
+		double runnerRadius = (((route.wholeRouteWidth / 2.0) - (route.runnerBorderWidth / 2.0)) * route.runnerScale) * route.userScale;
+
+		painter->setPen(runnerPen);
+		painter->setBrush(runnerBrush);
+		painter->drawEllipse(routeManager->getDefaultRoute().runnerPosition, runnerRadius, runnerRadius);
+	}
 
 	painter->setClipping(false);
 	painter->end();
@@ -628,7 +637,7 @@ void Renderer::renderInfoPanel()
 	int rightPartMargin = 15;
 	int backgroundRadius = 10;
 	int backgroundWidth = textX + backgroundRadius + lineWidth1 + rightPartMargin + lineWidth2 + 10;
-	int backgroundHeight = lineSpacing * 17 + textY + 3;
+	int backgroundHeight = lineSpacing * 18 + textY + 3;
 
 	QColor textColor = QColor(255, 255, 255, 200);
 	QColor textGreenColor = QColor(0, 255, 0, 200);
@@ -659,8 +668,8 @@ void Renderer::renderInfoPanel()
 
 	textY += lineSpacing;
 
-	painter->drawText(textX, textY += lineSpacing, lineWidth1, lineHeight, 0, "edit:");
 	painter->drawText(textX, textY += lineSpacing, lineWidth1, lineHeight, 0, "render:");
+	painter->drawText(textX, textY += lineSpacing, lineWidth1, lineHeight, 0, "edit:");
 
 	textY += lineSpacing;
 
@@ -669,7 +678,8 @@ void Renderer::renderInfoPanel()
 
 	textY += lineSpacing;
 
-	painter->drawText(textX, textY += lineSpacing, lineWidth1, lineHeight, 0, "start offset:");
+	painter->drawText(textX, textY += lineSpacing, lineWidth1, lineHeight, 0, "route offset:");
+	painter->drawText(textX, textY += lineSpacing, lineWidth1, lineHeight, 0, "route scale:");
 
 	textX += lineWidth1 + rightPartMargin;
 	textY = 6;
@@ -698,17 +708,8 @@ void Renderer::renderInfoPanel()
 		painter->setPen(textColor);
 	}
 
-	QString selectedText;
 	QString renderText;
-
-	switch (inputHandler->getEditMode())
-	{
-		case EditMode::None: selectedText = "none"; break;
-		case EditMode::Video: selectedText = "video"; break;
-		case EditMode::Map: selectedText = "map"; break;
-		case EditMode::MapWidth: selectedText = "map width"; break;
-		default: selectedText = "unknown"; break;
-	}
+	QString editText;
 
 	switch (renderMode)
 	{
@@ -718,10 +719,18 @@ void Renderer::renderInfoPanel()
 		default: renderText = "unknown"; break;
 	}
 
+	switch (inputHandler->getEditMode())
+	{
+		case EditMode::None: editText = "none"; break;
+		case EditMode::Video: editText = "video"; break;
+		case EditMode::Map: editText = "map"; break;
+		default: editText = "unknown"; break;
+	}
+
 	textY += lineSpacing;
 
-	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, selectedText);
 	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, renderText);
+	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, editText);
 
 	textY += lineSpacing;
 
@@ -731,6 +740,7 @@ void Renderer::renderInfoPanel()
 	textY += lineSpacing;
 
 	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString("%1 s").arg(QString::number(routeManager->getDefaultRoute().startOffset, 'f', 2)));
+	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString::number(routeManager->getDefaultRoute().userScale, 'f', 2));
 
 	painter->end();
 }

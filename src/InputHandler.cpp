@@ -32,18 +32,6 @@ void InputHandler::handleInput(double frameTime)
 
 	if (videoWindow->keyIsDownOnce(Qt::Key_F2))
 	{
-		switch (editMode)
-		{
-			case EditMode::None: editMode = EditMode::Video; break;
-			case EditMode::Video: editMode = EditMode::Map; break;
-			case EditMode::Map: editMode = EditMode::MapWidth; break;
-			case EditMode::MapWidth: editMode = EditMode::None; break;
-			default: break;
-		}
-	}
-
-	if (videoWindow->keyIsDownOnce(Qt::Key_F3))
-	{
 		switch (renderer->getRenderMode())
 		{
 			case RenderMode::All: renderer->setRenderMode(RenderMode::Video); break;
@@ -55,14 +43,38 @@ void InputHandler::handleInput(double frameTime)
 		renderer->requestFullClear();
 	}
 
+	if (videoWindow->keyIsDownOnce(Qt::Key_F3))
+	{
+		switch (routeManager->getDefaultRoute().renderMode)
+		{
+			case RouteRenderMode::Normal: routeManager->getDefaultRoute().renderMode = RouteRenderMode::Pace; break;
+			case RouteRenderMode::Pace: routeManager->getDefaultRoute().renderMode = RouteRenderMode::None; break;
+			case RouteRenderMode::None: routeManager->getDefaultRoute().renderMode = RouteRenderMode::Normal; break;
+			default: break;
+		}
+
+		renderer->requestFullClear();
+	}
+
 	if (videoWindow->keyIsDownOnce(Qt::Key_F4))
-		videoStabilizer->toggleEnabled();
+		routeManager->getDefaultRoute().showRunner = !routeManager->getDefaultRoute().showRunner;
 
 	if (videoWindow->keyIsDownOnce(Qt::Key_F5))
-		routeManager->getDefaultRoute().shouldRenderPace = !routeManager->getDefaultRoute().shouldRenderPace;
+		routeManager->getDefaultRoute().showControls = !routeManager->getDefaultRoute().showControls;
 
-	if (videoWindow->keyIsDownOnce(Qt::Key_F6))
-		routeManager->getDefaultRoute().shouldRenderControls = !routeManager->getDefaultRoute().shouldRenderControls;
+	if (videoWindow->keyIsDownOnce(Qt::Key_F9))
+		videoStabilizer->toggleEnabled();
+
+	if (videoWindow->keyIsDownOnce(Qt::Key_F10))
+	{
+		switch (editMode)
+		{
+			case EditMode::None: editMode = EditMode::Video; break;
+			case EditMode::Video: editMode = EditMode::Map; break;
+			case EditMode::Map: editMode = EditMode::None; break;
+			default: break;
+		}
+	}
 
 	if (!videoWindow->keyIsDown(Qt::Key_Control) && videoWindow->keyIsDownOnce(Qt::Key_Space))
 		renderOnScreenThread->togglePaused();
@@ -104,13 +116,39 @@ void InputHandler::handleInput(double frameTime)
 
 	bool shouldRequestFullClear = false;
 
-	if (videoWindow->keyIsDown(Qt::Key_PageUp))
+	if (videoWindow->keyIsDown(Qt::Key_E))
+	{
+		renderer->getMapPanel().relativeWidth += translateVelocity * 0.001;
+		renderer->getMapPanel().relativeWidth = std::max(0.0, std::min(renderer->getMapPanel().relativeWidth, 1.0));
+		shouldRequestFullClear = true;
+	}
+
+	if (videoWindow->keyIsDown(Qt::Key_D))
+	{
+		renderer->getMapPanel().relativeWidth -= translateVelocity * 0.001;
+		renderer->getMapPanel().relativeWidth = std::max(0.0, std::min(renderer->getMapPanel().relativeWidth, 1.0));
+		shouldRequestFullClear = true;
+	}
+
+	if (videoWindow->keyIsDown(Qt::Key_R))
+	{
+		routeManager->getDefaultRoute().userScale *= (1.0 + frameTime / scaleConstant);
+		routeManager->getDefaultRoute().userScale = std::max(0.001, routeManager->getDefaultRoute().userScale);
+	}
+
+	if (videoWindow->keyIsDown(Qt::Key_F))
+	{
+		routeManager->getDefaultRoute().userScale *= (1.0 - frameTime / scaleConstant);
+		routeManager->getDefaultRoute().userScale = std::max(0.001, routeManager->getDefaultRoute().userScale);
+	}
+
+	if (videoWindow->keyIsDown(Qt::Key_T))
 	{
 		routeManager->getDefaultRoute().startOffset += translateVelocity * 0.1;
 		routeManager->requestFullUpdate();
 	}
 
-	if (videoWindow->keyIsDown(Qt::Key_PageDown))
+	if (videoWindow->keyIsDown(Qt::Key_G))
 	{
 		routeManager->getDefaultRoute().startOffset -= translateVelocity * 0.1;
 		routeManager->requestFullUpdate();
@@ -251,23 +289,6 @@ void InputHandler::handleInput(double frameTime)
 			mapPanel.userY -= deltaY;
 			shouldRequestFullClear = true;
 		}
-	}
-
-	if (editMode == EditMode::MapWidth)
-	{
-		if (videoWindow->keyIsDown(Qt::Key_Left))
-		{
-			renderer->getMapPanel().relativeWidth -= translateVelocity * 0.001;
-			shouldRequestFullClear = true;
-		}
-
-		if (videoWindow->keyIsDown(Qt::Key_Right))
-		{
-			renderer->getMapPanel().relativeWidth += translateVelocity * 0.001;
-			shouldRequestFullClear = true;
-		}
-
-		renderer->getMapPanel().relativeWidth = std::max(0.0, std::min(renderer->getMapPanel().relativeWidth, 1.0));
 	}
 
 	if (shouldRequestFullClear)

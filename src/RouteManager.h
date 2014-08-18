@@ -16,33 +16,35 @@ namespace OrientView
 	class QuickRouteReader;
 	class Settings;
 
+	enum class RouteRenderMode { Normal, Pace, None };
+
 	struct Route
 	{
 		std::vector<RoutePoint> routePoints;
 		std::vector<RoutePoint> alignedRoutePoints;
 		SplitTimes splitTimes;
+
 		double startOffset = 0.0;
+		double userScale = 1.0;
+
+		RouteRenderMode renderMode = RouteRenderMode::Normal;
+		bool showRunner = true;
+		bool showControls = true;
+
+		QPainterPath wholeRoutePath;
+		QColor wholeRouteColor = QColor(0, 0, 0, 50);
+		double wholeRouteWidth = 10.0;
 
 		std::vector<QPointF> controlPositions;
-		QColor controlBorderColor = QColor(140, 40, 140);
+		QColor controlBorderColor = QColor(140, 40, 140, 255);
 		double controlRadius = 15.0;
 		double controlBorderWidth = 5.0;
 
 		QPointF runnerPosition;
-		QColor runnerColor = QColor(60, 100, 255);
-		QColor runnerBorderColor = QColor(0, 0, 0);
-		double runnerRadius = 6.0;
-		double runnerBorderWidth = 2.0;
-
-		QPainterPath wholeRoutePath;
-		QPainterPath wholeRoutePathStroked;
-		QColor wholeRouteColor = QColor(0, 0, 0, 50);
-		QColor wholeRouteBorderColor = QColor(0, 0, 0, 100);
-		double wholeRouteWidth = 10.0;
-		double wholeRouteBorderWidth = 1.0;
-
-		bool shouldRenderControls = true;
-		bool shouldRenderPace = false;
+		QColor runnerColor = QColor(0, 100, 255, 220);
+		QColor runnerBorderColor = QColor(0, 0, 0, 255);
+		double runnerBorderWidth = 1.0;
+		double runnerScale = 1.0;
 	};
 
 	class RouteManager
@@ -51,6 +53,7 @@ namespace OrientView
 	public:
 
 		void initialize(QuickRouteReader* quickRouteReader, SplitTimeManager* splitTimeManager, Settings* settings);
+
 		void update(double currentTime);
 		void requestFullUpdate();
 

@@ -1,8 +1,6 @@
 // Copyright © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
 // License: GPLv3, see the LICENSE file.
 
-#include <QPainterPathStroker>
-
 #include "RouteManager.h"
 #include "QuickRouteReader.h"
 #include "SplitTimeManager.h"
@@ -68,12 +66,6 @@ void RouteManager::constructWholeRoutePath()
 				defaultRoute.wholeRoutePath.lineTo(x, y);
 		}
 	}
-
-	QPainterPathStroker pathStroker;
-	pathStroker.setCapStyle(Qt::PenCapStyle::RoundCap);
-	pathStroker.setWidth(defaultRoute.wholeRouteWidth);
-
-	defaultRoute.wholeRoutePathStroked = pathStroker.createStroke(defaultRoute.wholeRoutePath);
 }
 
 void RouteManager::calculateControlLocations()
