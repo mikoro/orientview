@@ -62,13 +62,6 @@ namespace OrientView
 
 		} route;
 
-		struct Splits
-		{
-			SplitTimeType type = SplitTimeType::Absolute;
-			QString splitTimes = "";
-
-		} splits;
-
 		struct Video
 		{
 			QString inputVideoFilePath = "";
@@ -79,12 +72,21 @@ namespace OrientView
 			double scale = 1.0;
 			QColor backgroundColor = QColor(0, 50, 0, 255);
 			QString rescaleShader = "default";
+			bool enableClipping = false;
+			bool enableClearing = true;
 			int frameCountDivisor = 1;
 			int frameDurationDivisor = 1;
 			int frameSizeDivisor = 1;
 			bool enableVerboseLogging = false;
 
 		} video;
+
+		struct Splits
+		{
+			SplitTimeType type = SplitTimeType::Absolute;
+			QString splitTimes = "";
+
+		} splits;
 
 		struct Window
 		{
@@ -102,8 +104,6 @@ namespace OrientView
 			bool enabled = false;
 			VideoStabilizerMode mode = VideoStabilizerMode::RealTime;
 			QString inputDataFilePath = "";
-			bool enableClipping = false;
-			bool enableClearing = true;
 			double dampingFactor = 1.0;
 			double maxDisplacementFactor = 1.0;
 			int frameSizeDivisor = 8;

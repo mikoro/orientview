@@ -23,8 +23,8 @@ bool Renderer::initialize(VideoDecoder* videoDecoder, MapImageReader* mapImageRe
 	this->routeManager = routeManager;
 
 	videoPanel.clearColor = settings->video.backgroundColor;
-	videoPanel.clippingEnabled = settings->stabilizer.enableClipping;
-	videoPanel.clearingEnabled = settings->stabilizer.enableClearing;
+	videoPanel.clippingEnabled = settings->video.enableClipping;
+	videoPanel.clearingEnabled = settings->video.enableClearing;
 	videoPanel.userX = settings->video.x;
 	videoPanel.userY = settings->video.y;
 	videoPanel.userAngle = settings->video.angle;
