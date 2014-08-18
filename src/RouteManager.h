@@ -64,6 +64,7 @@ namespace OrientView
 		void constructWholeRoutePath();
 		void calculateControlLocations();
 		void calculateRoutePointColors();
+		void calculateRunnerPosition(double currentTime);
 
 		QColor interpolateFromGreenToRed(double lowValue, double highValue, double value);
 

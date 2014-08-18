@@ -16,18 +16,14 @@ void RouteManager::initialize(QuickRouteReader* quickRouteReader, SplitTimeManag
 	defaultRoute.startOffset = settings->route.startOffset;
 
 	constructWholeRoutePath();
-	calculateControlLocations();
-	calculateRoutePointColors();
+
+	fullUpdateRequested = true;
 	update(0);
 }
 
 void RouteManager::update(double currentTime)
 {
-	int timeBasedIndex = (int)round(currentTime + defaultRoute.startOffset);
-	int indexMax = (int)defaultRoute.alignedRoutePoints.size() - 1;
-
-	timeBasedIndex = std::max(0, std::min(timeBasedIndex, indexMax));
-	defaultRoute.runnerPosition = defaultRoute.alignedRoutePoints.at(timeBasedIndex).position;
+	calculateRunnerPosition(currentTime);
 
 	if (fullUpdateRequested)
 	{
@@ -76,11 +72,11 @@ void RouteManager::calculateControlLocations()
 	{
 		SplitTime splitTime = defaultRoute.splitTimes.splitTimes.at(i);
 
-		int timeBasedIndex = (int)round(splitTime.time + defaultRoute.startOffset);
+		int index = (int)round(splitTime.time + defaultRoute.startOffset);
 		int indexMax = (int)defaultRoute.alignedRoutePoints.size() - 1;
 
-		timeBasedIndex = std::max(0, std::min(timeBasedIndex, indexMax));
-		defaultRoute.controlPositions.push_back(defaultRoute.alignedRoutePoints.at(timeBasedIndex).position);
+		index = std::max(0, std::min(index, indexMax));
+		defaultRoute.controlPositions.push_back(defaultRoute.alignedRoutePoints.at(index).position);
 	}
 }
 
@@ -91,6 +87,30 @@ void RouteManager::calculateRoutePointColors()
 
 	for (RoutePoint& rp : defaultRoute.alignedRoutePoints)
 		rp.color = interpolateFromGreenToRed(5.0, 15.0, rp.pace);
+}
+
+void RouteManager::calculateRunnerPosition(double currentTime)
+{
+	double offsetTime = currentTime + defaultRoute.startOffset;
+	double previousWholeSecond = floor(offsetTime);
+	double alpha = offsetTime - previousWholeSecond;
+
+	int firstIndex = (int)previousWholeSecond;
+	int secondIndex = firstIndex + 1;
+	int indexMax = (int)defaultRoute.alignedRoutePoints.size() - 1;
+
+	firstIndex = std::max(0, std::min(firstIndex, indexMax));
+	secondIndex = std::max(0, std::min(secondIndex, indexMax));
+
+	if (firstIndex == secondIndex)
+		defaultRoute.runnerPosition = defaultRoute.alignedRoutePoints.at(firstIndex).position;
+	else
+	{
+		RoutePoint rp1 = defaultRoute.alignedRoutePoints.at(firstIndex);
+		RoutePoint rp2 = defaultRoute.alignedRoutePoints.at(secondIndex);
+
+		defaultRoute.runnerPosition = (1.0 - alpha) * rp1.position + alpha * rp2.position;
+	}
 }
 
 QColor RouteManager::interpolateFromGreenToRed(double lowValue, double highValue, double value)
