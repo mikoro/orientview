@@ -19,6 +19,9 @@ bool VideoStabilizer::initialize(Settings* settings, bool isPreprocessing)
 {
 	mode = settings->stabilizer.mode;
 	isEnabled = settings->stabilizer.enabled;
+	cumulativeXAverage.setAlpha(settings->stabilizer.averagingFactor);
+	cumulativeYAverage.setAlpha(settings->stabilizer.averagingFactor);
+	cumulativeAngleAverage.setAlpha(settings->stabilizer.averagingFactor);
 	dampingFactor = settings->stabilizer.dampingFactor;
 	maxDisplacementFactor = settings->stabilizer.maxDisplacementFactor;
 
@@ -35,10 +38,10 @@ bool VideoStabilizer::initialize(Settings* settings, bool isPreprocessing)
 
 void VideoStabilizer::preProcessFrame(const FrameData& frameDataGrayscale, QFile& file)
 {
-	FramePosition fp = calculateCumulativeFramePosition(frameDataGrayscale);
+	FramePosition cumulativeFramePosition = calculateCumulativeFramePosition(frameDataGrayscale);
 
 	char buffer[1024];
-	sprintf(buffer, "%lld;%.16le;%.16le;%.16le\n", fp.timeStamp, fp.x, fp.y, fp.angle);
+	sprintf(buffer, "%lld;%.16le;%.16le;%.16le\n", cumulativeFramePosition.timeStamp, cumulativeFramePosition.x, cumulativeFramePosition.y, cumulativeFramePosition.angle);
 	file.write(buffer);
 }
 
@@ -51,6 +54,18 @@ void VideoStabilizer::processFrame(const FrameData& frameDataGrayscale)
 
 	if (mode == VideoStabilizerMode::Preprocessed)
 		normalizedFramePosition = searchNormalizedFramePosition(frameDataGrayscale);
+	else
+	{
+		FramePosition cumulativeFramePosition = calculateCumulativeFramePosition(frameDataGrayscale);
+
+		normalizedFramePosition.x = cumulativeXAverage.getAverage() - cumulativeFramePosition.x;
+		normalizedFramePosition.y = cumulativeYAverage.getAverage() - cumulativeFramePosition.y;
+		normalizedFramePosition.angle = cumulativeAngleAverage.getAverage() - cumulativeFramePosition.angle;
+
+		cumulativeXAverage.addMeasurement(cumulativeFramePosition.x);
+		cumulativeYAverage.addMeasurement(cumulativeFramePosition.y);
+		cumulativeAngleAverage.addMeasurement(cumulativeFramePosition.angle);
+	}
 
 	normalizedFramePosition.x *= dampingFactor;
 	normalizedFramePosition.y *= dampingFactor;
@@ -259,9 +274,16 @@ void VideoStabilizer::reset()
 	cumulativeX = 0.0;
 	cumulativeY = 0.0;
 	cumulativeAngle = 0.0;
+
+	cumulativeXAverage.reset();
+	cumulativeYAverage.reset();
+	cumulativeAngleAverage.reset();
+
 	normalizedFramePosition = FramePosition();
 	previousTransformation = cv::Mat::eye(2, 3, CV_64F);
+
 	isFirstImage = true;
+	lastProcessTime = 0.0;
 }
 
 double VideoStabilizer::getX() const

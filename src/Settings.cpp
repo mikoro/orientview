@@ -68,6 +68,7 @@ void Settings::readFromQSettings(QSettings* settings)
 	stabilizer.enabled = settings->value("stabilizer/enabled", defaultSettings.stabilizer.enabled).toBool();
 	stabilizer.mode = (VideoStabilizerMode)settings->value("stabilizer/mode", defaultSettings.stabilizer.mode).toInt();
 	stabilizer.inputDataFilePath = settings->value("stabilizer/inputDataFilePath", defaultSettings.stabilizer.inputDataFilePath).toString();
+	stabilizer.averagingFactor = settings->value("stabilizer/averagingFactor", defaultSettings.stabilizer.averagingFactor).toDouble();
 	stabilizer.dampingFactor = settings->value("stabilizer/dampingFactor", defaultSettings.stabilizer.dampingFactor).toDouble();
 	stabilizer.maxDisplacementFactor = settings->value("stabilizer/maxDisplacementFactor", defaultSettings.stabilizer.maxDisplacementFactor).toDouble();
 	stabilizer.frameSizeDivisor = settings->value("stabilizer/frameSizeDivisor", defaultSettings.stabilizer.frameSizeDivisor).toInt();
@@ -153,6 +154,7 @@ void Settings::writeToQSettings(QSettings* settings)
 	settings->setValue("stabilizer/enabled", stabilizer.enabled);
 	settings->setValue("stabilizer/mode", stabilizer.mode);
 	settings->setValue("stabilizer/inputDataFilePath", stabilizer.inputDataFilePath);
+	settings->setValue("stabilizer/averagingFactor", stabilizer.averagingFactor);
 	settings->setValue("stabilizer/dampingFactor", stabilizer.dampingFactor);
 	settings->setValue("stabilizer/maxDisplacementFactor", stabilizer.maxDisplacementFactor);
 	settings->setValue("stabilizer/frameSizeDivisor", stabilizer.frameSizeDivisor);
@@ -218,6 +220,7 @@ void Settings::readFromUI(Ui::MainWindow* ui)
 	stabilizer.enabled = ui->checkBoxVideoStabilizerEnabled->isChecked();
 	stabilizer.mode = (VideoStabilizerMode)ui->comboBoxVideoStabilizerMode->currentIndex();
 	stabilizer.inputDataFilePath = ui->lineEditVideoStabilizerInputDataFile->text();
+	stabilizer.averagingFactor = ui->doubleSpinBoxVideoStabilizerAveragingFactor->value();
 	stabilizer.dampingFactor = ui->doubleSpinBoxVideoStabilizerDampingFactor->value();
 	stabilizer.maxDisplacementFactor = ui->doubleSpinBoxVideoStabilizerMaxDisplacementFactor->value();
 	stabilizer.frameSizeDivisor = ui->spinBoxVideoStabilizerFrameSizeDivisor->value();
@@ -269,6 +272,7 @@ void Settings::writeToUI(Ui::MainWindow* ui)
 	ui->checkBoxVideoStabilizerEnabled->setChecked(stabilizer.enabled);
 	ui->comboBoxVideoStabilizerMode->setCurrentIndex(stabilizer.mode);
 	ui->lineEditVideoStabilizerInputDataFile->setText(stabilizer.inputDataFilePath);
+	ui->doubleSpinBoxVideoStabilizerAveragingFactor->setValue(stabilizer.averagingFactor);
 	ui->doubleSpinBoxVideoStabilizerDampingFactor->setValue(stabilizer.dampingFactor);
 	ui->doubleSpinBoxVideoStabilizerMaxDisplacementFactor->setValue(stabilizer.maxDisplacementFactor);
 	ui->spinBoxVideoStabilizerFrameSizeDivisor->setValue(stabilizer.frameSizeDivisor);

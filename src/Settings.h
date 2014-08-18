@@ -104,6 +104,7 @@ namespace OrientView
 			bool enabled = false;
 			VideoStabilizerMode mode = VideoStabilizerMode::RealTime;
 			QString inputDataFilePath = "";
+			double averagingFactor = 0.1;
 			double dampingFactor = 1.0;
 			double maxDisplacementFactor = 1.0;
 			int frameSizeDivisor = 8;

@@ -10,6 +10,8 @@
 
 #include "opencv2/opencv.hpp"
 
+#include "MovingAverage.h"
+
 namespace OrientView
 {
 	class Settings;
@@ -64,6 +66,10 @@ namespace OrientView
 		double cumulativeX = 0.0;
 		double cumulativeY = 0.0;
 		double cumulativeAngle = 0.0;
+
+		MovingAverage cumulativeXAverage;
+		MovingAverage cumulativeYAverage;
+		MovingAverage cumulativeAngleAverage;
 
 		std::vector<FramePosition> normalizedFramePositions;
 
