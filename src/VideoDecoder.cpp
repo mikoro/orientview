@@ -159,6 +159,9 @@ bool VideoDecoder::initialize(Settings* settings)
 
 	isInitialized = true;
 
+	if (settings->video.startOffset > 0.0)
+		seekRelative(settings->video.startOffset);
+
 	return true;
 }
 
