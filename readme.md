@@ -1,6 +1,6 @@
 # OrientView
 
-OrientView is an orienteering video analyzing program which displays the video and the map side-by-side in real-time. Almost all image and video file formats are supported. Routes are created and calibrated using [QuickRoute](http://www.matstroeng.se/quickroute/en/). Resulting video can also be exported to MP4 H.264 video files.
+OrientView is an orienteering video analyzing program which displays the video and the map side-by-side in real-time. Almost all image and video file formats are supported. Routes are created and calibrated using [QuickRoute](http://www.matstroeng.se/quickroute/en/). Resulting video can also be exported to a MP4 (H.264 encoded) video file.
 
 * Author: [Mikko Ronkainen](http://mikkoronkainen.com)
 * Website: [github.com/mikoro/orientview](https://github.com/mikoro/orientview)
@@ -20,7 +20,7 @@ For testing out the program, you can also [download test data](https://mega.co.n
 
 ## Features
 
-* Opens all the image formats supported by [Qt](http://qt-project.org/doc/qt-4.8/qimage.html#reading-and-writing-image-files).
+* Opens all the image formats supported by [Qt](http://qt-project.org/doc/qt/QImage.html#reading-and-writing-image-files).
 * Plays all the video files that are supported by [FFmpeg](https://www.ffmpeg.org/general.html#Supported-File-Formats_002c-Codecs-or-Features).
 * Reads route point and calibration data from JPEG images created with [QuickRoute](http://www.matstroeng.se/quickroute/en/).
 * Split times are input manually using simple formatting (absolute or relative).
