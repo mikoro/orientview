@@ -7,4 +7,6 @@
 *.user
 *.db
 *.log
+*.dll
+*.lib
 Makefile
