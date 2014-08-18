@@ -28,7 +28,7 @@ namespace OrientView
 		~VideoDecoder();
 
 		bool getNextFrame(FrameData* frameData, FrameData* frameDataGrayscale);
-		void seekRelative(int seconds);
+		void seekRelative(double seconds);
 
 		double getCurrentTime();
 		bool getIsFinished();

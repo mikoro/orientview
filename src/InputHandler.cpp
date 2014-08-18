@@ -87,7 +87,7 @@ void InputHandler::handleInput(double frameTime)
 		videoWindow->keyIsDownOnce(Qt::Key_Space); // clear key state
 	}
 
-	int seekAmount = settings->inputHandler.normalSeekAmount;
+	double seekAmount = settings->inputHandler.normalSeekAmount;
 	double translateVelocity = settings->inputHandler.normalTranslateVelocity;
 	double rotateVelocity = settings->inputHandler.normalRotateVelocity;
 	double scaleConstant = settings->inputHandler.normalScaleConstant;

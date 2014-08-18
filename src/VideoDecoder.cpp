@@ -305,7 +305,7 @@ bool VideoDecoder::getNextFrame(FrameData* frameData, FrameData* frameDataGraysc
 	}
 }
 
-void VideoDecoder::seekRelative(int seconds)
+void VideoDecoder::seekRelative(double seconds)
 {
 	QMutexLocker locker(&decoderMutex);
 
@@ -313,7 +313,7 @@ void VideoDecoder::seekRelative(int seconds)
 		return;
 
 	int64_t targetTimeStamp = previousFrameTimestamp + (int64_t)(((double)videoStream->time_base.den / videoStream->time_base.num) * seconds + 0.5);
-	std::max((int64_t)0, std::min(targetTimeStamp, videoStream->duration));
+	targetTimeStamp = std::max((int64_t)0, std::min(targetTimeStamp, videoStream->duration));
 
 	if (avformat_seek_file(formatContext, (int)videoStreamIndex, 0, targetTimeStamp, targetTimeStamp, 0) >= 0)
 	{

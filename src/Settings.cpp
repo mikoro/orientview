@@ -62,10 +62,10 @@ void Settings::readFromQSettings(QSettings* settings)
 	encoder.profile = settings->value("encoder/profile", defaultSettings.encoder.profile).toString();
 	encoder.constantRateFactor = settings->value("encoder/constantRateFactor", defaultSettings.encoder.constantRateFactor).toInt();
 
-	inputHandler.smallSeekAmount = settings->value("inputHandler/smallSeekAmount", defaultSettings.inputHandler.smallSeekAmount).toInt();
-	inputHandler.normalSeekAmount = settings->value("inputHandler/normalSeekAmount", defaultSettings.inputHandler.normalSeekAmount).toInt();
-	inputHandler.largeSeekAmount = settings->value("inputHandler/largeSeekAmount", defaultSettings.inputHandler.largeSeekAmount).toInt();
-	inputHandler.veryLargeSeekAmount = settings->value("inputHandler/veryLargeSeekAmount", defaultSettings.inputHandler.veryLargeSeekAmount).toInt();
+	inputHandler.smallSeekAmount = settings->value("inputHandler/smallSeekAmount", defaultSettings.inputHandler.smallSeekAmount).toDouble();
+	inputHandler.normalSeekAmount = settings->value("inputHandler/normalSeekAmount", defaultSettings.inputHandler.normalSeekAmount).toDouble();
+	inputHandler.largeSeekAmount = settings->value("inputHandler/largeSeekAmount", defaultSettings.inputHandler.largeSeekAmount).toDouble();
+	inputHandler.veryLargeSeekAmount = settings->value("inputHandler/veryLargeSeekAmount", defaultSettings.inputHandler.veryLargeSeekAmount).toDouble();
 	inputHandler.slowTranslateVelocity = settings->value("inputHandler/slowTranslateVelocity", defaultSettings.inputHandler.slowTranslateVelocity).toDouble();
 	inputHandler.normalTranslateVelocity = settings->value("inputHandler/normalTranslateVelocity", defaultSettings.inputHandler.normalTranslateVelocity).toDouble();
 	inputHandler.fastTranslateVelocity = settings->value("inputHandler/fastTranslateVelocity", defaultSettings.inputHandler.fastTranslateVelocity).toDouble();

@@ -105,10 +105,10 @@ namespace OrientView
 
 		struct InputHandler
 		{
-			int smallSeekAmount = 2;
-			int normalSeekAmount = 10;
-			int largeSeekAmount = 60;
-			int veryLargeSeekAmount = 600;
+			double smallSeekAmount = 2.0;
+			double normalSeekAmount = 10.0;
+			double largeSeekAmount = 60.0;
+			double veryLargeSeekAmount = 600.0;
 
 			double slowTranslateVelocity = 0.1;
 			double normalTranslateVelocity = 0.5;
