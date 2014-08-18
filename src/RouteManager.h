@@ -16,7 +16,7 @@ namespace OrientView
 	class QuickRouteReader;
 	class Settings;
 
-	enum class RouteRenderMode { Normal, Pace, None };
+	enum RouteRenderMode { Normal, Pace, None };
 
 	struct Route
 	{
@@ -25,9 +25,10 @@ namespace OrientView
 		SplitTimes splitTimes;
 
 		double startOffset = 0.0;
+		double scale = 1.0;
 		double userScale = 1.0;
 
-		RouteRenderMode renderMode = RouteRenderMode::Normal;
+		RouteRenderMode wholeRouteRenderMode = RouteRenderMode::Normal;
 		bool showRunner = true;
 		bool showControls = true;
 

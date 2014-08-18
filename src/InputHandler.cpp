@@ -45,11 +45,11 @@ void InputHandler::handleInput(double frameTime)
 
 	if (videoWindow->keyIsDownOnce(Qt::Key_F3))
 	{
-		switch (routeManager->getDefaultRoute().renderMode)
+		switch (routeManager->getDefaultRoute().wholeRouteRenderMode)
 		{
-			case RouteRenderMode::Normal: routeManager->getDefaultRoute().renderMode = RouteRenderMode::Pace; break;
-			case RouteRenderMode::Pace: routeManager->getDefaultRoute().renderMode = RouteRenderMode::None; break;
-			case RouteRenderMode::None: routeManager->getDefaultRoute().renderMode = RouteRenderMode::Normal; break;
+			case RouteRenderMode::Normal: routeManager->getDefaultRoute().wholeRouteRenderMode = RouteRenderMode::Pace; break;
+			case RouteRenderMode::Pace: routeManager->getDefaultRoute().wholeRouteRenderMode = RouteRenderMode::None; break;
+			case RouteRenderMode::None: routeManager->getDefaultRoute().wholeRouteRenderMode = RouteRenderMode::Normal; break;
 			default: break;
 		}
 

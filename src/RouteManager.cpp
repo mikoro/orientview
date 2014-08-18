@@ -14,6 +14,19 @@ void RouteManager::initialize(QuickRouteReader* quickRouteReader, SplitTimeManag
 	defaultRoute.alignedRoutePoints = quickRouteReader->getAlignedRoutePoints();
 	defaultRoute.splitTimes = splitTimeManager->getDefaultSplitTimes();
 	defaultRoute.startOffset = settings->route.startOffset;
+	defaultRoute.scale = settings->route.scale;
+	defaultRoute.wholeRouteRenderMode = settings->route.wholeRouteRenderMode;
+	defaultRoute.showRunner = settings->route.showRunner;
+	defaultRoute.showControls = settings->route.showControls;
+	defaultRoute.wholeRouteColor = settings->route.wholeRouteColor;
+	defaultRoute.wholeRouteWidth = settings->route.wholeRouteWidth;
+	defaultRoute.controlBorderColor = settings->route.controlBorderColor;
+	defaultRoute.controlRadius = settings->route.controlRadius;
+	defaultRoute.controlBorderWidth = settings->route.controlBorderWidth;
+	defaultRoute.runnerColor = settings->route.runnerColor;
+	defaultRoute.runnerBorderColor = settings->route.runnerBorderColor;
+	defaultRoute.runnerBorderWidth = settings->route.runnerBorderWidth;
+	defaultRoute.runnerScale = settings->route.runnerScale;
 
 	constructWholeRoutePath();
 

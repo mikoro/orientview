@@ -15,23 +15,42 @@ void Settings::readFromQSettings(QSettings* settings)
 
 	Settings defaultSettings;
 
-	map.mapImageFilePath = settings->value("map/mapImageFilePath", defaultSettings.map.mapImageFilePath).toString();
-	map.mapPanelWidth = settings->value("map/mapPanelWidth", defaultSettings.map.mapPanelWidth).toDouble();
-	map.mapPanelScale = settings->value("map/mapPanelScale", defaultSettings.map.mapPanelScale).toDouble();
-	map.mapPanelBackgroundColor = settings->value("map/mapPanelBackgroundColor", defaultSettings.map.mapPanelBackgroundColor).value<QColor>();
-	map.mapPanelRescaleShader = settings->value("map/mapPanelRescaleShader", defaultSettings.map.mapPanelRescaleShader).toString();
+	map.imageFilePath = settings->value("map/imageFilePath", defaultSettings.map.imageFilePath).toString();
+	map.relativeWidth = settings->value("map/relativeWidth", defaultSettings.map.relativeWidth).toDouble();
+	map.x = settings->value("map/x", defaultSettings.map.x).toDouble();
+	map.y = settings->value("map/y", defaultSettings.map.y).toDouble();
+	map.angle = settings->value("map/angle", defaultSettings.map.angle).toDouble();
+	map.scale = settings->value("map/scale", defaultSettings.map.scale).toDouble();
+	map.backgroundColor = settings->value("map/backgroundColor", defaultSettings.map.backgroundColor).value<QColor>();
+	map.rescaleShader = settings->value("map/rescaleShader", defaultSettings.map.rescaleShader).toString();
 
 	route.quickRouteJpegFilePath = settings->value("route/quickRouteJpegFilePath", defaultSettings.route.quickRouteJpegFilePath).toString();
 	route.startOffset = settings->value("route/startOffset", defaultSettings.route.startOffset).toDouble();
+	route.scale = settings->value("route/scale", defaultSettings.route.scale).toDouble();
+	route.wholeRouteRenderMode = (RouteRenderMode)settings->value("route/wholeRouteRenderMode", defaultSettings.route.wholeRouteRenderMode).toInt();
+	route.showRunner = settings->value("route/showRunner", defaultSettings.route.showRunner).toBool();
+	route.showControls = settings->value("route/showControls", defaultSettings.route.showControls).toBool();
+	route.wholeRouteColor = settings->value("route/wholeRouteColor", defaultSettings.route.wholeRouteColor).value<QColor>();
+	route.wholeRouteWidth = settings->value("route/wholeRouteWidth", defaultSettings.route.wholeRouteWidth).toDouble();
+	route.controlBorderColor = settings->value("route/controlBorderColor", defaultSettings.route.controlBorderColor).value<QColor>();
+	route.controlRadius = settings->value("route/controlRadius", defaultSettings.route.controlRadius).toDouble();
+	route.controlBorderWidth = settings->value("route/controlBorderWidth", defaultSettings.route.controlBorderWidth).toDouble();
+	route.runnerColor = settings->value("route/runnerColor", defaultSettings.route.runnerColor).value<QColor>();
+	route.runnerBorderColor = settings->value("route/runnerBorderColor", defaultSettings.route.runnerBorderColor).value<QColor>();
+	route.runnerBorderWidth = settings->value("route/runnerBorderWidth", defaultSettings.route.runnerBorderWidth).toDouble();
+	route.runnerScale = settings->value("route/runnerScale", defaultSettings.route.runnerScale).toDouble();
 
 	splits.type = (SplitTimeType)settings->value("splits/type", defaultSettings.splits.type).toInt();
 	splits.splitTimes = settings->value("splits/splitTimes", defaultSettings.splits.splitTimes).toString();
 	
 	video.inputVideoFilePath = settings->value("video/inputVideoFilePath", defaultSettings.video.inputVideoFilePath).toString();
 	video.startOffset = settings->value("video/startOffset", defaultSettings.video.startOffset).toDouble();
-	video.videoPanelScale = settings->value("video/videoPanelScale", defaultSettings.video.videoPanelScale).toDouble();
-	video.videoPanelBackgroundColor = settings->value("video/videoPanelBackgroundColor", defaultSettings.video.videoPanelBackgroundColor).value<QColor>();
-	video.videoPanelRescaleShader = settings->value("video/videoPanelRescaleShader", defaultSettings.video.videoPanelRescaleShader).toString();
+	video.x = settings->value("video/x", defaultSettings.video.x).toDouble();
+	video.y = settings->value("video/y", defaultSettings.video.y).toDouble();
+	video.angle = settings->value("video/angle", defaultSettings.video.angle).toDouble();
+	video.scale = settings->value("video/scale", defaultSettings.video.scale).toDouble();
+	video.backgroundColor = settings->value("video/backgroundColor", defaultSettings.video.backgroundColor).value<QColor>();
+	video.rescaleShader = settings->value("video/rescaleShader", defaultSettings.video.rescaleShader).toString();
 	video.frameCountDivisor = settings->value("video/frameCountDivisor", defaultSettings.video.frameCountDivisor).toInt();
 	video.frameDurationDivisor = settings->value("video/frameDurationDivisor", defaultSettings.video.frameDurationDivisor).toInt();
 	video.frameSizeDivisor = settings->value("video/frameSizeDivisor", defaultSettings.video.frameSizeDivisor).toInt();
@@ -81,23 +100,42 @@ void Settings::writeToQSettings(QSettings* settings)
 {
 	qDebug("Writing settings to %s", qPrintable(settings->fileName()));
 
-	settings->setValue("map/mapImageFilePath", map.mapImageFilePath);
-	settings->setValue("map/mapPanelWidth", map.mapPanelWidth);
-	settings->setValue("map/mapPanelScale", map.mapPanelScale);
-	settings->setValue("map/mapPanelBackgroundColor", map.mapPanelBackgroundColor);
-	settings->setValue("map/mapPanelRescaleShader", map.mapPanelRescaleShader);
+	settings->setValue("map/imageFilePath", map.imageFilePath);
+	settings->setValue("map/relativeWidth", map.relativeWidth);
+	settings->setValue("map/x", map.x);
+	settings->setValue("map/y", map.y);
+	settings->setValue("map/angle", map.angle);
+	settings->setValue("map/scale", map.scale);
+	settings->setValue("map/backgroundColor", map.backgroundColor);
+	settings->setValue("map/rescaleShader", map.rescaleShader);
 
 	settings->setValue("route/quickRouteJpegFilePath", route.quickRouteJpegFilePath);
 	settings->setValue("route/startOffset", route.startOffset);
+	settings->setValue("route/scale", route.scale);
+	settings->setValue("route/wholeRouteRenderMode", route.wholeRouteRenderMode);
+	settings->setValue("route/showRunner", route.showRunner);
+	settings->setValue("route/showControls", route.showControls);
+	settings->setValue("route/wholeRouteColor", route.wholeRouteColor);
+	settings->setValue("route/wholeRouteWidth", route.wholeRouteWidth);
+	settings->setValue("route/controlBorderColor", route.controlBorderColor);
+	settings->setValue("route/controlRadius", route.controlRadius);
+	settings->setValue("route/controlBorderWidth", route.controlBorderWidth);
+	settings->setValue("route/runnerColor", route.runnerColor);
+	settings->setValue("route/runnerBorderColor", route.runnerBorderColor);
+	settings->setValue("route/runnerBorderWidth", route.runnerBorderWidth);
+	settings->setValue("route/runnerScale", route.runnerScale);
 
 	settings->setValue("splits/type", splits.type);
 	settings->setValue("splits/splitTimes", splits.splitTimes);
 
 	settings->setValue("video/inputVideoFilePath", video.inputVideoFilePath);
 	settings->setValue("video/startOffset", video.startOffset);
-	settings->setValue("video/videoPanelScale", video.videoPanelScale);
-	settings->setValue("video/videoPanelBackgroundColor", video.videoPanelBackgroundColor);
-	settings->setValue("video/videoPanelRescaleShader", video.videoPanelRescaleShader);
+	settings->setValue("video/x", video.x);
+	settings->setValue("video/y", video.y);
+	settings->setValue("video/angle", video.angle);
+	settings->setValue("video/scale", video.scale);
+	settings->setValue("video/backgroundColor", video.backgroundColor);
+	settings->setValue("video/rescaleShader", video.rescaleShader);
 	settings->setValue("video/frameCountDivisor", video.frameCountDivisor);
 	settings->setValue("video/frameDurationDivisor", video.frameDurationDivisor);
 	settings->setValue("video/frameSizeDivisor", video.frameSizeDivisor);
@@ -145,11 +183,11 @@ void Settings::writeToQSettings(QSettings* settings)
 
 void Settings::readFromUI(Ui::MainWindow* ui)
 {
-	map.mapImageFilePath = ui->lineEditMapImageFile->text();
-	map.mapPanelWidth = ui->doubleSpinBoxMapPanelWidth->value();
-	map.mapPanelScale = ui->doubleSpinBoxMapPanelScale->value();
-	map.mapPanelBackgroundColor = QColor(ui->lineEditMapPanelBackgroundColor->text());
-	map.mapPanelRescaleShader = ui->comboBoxMapPanelRescaleShader->currentText();
+	map.imageFilePath = ui->lineEditMapImageFile->text();
+	map.relativeWidth = ui->doubleSpinBoxMapPanelWidth->value();
+	map.scale = ui->doubleSpinBoxMapPanelScale->value();
+	map.backgroundColor = QColor(ui->lineEditMapPanelBackgroundColor->text());
+	map.rescaleShader = ui->comboBoxMapPanelRescaleShader->currentText();
 
 	route.quickRouteJpegFilePath = ui->lineEditQuickRouteJpegFile->text();
 	route.startOffset = ui->doubleSpinBoxRouteStartOffset->value();
@@ -159,9 +197,9 @@ void Settings::readFromUI(Ui::MainWindow* ui)
 	
 	video.inputVideoFilePath = ui->lineEditInputVideoFile->text();
 	video.startOffset = ui->doubleSpinBoxVideoStartOffset->value();
-	video.videoPanelScale = ui->doubleSpinBoxVideoPanelScale->value();
-	video.videoPanelBackgroundColor = QColor(ui->lineEditVideoPanelBackgroundColor->text());
-	video.videoPanelRescaleShader = ui->comboBoxVideoPanelRescaleShader->currentText();
+	video.scale = ui->doubleSpinBoxVideoPanelScale->value();
+	video.backgroundColor = QColor(ui->lineEditVideoPanelBackgroundColor->text());
+	video.rescaleShader = ui->comboBoxVideoPanelRescaleShader->currentText();
 	video.frameCountDivisor = ui->spinBoxVideoDecoderFrameCountDivisor->value();
 	video.frameDurationDivisor = ui->spinBoxVideoDecoderFrameDurationDivisor->value();
 	video.frameSizeDivisor = ui->spinBoxVideoDecoderFrameSizeDivisor->value();
@@ -195,11 +233,11 @@ void Settings::readFromUI(Ui::MainWindow* ui)
 
 void Settings::writeToUI(Ui::MainWindow* ui)
 {
-	ui->lineEditMapImageFile->setText(map.mapImageFilePath);
-	ui->doubleSpinBoxMapPanelWidth->setValue(map.mapPanelWidth);
-	ui->doubleSpinBoxMapPanelScale->setValue(map.mapPanelScale);
-	ui->lineEditMapPanelBackgroundColor->setText(map.mapPanelBackgroundColor.name());
-	ui->comboBoxMapPanelRescaleShader->setCurrentText(map.mapPanelRescaleShader);
+	ui->lineEditMapImageFile->setText(map.imageFilePath);
+	ui->doubleSpinBoxMapPanelWidth->setValue(map.relativeWidth);
+	ui->doubleSpinBoxMapPanelScale->setValue(map.scale);
+	ui->lineEditMapPanelBackgroundColor->setText(map.backgroundColor.name());
+	ui->comboBoxMapPanelRescaleShader->setCurrentText(map.rescaleShader);
 
 	ui->lineEditQuickRouteJpegFile->setText(route.quickRouteJpegFilePath);
 	ui->doubleSpinBoxRouteStartOffset->setValue(route.startOffset);
@@ -209,9 +247,9 @@ void Settings::writeToUI(Ui::MainWindow* ui)
 
 	ui->lineEditInputVideoFile->setText(video.inputVideoFilePath);
 	ui->doubleSpinBoxVideoStartOffset->setValue(video.startOffset);
-	ui->doubleSpinBoxVideoPanelScale->setValue(video.videoPanelScale);
-	ui->lineEditVideoPanelBackgroundColor->setText(video.videoPanelBackgroundColor.name());
-	ui->comboBoxVideoPanelRescaleShader->setCurrentText(video.videoPanelRescaleShader);
+	ui->doubleSpinBoxVideoPanelScale->setValue(video.scale);
+	ui->lineEditVideoPanelBackgroundColor->setText(video.backgroundColor.name());
+	ui->comboBoxVideoPanelRescaleShader->setCurrentText(video.rescaleShader);
 	ui->spinBoxVideoDecoderFrameCountDivisor->setValue(video.frameCountDivisor);
 	ui->spinBoxVideoDecoderFrameDurationDivisor->setValue(video.frameDurationDivisor);
 	ui->spinBoxVideoDecoderFrameSizeDivisor->setValue(video.frameSizeDivisor);

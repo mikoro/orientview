@@ -22,39 +22,39 @@ bool Renderer::initialize(VideoDecoder* videoDecoder, MapImageReader* mapImageRe
 	this->inputHandler = inputHandler;
 	this->routeManager = routeManager;
 
+	videoPanel.clearColor = settings->video.backgroundColor;
+	videoPanel.clippingEnabled = settings->stabilizer.enableClipping;
+	videoPanel.clearingEnabled = settings->stabilizer.enableClearing;
+	videoPanel.userX = settings->video.x;
+	videoPanel.userY = settings->video.y;
+	videoPanel.userAngle = settings->video.angle;
+	videoPanel.userScale = settings->video.scale;
 	videoPanel.textureWidth = videoDecoder->getFrameWidth();
 	videoPanel.textureHeight = videoDecoder->getFrameHeight();
 	videoPanel.texelWidth = 1.0 / videoPanel.textureWidth;
 	videoPanel.texelHeight = 1.0 / videoPanel.textureHeight;
-	videoPanel.userScale = settings->video.videoPanelScale;
-	videoPanel.clearColor = settings->video.videoPanelBackgroundColor;
-	videoPanel.clippingEnabled = settings->stabilizer.enableClipping;
-	videoPanel.clearingEnabled = settings->stabilizer.enableClearing;
-
+	
+	mapPanel.clearColor = settings->map.backgroundColor;
+	mapPanel.userX = settings->map.x;
+	mapPanel.userY = settings->map.y;
+	mapPanel.userAngle = settings->map.angle;
+	mapPanel.userScale = settings->map.scale;
 	mapPanel.textureWidth = mapImageReader->getMapImage().width();
 	mapPanel.textureHeight = mapImageReader->getMapImage().height();
 	mapPanel.texelWidth = 1.0 / mapPanel.textureWidth;
 	mapPanel.texelHeight = 1.0 / mapPanel.textureHeight;
-	mapPanel.clearColor = settings->map.mapPanelBackgroundColor;
-	mapPanel.relativeWidth = settings->map.mapPanelWidth;
+	mapPanel.relativeWidth = settings->map.relativeWidth;
 
 	multisamples = settings->window.multisamples;
 	showInfoPanel = settings->window.showInfoPanel;
 
 	const double movingAverageAlpha = 0.1;
-	averageFps.reset();
 	averageFps.setAlpha(movingAverageAlpha);
-	averageFrameTime.reset();
 	averageFrameTime.setAlpha(movingAverageAlpha);
-	averageDecodeTime.reset();
 	averageDecodeTime.setAlpha(movingAverageAlpha);
-	averageStabilizeTime.reset();
 	averageStabilizeTime.setAlpha(movingAverageAlpha);
-	averageRenderTime.reset();
 	averageRenderTime.setAlpha(movingAverageAlpha);
-	averageEncodeTime.reset();
 	averageEncodeTime.setAlpha(movingAverageAlpha);
-	averageSpareTime.reset();
 	averageSpareTime.setAlpha(movingAverageAlpha);
 
 	initializeOpenGLFunctions();
@@ -62,10 +62,10 @@ bool Renderer::initialize(VideoDecoder* videoDecoder, MapImageReader* mapImageRe
 	if (!resizeWindow(settings->window.width, settings->window.height))
 		return false;
 
-	if (!loadShaders(videoPanel, settings->video.videoPanelRescaleShader))
+	if (!loadShaders(videoPanel, settings->video.rescaleShader))
 		return false;
 
-	if (!loadShaders(mapPanel, settings->map.mapPanelRescaleShader))
+	if (!loadShaders(mapPanel, settings->map.rescaleShader))
 		return false;
 
 	// 1 2
@@ -121,6 +121,7 @@ bool Renderer::initialize(VideoDecoder* videoDecoder, MapImageReader* mapImageRe
 
 	paintDevice = new QOpenGLPaintDevice();
 	painter = new QPainter();
+
 	painter->begin(paintDevice);
 	painter->setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform | QPainter::HighQualityAntialiasing);
 	painter->end();
@@ -554,10 +555,10 @@ void Renderer::renderRoute(const Route& route)
 
 	painter->setWorldMatrix(m);
 
-	if (route.renderMode == RouteRenderMode::Normal)
+	if (route.wholeRouteRenderMode == RouteRenderMode::Normal)
 	{
 		QPen wholeRoutePen;
-		wholeRoutePen.setWidthF(route.wholeRouteWidth * route.userScale);
+		wholeRoutePen.setWidthF(route.wholeRouteWidth * (route.scale * route.userScale));
 		wholeRoutePen.setColor(route.wholeRouteColor);
 		wholeRoutePen.setJoinStyle(Qt::PenJoinStyle::RoundJoin);
 		wholeRoutePen.setCapStyle(Qt::PenCapStyle::RoundCap);
@@ -567,10 +568,10 @@ void Renderer::renderRoute(const Route& route)
 		painter->drawPath(route.wholeRoutePath);
 	}
 
-	if (route.renderMode == RouteRenderMode::Pace)
+	if (route.wholeRouteRenderMode == RouteRenderMode::Pace)
 	{
 		QPen paceRoutePen;
-		paceRoutePen.setWidthF(route.wholeRouteWidth * route.userScale);
+		paceRoutePen.setWidthF(route.wholeRouteWidth * (route.scale * route.userScale));
 		paceRoutePen.setJoinStyle(Qt::PenJoinStyle::RoundJoin);
 		paceRoutePen.setCapStyle(Qt::PenCapStyle::RoundCap);
 
@@ -594,7 +595,7 @@ void Renderer::renderRoute(const Route& route)
 		controlPen.setWidthF(route.controlBorderWidth * route.userScale);
 		controlPen.setColor(route.controlBorderColor);
 
-		double controlRadius = route.controlRadius * route.userScale;
+		double controlRadius = route.controlRadius * (route.scale * route.userScale);
 
 		painter->setPen(controlPen);
 		painter->setBrush(Qt::NoBrush);
@@ -607,12 +608,12 @@ void Renderer::renderRoute(const Route& route)
 	{
 		QPen runnerPen;
 		QBrush runnerBrush;
-		runnerPen.setWidthF(route.runnerBorderWidth * route.userScale);
+		runnerPen.setWidthF(route.runnerBorderWidth * (route.scale * route.userScale));
 		runnerPen.setColor(route.runnerBorderColor);
 		runnerBrush.setColor(route.runnerColor);
 		runnerBrush.setStyle(Qt::SolidPattern);
 
-		double runnerRadius = (((route.wholeRouteWidth / 2.0) - (route.runnerBorderWidth / 2.0)) * route.runnerScale) * route.userScale;
+		double runnerRadius = (((route.wholeRouteWidth / 2.0) - (route.runnerBorderWidth / 2.0)) * route.runnerScale) * (route.scale * route.userScale);
 
 		painter->setPen(runnerPen);
 		painter->setBrush(runnerBrush);
@@ -675,12 +676,12 @@ void Renderer::renderInfoPanel()
 
 	painter->drawText(textX, textY += lineSpacing, lineWidth1, lineHeight, 0, "video scale:");
 	painter->drawText(textX, textY += lineSpacing, lineWidth1, lineHeight, 0, "map scale:");
+	painter->drawText(textX, textY += lineSpacing, lineWidth1, lineHeight, 0, "route scale:");
 
 	textY += lineSpacing;
 
 	painter->drawText(textX, textY += lineSpacing, lineWidth1, lineHeight, 0, "route offset:");
-	painter->drawText(textX, textY += lineSpacing, lineWidth1, lineHeight, 0, "route scale:");
-
+	
 	textX += lineWidth1 + rightPartMargin;
 	textY = 6;
 
@@ -736,12 +737,12 @@ void Renderer::renderInfoPanel()
 
 	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString::number(videoPanel.userScale, 'f', 2));
 	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString::number(mapPanel.userScale, 'f', 2));
+	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString::number(routeManager->getDefaultRoute().scale * routeManager->getDefaultRoute().userScale, 'f', 2));
 
 	textY += lineSpacing;
 
 	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString("%1 s").arg(QString::number(routeManager->getDefaultRoute().startOffset, 'f', 2)));
-	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString::number(routeManager->getDefaultRoute().userScale, 'f', 2));
-
+	
 	painter->end();
 }
 

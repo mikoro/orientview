@@ -7,6 +7,7 @@
 #include <QSettings>
 #include <QColor>
 
+#include "RouteManager.h"
 #include "SplitTimeManager.h"
 #include "VideoStabilizer.h"
 
@@ -30,11 +31,14 @@ namespace OrientView
 
 		struct Map
 		{
-			QString mapImageFilePath = "";
-			double mapPanelWidth = 0.3;
-			double mapPanelScale = 1.0;
-			QColor mapPanelBackgroundColor = QColor("#ffffff");
-			QString mapPanelRescaleShader = "default";
+			QString imageFilePath = "";
+			double relativeWidth = 0.3;
+			double x = 0.0;
+			double y = 0.0;
+			double angle = 0.0;
+			double scale = 1.0;
+			QColor backgroundColor = QColor(0, 0, 0, 255);
+			QString rescaleShader = "default";
 
 		} map;
 
@@ -42,6 +46,19 @@ namespace OrientView
 		{
 			QString quickRouteJpegFilePath = "";
 			double startOffset = 0.0;
+			double scale = 1.0;
+			RouteRenderMode wholeRouteRenderMode = RouteRenderMode::Normal;
+			bool showRunner = true;
+			bool showControls = true;
+			QColor wholeRouteColor = QColor(0, 0, 0, 50);
+			double wholeRouteWidth = 10.0;
+			QColor controlBorderColor = QColor(140, 40, 140, 255);
+			double controlRadius = 15.0;
+			double controlBorderWidth = 5.0;
+			QColor runnerColor = QColor(0, 100, 255, 220);
+			QColor runnerBorderColor = QColor(0, 0, 0, 255);
+			double runnerBorderWidth = 1.0;
+			double runnerScale = 1.0;
 
 		} route;
 
@@ -56,9 +73,12 @@ namespace OrientView
 		{
 			QString inputVideoFilePath = "";
 			double startOffset = 0.0;
-			double videoPanelScale = 1.0;
-			QColor videoPanelBackgroundColor = QColor("#003200");
-			QString videoPanelRescaleShader = "default";
+			double x = 0.0;
+			double y = 0.0;
+			double angle = 0.0;
+			double scale = 1.0;
+			QColor backgroundColor = QColor(0, 50, 0, 255);
+			QString rescaleShader = "default";
 			int frameCountDivisor = 1;
 			int frameDurationDivisor = 1;
 			int frameSizeDivisor = 1;

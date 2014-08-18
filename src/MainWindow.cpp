@@ -572,10 +572,10 @@ void MainWindow::on_pushButtonPickVideoPanelBackgroundColor_clicked()
 	settings->readFromUI(ui);
 
 	QColorDialog colorDialog;
-	QColor resultColor = colorDialog.getColor(settings->video.videoPanelBackgroundColor, this, "Pick video panel background color");
+	QColor resultColor = colorDialog.getColor(settings->video.backgroundColor, this, "Pick video panel background color");
 
 	if (resultColor.isValid())
-		settings->video.videoPanelBackgroundColor = resultColor;
+		settings->video.backgroundColor = resultColor;
 
 	settings->writeToUI(ui);
 }
@@ -585,10 +585,10 @@ void MainWindow::on_pushButtonPickMapPanelBackgroundColor_clicked()
 	settings->readFromUI(ui);
 
 	QColorDialog colorDialog;
-	QColor resultColor = colorDialog.getColor(settings->map.mapPanelBackgroundColor, this, "Pick map panel background color");
+	QColor resultColor = colorDialog.getColor(settings->map.backgroundColor, this, "Pick map panel background color");
 
 	if (resultColor.isValid())
-		settings->map.mapPanelBackgroundColor = resultColor;
+		settings->map.backgroundColor = resultColor;
 
 	settings->writeToUI(ui);
 }
