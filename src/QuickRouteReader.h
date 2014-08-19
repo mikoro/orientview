@@ -24,7 +24,6 @@ namespace OrientView
 		bool initialize(MapImageReader* mapImageReader, Settings* settings);
 
 		const std::vector<RoutePoint>& getRoutePoints() const;
-		const std::vector<RoutePoint>& getAlignedRoutePoints() const;
 
 	private:
 
@@ -52,7 +51,6 @@ namespace OrientView
 		double quickRouteImageHeight = 0.0;
 		QPointF projectionOriginCoordinate;
 		std::vector<RoutePoint> routePoints;
-		std::vector<RoutePoint> alignedRoutePoints;
 		std::vector<RoutePointHandle> routePointHandles;
 	};
 }

@@ -11,7 +11,6 @@ using namespace OrientView;
 void RouteManager::initialize(QuickRouteReader* quickRouteReader, SplitTimeManager* splitTimeManager, Settings* settings)
 {
 	defaultRoute.routePoints = quickRouteReader->getRoutePoints();
-	defaultRoute.alignedRoutePoints = quickRouteReader->getAlignedRoutePoints();
 	defaultRoute.splitTimes = splitTimeManager->getDefaultSplitTimes();
 	defaultRoute.startOffset = settings->route.startOffset;
 	defaultRoute.scale = settings->route.scale;
@@ -28,6 +27,7 @@ void RouteManager::initialize(QuickRouteReader* quickRouteReader, SplitTimeManag
 	defaultRoute.runnerBorderWidth = settings->route.runnerBorderWidth;
 	defaultRoute.runnerScale = settings->route.runnerScale;
 
+	generateAlignedRoutePoints();
 	constructWholeRoutePath();
 
 	fullUpdateRequested = true;
@@ -54,6 +54,70 @@ void RouteManager::requestFullUpdate()
 Route& RouteManager::getDefaultRoute()
 {
 	return defaultRoute;
+}
+
+void RouteManager::generateAlignedRoutePoints()
+{
+	if (defaultRoute.routePoints.size() < 2)
+		return;
+
+	double alignedTime = 0.0;
+	RoutePoint currentRoutePoint = defaultRoute.routePoints.at(0);
+	RoutePoint alignedRoutePoint;
+
+	// align and interpolate route point data to one second intervals
+	for (size_t i = 0; i < defaultRoute.routePoints.size() - 1;)
+	{
+		size_t nextIndex = 0;
+
+		for (size_t j = i + 1; j < defaultRoute.routePoints.size(); ++j)
+		{
+			if (defaultRoute.routePoints.at(j).time - currentRoutePoint.time > 1.0)
+			{
+				nextIndex = j;
+				break;
+			}
+		}
+
+		if (nextIndex <= i)
+			break;
+
+		i = nextIndex;
+
+		RoutePoint nextRoutePoint = defaultRoute.routePoints.at(nextIndex);
+
+		alignedRoutePoint.dateTime = currentRoutePoint.dateTime;
+		alignedRoutePoint.coordinate = currentRoutePoint.coordinate;
+
+		double timeDelta = nextRoutePoint.time - currentRoutePoint.time;
+		double alphaStep = 1.0 / timeDelta;
+		double alpha = 0.0;
+		int stepCount = (int)timeDelta;
+
+		for (int k = 0; k <= stepCount; ++k)
+		{
+			alignedRoutePoint.time = alignedTime;
+			alignedRoutePoint.position.setX((1.0 - alpha) * currentRoutePoint.position.x() + alpha * nextRoutePoint.position.x());
+			alignedRoutePoint.position.setY((1.0 - alpha) * currentRoutePoint.position.y() + alpha * nextRoutePoint.position.y());
+			alignedRoutePoint.elevation = (1.0 - alpha) * currentRoutePoint.elevation + alpha * nextRoutePoint.elevation;
+			alignedRoutePoint.heartRate = (1.0 - alpha) * currentRoutePoint.heartRate + alpha * nextRoutePoint.heartRate;
+			alignedRoutePoint.pace = (1.0 - alpha) * currentRoutePoint.pace + alpha * nextRoutePoint.pace;
+
+			alpha += alphaStep;
+
+			if (k < stepCount)
+			{
+				defaultRoute.alignedRoutePoints.push_back(alignedRoutePoint);
+				alignedTime += 1.0;
+			}
+		}
+
+		currentRoutePoint = alignedRoutePoint;
+		currentRoutePoint.dateTime = nextRoutePoint.dateTime;
+		currentRoutePoint.coordinate = nextRoutePoint.coordinate;
+	}
+
+	defaultRoute.alignedRoutePoints.push_back(alignedRoutePoint);
 }
 
 void RouteManager::constructWholeRoutePath()

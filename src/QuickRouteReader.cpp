@@ -52,11 +52,6 @@ const std::vector<RoutePoint>& QuickRouteReader::getRoutePoints() const
 	return routePoints;
 }
 
-const std::vector<RoutePoint>& QuickRouteReader::getAlignedRoutePoints() const
-{
-	return alignedRoutePoints;
-}
-
 bool QuickRouteReader::extractDataPartFromJpeg(QFile& file, QByteArray& buffer)
 {
 	const int quickRouteIdLength = 10;
@@ -381,64 +376,6 @@ void QuickRouteReader::processRoutePoints()
 		if (distanceToPrevious > 0.0)
 			routePoints.at(i).pace = (timeToPrevious / 60.0) / (distanceToPrevious / 1000.0);
 	}
-
-	double alignedTime = 0.0;
-	RoutePoint currentRoutePoint = routePoints.at(0);
-	RoutePoint alignedRoutePoint;
-
-	// align and interpolate route point data to one second intervals
-	for (size_t i = 0; i < routePoints.size() - 1;)
-	{
-		size_t nextIndex = 0;
-
-		for (size_t j = i + 1; j < routePoints.size(); ++j)
-		{
-			if (routePoints.at(j).time - currentRoutePoint.time > 1.0)
-			{
-				nextIndex = j;
-				break;
-			}
-		}
-
-		if (nextIndex <= i)
-			break;
-
-		i = nextIndex;
-
-		RoutePoint nextRoutePoint = routePoints.at(nextIndex);
-
-		alignedRoutePoint.dateTime = currentRoutePoint.dateTime;
-		alignedRoutePoint.coordinate = currentRoutePoint.coordinate;
-
-		double timeDelta = nextRoutePoint.time - currentRoutePoint.time;
-		double alphaStep = 1.0 / timeDelta;
-		double alpha = 0.0;
-		int stepCount = (int)timeDelta;
-
-		for (int k = 0; k <= stepCount; ++k)
-		{
-			alignedRoutePoint.time = alignedTime;
-			alignedRoutePoint.position.setX((1.0 - alpha) * currentRoutePoint.position.x() + alpha * nextRoutePoint.position.x());
-			alignedRoutePoint.position.setY((1.0 - alpha) * currentRoutePoint.position.y() + alpha * nextRoutePoint.position.y());
-			alignedRoutePoint.elevation = (1.0 - alpha) * currentRoutePoint.elevation + alpha * nextRoutePoint.elevation;
-			alignedRoutePoint.heartRate = (1.0 - alpha) * currentRoutePoint.heartRate + alpha * nextRoutePoint.heartRate;
-			alignedRoutePoint.pace = (1.0 - alpha) * currentRoutePoint.pace + alpha * nextRoutePoint.pace;
-			
-			alpha += alphaStep;
-
-			if (k < stepCount)
-			{
-				alignedRoutePoints.push_back(alignedRoutePoint);
-				alignedTime += 1.0;
-			}
-		}
-
-		currentRoutePoint = alignedRoutePoint;
-		currentRoutePoint.dateTime = nextRoutePoint.dateTime;
-		currentRoutePoint.coordinate = nextRoutePoint.coordinate;
-	}
-
-	alignedRoutePoints.push_back(alignedRoutePoint);
 }
 
 QPointF QuickRouteReader::projectCoordinate(const QPointF& coordinate, const QPointF& projectionOriginCoordinate)
