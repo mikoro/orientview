@@ -266,7 +266,7 @@ void RouteManager::calculateSplitTransformations()
 			double maxY = -std::numeric_limits<double>::max();
 
 			// find the bounding box for the split route
-			for (size_t j = startIndex; j <= stopIndex; ++j)
+			for (size_t j = (size_t)startIndex; j <= (size_t)stopIndex; ++j)
 			{
 				// points need to be rotated
 				QPointF position = rotateMatrix.map(defaultRoute.alignedRoutePoints.at(j).position);

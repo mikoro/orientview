@@ -41,7 +41,7 @@ void VideoStabilizer::preProcessFrame(const FrameData& frameDataGrayscale, QFile
 	FramePosition cumulativeFramePosition = calculateCumulativeFramePosition(frameDataGrayscale);
 
 	char buffer[1024];
-	sprintf(buffer, "%lld;%.16le;%.16le;%.16le\n", cumulativeFramePosition.timeStamp, cumulativeFramePosition.x, cumulativeFramePosition.y, cumulativeFramePosition.angle);
+	sprintf(buffer, "%lld;%.16le;%.16le;%.16le\n", (long long int)cumulativeFramePosition.timeStamp, cumulativeFramePosition.x, cumulativeFramePosition.y, cumulativeFramePosition.angle);
 	file.write(buffer);
 }
 
@@ -189,7 +189,7 @@ void VideoStabilizer::convertCumulativeFramePositionsToNormalized(QFile& fileIn,
 
 	fileOut.write("timeStamp;cumulativeX;averageX;normalizedX;cumulativeY;averageY;normalizedY;cumulativeAngle;averageAngle;normalizedAngle\n");
 
-	for (int i = 0; i < positions.size(); ++i)
+	for (int i = 0; i < (int)positions.size(); ++i)
 	{
 		double sumX = 0.0;
 		double sumY = 0.0;
@@ -198,7 +198,7 @@ void VideoStabilizer::convertCumulativeFramePositionsToNormalized(QFile& fileIn,
 
 		for (int j = -smoothingRadius; j <= smoothingRadius; ++j)
 		{
-			if ((i + j) >= 0 && (i + j) < positions.size())
+			if ((i + j) >= 0 && (i + j) < (int)positions.size())
 			{
 				FramePosition fp = positions[i + j];
 
@@ -222,7 +222,7 @@ void VideoStabilizer::convertCumulativeFramePositionsToNormalized(QFile& fileIn,
 		normalizedFp.angle = averageAngle - currentFp.angle;
 
 		char buffer[1024];
-		sprintf(buffer, "%lld;%.16le;%.16le;%.16le;%.16le;%.16le;%.16le;%.16le;%.16le;%.16le\n", currentFp.timeStamp, currentFp.x, averageX, normalizedFp.x, currentFp.y, averageY, normalizedFp.y, currentFp.angle, averageAngle, normalizedFp.angle);
+		sprintf(buffer, "%lld;%.16le;%.16le;%.16le;%.16le;%.16le;%.16le;%.16le;%.16le;%.16le\n", (long long int)currentFp.timeStamp, currentFp.x, averageX, normalizedFp.x, currentFp.y, averageY, normalizedFp.y, currentFp.angle, averageAngle, normalizedFp.angle);
 		fileOut.write(buffer);
 	}
 }
