@@ -79,7 +79,9 @@ void RenderOnScreenThread::run()
 
 		if (shouldResizeWindow)
 		{
-			renderer->resizeWindow(newWindowWidth, newWindowHeight);
+			renderer->resizeWindow(windowWidth, windowHeight);
+			routeManager->setMapPanelDimensions(windowWidth * renderer->getMapPanel().relativeWidth, windowHeight);
+
 			shouldResizeWindow = false;
 		}
 
@@ -130,7 +132,8 @@ void RenderOnScreenThread::advanceOneFrame()
 
 void RenderOnScreenThread::windowResized(int newWidth, int newHeight)
 {
-	newWindowWidth = newWidth;
-	newWindowHeight = newHeight;
+	windowWidth = newWidth;
+	windowHeight = newHeight;
+
 	shouldResizeWindow = true;
 }

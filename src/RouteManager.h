@@ -14,7 +14,6 @@
 namespace OrientView
 {
 	class QuickRouteReader;
-	class MapImageReader;
 	class Settings;
 
 	enum RouteRenderMode { Normal, Pace, None };
@@ -39,6 +38,8 @@ namespace OrientView
 		double userScale = 1.0;
 		double highPace = 5.0;
 		double lowPace = 15.0;
+		double topBottomMargin = 30.0;
+		double leftRightMargin = 10.0;
 
 		SplitTransformation currentSplitTransformation;
 
@@ -67,10 +68,12 @@ namespace OrientView
 
 	public:
 
-		void initialize(QuickRouteReader* quickRouteReader, SplitTimeManager* splitTimeManager, MapImageReader* mapImageReader, Settings* settings);
+		void initialize(QuickRouteReader* quickRouteReader, SplitTimeManager* splitTimeManager, Settings* settings);
 
 		void update(double currentTime);
 		void requestFullUpdate();
+
+		void setMapPanelDimensions(double width, double height);
 
 		double getX() const;
 		double getY() const;
@@ -88,13 +91,12 @@ namespace OrientView
 		void calculateRoutePointColors();
 		void calculateRunnerPosition(double currentTime);
 		void calculateCurrentSplitTransformation(double currentTime);
-		
 		QColor interpolateFromGreenToRed(double greenValue, double redValue, double value);
 
 		Route defaultRoute;
 
 		bool fullUpdateRequested = false;
-		double mapImageWidth = 0.0;
-		double mapImageHeight = 0.0;
+		double mapPanelWidth = 0.0;
+		double mapPanelHeight = 0.0;
 	};
 }

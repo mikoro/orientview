@@ -6,16 +6,12 @@
 
 #include "RouteManager.h"
 #include "QuickRouteReader.h"
-#include "MapImageReader.h"
 #include "Settings.h"
 
 using namespace OrientView;
 
-void RouteManager::initialize(QuickRouteReader* quickRouteReader, SplitTimeManager* splitTimeManager, MapImageReader* mapImageReader, Settings* settings)
+void RouteManager::initialize(QuickRouteReader* quickRouteReader, SplitTimeManager* splitTimeManager, Settings* settings)
 {
-	mapImageWidth = mapImageReader->getMapImage().width();
-	mapImageHeight = mapImageReader->getMapImage().height();
-
 	defaultRoute.routePoints = quickRouteReader->getRoutePoints();
 	defaultRoute.splitTimes = splitTimeManager->getDefaultSplitTimes();
 	defaultRoute.controlsTimeOffset = settings->route.controlsTimeOffset;
@@ -36,11 +32,15 @@ void RouteManager::initialize(QuickRouteReader* quickRouteReader, SplitTimeManag
 	defaultRoute.runnerBorderWidth = settings->route.runnerBorderWidth;
 	defaultRoute.runnerScale = settings->route.runnerScale;
 
+	mapPanelWidth = settings->window.width * settings->map.relativeWidth;
+	mapPanelHeight = settings->window.height;
+
 	generateAlignedRoutePoints();
 	constructWholeRoutePath();
 	calculateRoutePointColors();
 
 	fullUpdateRequested = true;
+
 	update(0);
 }
 
@@ -50,6 +50,7 @@ void RouteManager::update(double currentTime)
 	{
 		calculateControlPositions();
 		calculateSplitTransformations();
+
 		fullUpdateRequested = false;
 	}
 
@@ -59,6 +60,14 @@ void RouteManager::update(double currentTime)
 
 void RouteManager::requestFullUpdate()
 {
+	fullUpdateRequested = true;
+}
+
+void RouteManager::setMapPanelDimensions(double width, double height)
+{
+	mapPanelWidth = width;
+	mapPanelHeight = height;
+
 	fullUpdateRequested = true;
 }
 
@@ -207,6 +216,8 @@ void RouteManager::calculateSplitTransformations()
 {
 	defaultRoute.splitTransformations.clear();
 
+	// take two consecutive controls and then figure out the transformation needed
+	// to make the line from start to stop control vertical, centered and zoomed appropriately
 	for (size_t i = 0; i < defaultRoute.splitTimes.splitTimes.size() - 1; ++i)
 	{
 		SplitTime st1 = defaultRoute.splitTimes.splitTimes.at(i);
@@ -225,12 +236,13 @@ void RouteManager::calculateSplitTransformations()
 		{
 			RoutePoint startRp = defaultRoute.alignedRoutePoints.at(startIndex);
 			RoutePoint stopRp = defaultRoute.alignedRoutePoints.at(stopIndex);
-			QPointF startToStop = stopRp.position - startRp.position;
+			QPointF startToStop = stopRp.position - startRp.position; // vector pointing from start to stop
 
 			double angle = atan2(-startToStop.y(), startToStop.x());
 			double finalAngle = 0.0;
 
 			// always rotate towards positive y-axis
+			// start control should be below the stop control
 			if (angle >= 0.0 && angle < (M_PI / 2.0))
 				finalAngle = (M_PI / 2.0) - angle;
 			else if (angle >= (M_PI / 2.0))
@@ -242,44 +254,45 @@ void RouteManager::calculateSplitTransformations()
 
 			finalAngle *= 180.0 / M_PI;
 
-			QMatrix rotate;
-			rotate.rotate(-finalAngle);
+			QMatrix rotateMatrix;
+			rotateMatrix.rotate(-finalAngle);
 
 			double minX = std::numeric_limits<double>::max();
-			double maxX = std::numeric_limits<double>::min();
+			double maxX = -std::numeric_limits<double>::max();
 			double minY = std::numeric_limits<double>::max();
-			double maxY = std::numeric_limits<double>::min();
+			double maxY = -std::numeric_limits<double>::max();
 
+			// find the bounding box for the split route
 			for (size_t j = startIndex; j <= stopIndex; ++j)
 			{
-				QPointF position = rotate.map(defaultRoute.alignedRoutePoints.at(j).position);
+				// points need to be rotated
+				QPointF position = rotateMatrix.map(defaultRoute.alignedRoutePoints.at(j).position);
 				
-				if (position.x() < minX)
-					minX = position.x();
-
-				if (position.x() > maxX)
-					maxX = position.x();
-
-				if (position.y() < minY)
-					minY = position.y();
-
-				if (position.y() > maxY)
-					maxY = position.y();
+				minX = std::min(minX, position.x());
+				maxX = std::max(maxX, position.x());
+				minY = std::min(minY, position.y());
+				maxY = std::max(maxY, position.y());
 			}
 
-			double width = maxX - minX;
-			double height = maxY - minY;
-			double scaleX = mapImageWidth / width;
-			double scaleY = mapImageHeight / height;
-			double finalScale = scaleX < scaleY ? scaleX : scaleY;
+			QPointF startPosition = rotateMatrix.map(startRp.position); // rotated starting position
+			QPointF middlePoint = (startRp.position + stopRp.position) / 2.0; // doesn't need to be rotated
+
+			// split width is taken from the maximum deviation from center line to either left or right side
+			double splitWidthLeft = abs(minX - startPosition.x()) * 2.0 + 2 * defaultRoute.leftRightMargin;
+			double splitWidthRight = abs(maxX - startPosition.x()) * 2.0 + 2 * defaultRoute.leftRightMargin;
+			double splitWidth = std::max(splitWidthLeft, splitWidthRight);
+
+			// split height is the maximum vertical delta
+			double splitHeight = maxY - minY + 2 * defaultRoute.topBottomMargin;
+
+			double scaleX = mapPanelWidth / splitWidth;
+			double scaleY = mapPanelHeight / splitHeight;
+			double finalScale = std::min(scaleX, scaleY);
 			
-			QPointF middlePoint = (startRp.position + stopRp.position) / 2.0;
-		
-			splitTransformation.x = -middlePoint.x();
+ 			splitTransformation.x = -middlePoint.x();
 			splitTransformation.y = middlePoint.y();
 			splitTransformation.angle = finalAngle;
-			//splitTransformation.scale = finalScale;
-			splitTransformation.scale = 1.0;
+			splitTransformation.scale = finalScale;
 		}
 
 		defaultRoute.splitTransformations.push_back(splitTransformation);

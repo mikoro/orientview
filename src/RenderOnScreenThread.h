@@ -52,7 +52,7 @@ namespace OrientView
 		bool shouldAdvanceOneFrame = false;
 		bool shouldResizeWindow = false;
 
-		int newWindowWidth = 0;
-		int newWindowHeight = 0;
+		int windowWidth = 0;
+		int windowHeight = 0;
 	};
 }
