@@ -457,15 +457,10 @@ void Renderer::renderMapPanel()
 	else
 		mapPanel.offsetX = 0.0;
 
-	mapPanel.scale = windowWidth / mapPanel.textureWidth;
-
-	if (mapPanel.scale * mapPanel.textureHeight > windowHeight)
-		mapPanel.scale = windowHeight / mapPanel.textureHeight;
-
 	mapPanel.vertexMatrix.translate(mapPanel.offsetX, mapPanel.offsetY); // window coordinate units
-	mapPanel.vertexMatrix.rotate(mapPanel.angle + mapPanel.userAngle, 0.0f, 0.0f, 1.0f);
-	mapPanel.vertexMatrix.scale(mapPanel.scale * mapPanel.userScale);
-	mapPanel.vertexMatrix.translate(mapPanel.x + mapPanel.userX, mapPanel.y + mapPanel.userY); // map pixel units
+	mapPanel.vertexMatrix.rotate(mapPanel.angle + mapPanel.userAngle + routeManager->getAngle(), 0.0f, 0.0f, 1.0f);
+	mapPanel.vertexMatrix.scale(mapPanel.scale * mapPanel.userScale * routeManager->getScale());
+	mapPanel.vertexMatrix.translate(mapPanel.x + mapPanel.userX + routeManager->getX(), mapPanel.y + mapPanel.userY + routeManager->getY()); // map pixel units
 
 	mapPanel.clippingEnabled = (renderMode == RenderMode::All);
 
@@ -537,9 +532,9 @@ void Renderer::renderRoute(const Route& route)
 	QMatrix m;
 	m.translate(windowWidth / 2.0, windowHeight / 2.0);
 	m.translate(mapPanel.offsetX, mapPanel.offsetY);
-	m.rotate(-(mapPanel.angle + mapPanel.userAngle));
-	m.scale(mapPanel.scale * mapPanel.userScale, mapPanel.scale * mapPanel.userScale);
-	m.translate(mapPanel.x + mapPanel.userX, -(mapPanel.y + mapPanel.userY));
+	m.rotate(-(mapPanel.angle + mapPanel.userAngle + routeManager->getAngle()));
+	m.scale(mapPanel.scale * mapPanel.userScale * routeManager->getScale(), mapPanel.scale * mapPanel.userScale * routeManager->getScale());
+	m.translate(mapPanel.x + mapPanel.userX + routeManager->getX(), -(mapPanel.y + mapPanel.userY + routeManager->getY()));
 
 	painter->begin(paintDevice);
 	painter->setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform | QPainter::HighQualityAntialiasing);
@@ -555,7 +550,7 @@ void Renderer::renderRoute(const Route& route)
 	if (route.wholeRouteRenderMode == RouteRenderMode::Normal)
 	{
 		QPen wholeRoutePen;
-		wholeRoutePen.setWidthF(route.wholeRouteWidth * (route.scale * route.userScale));
+		wholeRoutePen.setWidthF(route.wholeRouteWidth * route.userScale);
 		wholeRoutePen.setColor(route.wholeRouteColor);
 		wholeRoutePen.setJoinStyle(Qt::PenJoinStyle::RoundJoin);
 		wholeRoutePen.setCapStyle(Qt::PenCapStyle::RoundCap);
@@ -568,7 +563,7 @@ void Renderer::renderRoute(const Route& route)
 	if (route.wholeRouteRenderMode == RouteRenderMode::Pace)
 	{
 		QPen paceRoutePen;
-		paceRoutePen.setWidthF(route.wholeRouteWidth * (route.scale * route.userScale));
+		paceRoutePen.setWidthF(route.wholeRouteWidth * route.userScale);
 		paceRoutePen.setJoinStyle(Qt::PenJoinStyle::RoundJoin);
 		paceRoutePen.setCapStyle(Qt::PenCapStyle::RoundCap);
 
@@ -592,7 +587,7 @@ void Renderer::renderRoute(const Route& route)
 		controlPen.setWidthF(route.controlBorderWidth * route.userScale);
 		controlPen.setColor(route.controlBorderColor);
 
-		double controlRadius = route.controlRadius * (route.scale * route.userScale);
+		double controlRadius = route.controlRadius * route.userScale;
 
 		painter->setPen(controlPen);
 		painter->setBrush(Qt::NoBrush);
@@ -605,12 +600,12 @@ void Renderer::renderRoute(const Route& route)
 	{
 		QPen runnerPen;
 		QBrush runnerBrush;
-		runnerPen.setWidthF(route.runnerBorderWidth * (route.scale * route.userScale));
+		runnerPen.setWidthF(route.runnerBorderWidth * route.userScale);
 		runnerPen.setColor(route.runnerBorderColor);
 		runnerBrush.setColor(route.runnerColor);
 		runnerBrush.setStyle(Qt::SolidPattern);
 
-		double runnerRadius = (((route.wholeRouteWidth / 2.0) - (route.runnerBorderWidth / 2.0)) * route.runnerScale) * (route.scale * route.userScale);
+		double runnerRadius = (((route.wholeRouteWidth / 2.0) - (route.runnerBorderWidth / 2.0)) * route.runnerScale) * route.userScale;
 
 		painter->setPen(runnerPen);
 		painter->setBrush(runnerBrush);
@@ -737,7 +732,7 @@ void Renderer::renderInfoPanel()
 
 	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString::number(videoPanel.userScale, 'f', 2));
 	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString::number(mapPanel.userScale, 'f', 2));
-	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString::number(routeManager->getDefaultRoute().scale * routeManager->getDefaultRoute().userScale, 'f', 2));
+	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString::number(routeManager->getDefaultRoute().userScale, 'f', 2));
 
 	textY += lineSpacing;
 

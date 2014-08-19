@@ -267,7 +267,7 @@ void InputHandler::handleInput(double frameTime)
 
 		translateVelocity *= (-1.0 / (mapPanel.scale * mapPanel.userScale));
 
-		double angle = (mapPanel.angle + mapPanel.userAngle) * M_PI / 180.0;
+		double angle = (mapPanel.angle + mapPanel.userAngle + routeManager->getAngle()) * M_PI / 180.0;
 		double deltaX = cos(angle) * translateVelocity;
 		double deltaY = sin(angle) * translateVelocity;
 

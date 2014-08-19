@@ -14,22 +14,33 @@
 namespace OrientView
 {
 	class QuickRouteReader;
+	class MapImageReader;
 	class Settings;
 
 	enum RouteRenderMode { Normal, Pace, None };
+
+	struct SplitTransformation
+	{
+		double x = 0.0;
+		double y = 0.0;
+		double angle = 0.0;
+		double scale = 0.0;
+	};
 
 	struct Route
 	{
 		std::vector<RoutePoint> routePoints;
 		std::vector<RoutePoint> alignedRoutePoints;
+		std::vector<SplitTransformation> splitTransformations;
 		SplitTimes splitTimes;
 
 		double controlsTimeOffset = 0.0;
 		double runnerTimeOffset = 0.0;
-		double scale = 1.0;
 		double userScale = 1.0;
 		double highPace = 5.0;
 		double lowPace = 15.0;
+
+		SplitTransformation currentSplitTransformation;
 
 		RouteRenderMode wholeRouteRenderMode = RouteRenderMode::Normal;
 		bool showRunner = true;
@@ -56,10 +67,15 @@ namespace OrientView
 
 	public:
 
-		void initialize(QuickRouteReader* quickRouteReader, SplitTimeManager* splitTimeManager, Settings* settings);
+		void initialize(QuickRouteReader* quickRouteReader, SplitTimeManager* splitTimeManager, MapImageReader* mapImageReader, Settings* settings);
 
 		void update(double currentTime);
 		void requestFullUpdate();
+
+		double getX() const;
+		double getY() const;
+		double getScale() const;
+		double getAngle() const;
 
 		Route& getDefaultRoute();
 
@@ -68,13 +84,17 @@ namespace OrientView
 		void generateAlignedRoutePoints();
 		void constructWholeRoutePath();
 		void calculateControlPositions();
+		void calculateSplitTransformations();
 		void calculateRoutePointColors();
 		void calculateRunnerPosition(double currentTime);
-
+		void calculateCurrentSplitTransformation(double currentTime);
+		
 		QColor interpolateFromGreenToRed(double greenValue, double redValue, double value);
 
 		Route defaultRoute;
 
 		bool fullUpdateRequested = false;
+		double mapImageWidth = 0.0;
+		double mapImageHeight = 0.0;
 	};
 }
