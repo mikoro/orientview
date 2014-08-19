@@ -55,7 +55,7 @@ void SimpleLogger::handleMessage(QtMsgType type, const QMessageLogContext& conte
 	QString timeString = QTime::currentTime().toString("HH:mm:ss.zzz");
 	QString messageText = QString("%1 [%2] - %3\n").arg(timeString, typeString, message);
 
-	std::cout << messageText.toStdString() << std::endl;
+	std::cout << messageText.toStdString();
 
 	if (logFile.isOpen())
 	{
