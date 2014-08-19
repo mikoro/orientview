@@ -9,4 +9,6 @@
 *.log
 *.dll
 *.lib
+orientview
 Makefile
+.directory
