@@ -24,7 +24,7 @@ namespace OrientView
 		double x = 0.0;
 		double y = 0.0;
 		double angle = 0.0;
-		double scale = 0.0;
+		double scale = 1.0;
 	};
 
 	struct Route

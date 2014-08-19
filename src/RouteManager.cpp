@@ -226,12 +226,12 @@ void RouteManager::calculateSplitTransformations()
 		SplitTime st1 = defaultRoute.splitTimes.splitTimes.at(i);
 		SplitTime st2 = defaultRoute.splitTimes.splitTimes.at(i + 1);
 
-		size_t startIndex = (size_t)round(st1.time + defaultRoute.controlsTimeOffset);
-		size_t stopIndex = (size_t)round(st2.time + defaultRoute.controlsTimeOffset);
-		size_t indexMax = defaultRoute.alignedRoutePoints.size() - 1;
+		int startIndex = (int)round(st1.time + defaultRoute.controlsTimeOffset);
+		int stopIndex = (int)round(st2.time + defaultRoute.controlsTimeOffset);
+		int indexMax = (int)defaultRoute.alignedRoutePoints.size() - 1;
 
-		startIndex = std::max((size_t)0, std::min(startIndex, indexMax));
-		stopIndex = std::max((size_t)0, std::min(stopIndex, indexMax));
+		startIndex = std::max(0, std::min(startIndex, indexMax));
+		stopIndex = std::max(0, std::min(stopIndex, indexMax));
 
 		SplitTransformation splitTransformation;
 
@@ -339,10 +339,11 @@ void RouteManager::calculateCurrentSplitTransformation(double currentTime)
 {
 	for (size_t i = 0; i < defaultRoute.splitTimes.splitTimes.size() - 1; ++i)
 	{
-		SplitTime st1 = defaultRoute.splitTimes.splitTimes.at(i);
-		SplitTime st2 = defaultRoute.splitTimes.splitTimes.at(i + 1);
+		double firstSplitOffsetTime = defaultRoute.splitTimes.splitTimes.at(i).time + defaultRoute.controlsTimeOffset;
+		double secondSplitOffsetTime = defaultRoute.splitTimes.splitTimes.at(i + 1).time + defaultRoute.controlsTimeOffset;
+		double runnerOffsetTime = currentTime + defaultRoute.runnerTimeOffset;
 
-		if (currentTime >= st1.time && currentTime < st2.time)
+		if (runnerOffsetTime >= firstSplitOffsetTime && runnerOffsetTime < secondSplitOffsetTime)
 		{
 			defaultRoute.currentSplitTransformation = defaultRoute.splitTransformations.at(i);
 			break;
