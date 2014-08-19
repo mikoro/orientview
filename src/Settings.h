@@ -38,7 +38,7 @@ namespace OrientView
 			double angle = 0.0;
 			double scale = 1.0;
 			QColor backgroundColor = QColor(255, 255, 255, 255);
-			QString rescaleShader = "default";
+			QString rescaleShader = "legacy";
 
 		} map;
 
@@ -73,7 +73,7 @@ namespace OrientView
 			double angle = 0.0;
 			double scale = 1.0;
 			QColor backgroundColor = QColor(0, 50, 0, 255);
-			QString rescaleShader = "default";
+			QString rescaleShader = "legacy";
 			bool enableClipping = false;
 			bool enableClearing = true;
 			int frameCountDivisor = 1;

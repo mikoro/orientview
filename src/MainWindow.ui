@@ -43,7 +43,7 @@
        <enum>QTabWidget::North</enum>
       </property>
       <property name="currentIndex">
-       <number>6</number>
+       <number>2</number>
       </property>
       <property name="movable">
        <bool>false</bool>
@@ -306,7 +306,7 @@
               <bool>true</bool>
              </property>
              <property name="currentIndex">
-              <number>0</number>
+              <number>3</number>
              </property>
              <item>
               <property name="text">
@@ -818,7 +818,7 @@
               <bool>true</bool>
              </property>
              <property name="currentIndex">
-              <number>0</number>
+              <number>3</number>
              </property>
              <item>
               <property name="text">
