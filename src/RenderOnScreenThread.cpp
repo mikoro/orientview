@@ -77,12 +77,12 @@ void RenderOnScreenThread::run()
 
 		inputHandler->handleInput(frameDuration);
 
-		if (shouldResizeWindow)
+		if (windowHasBeenResized)
 		{
-			renderer->resizeWindow(windowWidth, windowHeight);
-			routeManager->setMapPanelDimensions(windowWidth * renderer->getMapPanel().relativeWidth, windowHeight);
+			renderer->windowResized(windowWidth, windowHeight);
+			routeManager->windowResized(windowWidth, windowHeight);
 
-			shouldResizeWindow = false;
+			windowHasBeenResized = false;
 		}
 
 		spareTime = (frameData.duration - (spareTimer.nsecsElapsed() / 1000.0)) / 1000.0;
@@ -135,5 +135,5 @@ void RenderOnScreenThread::windowResized(int newWidth, int newHeight)
 	windowWidth = newWidth;
 	windowHeight = newHeight;
 
-	shouldResizeWindow = true;
+	windowHasBeenResized = true;
 }

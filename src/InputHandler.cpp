@@ -114,20 +114,20 @@ void InputHandler::handleInput(double frameTime)
 	translateVelocity *= frameTime;
 	rotateVelocity *= frameTime;
 
-	bool shouldRequestFullClear = false;
-
 	if (videoWindow->keyIsDown(Qt::Key_E))
 	{
 		renderer->getMapPanel().relativeWidth += translateVelocity * 0.001;
 		renderer->getMapPanel().relativeWidth = std::max(0.0, std::min(renderer->getMapPanel().relativeWidth, 1.0));
-		shouldRequestFullClear = true;
+		renderer->requestFullClear();
+		routeManager->requestFullUpdate();
 	}
 
 	if (videoWindow->keyIsDown(Qt::Key_D))
 	{
 		renderer->getMapPanel().relativeWidth -= translateVelocity * 0.001;
 		renderer->getMapPanel().relativeWidth = std::max(0.0, std::min(renderer->getMapPanel().relativeWidth, 1.0));
-		shouldRequestFullClear = true;
+		renderer->requestFullClear();
+		routeManager->requestFullUpdate();
 	}
 
 	if (videoWindow->keyIsDown(Qt::Key_R))
@@ -204,31 +204,31 @@ void InputHandler::handleInput(double frameTime)
 			targetPanel->userY = 0.0;
 			targetPanel->userAngle = 0.0;
 			targetPanel->userScale = 1.0;
-			shouldRequestFullClear = true;
+			renderer->requestFullClear();
 		}
 
 		if (videoWindow->keyIsDown(Qt::Key_W))
 		{
 			targetPanel->userAngle += rotateVelocity;
-			shouldRequestFullClear = true;
+			renderer->requestFullClear();
 		}
 
 		if (videoWindow->keyIsDown(Qt::Key_S))
 		{
 			targetPanel->userAngle -= rotateVelocity;
-			shouldRequestFullClear = true;
+			renderer->requestFullClear();
 		}
 
 		if (videoWindow->keyIsDown(Qt::Key_Q))
 		{
 			targetPanel->userScale *= (1.0 + frameTime / scaleConstant);
-			shouldRequestFullClear = true;
+			renderer->requestFullClear();
 		}
 
 		if (videoWindow->keyIsDown(Qt::Key_A))
 		{
 			targetPanel->userScale *= (1.0 - frameTime / scaleConstant);
-			shouldRequestFullClear = true;
+			renderer->requestFullClear();
 		}
 	}
 
@@ -239,25 +239,25 @@ void InputHandler::handleInput(double frameTime)
 		if (videoWindow->keyIsDown(Qt::Key_Left))
 		{
 			videoPanel.userX -= translateVelocity;
-			shouldRequestFullClear = true;
+			renderer->requestFullClear();
 		}
 
 		if (videoWindow->keyIsDown(Qt::Key_Right))
 		{
 			videoPanel.userX += translateVelocity;
-			shouldRequestFullClear = true;
+			renderer->requestFullClear();
 		}
 
 		if (videoWindow->keyIsDown(Qt::Key_Up))
 		{
 			videoPanel.userY += translateVelocity;
-			shouldRequestFullClear = true;
+			renderer->requestFullClear();
 		}
 
 		if (videoWindow->keyIsDown(Qt::Key_Down))
 		{
 			videoPanel.userY -= translateVelocity;
-			shouldRequestFullClear = true;
+			renderer->requestFullClear();
 		}
 	}
 
@@ -275,14 +275,14 @@ void InputHandler::handleInput(double frameTime)
 		{
 			mapPanel.userX -= deltaX;
 			mapPanel.userY += deltaY;
-			shouldRequestFullClear = true;
+			renderer->requestFullClear();
 		}
 
 		if (videoWindow->keyIsDown(Qt::Key_Right))
 		{
 			mapPanel.userX += deltaX;
 			mapPanel.userY -= deltaY;
-			shouldRequestFullClear = true;
+			renderer->requestFullClear();
 		}
 
 		deltaX = sin(angle) * translateVelocity;
@@ -292,19 +292,16 @@ void InputHandler::handleInput(double frameTime)
 		{
 			mapPanel.userX += deltaX;
 			mapPanel.userY += deltaY;
-			shouldRequestFullClear = true;
+			renderer->requestFullClear();
 		}
 
 		if (videoWindow->keyIsDown(Qt::Key_Down))
 		{
 			mapPanel.userX -= deltaX;
 			mapPanel.userY -= deltaY;
-			shouldRequestFullClear = true;
+			renderer->requestFullClear();
 		}
 	}
-
-	if (shouldRequestFullClear)
-		renderer->requestFullClear();
 }
 
 EditMode InputHandler::getEditMode() const

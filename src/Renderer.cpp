@@ -59,7 +59,7 @@ bool Renderer::initialize(VideoDecoder* videoDecoder, MapImageReader* mapImageRe
 
 	initializeOpenGLFunctions();
 
-	if (!resizeWindow(settings->window.width, settings->window.height))
+	if (!windowResized(settings->window.width, settings->window.height))
 		return false;
 
 	if (!loadShaders(videoPanel, settings->video.rescaleShader))
@@ -125,7 +125,7 @@ bool Renderer::initialize(VideoDecoder* videoDecoder, MapImageReader* mapImageRe
 	return true;
 }
 
-bool Renderer::resizeWindow(int newWidth, int newHeight)
+bool Renderer::windowResized(int newWidth, int newHeight)
 {
 	windowWidth = newWidth;
 	windowHeight = newHeight;

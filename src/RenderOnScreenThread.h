@@ -50,7 +50,7 @@ namespace OrientView
 
 		bool isPaused = false;
 		bool shouldAdvanceOneFrame = false;
-		bool shouldResizeWindow = false;
+		bool windowHasBeenResized = false;
 
 		int windowWidth = 0;
 		int windowHeight = 0;

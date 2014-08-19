@@ -74,7 +74,7 @@ namespace OrientView
 	public:
 
 		bool initialize(VideoDecoder* videoDecoder, MapImageReader* mapImageReader, VideoStabilizer* videoStabilizer, InputHandler* inputHandler, RouteManager* routeManager, Settings* settings);
-		bool resizeWindow(int newWidth, int newHeight);
+		bool windowResized(int newWidth, int newHeight);
 		~Renderer();
 
 		void startRendering(double currentTime, double frameTime, double spareTime, double decoderTime, double stabilizerTime, double encoderTime);

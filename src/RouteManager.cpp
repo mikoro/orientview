@@ -6,12 +6,15 @@
 
 #include "RouteManager.h"
 #include "QuickRouteReader.h"
+#include "Renderer.h"
 #include "Settings.h"
 
 using namespace OrientView;
 
-void RouteManager::initialize(QuickRouteReader* quickRouteReader, SplitTimeManager* splitTimeManager, Settings* settings)
+void RouteManager::initialize(QuickRouteReader* quickRouteReader, SplitTimeManager* splitTimeManager, Renderer* renderer, Settings* settings)
 {
+	this->renderer = renderer;
+
 	defaultRoute.routePoints = quickRouteReader->getRoutePoints();
 	defaultRoute.splitTimes = splitTimeManager->getDefaultSplitTimes();
 	defaultRoute.controlsTimeOffset = settings->route.controlsTimeOffset;
@@ -32,8 +35,8 @@ void RouteManager::initialize(QuickRouteReader* quickRouteReader, SplitTimeManag
 	defaultRoute.runnerBorderWidth = settings->route.runnerBorderWidth;
 	defaultRoute.runnerScale = settings->route.runnerScale;
 
-	mapPanelWidth = settings->window.width * settings->map.relativeWidth;
-	mapPanelHeight = settings->window.height;
+	windowWidth = settings->window.width;
+	windowHeight = settings->window.height;
 
 	generateAlignedRoutePoints();
 	constructWholeRoutePath();
@@ -63,10 +66,10 @@ void RouteManager::requestFullUpdate()
 	fullUpdateRequested = true;
 }
 
-void RouteManager::setMapPanelDimensions(double width, double height)
+void RouteManager::windowResized(double newWidth, double newHeight)
 {
-	mapPanelWidth = width;
-	mapPanelHeight = height;
+	windowWidth = newWidth;
+	windowHeight = newHeight;
 
 	fullUpdateRequested = true;
 }
@@ -285,8 +288,8 @@ void RouteManager::calculateSplitTransformations()
 			// split height is the maximum vertical delta
 			double splitHeight = maxY - minY + 2 * defaultRoute.topBottomMargin;
 
-			double scaleX = mapPanelWidth / splitWidth;
-			double scaleY = mapPanelHeight / splitHeight;
+			double scaleX = (windowWidth * renderer->getMapPanel().relativeWidth) / splitWidth;
+			double scaleY = windowHeight / splitHeight;
 			double finalScale = std::min(scaleX, scaleY);
 			
  			splitTransformation.x = -middlePoint.x();
