@@ -14,6 +14,8 @@ void RouteManager::initialize(QuickRouteReader* quickRouteReader, SplitTimeManag
 	defaultRoute.splitTimes = splitTimeManager->getDefaultSplitTimes();
 	defaultRoute.startOffset = settings->route.startOffset;
 	defaultRoute.scale = settings->route.scale;
+	defaultRoute.highPace = settings->route.highPace;
+	defaultRoute.lowPace = settings->route.lowPace;
 	defaultRoute.wholeRouteRenderMode = settings->route.wholeRouteRenderMode;
 	defaultRoute.showRunner = settings->route.showRunner;
 	defaultRoute.showControls = settings->route.showControls;
@@ -175,10 +177,10 @@ void RouteManager::calculateControlPositions()
 void RouteManager::calculateRoutePointColors()
 {
 	for (RoutePoint& rp : defaultRoute.routePoints)
-		rp.color = interpolateFromGreenToRed(5.0, 15.0, rp.pace);
+		rp.color = interpolateFromGreenToRed(defaultRoute.highPace, defaultRoute.lowPace, rp.pace);
 
 	for (RoutePoint& rp : defaultRoute.alignedRoutePoints)
-		rp.color = interpolateFromGreenToRed(5.0, 15.0, rp.pace);
+		rp.color = interpolateFromGreenToRed(defaultRoute.highPace, defaultRoute.lowPace, rp.pace);
 }
 
 void RouteManager::calculateRunnerPosition(double currentTime)
@@ -205,9 +207,9 @@ void RouteManager::calculateRunnerPosition(double currentTime)
 	}
 }
 
-QColor RouteManager::interpolateFromGreenToRed(double lowValue, double highValue, double value)
+QColor RouteManager::interpolateFromGreenToRed(double greenValue, double redValue, double value)
 {
-	double alpha = (value - lowValue) / (highValue - lowValue);
+	double alpha = (value - greenValue) / (redValue - greenValue);
 	alpha = std::max(0.0, std::min(alpha, 1.0));
 
 	double r = (alpha > 0.5 ? 1.0 : 2.0 * alpha);

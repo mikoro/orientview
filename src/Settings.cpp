@@ -27,6 +27,8 @@ void Settings::readFromQSettings(QSettings* settings)
 	route.quickRouteJpegFilePath = settings->value("route/quickRouteJpegFilePath", defaultSettings.route.quickRouteJpegFilePath).toString();
 	route.startOffset = settings->value("route/startOffset", defaultSettings.route.startOffset).toDouble();
 	route.scale = settings->value("route/scale", defaultSettings.route.scale).toDouble();
+	route.highPace = settings->value("route/highPace", defaultSettings.route.highPace).toDouble();
+	route.lowPace = settings->value("route/lowPace", defaultSettings.route.lowPace).toDouble();
 	route.wholeRouteRenderMode = (RouteRenderMode)settings->value("route/wholeRouteRenderMode", defaultSettings.route.wholeRouteRenderMode).toInt();
 	route.showRunner = settings->value("route/showRunner", defaultSettings.route.showRunner).toBool();
 	route.showControls = settings->value("route/showControls", defaultSettings.route.showControls).toBool();
@@ -113,6 +115,8 @@ void Settings::writeToQSettings(QSettings* settings)
 	settings->setValue("route/quickRouteJpegFilePath", route.quickRouteJpegFilePath);
 	settings->setValue("route/startOffset", route.startOffset);
 	settings->setValue("route/scale", route.scale);
+	settings->setValue("route/highPace", route.highPace);
+	settings->setValue("route/lowPace", route.lowPace);
 	settings->setValue("route/wholeRouteRenderMode", route.wholeRouteRenderMode);
 	settings->setValue("route/showRunner", route.showRunner);
 	settings->setValue("route/showControls", route.showControls);

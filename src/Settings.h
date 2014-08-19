@@ -47,6 +47,8 @@ namespace OrientView
 			QString quickRouteJpegFilePath = "";
 			double startOffset = 0.0;
 			double scale = 1.0;
+			double highPace = 5.0;
+			double lowPace = 15.0;
 			RouteRenderMode wholeRouteRenderMode = RouteRenderMode::Normal;
 			bool showRunner = true;
 			bool showControls = true;

@@ -27,6 +27,8 @@ namespace OrientView
 		double startOffset = 0.0;
 		double scale = 1.0;
 		double userScale = 1.0;
+		double highPace = 5.0;
+		double lowPace = 15.0;
 
 		RouteRenderMode wholeRouteRenderMode = RouteRenderMode::Normal;
 		bool showRunner = true;
@@ -68,7 +70,7 @@ namespace OrientView
 		void calculateRoutePointColors();
 		void calculateRunnerPosition(double currentTime);
 
-		QColor interpolateFromGreenToRed(double lowValue, double highValue, double value);
+		QColor interpolateFromGreenToRed(double greenValue, double redValue, double value);
 
 		Route defaultRoute;
 
