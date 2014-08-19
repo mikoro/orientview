@@ -45,6 +45,7 @@ void Settings::readFromQSettings(QSettings* settings)
 	
 	video.inputVideoFilePath = settings->value("video/inputVideoFilePath", defaultSettings.video.inputVideoFilePath).toString();
 	video.startTimeOffset = settings->value("video/startTimeOffset", defaultSettings.video.startTimeOffset).toDouble();
+	video.seekToAnyFrame = settings->value("video/seekToAnyFrame", defaultSettings.video.seekToAnyFrame).toBool();
 	video.x = settings->value("video/x", defaultSettings.video.x).toDouble();
 	video.y = settings->value("video/y", defaultSettings.video.y).toDouble();
 	video.angle = settings->value("video/angle", defaultSettings.video.angle).toDouble();
@@ -134,6 +135,7 @@ void Settings::writeToQSettings(QSettings* settings)
 
 	settings->setValue("video/inputVideoFilePath", video.inputVideoFilePath);
 	settings->setValue("video/startTimeOffset", video.startTimeOffset);
+	settings->setValue("video/seekToAnyFrame", video.seekToAnyFrame);
 	settings->setValue("video/x", video.x);
 	settings->setValue("video/y", video.y);
 	settings->setValue("video/angle", video.angle);

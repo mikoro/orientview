@@ -72,6 +72,7 @@ bool VideoDecoder::initialize(Settings* settings)
 	qDebug("Initializing video decoder (%s)", qPrintable(settings->video.inputVideoFilePath));
 
 	enableVerboseLogging = settings->video.enableVerboseLogging;
+	seekToAnyFrame = settings->video.seekToAnyFrame;
 
 	av_log_set_level(enableVerboseLogging ? AV_LOG_DEBUG : AV_LOG_WARNING);
 	av_log_set_callback(ffmpegLogCallback);
@@ -318,7 +319,7 @@ void VideoDecoder::seekRelative(double seconds)
 	int64_t targetTimeStamp = previousFrameTimestamp + (int64_t)(((double)videoStream->time_base.den / videoStream->time_base.num) * seconds + 0.5);
 	targetTimeStamp = std::max((int64_t)0, std::min(targetTimeStamp, videoStream->duration));
 
-	if (avformat_seek_file(formatContext, (int)videoStreamIndex, 0, targetTimeStamp, targetTimeStamp, 0) >= 0)
+	if (avformat_seek_file(formatContext, (int)videoStreamIndex, 0, targetTimeStamp, targetTimeStamp, (seekToAnyFrame ? AVSEEK_FLAG_ANY : 0)) >= 0)
 	{
 		avcodec_flush_buffers(videoCodecContext);
 

@@ -69,6 +69,7 @@ namespace OrientView
 		{
 			QString inputVideoFilePath = "";
 			double startTimeOffset = 0.0;
+			bool seekToAnyFrame = false;
 			double x = 0.0;
 			double y = 0.0;
 			double angle = 0.0;
