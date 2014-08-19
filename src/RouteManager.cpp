@@ -12,7 +12,8 @@ void RouteManager::initialize(QuickRouteReader* quickRouteReader, SplitTimeManag
 {
 	defaultRoute.routePoints = quickRouteReader->getRoutePoints();
 	defaultRoute.splitTimes = splitTimeManager->getDefaultSplitTimes();
-	defaultRoute.startOffset = settings->route.startOffset;
+	defaultRoute.controlsTimeOffset = settings->route.controlsTimeOffset;
+	defaultRoute.runnerTimeOffset = settings->route.runnerTimeOffset;
 	defaultRoute.scale = settings->route.scale;
 	defaultRoute.highPace = settings->route.highPace;
 	defaultRoute.lowPace = settings->route.lowPace;
@@ -151,7 +152,7 @@ void RouteManager::calculateControlPositions()
 	{
 		SplitTime splitTime = defaultRoute.splitTimes.splitTimes.at(i);
 
-		double offsetTime = splitTime.time + defaultRoute.startOffset;
+		double offsetTime = splitTime.time + defaultRoute.controlsTimeOffset;
 		double previousWholeSecond = floor(offsetTime);
 		double alpha = offsetTime - previousWholeSecond;
 
@@ -185,7 +186,7 @@ void RouteManager::calculateRoutePointColors()
 
 void RouteManager::calculateRunnerPosition(double currentTime)
 {
-	double offsetTime = currentTime + defaultRoute.startOffset;
+	double offsetTime = currentTime + defaultRoute.runnerTimeOffset;
 	double previousWholeSecond = floor(offsetTime);
 	double alpha = offsetTime - previousWholeSecond;
 

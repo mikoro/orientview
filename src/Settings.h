@@ -45,7 +45,8 @@ namespace OrientView
 		struct Route
 		{
 			QString quickRouteJpegFilePath = "";
-			double startOffset = 0.0;
+			double controlsTimeOffset = 0.0;
+			double runnerTimeOffset = 0.0;
 			double scale = 1.0;
 			double highPace = 5.0;
 			double lowPace = 15.0;
@@ -67,7 +68,7 @@ namespace OrientView
 		struct Video
 		{
 			QString inputVideoFilePath = "";
-			double startOffset = 0.0;
+			double startTimeOffset = 0.0;
 			double x = 0.0;
 			double y = 0.0;
 			double angle = 0.0;

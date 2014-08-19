@@ -24,7 +24,8 @@ namespace OrientView
 		std::vector<RoutePoint> alignedRoutePoints;
 		SplitTimes splitTimes;
 
-		double startOffset = 0.0;
+		double controlsTimeOffset = 0.0;
+		double runnerTimeOffset = 0.0;
 		double scale = 1.0;
 		double userScale = 1.0;
 		double highPace = 5.0;

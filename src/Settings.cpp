@@ -25,7 +25,8 @@ void Settings::readFromQSettings(QSettings* settings)
 	map.rescaleShader = settings->value("map/rescaleShader", defaultSettings.map.rescaleShader).toString();
 
 	route.quickRouteJpegFilePath = settings->value("route/quickRouteJpegFilePath", defaultSettings.route.quickRouteJpegFilePath).toString();
-	route.startOffset = settings->value("route/startOffset", defaultSettings.route.startOffset).toDouble();
+	route.controlsTimeOffset = settings->value("route/controlsTimeOffset", defaultSettings.route.controlsTimeOffset).toDouble();
+	route.runnerTimeOffset = settings->value("route/runnerTimeOffset", defaultSettings.route.runnerTimeOffset).toDouble();
 	route.scale = settings->value("route/scale", defaultSettings.route.scale).toDouble();
 	route.highPace = settings->value("route/highPace", defaultSettings.route.highPace).toDouble();
 	route.lowPace = settings->value("route/lowPace", defaultSettings.route.lowPace).toDouble();
@@ -43,7 +44,7 @@ void Settings::readFromQSettings(QSettings* settings)
 	route.runnerScale = settings->value("route/runnerScale", defaultSettings.route.runnerScale).toDouble();
 	
 	video.inputVideoFilePath = settings->value("video/inputVideoFilePath", defaultSettings.video.inputVideoFilePath).toString();
-	video.startOffset = settings->value("video/startOffset", defaultSettings.video.startOffset).toDouble();
+	video.startTimeOffset = settings->value("video/startTimeOffset", defaultSettings.video.startTimeOffset).toDouble();
 	video.x = settings->value("video/x", defaultSettings.video.x).toDouble();
 	video.y = settings->value("video/y", defaultSettings.video.y).toDouble();
 	video.angle = settings->value("video/angle", defaultSettings.video.angle).toDouble();
@@ -113,7 +114,8 @@ void Settings::writeToQSettings(QSettings* settings)
 	settings->setValue("map/rescaleShader", map.rescaleShader);
 
 	settings->setValue("route/quickRouteJpegFilePath", route.quickRouteJpegFilePath);
-	settings->setValue("route/startOffset", route.startOffset);
+	settings->setValue("route/controlsTimeOffset", route.controlsTimeOffset);
+	settings->setValue("route/runnerTimeOffset", route.runnerTimeOffset);
 	settings->setValue("route/scale", route.scale);
 	settings->setValue("route/highPace", route.highPace);
 	settings->setValue("route/lowPace", route.lowPace);
@@ -131,7 +133,7 @@ void Settings::writeToQSettings(QSettings* settings)
 	settings->setValue("route/runnerScale", route.runnerScale);
 
 	settings->setValue("video/inputVideoFilePath", video.inputVideoFilePath);
-	settings->setValue("video/startOffset", video.startOffset);
+	settings->setValue("video/startTimeOffset", video.startTimeOffset);
 	settings->setValue("video/x", video.x);
 	settings->setValue("video/y", video.y);
 	settings->setValue("video/angle", video.angle);
@@ -196,11 +198,12 @@ void Settings::readFromUI(Ui::MainWindow* ui)
 	map.rescaleShader = ui->comboBoxMapPanelRescaleShader->currentText();
 
 	route.quickRouteJpegFilePath = ui->lineEditQuickRouteJpegFile->text();
-	route.startOffset = ui->doubleSpinBoxRouteStartOffset->value();
+	route.controlsTimeOffset = ui->doubleSpinBoxRouteControlsTimeOffset->value();
+	route.runnerTimeOffset = ui->doubleSpinBoxRouteRunnerTimeOffset->value();
 	route.scale = ui->doubleSpinBoxRouteScale->value();
 	
 	video.inputVideoFilePath = ui->lineEditInputVideoFile->text();
-	video.startOffset = ui->doubleSpinBoxVideoStartOffset->value();
+	video.startTimeOffset = ui->doubleSpinBoxVideoStartTimeOffset->value();
 	video.scale = ui->doubleSpinBoxVideoPanelScale->value();
 	video.backgroundColor = QColor(ui->lineEditVideoPanelBackgroundColor->text());
 	video.rescaleShader = ui->comboBoxVideoPanelRescaleShader->currentText();
@@ -248,11 +251,12 @@ void Settings::writeToUI(Ui::MainWindow* ui)
 	ui->comboBoxMapPanelRescaleShader->setCurrentText(map.rescaleShader);
 
 	ui->lineEditQuickRouteJpegFile->setText(route.quickRouteJpegFilePath);
-	ui->doubleSpinBoxRouteStartOffset->setValue(route.startOffset);
+	ui->doubleSpinBoxRouteControlsTimeOffset->setValue(route.controlsTimeOffset);
+	ui->doubleSpinBoxRouteRunnerTimeOffset->setValue(route.runnerTimeOffset);
 	ui->doubleSpinBoxRouteScale->setValue(route.scale);
 
 	ui->lineEditInputVideoFile->setText(video.inputVideoFilePath);
-	ui->doubleSpinBoxVideoStartOffset->setValue(video.startOffset);
+	ui->doubleSpinBoxVideoStartTimeOffset->setValue(video.startTimeOffset);
 	ui->doubleSpinBoxVideoPanelScale->setValue(video.scale);
 	ui->lineEditVideoPanelBackgroundColor->setText(video.backgroundColor.name());
 	ui->comboBoxVideoPanelRescaleShader->setCurrentText(video.rescaleShader);

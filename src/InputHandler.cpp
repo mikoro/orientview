@@ -144,13 +144,25 @@ void InputHandler::handleInput(double frameTime)
 
 	if (videoWindow->keyIsDown(Qt::Key_T))
 	{
-		routeManager->getDefaultRoute().startOffset += translateVelocity * 0.1;
+		routeManager->getDefaultRoute().controlsTimeOffset += translateVelocity * 0.1;
 		routeManager->requestFullUpdate();
 	}
 
 	if (videoWindow->keyIsDown(Qt::Key_G))
 	{
-		routeManager->getDefaultRoute().startOffset -= translateVelocity * 0.1;
+		routeManager->getDefaultRoute().controlsTimeOffset -= translateVelocity * 0.1;
+		routeManager->requestFullUpdate();
+	}
+
+	if (videoWindow->keyIsDown(Qt::Key_Y))
+	{
+		routeManager->getDefaultRoute().runnerTimeOffset += translateVelocity * 0.1;
+		routeManager->requestFullUpdate();
+	}
+
+	if (videoWindow->keyIsDown(Qt::Key_H))
+	{
+		routeManager->getDefaultRoute().runnerTimeOffset -= translateVelocity * 0.1;
 		routeManager->requestFullUpdate();
 	}
 

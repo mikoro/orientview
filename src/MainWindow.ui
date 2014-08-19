@@ -43,7 +43,7 @@
        <enum>QTabWidget::North</enum>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>6</number>
       </property>
       <property name="movable">
        <bool>false</bool>
@@ -435,12 +435,12 @@
               </size>
              </property>
              <property name="text">
-              <string>Start offset</string>
+              <string>Controls time offset</string>
              </property>
             </widget>
            </item>
            <item row="0" column="1">
-            <widget class="QDoubleSpinBox" name="doubleSpinBoxRouteStartOffset">
+            <widget class="QDoubleSpinBox" name="doubleSpinBoxRouteControlsTimeOffset">
              <property name="sizePolicy">
               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -454,7 +454,63 @@
               </size>
              </property>
              <property name="toolTip">
-              <string>How many seconds to offset the route start</string>
+              <string>Used to adjust control positions on the route</string>
+             </property>
+             <property name="minimum">
+              <double>-99999.000000000000000</double>
+             </property>
+             <property name="maximum">
+              <double>99999.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>1.000000000000000</double>
+             </property>
+             <property name="value">
+              <double>0.000000000000000</double>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_42">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>100</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Runner time offset</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QDoubleSpinBox" name="doubleSpinBoxRouteRunnerTimeOffset">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>100</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>Used to adjust the runner position on the route</string>
              </property>
              <property name="minimum">
               <double>-99999.000000000000000</double>
@@ -627,12 +683,12 @@
               </size>
              </property>
              <property name="text">
-              <string>Start offset</string>
+              <string>Start time offset</string>
              </property>
             </widget>
            </item>
            <item row="0" column="1">
-            <widget class="QDoubleSpinBox" name="doubleSpinBoxVideoStartOffset">
+            <widget class="QDoubleSpinBox" name="doubleSpinBoxVideoStartTimeOffset">
              <property name="sizePolicy">
               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -926,7 +982,7 @@
               </size>
              </property>
              <property name="toolTip">
-              <string>Whether to clip the video panel</string>
+              <string>Whether to clip the video panel (useful when stabilization is enabled)</string>
              </property>
              <property name="text">
               <string/>
@@ -976,7 +1032,7 @@
               </size>
              </property>
              <property name="toolTip">
-              <string>Whether to clear previous frames from the background</string>
+              <string>Whether to clear previous frames from the background (useful when stabilization is enabled)</string>
              </property>
              <property name="text">
               <string/>
@@ -2804,11 +2860,11 @@
   <tabstop>comboBoxMapPanelRescaleShader</tabstop>
   <tabstop>lineEditQuickRouteJpegFile</tabstop>
   <tabstop>pushButtonBrowseQuickRouteJpegFile</tabstop>
-  <tabstop>doubleSpinBoxRouteStartOffset</tabstop>
+  <tabstop>doubleSpinBoxRouteControlsTimeOffset</tabstop>
   <tabstop>doubleSpinBoxRouteScale</tabstop>
   <tabstop>lineEditInputVideoFile</tabstop>
   <tabstop>pushButtonBrowseInputVideoFile</tabstop>
-  <tabstop>doubleSpinBoxVideoStartOffset</tabstop>
+  <tabstop>doubleSpinBoxVideoStartTimeOffset</tabstop>
   <tabstop>doubleSpinBoxVideoPanelScale</tabstop>
   <tabstop>lineEditVideoPanelBackgroundColor</tabstop>
   <tabstop>pushButtonPickVideoPanelBackgroundColor</tabstop>

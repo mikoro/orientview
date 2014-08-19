@@ -630,12 +630,12 @@ void Renderer::renderInfoPanel()
 	int textY = 6;
 	int lineHeight = metrics.height();
 	int lineSpacing = metrics.lineSpacing() + 1;
-	int lineWidth1 = metrics.boundingRect("start offset:").width();
+	int lineWidth1 = metrics.boundingRect("controls offset:").width();
 	int lineWidth2 = metrics.boundingRect("99:99:99.999").width();
 	int rightPartMargin = 15;
 	int backgroundRadius = 10;
 	int backgroundWidth = textX + backgroundRadius + lineWidth1 + rightPartMargin + lineWidth2 + 10;
-	int backgroundHeight = lineSpacing * 18 + textY + 3;
+	int backgroundHeight = lineSpacing * 19 + textY + 3;
 
 	QColor textColor = QColor(255, 255, 255, 200);
 	QColor textGreenColor = QColor(0, 255, 0, 200);
@@ -679,7 +679,8 @@ void Renderer::renderInfoPanel()
 
 	textY += lineSpacing;
 
-	painter->drawText(textX, textY += lineSpacing, lineWidth1, lineHeight, 0, "route offset:");
+	painter->drawText(textX, textY += lineSpacing, lineWidth1, lineHeight, 0, "controls offset:");
+	painter->drawText(textX, textY += lineSpacing, lineWidth1, lineHeight, 0, "runner offset:");
 	
 	textX += lineWidth1 + rightPartMargin;
 	textY = 6;
@@ -740,7 +741,8 @@ void Renderer::renderInfoPanel()
 
 	textY += lineSpacing;
 
-	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString("%1 s").arg(QString::number(routeManager->getDefaultRoute().startOffset, 'f', 2)));
+	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString("%1 s").arg(QString::number(routeManager->getDefaultRoute().controlsTimeOffset, 'f', 2)));
+	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString("%1 s").arg(QString::number(routeManager->getDefaultRoute().runnerTimeOffset, 'f', 2)));
 	
 	painter->end();
 }
