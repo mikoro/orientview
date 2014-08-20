@@ -435,12 +435,12 @@
               </size>
              </property>
              <property name="text">
-              <string>Controls time offset</string>
+              <string>Control time offset</string>
              </property>
             </widget>
            </item>
            <item row="0" column="1">
-            <widget class="QDoubleSpinBox" name="doubleSpinBoxRouteControlsTimeOffset">
+            <widget class="QDoubleSpinBox" name="doubleSpinBoxRouteControlTimeOffset">
              <property name="sizePolicy">
               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -2860,7 +2860,7 @@
   <tabstop>comboBoxMapPanelRescaleShader</tabstop>
   <tabstop>lineEditQuickRouteJpegFile</tabstop>
   <tabstop>pushButtonBrowseQuickRouteJpegFile</tabstop>
-  <tabstop>doubleSpinBoxRouteControlsTimeOffset</tabstop>
+  <tabstop>doubleSpinBoxRouteControlTimeOffset</tabstop>
   <tabstop>doubleSpinBoxRouteScale</tabstop>
   <tabstop>lineEditInputVideoFile</tabstop>
   <tabstop>pushButtonBrowseInputVideoFile</tabstop>

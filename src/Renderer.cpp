@@ -625,7 +625,7 @@ void Renderer::renderInfoPanel()
 	int textY = 6;
 	int lineHeight = metrics.height();
 	int lineSpacing = metrics.lineSpacing() + 1;
-	int lineWidth1 = metrics.boundingRect("controls offset:").width();
+	int lineWidth1 = metrics.boundingRect("control offset:").width();
 	int lineWidth2 = metrics.boundingRect("99:99:99.999").width();
 	int rightPartMargin = 15;
 	int backgroundRadius = 10;
@@ -674,7 +674,7 @@ void Renderer::renderInfoPanel()
 
 	textY += lineSpacing;
 
-	painter->drawText(textX, textY += lineSpacing, lineWidth1, lineHeight, 0, "controls offset:");
+	painter->drawText(textX, textY += lineSpacing, lineWidth1, lineHeight, 0, "control offset:");
 	painter->drawText(textX, textY += lineSpacing, lineWidth1, lineHeight, 0, "runner offset:");
 	
 	textX += lineWidth1 + rightPartMargin;
@@ -736,7 +736,7 @@ void Renderer::renderInfoPanel()
 
 	textY += lineSpacing;
 
-	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString("%1 s").arg(QString::number(routeManager->getDefaultRoute().controlsTimeOffset, 'f', 2)));
+	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString("%1 s").arg(QString::number(routeManager->getDefaultRoute().controlTimeOffset, 'f', 2)));
 	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString("%1 s").arg(QString::number(routeManager->getDefaultRoute().runnerTimeOffset, 'f', 2)));
 	
 	painter->end();

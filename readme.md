@@ -65,8 +65,8 @@ For testing out the program, you can also [download test data](https://mega.co.n
 | **D**         | Decrease map panel relative width                          |
 | **R**         | Increase route scale                                       |
 | **F**         | Decrease route scale                                       |
-| **T**         | Increase controls time offset                              |
-| **G**         | Decrease controls time offset                              |
+| **T**         | Increase control time offset                               |
+| **G**         | Decrease control time offset                               |
 | **Y**         | Increase runner time offset                                |
 | **H**         | Decrease runner time offset                                |
 | **F1**        | Toggle info panel on/off                                   |

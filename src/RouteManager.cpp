@@ -17,7 +17,7 @@ void RouteManager::initialize(QuickRouteReader* quickRouteReader, SplitTimeManag
 
 	defaultRoute.routePoints = quickRouteReader->getRoutePoints();
 	defaultRoute.splitTimes = splitTimeManager->getDefaultSplitTimes();
-	defaultRoute.controlsTimeOffset = settings->route.controlsTimeOffset;
+	defaultRoute.controlTimeOffset = settings->route.controlTimeOffset;
 	defaultRoute.runnerTimeOffset = settings->route.runnerTimeOffset;
 	defaultRoute.userScale = settings->route.scale;
 	defaultRoute.highPace = settings->route.highPace;
@@ -191,7 +191,7 @@ void RouteManager::calculateControlPositions()
 
 	for (const SplitTime& splitTime : defaultRoute.splitTimes.splitTimes)
 	{
-		double offsetTime = splitTime.time + defaultRoute.controlsTimeOffset;
+		double offsetTime = splitTime.time + defaultRoute.controlTimeOffset;
 		double previousWholeSecond = floor(offsetTime);
 		double alpha = offsetTime - previousWholeSecond;
 
@@ -228,8 +228,8 @@ void RouteManager::calculateSplitTransformations()
 		SplitTime st1 = defaultRoute.splitTimes.splitTimes.at(i);
 		SplitTime st2 = defaultRoute.splitTimes.splitTimes.at(i + 1);
 
-		int startIndex = (int)round(st1.time + defaultRoute.controlsTimeOffset);
-		int stopIndex = (int)round(st2.time + defaultRoute.controlsTimeOffset);
+		int startIndex = (int)round(st1.time + defaultRoute.controlTimeOffset);
+		int stopIndex = (int)round(st2.time + defaultRoute.controlTimeOffset);
 		int indexMax = (int)defaultRoute.alignedRoutePoints.size() - 1;
 
 		startIndex = std::max(0, std::min(startIndex, indexMax));
@@ -344,8 +344,8 @@ void RouteManager::calculateCurrentSplitTransformation(double currentTime)
 {
 	for (int i = 0; i < (int)defaultRoute.splitTimes.splitTimes.size() - 1; ++i)
 	{
-		double firstSplitOffsetTime = defaultRoute.splitTimes.splitTimes.at(i).time + defaultRoute.controlsTimeOffset;
-		double secondSplitOffsetTime = defaultRoute.splitTimes.splitTimes.at(i + 1).time + defaultRoute.controlsTimeOffset;
+		double firstSplitOffsetTime = defaultRoute.splitTimes.splitTimes.at(i).time + defaultRoute.controlTimeOffset;
+		double secondSplitOffsetTime = defaultRoute.splitTimes.splitTimes.at(i + 1).time + defaultRoute.controlTimeOffset;
 		double runnerOffsetTime = currentTime + defaultRoute.runnerTimeOffset;
 
 		if (runnerOffsetTime >= firstSplitOffsetTime && runnerOffsetTime < secondSplitOffsetTime)

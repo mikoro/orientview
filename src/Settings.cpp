@@ -25,7 +25,7 @@ void Settings::readFromQSettings(QSettings* settings)
 	map.rescaleShader = settings->value("map/rescaleShader", defaultSettings.map.rescaleShader).toString();
 
 	route.quickRouteJpegFilePath = settings->value("route/quickRouteJpegFilePath", defaultSettings.route.quickRouteJpegFilePath).toString();
-	route.controlsTimeOffset = settings->value("route/controlsTimeOffset", defaultSettings.route.controlsTimeOffset).toDouble();
+	route.controlTimeOffset = settings->value("route/controlTimeOffset", defaultSettings.route.controlTimeOffset).toDouble();
 	route.runnerTimeOffset = settings->value("route/runnerTimeOffset", defaultSettings.route.runnerTimeOffset).toDouble();
 	route.scale = settings->value("route/scale", defaultSettings.route.scale).toDouble();
 	route.highPace = settings->value("route/highPace", defaultSettings.route.highPace).toDouble();
@@ -115,7 +115,7 @@ void Settings::writeToQSettings(QSettings* settings)
 	settings->setValue("map/rescaleShader", map.rescaleShader);
 
 	settings->setValue("route/quickRouteJpegFilePath", route.quickRouteJpegFilePath);
-	settings->setValue("route/controlsTimeOffset", route.controlsTimeOffset);
+	settings->setValue("route/controlTimeOffset", route.controlTimeOffset);
 	settings->setValue("route/runnerTimeOffset", route.runnerTimeOffset);
 	settings->setValue("route/scale", route.scale);
 	settings->setValue("route/highPace", route.highPace);
@@ -200,7 +200,7 @@ void Settings::readFromUI(Ui::MainWindow* ui)
 	map.rescaleShader = ui->comboBoxMapPanelRescaleShader->currentText();
 
 	route.quickRouteJpegFilePath = ui->lineEditQuickRouteJpegFile->text();
-	route.controlsTimeOffset = ui->doubleSpinBoxRouteControlsTimeOffset->value();
+	route.controlTimeOffset = ui->doubleSpinBoxRouteControlTimeOffset->value();
 	route.runnerTimeOffset = ui->doubleSpinBoxRouteRunnerTimeOffset->value();
 	route.scale = ui->doubleSpinBoxRouteScale->value();
 	
@@ -253,7 +253,7 @@ void Settings::writeToUI(Ui::MainWindow* ui)
 	ui->comboBoxMapPanelRescaleShader->setCurrentText(map.rescaleShader);
 
 	ui->lineEditQuickRouteJpegFile->setText(route.quickRouteJpegFilePath);
-	ui->doubleSpinBoxRouteControlsTimeOffset->setValue(route.controlsTimeOffset);
+	ui->doubleSpinBoxRouteControlTimeOffset->setValue(route.controlTimeOffset);
 	ui->doubleSpinBoxRouteRunnerTimeOffset->setValue(route.runnerTimeOffset);
 	ui->doubleSpinBoxRouteScale->setValue(route.scale);
 

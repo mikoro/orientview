@@ -34,7 +34,7 @@ namespace OrientView
 		std::vector<SplitTransformation> splitTransformations;
 		SplitTimes splitTimes;
 
-		double controlsTimeOffset = 0.0;
+		double controlTimeOffset = 0.0;
 		double runnerTimeOffset = 0.0;
 		double userScale = 1.0;
 		double highPace = 5.0;
