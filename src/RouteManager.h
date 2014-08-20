@@ -37,6 +37,8 @@ namespace OrientView
 		double controlTimeOffset = 0.0;
 		double runnerTimeOffset = 0.0;
 		double userScale = 1.0;
+		double minimumScale = 0.0;
+		double maximumScale = 9999.0;
 		double highPace = 5.0;
 		double lowPace = 15.0;
 		double topBottomMargin = 30.0;

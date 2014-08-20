@@ -20,6 +20,8 @@ void RouteManager::initialize(QuickRouteReader* quickRouteReader, SplitTimeManag
 	defaultRoute.controlTimeOffset = settings->route.controlTimeOffset;
 	defaultRoute.runnerTimeOffset = settings->route.runnerTimeOffset;
 	defaultRoute.userScale = settings->route.scale;
+	defaultRoute.minimumScale = settings->route.minimumScale;
+	defaultRoute.maximumScale = settings->route.maximumScale;
 	defaultRoute.highPace = settings->route.highPace;
 	defaultRoute.lowPace = settings->route.lowPace;
 	defaultRoute.wholeRouteRenderMode = settings->route.wholeRouteRenderMode;
@@ -293,7 +295,8 @@ void RouteManager::calculateSplitTransformations()
 			double scaleX = (windowWidth * renderer->getMapPanel().relativeWidth) / splitWidth;
 			double scaleY = windowHeight / splitHeight;
 			double finalScale = std::min(scaleX, scaleY);
-			
+			finalScale = std::max(defaultRoute.minimumScale, std::min(finalScale, defaultRoute.maximumScale));
+
  			splitTransformation.x = -middlePoint.x();
 			splitTransformation.y = middlePoint.y();
 			splitTransformation.angle = finalAngle;
