@@ -34,6 +34,8 @@ void Settings::readFromQSettings(QSettings* settings)
 	route.lowPace = settings->value("route/lowPace", defaultSettings.route.lowPace).toDouble();
 	route.topBottomMargin = settings->value("route/topBottomMargin", defaultSettings.route.topBottomMargin).toDouble();
 	route.leftRightMargin = settings->value("route/leftRightMargin", defaultSettings.route.leftRightMargin).toDouble();
+	route.smoothTransitionSpeed = settings->value("route/smoothTransitionSpeed", defaultSettings.route.smoothTransitionSpeed).toDouble();
+	route.useSmoothTransition = settings->value("route/useSmoothTransition", defaultSettings.route.useSmoothTransition).toBool();
 	route.showRunner = settings->value("route/showRunner", defaultSettings.route.showRunner).toBool();
 	route.showControls = settings->value("route/showControls", defaultSettings.route.showControls).toBool();
 	route.wholeRouteRenderMode = (RouteRenderMode)settings->value("route/wholeRouteRenderMode", defaultSettings.route.wholeRouteRenderMode).toInt();
@@ -128,6 +130,8 @@ void Settings::writeToQSettings(QSettings* settings)
 	settings->setValue("route/lowPace", route.lowPace);
 	settings->setValue("route/topBottomMargin", route.topBottomMargin);
 	settings->setValue("route/leftRightMargin", route.leftRightMargin);
+	settings->setValue("route/smoothTransitionSpeed", route.smoothTransitionSpeed);
+	settings->setValue("route/useSmoothTransition", route.useSmoothTransition);
 	settings->setValue("route/showRunner", route.showRunner);
 	settings->setValue("route/showControls", route.showControls);
 	settings->setValue("route/wholeRouteRenderMode", route.wholeRouteRenderMode);

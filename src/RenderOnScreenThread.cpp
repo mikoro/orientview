@@ -61,7 +61,7 @@ void RenderOnScreenThread::run()
 		if (gotFrame)
 			videoStabilizer->processFrame(frameDataGrayscale);
 
-		routeManager->update(videoDecoder->getCurrentTime());
+		routeManager->update(videoDecoder->getCurrentTime(), frameDuration);
 
 		videoWindow->getContext()->makeCurrent(videoWindow);
 		renderer->startRendering(videoDecoder->getCurrentTime(), frameDuration, spareTime, videoDecoder->getLastDecodeTime(), videoStabilizer->getLastProcessTime(), 0.0);

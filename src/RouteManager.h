@@ -45,11 +45,18 @@ namespace OrientView
 		double leftRightMargin = 10.0;
 
 		SplitTransformation currentSplitTransformation;
+		SplitTransformation previousSplitTransformation;
+		SplitTransformation nextSplitTransformation;
+		int currentSplitTransformationIndex = -1;
+		double transitionAlpha = 0.0;
+		double smoothTransitionSpeed = 0.001;
+		bool useSmoothTransition = true;
+		bool transitionInProgress = true;
 
-		RouteRenderMode wholeRouteRenderMode = RouteRenderMode::Normal;
 		bool showRunner = true;
 		bool showControls = true;
 
+		RouteRenderMode wholeRouteRenderMode = RouteRenderMode::Normal;
 		QPainterPath wholeRoutePath;
 		QColor wholeRouteColor = QColor(0, 0, 0, 50);
 		double wholeRouteWidth = 10.0;
@@ -73,7 +80,7 @@ namespace OrientView
 
 		void initialize(QuickRouteReader* quickRouteReader, SplitTimeManager* splitTimeManager, Renderer* renderer, Settings* settings);
 
-		void update(double currentTime);
+		void update(double currentTime, double frameTime);
 		void requestFullUpdate();
 
 		void windowResized(double newWidth, double newHeight);
@@ -93,7 +100,7 @@ namespace OrientView
 		void calculateSplitTransformations();
 		void calculateRoutePointColors();
 		void calculateRunnerPosition(double currentTime);
-		void calculateCurrentSplitTransformation(double currentTime);
+		void calculateCurrentSplitTransformation(double currentTime, double frameTime);
 		QColor interpolateFromGreenToRed(double greenValue, double redValue, double value);
 
 		Renderer* renderer = nullptr;

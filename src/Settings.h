@@ -54,6 +54,8 @@ namespace OrientView
 			double lowPace = 15.0;
 			double topBottomMargin = 30.0;
 			double leftRightMargin = 10.0;
+			double smoothTransitionSpeed = 0.001;
+			bool useSmoothTransition = true;
 			bool showRunner = true;
 			bool showControls = true;
 			RouteRenderMode wholeRouteRenderMode = RouteRenderMode::Normal;

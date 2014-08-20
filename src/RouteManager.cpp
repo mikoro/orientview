@@ -24,9 +24,13 @@ void RouteManager::initialize(QuickRouteReader* quickRouteReader, SplitTimeManag
 	defaultRoute.maximumScale = settings->route.maximumScale;
 	defaultRoute.highPace = settings->route.highPace;
 	defaultRoute.lowPace = settings->route.lowPace;
-	defaultRoute.wholeRouteRenderMode = settings->route.wholeRouteRenderMode;
+	defaultRoute.topBottomMargin = settings->route.topBottomMargin;
+	defaultRoute.leftRightMargin = settings->route.leftRightMargin;
+	defaultRoute.smoothTransitionSpeed = settings->route.smoothTransitionSpeed;
+	defaultRoute.useSmoothTransition = settings->route.useSmoothTransition;
 	defaultRoute.showRunner = settings->route.showRunner;
 	defaultRoute.showControls = settings->route.showControls;
+	defaultRoute.wholeRouteRenderMode = settings->route.wholeRouteRenderMode;
 	defaultRoute.wholeRouteColor = settings->route.wholeRouteColor;
 	defaultRoute.wholeRouteWidth = settings->route.wholeRouteWidth;
 	defaultRoute.controlBorderColor = settings->route.controlBorderColor;
@@ -46,10 +50,10 @@ void RouteManager::initialize(QuickRouteReader* quickRouteReader, SplitTimeManag
 
 	fullUpdateRequested = true;
 
-	update(0);
+	update(0.0, 0.0);
 }
 
-void RouteManager::update(double currentTime)
+void RouteManager::update(double currentTime, double frameTime)
 {
 	if (fullUpdateRequested)
 	{
@@ -60,7 +64,7 @@ void RouteManager::update(double currentTime)
 	}
 
 	calculateRunnerPosition(currentTime);
-	calculateCurrentSplitTransformation(currentTime);
+	calculateCurrentSplitTransformation(currentTime, frameTime);
 }
 
 void RouteManager::requestFullUpdate()
@@ -274,7 +278,7 @@ void RouteManager::calculateSplitTransformations()
 			{
 				// points need to be rotated
 				QPointF position = rotateMatrix.map(defaultRoute.alignedRoutePoints.at(j).position);
-				
+
 				minX = std::min(minX, position.x());
 				maxX = std::max(maxX, position.x());
 				minY = std::min(minY, position.y());
@@ -297,7 +301,7 @@ void RouteManager::calculateSplitTransformations()
 			double finalScale = std::min(scaleX, scaleY);
 			finalScale = std::max(defaultRoute.minimumScale, std::min(finalScale, defaultRoute.maximumScale));
 
- 			splitTransformation.x = -middlePoint.x();
+			splitTransformation.x = -middlePoint.x();
 			splitTransformation.y = middlePoint.y();
 			splitTransformation.angle = finalAngle;
 			splitTransformation.scale = finalScale;
@@ -343,7 +347,7 @@ void RouteManager::calculateRunnerPosition(double currentTime)
 	}
 }
 
-void RouteManager::calculateCurrentSplitTransformation(double currentTime)
+void RouteManager::calculateCurrentSplitTransformation(double currentTime, double frameTime)
 {
 	for (int i = 0; i < (int)defaultRoute.splitTimes.splitTimes.size() - 1; ++i)
 	{
@@ -353,9 +357,42 @@ void RouteManager::calculateCurrentSplitTransformation(double currentTime)
 
 		if (runnerOffsetTime >= firstSplitOffsetTime && runnerOffsetTime < secondSplitOffsetTime)
 		{
-			defaultRoute.currentSplitTransformation = defaultRoute.splitTransformations.at(i);
+			if (i != defaultRoute.currentSplitTransformationIndex)
+			{
+				if (defaultRoute.useSmoothTransition)
+				{
+					defaultRoute.previousSplitTransformation = defaultRoute.currentSplitTransformation;
+					defaultRoute.nextSplitTransformation = defaultRoute.splitTransformations.at(i);
+					defaultRoute.transitionAlpha = 0.0;
+					defaultRoute.transitionInProgress = true;
+				}
+				else
+					defaultRoute.currentSplitTransformation = defaultRoute.splitTransformations.at(i);
+
+				defaultRoute.currentSplitTransformationIndex = i;
+			}
+
 			break;
 		}
+	}
+
+	if (defaultRoute.useSmoothTransition && defaultRoute.transitionInProgress)
+	{
+		if (defaultRoute.transitionAlpha > 1.0)
+		{
+			defaultRoute.transitionAlpha = 1.0;
+			defaultRoute.transitionInProgress = false;
+		}
+
+		double alpha = defaultRoute.transitionAlpha;
+		alpha = alpha * alpha * alpha * (alpha * (alpha * 6 - 15) + 10); // smootherstep
+
+		defaultRoute.currentSplitTransformation.x = (1.0 - alpha) * defaultRoute.previousSplitTransformation.x + alpha * defaultRoute.nextSplitTransformation.x;
+		defaultRoute.currentSplitTransformation.y = (1.0 - alpha) * defaultRoute.previousSplitTransformation.y + alpha * defaultRoute.nextSplitTransformation.y;
+		defaultRoute.currentSplitTransformation.angle = (1.0 - alpha) * defaultRoute.previousSplitTransformation.angle + alpha * defaultRoute.nextSplitTransformation.angle;
+		defaultRoute.currentSplitTransformation.scale = (1.0 - alpha) * defaultRoute.previousSplitTransformation.scale + alpha * defaultRoute.nextSplitTransformation.scale;
+
+		defaultRoute.transitionAlpha += defaultRoute.smoothTransitionSpeed * frameTime;
 	}
 }
 
