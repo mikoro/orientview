@@ -15,6 +15,7 @@ namespace OrientView
 	class VideoDecoder;
 	class VideoDecoderThread;
 	class VideoStabilizer;
+	class RouteManager;
 	class Renderer;
 	class VideoEncoder;
 
@@ -25,7 +26,7 @@ namespace OrientView
 
 	public:
 
-		void initialize(MainWindow* mainWindow, EncodeWindow* encodeWindow, VideoDecoder* videoDecoder, VideoDecoderThread* videoDecoderThread, VideoStabilizer* videoStabilizer, Renderer* renderer, VideoEncoder* videoEncoder);
+		void initialize(MainWindow* mainWindow, EncodeWindow* encodeWindow, VideoDecoder* videoDecoder, VideoDecoderThread* videoDecoderThread, VideoStabilizer* videoStabilizer, RouteManager* routeManager, Renderer* renderer, VideoEncoder* videoEncoder);
 		~RenderOffScreenThread();
 
 		bool tryGetNextFrame(FrameData& frameData, int timeout);
@@ -42,6 +43,7 @@ namespace OrientView
 		VideoDecoder* videoDecoder = nullptr;
 		VideoDecoderThread* videoDecoderThread = nullptr;
 		VideoStabilizer* videoStabilizer = nullptr;
+		RouteManager* routeManager = nullptr;
 		Renderer* renderer = nullptr;
 		VideoEncoder* videoEncoder = nullptr;
 

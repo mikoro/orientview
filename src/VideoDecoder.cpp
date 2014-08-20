@@ -350,18 +350,18 @@ void VideoDecoder::seekRelative(double seconds)
 		qWarning("Could not seek video");
 }
 
-double VideoDecoder::getCurrentTime()
-{
-	QMutexLocker locker(&decoderMutex);
-
-	return currentTimeInSeconds;
-}
-
 bool VideoDecoder::getIsFinished()
 {
 	QMutexLocker locker(&decoderMutex);
 
 	return isFinished;
+}
+
+double VideoDecoder::getCurrentTime()
+{
+	QMutexLocker locker(&decoderMutex);
+
+	return currentTimeInSeconds;
 }
 
 double VideoDecoder::getLastDecodeTime()
@@ -394,4 +394,9 @@ int VideoDecoder::getFrameRateNum() const
 int VideoDecoder::getFrameRateDen() const
 {
 	return frameRateDen;
+}
+
+double VideoDecoder::getFrameDuration() const
+{
+	return (double)frameDuration / 1000.0;
 }

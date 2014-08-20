@@ -9,19 +9,21 @@
 #include "VideoDecoder.h"
 #include "VideoDecoderThread.h"
 #include "VideoStabilizer.h"
+#include "RouteManager.h"
 #include "Renderer.h"
 #include "VideoEncoder.h"
 #include "FrameData.h"
 
 using namespace OrientView;
 
-void RenderOffScreenThread::initialize(MainWindow* mainWindow, EncodeWindow* encodeWindow, VideoDecoder* videoDecoder, VideoDecoderThread* videoDecoderThread, VideoStabilizer* videoStabilizer, Renderer* renderer, VideoEncoder* videoEncoder)
+void RenderOffScreenThread::initialize(MainWindow* mainWindow, EncodeWindow* encodeWindow, VideoDecoder* videoDecoder, VideoDecoderThread* videoDecoderThread, VideoStabilizer* videoStabilizer, RouteManager* routeManager, Renderer* renderer, VideoEncoder* videoEncoder)
 {
 	this->mainWindow = mainWindow;
 	this->encodeWindow = encodeWindow;
 	this->videoDecoder = videoDecoder;
 	this->videoDecoderThread = videoDecoderThread;
 	this->videoStabilizer = videoStabilizer;
+	this->routeManager = routeManager;
 	this->renderer = renderer;
 	this->videoEncoder = videoEncoder;
 
@@ -49,10 +51,8 @@ void RenderOffScreenThread::run()
 	FrameData decodedFrameData;
 	FrameData decodedFrameDataGrayscale;
 	
-	QElapsedTimer frameDurationTimer;
-	double frameDuration = 0.1;
+	double frameDuration = videoDecoder->getFrameDuration();
 
-	frameDurationTimer.start();
 	frameReadSemaphore->release(1);
 
 	while (!isInterruptionRequested())
@@ -60,6 +60,7 @@ void RenderOffScreenThread::run()
 		if (videoDecoderThread->tryGetNextFrame(decodedFrameData, decodedFrameDataGrayscale, 100))
 		{
 			videoStabilizer->processFrame(decodedFrameDataGrayscale);
+			routeManager->update(videoDecoder->getCurrentTime(), frameDuration);
 
 			encodeWindow->getContext()->makeCurrent(encodeWindow->getSurface());
 			renderer->startRendering(videoDecoder->getCurrentTime(), frameDuration, 0.0, videoDecoder->getLastDecodeTime(), videoStabilizer->getLastProcessTime(), videoEncoder->getLastEncodeTime());
@@ -78,9 +79,6 @@ void RenderOffScreenThread::run()
 			renderedFrameData.cumulativeNumber = decodedFrameData.cumulativeNumber;
 
 			frameAvailableSemaphore->release(1);
-
-			frameDuration = frameDurationTimer.nsecsElapsed() / 1000000.0;
-			frameDurationTimer.restart();
 		}
 	}
 

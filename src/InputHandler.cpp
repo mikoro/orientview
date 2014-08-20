@@ -118,6 +118,16 @@ void InputHandler::handleInput(double frameTime)
 	translateVelocity *= frameTime;
 	rotateVelocity *= frameTime;
 
+	if (videoWindow->keyIsDown(Qt::Key_Backspace))
+	{
+		mapPanel.userX = videoPanel.userX = 0.0;
+		mapPanel.userY = videoPanel.userY = 0.0;
+		mapPanel.userAngle = videoPanel.userAngle = 0.0;
+		mapPanel.userScale = videoPanel.userScale = 1.0;
+
+		renderer->requestFullClear();
+	}
+
 	if (scrollMode == ScrollMode::None)
 	{
 		if (keyIsDownWithRepeat(Qt::Key_Left, seekBackwardRepeatHandler))
@@ -135,16 +145,6 @@ void InputHandler::handleInput(double frameTime)
 			renderOnScreenThread->advanceOneFrame();
 			videoStabilizer->reset();
 		}
-	}
-
-	if (videoWindow->keyIsDown(Qt::Key_Backspace))
-	{
-		mapPanel.userX = videoPanel.userX = 0.0;
-		mapPanel.userY = videoPanel.userY = 0.0;
-		mapPanel.userAngle = videoPanel.userAngle = 0.0;
-		mapPanel.userScale = videoPanel.userScale = 1.0;
-
-		renderer->requestFullClear();
 	}
 
 	if (scrollMode == ScrollMode::Map)
