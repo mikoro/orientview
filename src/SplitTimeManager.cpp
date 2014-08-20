@@ -13,9 +13,9 @@ void SplitTimeManager::initialize(Settings* settings)
 
 	double totalTime = 0.0;
 
-	for (int i = 0; i < timeStrings.size(); ++i)
+	for (const QString& timeString : timeStrings)
 	{
-		QStringList timeParts = timeStrings.at(i).split(QRegExp("[.:]"), QString::SkipEmptyParts);
+		QStringList timeParts = timeString.split(QRegExp("[.:]"), QString::SkipEmptyParts);
 
 		double hours = 0.0;
 		double minutes = 0.0;

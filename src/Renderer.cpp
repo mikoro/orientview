@@ -592,8 +592,8 @@ void Renderer::renderRoute(const Route& route)
 		painter->setPen(controlPen);
 		painter->setBrush(Qt::NoBrush);
 
-		for (size_t i = 0; i < routeManager->getDefaultRoute().controlPositions.size(); ++i)
-			painter->drawEllipse(routeManager->getDefaultRoute().controlPositions.at(i), controlRadius, controlRadius);
+		for (const QPointF& controlPosition : routeManager->getDefaultRoute().controlPositions)
+			painter->drawEllipse(controlPosition, controlRadius, controlRadius);
 	}
 
 	if (route.showRunner)

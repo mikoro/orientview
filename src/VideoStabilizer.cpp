@@ -105,10 +105,10 @@ FramePosition VideoStabilizer::calculateCumulativeFramePosition(const FrameData&
 	// filter out points which didn't have a good match
 	for (size_t i = 0; i < opticalFlowStatus.size(); i++)
 	{
-		if (opticalFlowStatus[i])
+		if (opticalFlowStatus.at(i) != 0)
 		{
-			previousCornersFiltered.push_back(previousCorners[i]);
-			currentCornersFiltered.push_back(currentCorners[i]);
+			previousCornersFiltered.push_back(previousCorners.at(i));
+			currentCornersFiltered.push_back(currentCorners.at(i));
 		}
 	}
 
@@ -172,7 +172,7 @@ void VideoStabilizer::convertCumulativeFramePositionsToNormalized(QFile& fileIn,
 
 	for (int i = 1; i < lines.size(); ++i)
 	{
-		QStringList parts = lines[i].split(';');
+		QStringList parts = lines.at(i).split(';');
 
 		if (parts.size() == 4)
 		{
@@ -200,7 +200,7 @@ void VideoStabilizer::convertCumulativeFramePositionsToNormalized(QFile& fileIn,
 		{
 			if ((i + j) >= 0 && (i + j) < (int)positions.size())
 			{
-				FramePosition fp = positions[i + j];
+				FramePosition fp = positions.at(i + j);
 
 				sumX += fp.x;
 				sumY += fp.y;
@@ -214,7 +214,7 @@ void VideoStabilizer::convertCumulativeFramePositionsToNormalized(QFile& fileIn,
 		double averageY = sumY / (double)sumCount;
 		double averageAngle = sumAngle / (double)sumCount;
 
-		FramePosition currentFp = positions[i];
+		FramePosition currentFp = positions.at(i);
 		FramePosition normalizedFp;
 
 		normalizedFp.x = averageX - currentFp.x;
@@ -245,7 +245,7 @@ bool VideoStabilizer::readNormalizedFramePositions(const QString& fileName)
 
 	for (int i = 1; i < lines.size(); ++i)
 	{
-		QStringList parts = lines[i].split(';');
+		QStringList parts = lines.at(i).split(';');
 
 		if (parts.size() == 10)
 		{
