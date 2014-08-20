@@ -17,7 +17,7 @@ namespace OrientView
 	class Renderer;
 	class Settings;
 
-	enum class EditMode { None, Video, Map };
+	enum class ScrollMode { None, Map, Video };
 
 	struct RepeatHandler
 	{
@@ -35,7 +35,7 @@ namespace OrientView
 		void initialize(VideoWindow* videoWindow, Renderer* renderer, VideoDecoder* videoDecoder, VideoDecoderThread* videoDecoderThread, VideoStabilizer* videoStabilizer, RouteManager* routeManager, RenderOnScreenThread* renderOnScreenThread, Settings* settings);
 		void handleInput(double frameTime);
 
-		EditMode getEditMode() const;
+		ScrollMode getScrollMode() const;
 
 	private:
 
@@ -50,7 +50,7 @@ namespace OrientView
 		RenderOnScreenThread* renderOnScreenThread = nullptr;
 		Settings* settings = nullptr;
 
-		EditMode editMode = EditMode::None;
+		ScrollMode scrollMode = ScrollMode::None;
 
 		const int firstRepeatDelay = 800;
 		const int repeatDelay = 50;

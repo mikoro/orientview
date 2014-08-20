@@ -664,7 +664,7 @@ void Renderer::renderInfoPanel()
 	textY += lineSpacing;
 
 	painter->drawText(textX, textY += lineSpacing, lineWidth1, lineHeight, 0, "render:");
-	painter->drawText(textX, textY += lineSpacing, lineWidth1, lineHeight, 0, "edit:");
+	painter->drawText(textX, textY += lineSpacing, lineWidth1, lineHeight, 0, "scroll:");
 
 	textY += lineSpacing;
 
@@ -705,28 +705,28 @@ void Renderer::renderInfoPanel()
 	}
 
 	QString renderText;
-	QString editText;
+	QString scrollText;
 
 	switch (renderMode)
 	{
 		case RenderMode::All: renderText = "both"; break;
-		case RenderMode::Video: renderText = "video"; break;
 		case RenderMode::Map: renderText = "map"; break;
+		case RenderMode::Video: renderText = "video"; break;
 		default: renderText = "unknown"; break;
 	}
 
-	switch (inputHandler->getEditMode())
+	switch (inputHandler->getScrollMode())
 	{
-		case EditMode::None: editText = "none"; break;
-		case EditMode::Video: editText = "video"; break;
-		case EditMode::Map: editText = "map"; break;
-		default: editText = "unknown"; break;
+		case ScrollMode::None: scrollText = "none"; break;
+		case ScrollMode::Map: scrollText = "map"; break;
+		case ScrollMode::Video: scrollText = "video"; break;
+		default: scrollText = "unknown"; break;
 	}
 
 	textY += lineSpacing;
 
 	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, renderText);
-	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, editText);
+	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, scrollText);
 
 	textY += lineSpacing;
 
