@@ -48,37 +48,40 @@ For testing out the program, you can also [download test data](https://mega.co.n
 
 ### Controls
 
-| Key       | Action                                                         |
-|-----------|----------------------------------------------------------------|
-| **Left**      | Seek video backwards <br> Move selected panel left         |
-| **Right**     | Seek video forwards <br> Move selected panel left          |
-| **Up**        | Move selected panel up                                     |
-| **Down**      | Move selected panel down                                   |
+| Key           | Action                                                     |
+|---------------|------------------------------------------------------------|
+| **F1**        | Toggle info panel on/off                                   |
+| **F2**        | Select map/video/none for scrolling                        |
+| **F3**        | Select render mode (map/video/all)                         |
+| **F4**        | Select route render mode (normal/pace/none)                |
+| **F5**        | Toggle runner on/off                                       |
+| **F6**        | Toggle controls on/off                                     |
+| **F7**        | Toggle video stabilizer on/off                             |
 | **Space**     | Pause or resume video <br> Ctrl + Space advances one frame |
-| **Backspace** | Reset selected panel to defaults                           |
 | **Ctrl**      | Slow/small modifier                                        |
 | **Shift**     | Fast/large modifier                                        |
 | **Alt**       | Very fast/large modifier                                   |
-| **Q**         | Zoom in selected panel                                     |
-| **A**         | Zoom out selected panel                                    |
-| **W**         | Rotate selected panel counterclockwise                     |
-| **S**         | Rotate selected panel clockwise                            |
-| **E**         | Increase map panel relative width                          |
-| **D**         | Decrease map panel relative width                          |
-| **R**         | Increase route scale                                       |
-| **F**         | Decrease route scale                                       |
-| **T**         | Increase control time offset                               |
-| **G**         | Decrease control time offset                               |
-| **Y**         | Increase runner time offset                                |
-| **H**         | Decrease runner time offset                                |
-| **F1**        | Toggle info panel on/off                                   |
-| **F2**        | Cycle rendering modes                                      |
-| **F3**        | Cycle route rendering modes                                |
-| **F4**        | Toggle runner on/off                                       |
-| **F5**        | Toggle controls on/off                                     |
-| **F9**        | Toggle video stabilizer on/off                             |
-| **F10**       | Cycle selected panel                                       |
-
+| **Backspace** | Reset all user transformations to default                  |
+| **Left**      | Seek video backwards <br> Scroll map/video left            |
+| **Right**     | Seek video forwards <br> Scroll map/video right            |
+| **Up**        | Scroll map/video up                                        |
+| **Down**      | Scroll map/video down                                      |
+| **Q**         | Zoom map in                                                |
+| **A**         | Zoom map out                                               |
+| **W**         | Rotate map counterclockwise                                |
+| **S**         | Rotate map clockwise                                       |
+| **E**         | Increase map width                                         |
+| **D**         | Decrease map width                                         |
+| **R**         | Zoom video in                                              |
+| **F**         | Zoom video out                                             |
+| **T**         | Rotate video counterclockwise                              |
+| **G**         | Rotate video clockwise                                     |
+| **Page Up**   | Increase runner offset                                     |
+| **Page Down** | Decrease runner offset                                     |
+| **Home**      | Increase control offset                                    |
+| **End**       | Decrease control offset                                    |
+| **Insert**    | Increase route scale                                       |
+| **Delete**    | Decrease route scale                                       |
 
 ### Misc
 
