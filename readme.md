@@ -18,7 +18,7 @@ Download the latest version:
 | [orientview-1.0.0-win.msi](https://github.com/mikoro/orientview/releases/download/v1.0.0/orientview-1.0.0-win.msi) | [orientview-1.0.0-linux.tar.gz](https://github.com/mikoro/orientview/releases/download/v1.0.0/orientview-1.0.0-linux.tar.gz) |
 | [orientview-1.0.0-win.zip](https://github.com/mikoro/orientview/releases/download/v1.0.0/orientview-1.0.0-win.zip) |                                                                                                                              | 
 
-For testing out the program, you can also [download test data](https://mega.co.nz/#F!nM1gHbZJ).
+For testing out the program, you can also [download test data](https://mega.co.nz/#F!nM1gHbZJ!pvFqf3UOrHrmMyuUTlMSrg).
 
 ## Features
 
