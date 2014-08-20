@@ -57,54 +57,55 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCompsComponent">
     <ROW Component="ProductInformation" ComponentId="{2647BC60-8C76-4508-862B-07833AD37CEE}" Directory_="APPDIR" Attributes="4" KeyPath="Version"/>
-    <ROW Component="Qt5Core.dll" ComponentId="{555593EC-A364-489B-B149-F8C413EFF1EC}" Directory_="Qt5Core.dll_Dir" Attributes="256" KeyPath="Qt5Core.dll"/>
-    <ROW Component="Qt5Core.dll.manifest" ComponentId="{2DF1AC4B-2AFC-43AD-9D26-6B74B11DC3CD}" Directory_="Qt5Core.dll_Dir" Attributes="0" KeyPath="Qt5Core.dll.manifest" Type="0"/>
-    <ROW Component="Qt5Gui.dll" ComponentId="{3A816686-BBCC-4FEC-AF0B-B322EE3DBD03}" Directory_="Qt5Gui.dll_Dir" Attributes="256" KeyPath="Qt5Gui.dll"/>
-    <ROW Component="Qt5Gui.dll.manifest" ComponentId="{CBE82032-F6DC-4CE0-AEB9-3025E9A022A9}" Directory_="Qt5Gui.dll_Dir" Attributes="0" KeyPath="Qt5Gui.dll.manifest" Type="0"/>
-    <ROW Component="Qt5Widgets.dll" ComponentId="{AFF2FB20-956C-4061-93B4-ADAA7361C228}" Directory_="Qt5Widgets.dll_Dir" Attributes="256" KeyPath="Qt5Widgets.dll"/>
-    <ROW Component="Qt5Widgets.dll.manifest" ComponentId="{0CB08280-9DD0-43E2-878E-41D59A373440}" Directory_="Qt5Widgets.dll_Dir" Attributes="0" KeyPath="Qt5Widgets.dll.manifest" Type="0"/>
+    <ROW Component="Qt5Core.dll" ComponentId="{00924B34-F970-4DE6-BDDA-90428C50F6D4}" Directory_="Qt5Core.dll_Dir" Attributes="256" KeyPath="Qt5Core.dll"/>
+    <ROW Component="Qt5Core.dll.manifest" ComponentId="{4F14C954-0D30-4453-BB6D-65B83BE31F63}" Directory_="Qt5Core.dll_Dir" Attributes="0" KeyPath="Qt5Core.dll.manifest" Type="0"/>
+    <ROW Component="Qt5Gui.dll" ComponentId="{5E165AE9-BE6F-41B9-B27F-EDCCC1B0A946}" Directory_="Qt5Gui.dll_Dir" Attributes="256" KeyPath="Qt5Gui.dll"/>
+    <ROW Component="Qt5Gui.dll.manifest" ComponentId="{4B48ABCC-D416-4412-A20A-EA00A7C0FD3D}" Directory_="Qt5Gui.dll_Dir" Attributes="0" KeyPath="Qt5Gui.dll.manifest" Type="0"/>
+    <ROW Component="Qt5Widgets.dll" ComponentId="{62C5D7BF-D228-44B8-A3C8-1609B977FC7F}" Directory_="Qt5Widgets.dll_Dir" Attributes="256" KeyPath="Qt5Widgets.dll"/>
+    <ROW Component="Qt5Widgets.dll.manifest" ComponentId="{6A4E2B40-7410-44E7-B36F-4E07AAE4E3A3}" Directory_="Qt5Widgets.dll_Dir" Attributes="0" KeyPath="Qt5Widgets.dll.manifest" Type="0"/>
     <ROW Component="SHORTCUTDIR" ComponentId="{EA3C3580-2E5E-4052-8285-C62C13165779}" Directory_="SHORTCUTDIR" Attributes="0"/>
-    <ROW Component="avcodec55.dll" ComponentId="{C4ABCC61-D32D-4715-BE6D-CAD378636DC7}" Directory_="avcodec55.dll_Dir" Attributes="256" KeyPath="avcodec55.dll"/>
-    <ROW Component="avcodec55.dll.manifest" ComponentId="{084C625B-818B-478D-9F2F-A637991EA17C}" Directory_="avcodec55.dll_Dir" Attributes="0" KeyPath="avcodec55.dll.manifest" Type="0"/>
-    <ROW Component="avformat55.dll" ComponentId="{872DF64E-220A-4061-B46A-E0F7D671470B}" Directory_="avformat55.dll_Dir" Attributes="256" KeyPath="avformat55.dll"/>
-    <ROW Component="avformat55.dll.manifest" ComponentId="{A057560E-6DCF-4B7E-A44E-FDC20C4A5095}" Directory_="avformat55.dll_Dir" Attributes="0" KeyPath="avformat55.dll.manifest" Type="0"/>
-    <ROW Component="avutil52.dll" ComponentId="{2F5B173C-82EF-4D0E-B6E0-82E10481277B}" Directory_="avutil52.dll_Dir" Attributes="256" KeyPath="avutil52.dll"/>
-    <ROW Component="avutil52.dll.manifest" ComponentId="{7410F927-AB7C-4709-ABC7-01565B00E552}" Directory_="avutil52.dll_Dir" Attributes="0" KeyPath="avutil52.dll.manifest" Type="0"/>
-    <ROW Component="bicubic.frag" ComponentId="{0866BDE9-D80F-4B10-AD5D-7687BE070F79}" Directory_="shaders_Dir" Attributes="0" KeyPath="bicubic.frag" Type="0"/>
-    <ROW Component="dejavusansbold.ttf" ComponentId="{E3E9F8BB-CAC1-49E4-86FB-F85DD9FBE5DF}" Directory_="fonts_Dir" Attributes="0" Type="0"/>
-    <ROW Component="icudt52.dll" ComponentId="{58EE21CC-CF98-4E21-8CFD-6157AE482EF7}" Directory_="icudt52.dll_Dir" Attributes="256" KeyPath="icudt52.dll"/>
-    <ROW Component="icudt52.dll.manifest" ComponentId="{1DA73E32-8962-439F-B509-571CF3B80E94}" Directory_="icudt52.dll_Dir" Attributes="0" KeyPath="icudt52.dll.manifest" Type="0"/>
-    <ROW Component="icuin52.dll" ComponentId="{EC705AEF-A6D2-48D5-8286-327CEA7A290A}" Directory_="icuin52.dll_Dir" Attributes="256" KeyPath="icuin52.dll"/>
-    <ROW Component="icuin52.dll.manifest" ComponentId="{BA1505EF-5304-4E3B-8E5A-30360D827857}" Directory_="icuin52.dll_Dir" Attributes="0" KeyPath="icuin52.dll.manifest" Type="0"/>
-    <ROW Component="icuuc52.dll" ComponentId="{24E35FEA-21C8-4EA5-9469-52B82D9CAC5C}" Directory_="icuuc52.dll_Dir" Attributes="256" KeyPath="icuuc52.dll"/>
-    <ROW Component="icuuc52.dll.manifest" ComponentId="{77A0B8DF-0F04-4C39-B4E2-FD236C62C718}" Directory_="icuuc52.dll_Dir" Attributes="0" KeyPath="icuuc52.dll.manifest" Type="0"/>
-    <ROW Component="liblsmash.dll" ComponentId="{BF3363A0-A9FA-4BBD-9F15-53C5EF85F4FF}" Directory_="liblsmash.dll_Dir" Attributes="256" KeyPath="liblsmash.dll"/>
-    <ROW Component="liblsmash.dll.manifest" ComponentId="{570A6B94-B695-40CA-9037-E23106B5C623}" Directory_="liblsmash.dll_Dir" Attributes="0" KeyPath="liblsmash.dll.manifest" Type="0"/>
-    <ROW Component="libx264142.dll" ComponentId="{488D8198-3BEA-4714-919A-1DAC6E85B715}" Directory_="libx264142.dll_Dir" Attributes="256" KeyPath="libx264142.dll"/>
-    <ROW Component="libx264142.dll.manifest" ComponentId="{88BAC70A-A0BD-4333-B160-E1117F42903A}" Directory_="libx264142.dll_Dir" Attributes="0" KeyPath="libx264142.dll.manifest" Type="0"/>
-    <ROW Component="msvcp120.dll" ComponentId="{6920AAF2-D004-4F7C-9710-8481CD583631}" Directory_="msvcp120.dll_Dir" Attributes="256" KeyPath="msvcp120.dll"/>
-    <ROW Component="msvcp120.dll.manifest" ComponentId="{080687D2-15E2-400B-9C4A-731130C0D3CA}" Directory_="msvcp120.dll_Dir" Attributes="0" KeyPath="msvcp120.dll.manifest" Type="0"/>
-    <ROW Component="msvcr120.dll" ComponentId="{A2FAA37E-5431-4DDB-B63A-6642F7C2696F}" Directory_="msvcr120.dll_Dir" Attributes="256" KeyPath="msvcr120.dll"/>
-    <ROW Component="msvcr120.dll.manifest" ComponentId="{77861F45-5746-44DA-A0DA-6823C3C9212A}" Directory_="msvcr120.dll_Dir" Attributes="0" KeyPath="msvcr120.dll.manifest" Type="0"/>
-    <ROW Component="opencv_core249.dll" ComponentId="{267646C5-D147-492C-87F8-E6E73179DB33}" Directory_="opencv_core249.dll_Dir" Attributes="256" KeyPath="opencv_core249.dll"/>
-    <ROW Component="opencv_core249.dll.manifest" ComponentId="{5065F5C8-A985-4E96-9C67-98A6C68A12F9}" Directory_="opencv_core249.dll_Dir" Attributes="0" KeyPath="opencv_core249.dll.manifest" Type="0"/>
-    <ROW Component="opencv_imgproc249.dll" ComponentId="{D3755576-B96B-45FB-8BEC-2091F58F0884}" Directory_="opencv_imgproc249.dll_Dir" Attributes="256" KeyPath="opencv_imgproc249.dll"/>
-    <ROW Component="opencv_imgproc249.dll.manifest" ComponentId="{785500D6-304A-41DF-B9C9-2F739FF2D861}" Directory_="opencv_imgproc249.dll_Dir" Attributes="0" KeyPath="opencv_imgproc249.dll.manifest" Type="0"/>
-    <ROW Component="opencv_photo249.dll" ComponentId="{6C188DE3-8791-4B3D-9050-91890A4D3DF3}" Directory_="opencv_photo249.dll_Dir" Attributes="256" KeyPath="opencv_photo249.dll"/>
-    <ROW Component="opencv_photo249.dll.manifest" ComponentId="{5D944704-8203-491A-AE0A-C92795891013}" Directory_="opencv_photo249.dll_Dir" Attributes="0" KeyPath="opencv_photo249.dll.manifest" Type="0"/>
-    <ROW Component="opencv_video249.dll" ComponentId="{DC3A6F85-18A6-4DFF-A0CB-4DBC2455C65B}" Directory_="opencv_video249.dll_Dir" Attributes="256" KeyPath="opencv_video249.dll"/>
-    <ROW Component="opencv_video249.dll.manifest" ComponentId="{04716D49-2CA6-4BD2-8B07-4F8AFBF108C9}" Directory_="opencv_video249.dll_Dir" Attributes="0" KeyPath="opencv_video249.dll.manifest" Type="0"/>
+    <ROW Component="avcodec55.dll" ComponentId="{83F0A680-11BC-41CB-89DD-C401DEDF946F}" Directory_="avcodec55.dll_Dir" Attributes="256" KeyPath="avcodec55.dll"/>
+    <ROW Component="avcodec55.dll.manifest" ComponentId="{A2645AC6-F9AE-4876-B200-085726E32D6A}" Directory_="avcodec55.dll_Dir" Attributes="0" KeyPath="avcodec55.dll.manifest" Type="0"/>
+    <ROW Component="avformat55.dll" ComponentId="{570E84F3-DEEA-42A7-BEF0-09F4FC9CC181}" Directory_="avformat55.dll_Dir" Attributes="256" KeyPath="avformat55.dll"/>
+    <ROW Component="avformat55.dll.manifest" ComponentId="{F81DCF50-0CF3-4B97-B982-3B11A145577B}" Directory_="avformat55.dll_Dir" Attributes="0" KeyPath="avformat55.dll.manifest" Type="0"/>
+    <ROW Component="avutil52.dll" ComponentId="{3CD99113-5AEA-4542-A3F6-0684E033884B}" Directory_="avutil52.dll_Dir" Attributes="256" KeyPath="avutil52.dll"/>
+    <ROW Component="avutil52.dll.manifest" ComponentId="{9609FD48-2186-44B0-917D-684B832F08A2}" Directory_="avutil52.dll_Dir" Attributes="0" KeyPath="avutil52.dll.manifest" Type="0"/>
+    <ROW Component="bicubic.frag" ComponentId="{99BAA0B6-9531-4D34-9031-38D1F62FF590}" Directory_="shaders_Dir" Attributes="0" KeyPath="bicubic.frag" Type="0"/>
+    <ROW Component="dejavusansbold.ttf" ComponentId="{A9211F38-9314-480A-BA02-B56FD042668D}" Directory_="fonts_Dir" Attributes="0" Type="0"/>
+    <ROW Component="icudt52.dll" ComponentId="{EFA91809-EE51-44EA-8DB9-D2BDA55D2469}" Directory_="icudt52.dll_Dir" Attributes="256" KeyPath="icudt52.dll"/>
+    <ROW Component="icudt52.dll.manifest" ComponentId="{AC4E2CCB-1ACA-4E8A-AAE5-20F66765455A}" Directory_="icudt52.dll_Dir" Attributes="0" KeyPath="icudt52.dll.manifest" Type="0"/>
+    <ROW Component="icuin52.dll" ComponentId="{B3DD36DA-DE7D-4225-9899-542F5D21568D}" Directory_="icuin52.dll_Dir" Attributes="256" KeyPath="icuin52.dll"/>
+    <ROW Component="icuin52.dll.manifest" ComponentId="{307AD1BF-0E80-4921-8837-723168535BB1}" Directory_="icuin52.dll_Dir" Attributes="0" KeyPath="icuin52.dll.manifest" Type="0"/>
+    <ROW Component="icuuc52.dll" ComponentId="{616EFC52-41D7-4A22-8214-E3EE3E9DDED6}" Directory_="icuuc52.dll_Dir" Attributes="256" KeyPath="icuuc52.dll"/>
+    <ROW Component="icuuc52.dll.manifest" ComponentId="{38922D3A-FFB2-4348-A878-052EDA464F89}" Directory_="icuuc52.dll_Dir" Attributes="0" KeyPath="icuuc52.dll.manifest" Type="0"/>
+    <ROW Component="liblsmash.dll" ComponentId="{ED2549A6-9CDA-4189-A64E-A9B38C3FC13C}" Directory_="liblsmash.dll_Dir" Attributes="256" KeyPath="liblsmash.dll"/>
+    <ROW Component="liblsmash.dll.manifest" ComponentId="{E6E85168-160B-41A1-A3F4-00B71A8C77D4}" Directory_="liblsmash.dll_Dir" Attributes="0" KeyPath="liblsmash.dll.manifest" Type="0"/>
+    <ROW Component="libx264142.dll" ComponentId="{1776B75A-2C5F-42EA-ADE8-F070E459F00A}" Directory_="libx264142.dll_Dir" Attributes="256" KeyPath="libx264142.dll"/>
+    <ROW Component="libx264142.dll.manifest" ComponentId="{0386036D-E96A-4A80-849A-D1AB718AFF43}" Directory_="libx264142.dll_Dir" Attributes="0" KeyPath="libx264142.dll.manifest" Type="0"/>
+    <ROW Component="msvcp120.dll" ComponentId="{11FD763D-083C-4CFA-A309-BF8F5A553913}" Directory_="msvcp120.dll_Dir" Attributes="256" KeyPath="msvcp120.dll"/>
+    <ROW Component="msvcp120.dll.manifest" ComponentId="{8B35FE86-672F-4E1B-A361-C73F8AB200F4}" Directory_="msvcp120.dll_Dir" Attributes="0" KeyPath="msvcp120.dll.manifest" Type="0"/>
+    <ROW Component="msvcr120.dll" ComponentId="{A1DE90F2-988C-4973-959D-2D3D11C32575}" Directory_="msvcr120.dll_Dir" Attributes="256" KeyPath="msvcr120.dll"/>
+    <ROW Component="msvcr120.dll.manifest" ComponentId="{1962654C-52B6-43D6-AFF7-364848CB0EC1}" Directory_="msvcr120.dll_Dir" Attributes="0" KeyPath="msvcr120.dll.manifest" Type="0"/>
+    <ROW Component="opencv_core249.dll" ComponentId="{EF03E542-D7DF-4DB4-9280-4C4A09F830D1}" Directory_="opencv_core249.dll_Dir" Attributes="256" KeyPath="opencv_core249.dll"/>
+    <ROW Component="opencv_core249.dll.manifest" ComponentId="{0B03283F-43AB-458C-9A33-11AFA0BFB3FD}" Directory_="opencv_core249.dll_Dir" Attributes="0" KeyPath="opencv_core249.dll.manifest" Type="0"/>
+    <ROW Component="opencv_imgproc249.dll" ComponentId="{3BDC195A-D3C1-473A-A85B-C224C2DB526A}" Directory_="opencv_imgproc249.dll_Dir" Attributes="256" KeyPath="opencv_imgproc249.dll"/>
+    <ROW Component="opencv_imgproc249.dll.manifest" ComponentId="{741B185C-EFC7-4971-80F8-DD712FD6A4F5}" Directory_="opencv_imgproc249.dll_Dir" Attributes="0" KeyPath="opencv_imgproc249.dll.manifest" Type="0"/>
+    <ROW Component="opencv_photo249.dll" ComponentId="{8D43AC58-30DA-4243-B021-728B83731A95}" Directory_="opencv_photo249.dll_Dir" Attributes="256" KeyPath="opencv_photo249.dll"/>
+    <ROW Component="opencv_photo249.dll.manifest" ComponentId="{738E61A9-3371-4479-9340-E8FE4C1506D0}" Directory_="opencv_photo249.dll_Dir" Attributes="0" KeyPath="opencv_photo249.dll.manifest" Type="0"/>
+    <ROW Component="opencv_video249.dll" ComponentId="{A87023DC-6453-4B7C-A485-0E54E30DEC61}" Directory_="opencv_video249.dll_Dir" Attributes="256" KeyPath="opencv_video249.dll"/>
+    <ROW Component="opencv_video249.dll.manifest" ComponentId="{B23C0BA7-0D0D-4612-9CAF-C41140717E74}" Directory_="opencv_video249.dll_Dir" Attributes="0" KeyPath="opencv_video249.dll.manifest" Type="0"/>
     <ROW Component="orientview.exe" ComponentId="{28A6F483-566F-4A80-924D-E28D233F2819}" Directory_="APPDIR" Attributes="256" KeyPath="orientview.exe"/>
     <ROW Component="orientview.exe.config" ComponentId="{AAD6BE5F-77A4-4B48-B02C-8FBAA5D2D82F}" Directory_="APPDIR" Attributes="0" KeyPath="orientview.exe.config" Type="0"/>
-    <ROW Component="qjpeg.dll" ComponentId="{87F6E5E8-9CBC-4CC3-B925-02DC2A747F53}" Directory_="imageformats_Dir" Attributes="256" KeyPath="qjpeg.dll"/>
-    <ROW Component="qwindows.dll" ComponentId="{0539E11E-BD60-4616-B797-CA837E1506CB}" Directory_="platforms_Dir" Attributes="256" KeyPath="qwindows.dll"/>
-    <ROW Component="swresample0.dll" ComponentId="{0A70DD85-47C0-4870-9B5B-F612FD523831}" Directory_="swresample0.dll_Dir" Attributes="256" KeyPath="swresample0.dll"/>
-    <ROW Component="swresample0.dll.manifest" ComponentId="{FE0CA2C4-425E-4518-AC50-17ED57AEB7C9}" Directory_="swresample0.dll_Dir" Attributes="0" KeyPath="swresample0.dll.manifest" Type="0"/>
-    <ROW Component="swscale2.dll" ComponentId="{EDDA02BA-6986-41C3-BA11-2452C5C52445}" Directory_="swscale2.dll_Dir" Attributes="256" KeyPath="swscale2.dll"/>
-    <ROW Component="swscale2.dll.manifest" ComponentId="{EF1DB86F-6A31-47E9-9C36-029F480FCCA3}" Directory_="swscale2.dll_Dir" Attributes="0" KeyPath="swscale2.dll.manifest" Type="0"/>
+    <ROW Component="qjpeg.dll" ComponentId="{1A9412F1-383E-47E4-AAA5-9F3249764D96}" Directory_="imageformats_Dir" Attributes="256" KeyPath="qjpeg.dll"/>
+    <ROW Component="qtiff.dll" ComponentId="{EF2D919C-3965-408F-8254-B33860B8DD52}" Directory_="imageformats_Dir" Attributes="256" KeyPath="qtiff.dll"/>
+    <ROW Component="qwindows.dll" ComponentId="{D00234E8-3C0E-4363-B95A-4FA7D8BACF9E}" Directory_="platforms_Dir" Attributes="256" KeyPath="qwindows.dll"/>
+    <ROW Component="swresample0.dll" ComponentId="{E2A3B04A-ECE3-4E7A-8D4C-09902A7BDC5E}" Directory_="swresample0.dll_Dir" Attributes="256" KeyPath="swresample0.dll"/>
+    <ROW Component="swresample0.dll.manifest" ComponentId="{8690E512-BF29-417E-B22D-F2C5BA37137F}" Directory_="swresample0.dll_Dir" Attributes="0" KeyPath="swresample0.dll.manifest" Type="0"/>
+    <ROW Component="swscale2.dll" ComponentId="{C03B4804-AC6B-4D35-97F9-5D6384B8DCAE}" Directory_="swscale2.dll_Dir" Attributes="256" KeyPath="swscale2.dll"/>
+    <ROW Component="swscale2.dll.manifest" ComponentId="{5944CB2B-48B1-4F28-9AC4-81842D1B99E9}" Directory_="swscale2.dll_Dir" Attributes="0" KeyPath="swscale2.dll.manifest" Type="0"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatsComponent">
-    <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="1" Level="1" Directory_="APPDIR" Attributes="0" Components="ProductInformation Qt5Core.dll Qt5Core.dll.manifest Qt5Gui.dll Qt5Gui.dll.manifest Qt5Widgets.dll Qt5Widgets.dll.manifest SHORTCUTDIR avcodec55.dll avcodec55.dll.manifest avformat55.dll avformat55.dll.manifest avutil52.dll avutil52.dll.manifest bicubic.frag dejavusansbold.ttf icudt52.dll icudt52.dll.manifest icuin52.dll icuin52.dll.manifest icuuc52.dll icuuc52.dll.manifest liblsmash.dll liblsmash.dll.manifest libx264142.dll libx264142.dll.manifest msvcp120.dll msvcp120.dll.manifest msvcr120.dll msvcr120.dll.manifest opencv_core249.dll opencv_core249.dll.manifest opencv_imgproc249.dll opencv_imgproc249.dll.manifest opencv_photo249.dll opencv_photo249.dll.manifest opencv_video249.dll opencv_video249.dll.manifest orientview.exe orientview.exe.config qjpeg.dll qwindows.dll swresample0.dll swresample0.dll.manifest swscale2.dll swscale2.dll.manifest"/>
+    <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="1" Level="1" Directory_="APPDIR" Attributes="0" Components="ProductInformation Qt5Core.dll Qt5Core.dll.manifest Qt5Gui.dll Qt5Gui.dll.manifest Qt5Widgets.dll Qt5Widgets.dll.manifest SHORTCUTDIR avcodec55.dll avcodec55.dll.manifest avformat55.dll avformat55.dll.manifest avutil52.dll avutil52.dll.manifest bicubic.frag dejavusansbold.ttf icudt52.dll icudt52.dll.manifest icuin52.dll icuin52.dll.manifest icuuc52.dll icuuc52.dll.manifest liblsmash.dll liblsmash.dll.manifest libx264142.dll libx264142.dll.manifest msvcp120.dll msvcp120.dll.manifest msvcr120.dll msvcr120.dll.manifest opencv_core249.dll opencv_core249.dll.manifest opencv_imgproc249.dll opencv_imgproc249.dll.manifest opencv_photo249.dll opencv_photo249.dll.manifest opencv_video249.dll opencv_video249.dll.manifest orientview.exe orientview.exe.config qjpeg.dll qtiff.dll qwindows.dll swresample0.dll swresample0.dll.manifest swscale2.dll swscale2.dll.manifest"/>
     <ATTRIBUTE name="CurrentFeature" value="MainFeature"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFilesComponent">
@@ -156,7 +157,8 @@
     <ROW File="opencv_video249.dll.manifest" Component_="opencv_video249.dll.manifest" FileName="OPENCV~1.MAN|opencv_video249.dll.manifest" Attributes="0" SourcePath="..\bin\Release\data\dll\opencv_video249.dll\opencv_video249.dll.manifest" SelfReg="false" NextFile="Qt5Core.dll"/>
     <ROW File="orientview.exe" Component_="orientview.exe" FileName="ORIENT~1.EXE|orientview.exe" Attributes="0" SourcePath="..\bin\Release\orientview.exe" SelfReg="false" NextFile="orientview.exe.config" DigSign="true"/>
     <ROW File="orientview.exe.config" Component_="orientview.exe.config" FileName="ORIENT~1.CON|orientview.exe.config" Attributes="0" SourcePath="..\bin\Release\orientview.exe.config" SelfReg="false" NextFile="avcodec55.dll"/>
-    <ROW File="qjpeg.dll" Component_="qjpeg.dll" FileName="qjpeg.dll" Attributes="0" SourcePath="..\bin\Release\data\plugins\imageformats\qjpeg.dll" SelfReg="false" NextFile="qwindows.dll"/>
+    <ROW File="qjpeg.dll" Component_="qjpeg.dll" FileName="qjpeg.dll" Attributes="0" SourcePath="..\bin\Release\data\plugins\imageformats\qjpeg.dll" SelfReg="false" NextFile="qtiff.dll"/>
+    <ROW File="qtiff.dll" Component_="qtiff.dll" FileName="qtiff.dll" Attributes="0" SourcePath="..\bin\Release\data\plugins\imageformats\qtiff.dll" SelfReg="false" NextFile="qwindows.dll"/>
     <ROW File="qwindows.dll" Component_="qwindows.dll" FileName="qwindows.dll" Attributes="0" SourcePath="..\bin\Release\data\plugins\platforms\qwindows.dll" SelfReg="false" NextFile="bicubic.frag"/>
     <ROW File="swresample0.dll" Component_="swresample0.dll" FileName="SWRESA~1.DLL|swresample-0.dll" Attributes="0" SourcePath="..\bin\Release\data\dll\swresample-0.dll\swresample-0.dll" SelfReg="false" NextFile="swresample0.dll.manifest"/>
     <ROW File="swresample0.dll.manifest" Component_="swresample0.dll.manifest" FileName="SWRESA~1.MAN|swresample-0.dll.manifest" Attributes="0" SourcePath="..\bin\Release\data\dll\swresample-0.dll\swresample-0.dll.manifest" SelfReg="false" NextFile="swscale2.dll"/>
@@ -164,7 +166,7 @@
     <ROW File="swscale2.dll.manifest" Component_="swscale2.dll.manifest" FileName="SWSCAL~1.MAN|swscale-2.dll.manifest" Attributes="0" SourcePath="..\bin\Release\data\dll\swscale-2.dll\swscale-2.dll.manifest" SelfReg="false" NextFile="dejavusansbold.ttf"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BuildComponent">
-    <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="0" Languages="en" InstallationType="4" UseLargeSchema="true" MsiPackageType="x64"/>
+    <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="0" PackageFileName="[|ProductName]-[|ProductVersion]" Languages="en" InstallationType="4" UseLargeSchema="true" MsiPackageType="x64"/>
     <ATTRIBUTE name="CurrentBuild" value="DefaultBuild"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.DictionaryComponent">
@@ -174,6 +176,7 @@
   <COMPONENT cid="caphyon.advinst.msicomp.FragmentComponent">
     <ROW Fragment="CommonUI.aip" Path="&lt;AI_FRAGS&gt;CommonUI.aip"/>
     <ROW Fragment="FolderDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\FolderDlg.aip"/>
+    <ROW Fragment="LicenseAgreementDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\LicenseAgreementDlg.aip"/>
     <ROW Fragment="MaintenanceTypeDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\MaintenanceTypeDlg.aip"/>
     <ROW Fragment="MaintenanceWelcomeDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\MaintenanceWelcomeDlg.aip"/>
     <ROW Fragment="SequenceDialogs.aip" Path="&lt;AI_THEMES&gt;classic\fragments\SequenceDialogs.aip"/>
@@ -188,10 +191,13 @@
   <COMPONENT cid="caphyon.advinst.msicomp.MsiBinaryComponent">
     <ROW Name="aicustact.dll" SourcePath="&lt;AI_CUSTACTS&gt;aicustact.dll"/>
   </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiControlComponent">
+    <ROW Dialog_="LicenseAgreementDlg" Control="AgreementText" Type="ScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="License.rtf" Order="400" TextLocId="Control.Text.LicenseAgreementDlg#AgreementText_2" MsiKey="LicenseAgreementDlg#AgreementText"/>
+  </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiControlEventComponent">
-    <ROW Dialog_="WelcomeDlg" Control_="Next" Event="NewDialog" Argument="FolderDlg" Condition="AI_INSTALL" Ordering="1"/>
+    <ROW Dialog_="WelcomeDlg" Control_="Next" Event="NewDialog" Argument="LicenseAgreementDlg" Condition="AI_INSTALL" Ordering="1"/>
     <ROW Dialog_="FolderDlg" Control_="Next" Event="NewDialog" Argument="VerifyReadyDlg" Condition="AI_INSTALL" Ordering="201"/>
-    <ROW Dialog_="FolderDlg" Control_="Back" Event="NewDialog" Argument="WelcomeDlg" Condition="AI_INSTALL" Ordering="1"/>
+    <ROW Dialog_="FolderDlg" Control_="Back" Event="NewDialog" Argument="LicenseAgreementDlg" Condition="AI_INSTALL" Ordering="1"/>
     <ROW Dialog_="MaintenanceWelcomeDlg" Control_="Next" Event="NewDialog" Argument="MaintenanceTypeDlg" Condition="AI_MAINT" Ordering="99"/>
     <ROW Dialog_="VerifyReadyDlg" Control_="Install" Event="EndDialog" Argument="Return" Condition="AI_MAINT" Ordering="198"/>
     <ROW Dialog_="VerifyReadyDlg" Control_="Back" Event="NewDialog" Argument="CustomizeDlg" Condition="AI_MAINT" Ordering="202"/>
@@ -211,6 +217,8 @@
     <ROW Dialog_="ResumeDlg" Control_="Install" Event="EndDialog" Argument="Return" Condition="AI_RESUME" Ordering="299"/>
     <ROW Dialog_="VerifyReadyDlg" Control_="Install" Event="EndDialog" Argument="Return" Condition="AI_PATCH" Ordering="199"/>
     <ROW Dialog_="VerifyReadyDlg" Control_="Back" Event="NewDialog" Argument="PatchWelcomeDlg" Condition="AI_PATCH" Ordering="203"/>
+    <ROW Dialog_="LicenseAgreementDlg" Control_="Next" Event="NewDialog" Argument="FolderDlg" Condition="AI_INSTALL" Ordering="1"/>
+    <ROW Dialog_="LicenseAgreementDlg" Control_="Back" Event="NewDialog" Argument="WelcomeDlg" Condition="AI_INSTALL" Ordering="1"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCreateFolderComponent">
     <ROW Directory_="SHORTCUTDIR" Component_="SHORTCUTDIR" ManualDelete="false"/>
