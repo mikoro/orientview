@@ -1,6 +1,8 @@
 // Copyright © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
 // License: GPLv3, see the LICENSE file.
 
+#include <stdexcept>
+
 #include <QFileDialog>
 #include <QtGui>
 #include <QMessageBox>

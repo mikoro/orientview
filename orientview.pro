@@ -3,17 +3,17 @@ TEMPLATE = app
 
 CONFIG += qt c++11 warn_on
 QT += core gui widgets opengl svg xml
-LIBS += -lavcodec -lavformat -lavutil -lswscale -lopencv_core -lopencv_imgproc -lopencv_photo -lopencv_video -lx264 -llsmash
+INCLUDEPATH += include
+LIBS += -lavcodec -lavformat -lavutil -lswscale -lswresample -lopencv_core -lopencv_imgproc -lopencv_photo -lopencv_video -lx264 -llsmash
+
+#QMAKE_CXX = clang
+QMAKE_CXXFLAGS += -Werror
+QMAKE_LFLAGS += -L/var/tmp/ffmpeg/lib -L/var/tmp/opencv/lib -L/var/tmp/x264/lib -L/var/tmp/l-smash/lib
 
 OBJECTS_DIR = build
 MOC_DIR = build
 RCC_DIR = build
 UI_DIR = build
-
-#QMAKE_CXX = clang
-QMAKE_CXXFLAGS += -Werror
-
-INCLUDEPATH += include
 
 HEADERS  += \
     src/EncodeWindow.h \
