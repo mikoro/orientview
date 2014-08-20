@@ -1,7 +1,6 @@
 language: cpp
 
 compiler:
-  - gcc
   - clang
 
 before_install:
@@ -21,6 +20,5 @@ before_install:
 # sudo apt-get install -y libgl1-mesa-dev
 
 script:
-  - /var/tmp/qt/5.3/gcc_64/bin/qmake
+  - /var/tmp/qt/5.3/gcc_64/bin/qmake "QMAKE_CXX=$CXX"
   - make
-
