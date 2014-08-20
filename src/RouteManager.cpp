@@ -309,6 +309,8 @@ void RouteManager::calculateSplitTransformations()
 
 		defaultRoute.splitTransformations.push_back(splitTransformation);
 	}
+
+	shouldRestartTransition = true;
 }
 
 void RouteManager::calculateRoutePointColors()
@@ -357,7 +359,7 @@ void RouteManager::calculateCurrentSplitTransformation(double currentTime, doubl
 
 		if (runnerOffsetTime >= firstSplitOffsetTime && runnerOffsetTime < secondSplitOffsetTime)
 		{
-			if (i != defaultRoute.currentSplitTransformationIndex)
+			if (i != defaultRoute.currentSplitTransformationIndex || shouldRestartTransition)
 			{
 				if (defaultRoute.useSmoothTransition)
 				{
@@ -370,6 +372,7 @@ void RouteManager::calculateCurrentSplitTransformation(double currentTime, doubl
 					defaultRoute.currentSplitTransformation = defaultRoute.splitTransformations.at(i);
 
 				defaultRoute.currentSplitTransformationIndex = i;
+				shouldRestartTransition = false;
 			}
 
 			break;

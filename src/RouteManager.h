@@ -108,6 +108,7 @@ namespace OrientView
 		Route defaultRoute;
 
 		bool fullUpdateRequested = false;
+		bool shouldRestartTransition = false;
 
 		double windowWidth = 0.0;
 		double windowHeight = 0.0;
