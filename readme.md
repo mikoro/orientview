@@ -5,6 +5,8 @@ OrientView is an orienteering video analyzing program which displays the video a
 * Author: [Mikko Ronkainen](http://mikkoronkainen.com)
 * Website: [github.com/mikoro/orientview](https://github.com/mikoro/orientview)
 
+[![Build Status](https://travis-ci.org/mikoro/orientview.svg?branch=master)](https://travis-ci.org/mikoro/orientview)
+
 ![Screenshot](http://mikoro.github.io/images/orientview/readme-screenshot.jpg "Screenshot")
 
 ## Download

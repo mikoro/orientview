@@ -15,10 +15,6 @@ before_install:
   - tar xf /var/tmp/qt.tar.xz -C /var/tmp
   - tar xf /var/tmp/x264.tar.xz -C /var/tmp
 
-# sudo apt-get update -qq
-# sudo apt-get install -y mesa-common-dev
-# sudo apt-get install -y libgl1-mesa-dev
-
 script:
   - /var/tmp/qt/5.3/gcc_64/bin/qmake "QMAKE_CXX=$CXX"
   - make
