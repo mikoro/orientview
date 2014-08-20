@@ -109,11 +109,11 @@ void RouteManager::generateAlignedRoutePoints()
 	RoutePoint alignedRoutePoint;
 
 	// align and interpolate route point data to one second intervals
-	for (size_t i = 0; i < defaultRoute.routePoints.size() - 1;)
+	for (int i = 0; i < (int)defaultRoute.routePoints.size() - 1;)
 	{
-		size_t nextIndex = 0;
+		int nextIndex = 0;
 
-		for (size_t j = i + 1; j < defaultRoute.routePoints.size(); ++j)
+		for (int j = i + 1; j < (int)defaultRoute.routePoints.size(); ++j)
 		{
 			if (defaultRoute.routePoints.at(j).time - currentRoutePoint.time > 1.0)
 			{
@@ -165,33 +165,32 @@ void RouteManager::generateAlignedRoutePoints()
 
 void RouteManager::constructWholeRoutePath()
 {
-	size_t routePointCount = defaultRoute.routePoints.size();
+	if (defaultRoute.routePoints.size() < 2)
+		return;
 
-	if (routePointCount >= 2)
+	for (size_t i = 0; i < defaultRoute.routePoints.size(); ++i)
 	{
-		for (size_t i = 0; i < routePointCount; ++i)
-		{
-			RoutePoint rp = defaultRoute.routePoints.at(i);
+		RoutePoint rp = defaultRoute.routePoints.at(i);
 
-			double x = rp.position.x();
-			double y = rp.position.y();
+		double x = rp.position.x();
+		double y = rp.position.y();
 
-			if (i == 0)
-				defaultRoute.wholeRoutePath.moveTo(x, y);
-			else
-				defaultRoute.wholeRoutePath.lineTo(x, y);
-		}
+		if (i == 0)
+			defaultRoute.wholeRoutePath.moveTo(x, y);
+		else
+			defaultRoute.wholeRoutePath.lineTo(x, y);
 	}
 }
 
 void RouteManager::calculateControlPositions()
 {
+	if (defaultRoute.splitTimes.splitTimes.empty() || defaultRoute.alignedRoutePoints.empty())
+		return;
+
 	defaultRoute.controlPositions.clear();
 
-	for (size_t i = 0; i < defaultRoute.splitTimes.splitTimes.size(); ++i)
+	for (const SplitTime& splitTime : defaultRoute.splitTimes.splitTimes)
 	{
-		SplitTime splitTime = defaultRoute.splitTimes.splitTimes.at(i);
-
 		double offsetTime = splitTime.time + defaultRoute.controlsTimeOffset;
 		double previousWholeSecond = floor(offsetTime);
 		double alpha = offsetTime - previousWholeSecond;
@@ -217,11 +216,14 @@ void RouteManager::calculateControlPositions()
 
 void RouteManager::calculateSplitTransformations()
 {
+	if (defaultRoute.splitTimes.splitTimes.empty() || defaultRoute.alignedRoutePoints.empty())
+		return;
+
 	defaultRoute.splitTransformations.clear();
 
 	// take two consecutive controls and then figure out the transformation needed
 	// to make the line from start to stop control vertical, centered and zoomed appropriately
-	for (size_t i = 0; i < defaultRoute.splitTimes.splitTimes.size() - 1; ++i)
+	for (int i = 0; i < (int)defaultRoute.splitTimes.splitTimes.size() - 1; ++i)
 	{
 		SplitTime st1 = defaultRoute.splitTimes.splitTimes.at(i);
 		SplitTime st2 = defaultRoute.splitTimes.splitTimes.at(i + 1);
@@ -266,7 +268,7 @@ void RouteManager::calculateSplitTransformations()
 			double maxY = -std::numeric_limits<double>::max();
 
 			// find the bounding box for the split route
-			for (size_t j = (size_t)startIndex; j <= (size_t)stopIndex; ++j)
+			for (int j = startIndex; j <= stopIndex; ++j)
 			{
 				// points need to be rotated
 				QPointF position = rotateMatrix.map(defaultRoute.alignedRoutePoints.at(j).position);
@@ -313,6 +315,9 @@ void RouteManager::calculateRoutePointColors()
 
 void RouteManager::calculateRunnerPosition(double currentTime)
 {
+	if (defaultRoute.alignedRoutePoints.empty())
+		return;
+
 	double offsetTime = currentTime + defaultRoute.runnerTimeOffset;
 	double previousWholeSecond = floor(offsetTime);
 	double alpha = offsetTime - previousWholeSecond;
@@ -337,7 +342,7 @@ void RouteManager::calculateRunnerPosition(double currentTime)
 
 void RouteManager::calculateCurrentSplitTransformation(double currentTime)
 {
-	for (size_t i = 0; i < defaultRoute.splitTimes.splitTimes.size() - 1; ++i)
+	for (int i = 0; i < (int)defaultRoute.splitTimes.splitTimes.size() - 1; ++i)
 	{
 		double firstSplitOffsetTime = defaultRoute.splitTimes.splitTimes.at(i).time + defaultRoute.controlsTimeOffset;
 		double secondSplitOffsetTime = defaultRoute.splitTimes.splitTimes.at(i + 1).time + defaultRoute.controlsTimeOffset;
