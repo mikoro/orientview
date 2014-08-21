@@ -96,15 +96,22 @@ void Settings::readFromQSettings(QSettings* settings)
 	inputHandler.normalSeekAmount = settings->value("inputHandler/normalSeekAmount", defaultSettings.inputHandler.normalSeekAmount).toDouble();
 	inputHandler.largeSeekAmount = settings->value("inputHandler/largeSeekAmount", defaultSettings.inputHandler.largeSeekAmount).toDouble();
 	inputHandler.veryLargeSeekAmount = settings->value("inputHandler/veryLargeSeekAmount", defaultSettings.inputHandler.veryLargeSeekAmount).toDouble();
-	inputHandler.slowTranslateVelocity = settings->value("inputHandler/slowTranslateVelocity", defaultSettings.inputHandler.slowTranslateVelocity).toDouble();
-	inputHandler.normalTranslateVelocity = settings->value("inputHandler/normalTranslateVelocity", defaultSettings.inputHandler.normalTranslateVelocity).toDouble();
-	inputHandler.fastTranslateVelocity = settings->value("inputHandler/fastTranslateVelocity", defaultSettings.inputHandler.fastTranslateVelocity).toDouble();
-	inputHandler.slowRotateVelocity = settings->value("inputHandler/slowRotateVelocity", defaultSettings.inputHandler.slowRotateVelocity).toDouble();
-	inputHandler.normalRotateVelocity = settings->value("inputHandler/normalRotateVelocity", defaultSettings.inputHandler.normalRotateVelocity).toDouble();
-	inputHandler.fastRotateVelocity = settings->value("inputHandler/fastRotateVelocity", defaultSettings.inputHandler.fastRotateVelocity).toDouble();
-	inputHandler.smallScaleConstant = settings->value("inputHandler/smallScaleConstant", defaultSettings.inputHandler.smallScaleConstant).toDouble();
-	inputHandler.normalScaleConstant = settings->value("inputHandler/normalScaleConstant", defaultSettings.inputHandler.normalScaleConstant).toDouble();
-	inputHandler.largeScaleConstant = settings->value("inputHandler/largeScaleConstant", defaultSettings.inputHandler.largeScaleConstant).toDouble();
+	inputHandler.slowTranslateSpeed = settings->value("inputHandler/slowTranslateSpeed", defaultSettings.inputHandler.slowTranslateSpeed).toDouble();
+	inputHandler.normalTranslateSpeed = settings->value("inputHandler/normalTranslateSpeed", defaultSettings.inputHandler.normalTranslateSpeed).toDouble();
+	inputHandler.fastTranslateSpeed = settings->value("inputHandler/fastTranslateSpeed", defaultSettings.inputHandler.fastTranslateSpeed).toDouble();
+	inputHandler.veryFastTranslateSpeed = settings->value("inputHandler/veryFastTranslateSpeed", defaultSettings.inputHandler.fastTranslateSpeed).toDouble();
+	inputHandler.slowRotateSpeed = settings->value("inputHandler/slowRotateSpeed", defaultSettings.inputHandler.slowRotateSpeed).toDouble();
+	inputHandler.normalRotateSpeed = settings->value("inputHandler/normalRotateSpeed", defaultSettings.inputHandler.normalRotateSpeed).toDouble();
+	inputHandler.fastRotateSpeed = settings->value("inputHandler/fastRotateSpeed", defaultSettings.inputHandler.fastRotateSpeed).toDouble();
+	inputHandler.veryFastRotateSpeed = settings->value("inputHandler/veryFastRotateSpeed", defaultSettings.inputHandler.fastRotateSpeed).toDouble();
+	inputHandler.slowScaleSpeed = settings->value("inputHandler/slowScaleSpeed", defaultSettings.inputHandler.slowScaleSpeed).toDouble();
+	inputHandler.normalScaleSpeed = settings->value("inputHandler/normalScaleSpeed", defaultSettings.inputHandler.normalScaleSpeed).toDouble();
+	inputHandler.fastScaleSpeed = settings->value("inputHandler/fastScaleSpeed", defaultSettings.inputHandler.fastScaleSpeed).toDouble();
+	inputHandler.veryFastScaleSpeed = settings->value("inputHandler/veryFastScaleSpeed", defaultSettings.inputHandler.veryFastScaleSpeed).toDouble();
+	inputHandler.smallTimeOffset = settings->value("inputHandler/smallTimeOffset", defaultSettings.inputHandler.smallTimeOffset).toDouble();
+	inputHandler.normalTimeOffset = settings->value("inputHandler/normalTimeOffset", defaultSettings.inputHandler.normalTimeOffset).toDouble();
+	inputHandler.largeTimeOffset = settings->value("inputHandler/largeTimeOffset", defaultSettings.inputHandler.largeTimeOffset).toDouble();
+	inputHandler.veryLargeTimeOffset = settings->value("inputHandler/veryLargeTimeOffset", defaultSettings.inputHandler.veryLargeTimeOffset).toDouble();
 }
 
 void Settings::writeToQSettings(QSettings* settings)
@@ -192,15 +199,22 @@ void Settings::writeToQSettings(QSettings* settings)
 	settings->setValue("inputHandler/normalSeekAmount", inputHandler.normalSeekAmount);
 	settings->setValue("inputHandler/largeSeekAmount", inputHandler.largeSeekAmount);
 	settings->setValue("inputHandler/veryLargeSeekAmount", inputHandler.veryLargeSeekAmount);
-	settings->setValue("inputHandler/slowTranslateVelocity", inputHandler.slowTranslateVelocity);
-	settings->setValue("inputHandler/normalTranslateVelocity", inputHandler.normalTranslateVelocity);
-	settings->setValue("inputHandler/fastTranslateVelocity", inputHandler.fastTranslateVelocity);
-	settings->setValue("inputHandler/slowRotateVelocity", inputHandler.slowRotateVelocity);
-	settings->setValue("inputHandler/normalRotateVelocity", inputHandler.normalRotateVelocity);
-	settings->setValue("inputHandler/fastRotateVelocity", inputHandler.fastRotateVelocity);
-	settings->setValue("inputHandler/smallScaleConstant", inputHandler.smallScaleConstant);
-	settings->setValue("inputHandler/normalScaleConstant", inputHandler.normalScaleConstant);
-	settings->setValue("inputHandler/largeScaleConstant", inputHandler.largeScaleConstant);
+	settings->setValue("inputHandler/slowTranslateSpeed", inputHandler.slowTranslateSpeed);
+	settings->setValue("inputHandler/normalTranslateSpeed", inputHandler.normalTranslateSpeed);
+	settings->setValue("inputHandler/fastTranslateSpeed", inputHandler.fastTranslateSpeed);
+	settings->setValue("inputHandler/veryFastTranslateSpeed", inputHandler.veryFastTranslateSpeed);
+	settings->setValue("inputHandler/slowRotateSpeed", inputHandler.slowRotateSpeed);
+	settings->setValue("inputHandler/normalRotateSpeed", inputHandler.normalRotateSpeed);
+	settings->setValue("inputHandler/fastRotateSpeed", inputHandler.fastRotateSpeed);
+	settings->setValue("inputHandler/veryFastRotateSpeed", inputHandler.veryFastRotateSpeed);
+	settings->setValue("inputHandler/slowScaleSpeed", inputHandler.slowScaleSpeed);
+	settings->setValue("inputHandler/normalScaleSpeed", inputHandler.normalScaleSpeed);
+	settings->setValue("inputHandler/fastScaleSpeed", inputHandler.fastScaleSpeed);
+	settings->setValue("inputHandler/veryFastScaleSpeed", inputHandler.veryFastScaleSpeed);
+	settings->setValue("inputHandler/smallTimeOffset", inputHandler.smallTimeOffset);
+	settings->setValue("inputHandler/normalTimeOffset", inputHandler.normalTimeOffset);
+	settings->setValue("inputHandler/largeTimeOffset", inputHandler.largeTimeOffset);
+	settings->setValue("inputHandler/veryLargeTimeOffset", inputHandler.veryLargeTimeOffset);
 }
 
 void Settings::readFromUI(Ui::MainWindow* ui)

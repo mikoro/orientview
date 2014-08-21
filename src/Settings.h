@@ -141,17 +141,25 @@ namespace OrientView
 			double largeSeekAmount = 60.0;
 			double veryLargeSeekAmount = 600.0;
 
-			double slowTranslateVelocity = 0.1;
-			double normalTranslateVelocity = 0.5;
-			double fastTranslateVelocity = 1.0;
+			double slowTranslateSpeed = 0.1;
+			double normalTranslateSpeed = 0.5;
+			double fastTranslateSpeed = 1.0;
+			double veryFastTranslateSpeed = 1.0;
 
-			double slowRotateVelocity = 0.02;
-			double normalRotateVelocity = 0.1;
-			double fastRotateVelocity = 0.5;
+			double slowRotateSpeed = 0.02;
+			double normalRotateSpeed = 0.1;
+			double fastRotateSpeed = 0.5;
+			double veryFastRotateSpeed = 0.5;
 
-			double smallScaleConstant = 5000.0;
-			double normalScaleConstant = 500.0;
-			double largeScaleConstant = 100.0;
+			double slowScaleSpeed = 0.00025;
+			double normalScaleSpeed = 0.002;
+			double fastScaleSpeed = 0.005;
+			double veryFastScaleSpeed = 0.005;
+
+			double smallTimeOffset = 0.25;
+			double normalTimeOffset = 1.0;
+			double largeTimeOffset = 5.0;
+			double veryLargeTimeOffset = 20.0;
 
 		} inputHandler;
 	};
