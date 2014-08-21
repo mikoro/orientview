@@ -39,7 +39,7 @@ namespace OrientView
 		int getFrameRateNum() const;
 		int getFrameRateDen() const;
 		double getFrameDuration() const;
-		
+
 	private:
 
 		QMutex decoderMutex;

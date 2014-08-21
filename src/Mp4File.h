@@ -20,7 +20,7 @@ namespace OrientView
 		bool writeHeaders(x264_nal_t* nal);
 		bool writeFrame(uint8_t* payload, size_t size, x264_picture_t* picture);
 		bool close(int64_t lastPts);
-		
+
 	private:
 
 		Mp4Handle* mp4Handle = nullptr;

@@ -298,7 +298,7 @@ void InputHandler::handleInput(double frameTime)
 		defaultRoute.runnerTimeOffset -= timeOffset;
 		routeManager->requestFullUpdate();
 	}
-	
+
 	if (videoWindow->keyIsDown(Qt::Key_Home))
 	{
 		defaultRoute.controlTimeOffset += timeOffset;

@@ -33,7 +33,7 @@ bool Renderer::initialize(VideoDecoder* videoDecoder, MapImageReader* mapImageRe
 	videoPanel.textureHeight = videoDecoder->getFrameHeight();
 	videoPanel.texelWidth = 1.0 / videoPanel.textureWidth;
 	videoPanel.texelHeight = 1.0 / videoPanel.textureHeight;
-	
+
 	mapPanel.clearColor = settings->map.backgroundColor;
 	mapPanel.userX = settings->map.x;
 	mapPanel.userY = settings->map.y;
@@ -332,7 +332,7 @@ void Renderer::renderAll()
 
 	if (renderMode == RenderMode::All || renderMode == RenderMode::Video)
 		renderVideoPanel();
-	
+
 	if (renderMode == RenderMode::All || renderMode == RenderMode::Map)
 	{
 		renderMapPanel();
@@ -676,7 +676,7 @@ void Renderer::renderInfoPanel()
 
 	painter->drawText(textX, textY += lineSpacing, lineWidth1, lineHeight, 0, "control offset:");
 	painter->drawText(textX, textY += lineSpacing, lineWidth1, lineHeight, 0, "runner offset:");
-	
+
 	textX += lineWidth1 + rightPartMargin;
 	textY = 6;
 
@@ -738,7 +738,7 @@ void Renderer::renderInfoPanel()
 
 	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString("%1 s").arg(QString::number(routeManager->getDefaultRoute().controlTimeOffset, 'f', 2)));
 	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString("%1 s").arg(QString::number(routeManager->getDefaultRoute().runnerTimeOffset, 'f', 2)));
-	
+
 	painter->end();
 }
 

@@ -45,7 +45,7 @@ namespace OrientView
 		void encodingFinished();
 
 	private slots:
-		
+
 		void on_pushButtonOpenVideo_clicked();
 		void on_pushButtonStopClose_clicked();
 

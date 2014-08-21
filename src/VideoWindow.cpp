@@ -26,7 +26,7 @@ bool VideoWindow::initialize(Settings* settings)
 	setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, size(), QApplication::desktop()->availableGeometry()));
 	setWindowState(settings->window.fullscreen ? Qt::WindowFullScreen : Qt::WindowNoState);
 	setCursor(settings->window.hideCursor ? Qt::BlankCursor : Qt::ArrowCursor);
-	
+
 	QSurfaceFormat surfaceFormat;
 	surfaceFormat.setSamples(settings->window.multisamples);
 	this->setFormat(surfaceFormat);
@@ -83,7 +83,7 @@ bool VideoWindow::keyIsDownOnce(int key)
 	if (keyMap.count(key) == 0 || keyMapOnce[key])
 		return false;
 
-	if (keyMap[key])	
+	if (keyMap[key])
 	{
 		keyMapOnce[key] = true;
 		return true;
@@ -122,7 +122,7 @@ bool VideoWindow::event(QEvent* event)
 	if (event->type() == QEvent::KeyRelease)
 	{
 		QKeyEvent* ke = (QKeyEvent*)event;
-		
+
 		if (!ke->isAutoRepeat())
 		{
 			keyMap[ke->key()] = false;

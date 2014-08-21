@@ -266,7 +266,7 @@ bool VideoDecoder::getNextFrame(FrameData* frameData, FrameData* frameDataGraysc
 						if (frameData->duration <= 0 || frameData->duration > 1000000)
 							frameData->duration = frameDuration;
 					}
-					
+
 					if (frameDataGrayscale != nullptr)
 					{
 						sws_scale(swsContextGrayscale, frame->data, frame->linesize, 0, frame->height, convertedPictureGrayscale->data, convertedPictureGrayscale->linesize);

@@ -15,7 +15,7 @@ namespace OrientView
 	class RouteManager;
 	class Renderer;
 	class InputHandler;
-	
+
 	// Run renderer on a thread and draw to a visible window.
 	class RenderOnScreenThread : public QThread
 	{
@@ -29,7 +29,7 @@ namespace OrientView
 		void togglePaused();
 		void advanceOneFrame();
 
-	public slots:
+		public slots:
 
 		void windowResized(int newWidth, int newHeight);
 

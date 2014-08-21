@@ -41,7 +41,7 @@ bool GpxReader::initialize(const QString& fileName)
 
 				continue;
 			}
-			
+
 			if (xmlStream.name() == "time")
 			{
 				xmlStream.readNext();

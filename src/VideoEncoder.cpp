@@ -14,7 +14,7 @@ bool VideoEncoder::initialize(VideoDecoder* videoDecoder, Settings* settings)
 	qDebug("Initializing video encoder (%s)", qPrintable(settings->encoder.outputVideoFilePath));
 
 	x264_param_t param;
-	
+
 	if (x264_param_default_preset(&param, qPrintable(settings->encoder.preset), "zerolatency") < 0)
 	{
 		qWarning("Could not apply presets");
@@ -31,7 +31,7 @@ bool VideoEncoder::initialize(VideoDecoder* videoDecoder, Settings* settings)
 	param.rc.i_rc_method = X264_RC_CRF;
 	param.rc.f_rf_constant = settings->encoder.constantRateFactor;
 	param.i_log_level = X264_LOG_NONE;
-	
+
 	x264_param_apply_fastfirstpass(&param);
 
 	if (x264_param_apply_profile(&param, qPrintable(settings->encoder.profile)) < 0)
@@ -138,7 +138,7 @@ int VideoEncoder::encodeFrame()
 	convertedPicture->i_pts = frameNumber++;
 
 	int frameSize = x264_encoder_encode(encoder, &nal, &nalCount, convertedPicture, &encodedPicture);
-	
+
 	if (frameSize > 0)
 		mp4File->writeFrame(nal[0].p_payload, (size_t)frameSize, &encodedPicture);
 	else

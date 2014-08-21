@@ -32,13 +32,13 @@ namespace OrientView
 
 		void closing();
 
-	public slots:
+		public slots:
 
 		void frameProcessed(int frameNumber);
 		void processingFinished();
 
-	private slots:
-		
+		private slots:
+
 		void on_pushButtonStopClose_clicked();
 
 	private:

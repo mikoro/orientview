@@ -372,7 +372,7 @@ void QuickRouteReader::processRoutePoints()
 
 		double timeToPrevious = (routePoints.at(i).dateTime.toMSecsSinceEpoch() - routePoints.at(i - 1).dateTime.toMSecsSinceEpoch()) / 1000.0;
 		double distanceToPrevious = coordinateDistance(routePoints.at(i - 1).coordinate, routePoints.at(i).coordinate);
-		
+
 		if (distanceToPrevious > 0.0)
 			routePoints.at(i).pace = (timeToPrevious / 60.0) / (distanceToPrevious / 1000.0);
 	}

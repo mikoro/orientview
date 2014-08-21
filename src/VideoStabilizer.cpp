@@ -134,7 +134,7 @@ FramePosition VideoStabilizer::calculateCumulativeFramePosition(const FrameData&
 	double deltaX = tx / frameDataGrayscale.width;
 	double deltaY = ty / frameDataGrayscale.height;
 	double deltaAngle = atan2(c, d) * 180.0 / M_PI;
-	
+
 	cumulativeX += deltaX;
 	cumulativeY += deltaY;
 	cumulativeAngle += deltaAngle;
@@ -157,7 +157,7 @@ FramePosition VideoStabilizer::searchNormalizedFramePosition(const FrameData& fr
 
 	if (searchResult != normalizedFramePositions.end() && (*searchResult).timeStamp >= frameDataGrayscale.timeStamp)
 		result = *searchResult;
-	
+
 	return result;
 }
 

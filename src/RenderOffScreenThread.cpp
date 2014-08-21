@@ -50,7 +50,7 @@ void RenderOffScreenThread::run()
 {
 	FrameData decodedFrameData;
 	FrameData decodedFrameDataGrayscale;
-	
+
 	double frameDuration = videoDecoder->getFrameDuration();
 
 	frameReadSemaphore->release(1);

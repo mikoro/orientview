@@ -211,7 +211,7 @@ void MainWindow::on_actionPlayVideo_triggered()
 			throw std::runtime_error("Could not initialize renderer");
 
 		if (!videoStabilizer->initialize(settings, false))
-				throw std::runtime_error("Could not initialize video stabilizer");
+			throw std::runtime_error("Could not initialize video stabilizer");
 
 		inputHandler->initialize(videoWindow, renderer, videoDecoder, videoDecoderThread, videoStabilizer, routeManager, renderOnScreenThread, settings);
 		splitTimeManager->initialize(settings);
@@ -302,7 +302,7 @@ void MainWindow::playVideoFinished()
 		videoWindow->deleteLater();
 		videoWindow = nullptr;
 	}
-	
+
 	if (mapImageReader != nullptr)
 	{
 		delete mapImageReader;
@@ -379,7 +379,7 @@ void MainWindow::on_actionEncodeVideo_triggered()
 		videoDecoderThread = new VideoDecoderThread();
 		renderOffScreenThread = new RenderOffScreenThread();
 		videoEncoderThread = new VideoEncoderThread();
-		
+
 		if (!encodeWindow->initialize(videoDecoder, videoEncoderThread, settings))
 			throw std::runtime_error("Could not initialize encode window");
 
@@ -666,7 +666,7 @@ void MainWindow::on_pushButtonVideoStabilizerPassOneRun_clicked()
 			throw std::runtime_error("Could not initialize video stabilizer");
 
 		stabilizeWindow->initialize(videoDecoder, videoStabilizerThread);
-		
+
 		connect(stabilizeWindow, &StabilizeWindow::closing, this, &MainWindow::stabilizeVideoFinished);
 		connect(videoStabilizerThread, &VideoStabilizerThread::frameProcessed, stabilizeWindow, &StabilizeWindow::frameProcessed);
 		connect(videoStabilizerThread, &VideoStabilizerThread::processingFinished, stabilizeWindow, &StabilizeWindow::processingFinished);
@@ -729,10 +729,10 @@ void MainWindow::on_pushButtonVideoStabilizerPassTwoRun_clicked()
 
 	try
 	{
-		if(!fileIn.open(QFile::ReadOnly | QFile::Text))
+		if (!fileIn.open(QFile::ReadOnly | QFile::Text))
 			throw std::runtime_error("Could not open input file");
 
-		if(!fileOut.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text))
+		if (!fileOut.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text))
 			throw std::runtime_error("Could not open output file");
 
 		VideoStabilizer::convertCumulativeFramePositionsToNormalized(fileIn, fileOut, settings->stabilizer.smoothingRadius);

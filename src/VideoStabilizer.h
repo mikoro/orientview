@@ -74,10 +74,10 @@ namespace OrientView
 		std::vector<FramePosition> normalizedFramePositions;
 
 		FramePosition normalizedFramePosition;
-		
+
 		cv::Mat previousImage;
 		cv::Mat previousTransformation;
-		
+
 		QElapsedTimer processTimer;
 		double lastProcessTime = 0.0;
 	};

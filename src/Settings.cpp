@@ -48,7 +48,7 @@ void Settings::readFromQSettings(QSettings* settings)
 	route.runnerBorderColor = settings->value("route/runnerBorderColor", defaultSettings.route.runnerBorderColor).value<QColor>();
 	route.runnerBorderWidth = settings->value("route/runnerBorderWidth", defaultSettings.route.runnerBorderWidth).toDouble();
 	route.runnerScale = settings->value("route/runnerScale", defaultSettings.route.runnerScale).toDouble();
-	
+
 	video.inputVideoFilePath = settings->value("video/inputVideoFilePath", defaultSettings.video.inputVideoFilePath).toString();
 	video.startTimeOffset = settings->value("video/startTimeOffset", defaultSettings.video.startTimeOffset).toDouble();
 	video.seekToAnyFrame = settings->value("video/seekToAnyFrame", defaultSettings.video.seekToAnyFrame).toBool();
@@ -74,7 +74,7 @@ void Settings::readFromQSettings(QSettings* settings)
 	window.fullscreen = settings->value("window/fullscreen", defaultSettings.window.fullscreen).toBool();
 	window.hideCursor = settings->value("window/hideCursor", defaultSettings.window.hideCursor).toBool();
 	window.showInfoPanel = settings->value("window/showInfoPanel", defaultSettings.window.showInfoPanel).toBool();
-	
+
 	stabilizer.enabled = settings->value("stabilizer/enabled", defaultSettings.stabilizer.enabled).toBool();
 	stabilizer.mode = (VideoStabilizerMode)settings->value("stabilizer/mode", defaultSettings.stabilizer.mode).toInt();
 	stabilizer.inputDataFilePath = settings->value("stabilizer/inputDataFilePath", defaultSettings.stabilizer.inputDataFilePath).toString();
@@ -231,7 +231,7 @@ void Settings::readFromUI(Ui::MainWindow* ui)
 	route.scale = ui->doubleSpinBoxRouteScale->value();
 	route.topBottomMargin = ui->doubleSpinBoxRouteTopBottomMargin->value();
 	route.leftRightMargin = ui->doubleSpinBoxRouteLeftRightMargin->value();
-	
+
 	video.inputVideoFilePath = ui->lineEditInputVideoFile->text();
 	video.startTimeOffset = ui->doubleSpinBoxVideoStartTimeOffset->value();
 	video.scale = ui->doubleSpinBoxVideoScale->value();
