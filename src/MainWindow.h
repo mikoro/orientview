@@ -62,8 +62,8 @@ namespace OrientView
 		void on_pushButtonBrowseInputVideoFile_clicked();
 		void on_pushButtonBrowseOutputVideoFile_clicked();
 
-		void on_pushButtonPickVideoPanelBackgroundColor_clicked();
-		void on_pushButtonPickMapPanelBackgroundColor_clicked();
+		void on_pushButtonPickVideoBackgroundColor_clicked();
+		void on_pushButtonPickMapBackgroundColor_clicked();
 
 		void on_pushButtonVideoStabilizerBrowseInputDataFile_clicked();
 		void on_pushButtonVideoStabilizerBrowsePassOneOutputFile_clicked();
@@ -71,9 +71,6 @@ namespace OrientView
 		void on_pushButtonVideoStabilizerBrowsePassTwoOutputFile_clicked();
 		void on_pushButtonVideoStabilizerPassOneRun_clicked();
 		void on_pushButtonVideoStabilizerPassTwoRun_clicked();
-
-		
-		
 
 	private:
 

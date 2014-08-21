@@ -28,14 +28,14 @@ void Settings::readFromQSettings(QSettings* settings)
 	route.controlTimeOffset = settings->value("route/controlTimeOffset", defaultSettings.route.controlTimeOffset).toDouble();
 	route.runnerTimeOffset = settings->value("route/runnerTimeOffset", defaultSettings.route.runnerTimeOffset).toDouble();
 	route.scale = settings->value("route/scale", defaultSettings.route.scale).toDouble();
-	route.minimumScale = settings->value("route/minimumScale", defaultSettings.route.minimumScale).toDouble();
-	route.maximumScale = settings->value("route/maximumScale", defaultSettings.route.maximumScale).toDouble();
-	route.highPace = settings->value("route/highPace", defaultSettings.route.highPace).toDouble();
-	route.lowPace = settings->value("route/lowPace", defaultSettings.route.lowPace).toDouble();
 	route.topBottomMargin = settings->value("route/topBottomMargin", defaultSettings.route.topBottomMargin).toDouble();
 	route.leftRightMargin = settings->value("route/leftRightMargin", defaultSettings.route.leftRightMargin).toDouble();
-	route.smoothTransitionSpeed = settings->value("route/smoothTransitionSpeed", defaultSettings.route.smoothTransitionSpeed).toDouble();
+	route.minimumZoom = settings->value("route/minimumZoom", defaultSettings.route.minimumZoom).toDouble();
+	route.maximumZoom = settings->value("route/maximumZoom", defaultSettings.route.maximumZoom).toDouble();
+	route.lowPace = settings->value("route/lowPace", defaultSettings.route.lowPace).toDouble();
+	route.highPace = settings->value("route/highPace", defaultSettings.route.highPace).toDouble();
 	route.useSmoothTransition = settings->value("route/useSmoothTransition", defaultSettings.route.useSmoothTransition).toBool();
+	route.smoothTransitionSpeed = settings->value("route/smoothTransitionSpeed", defaultSettings.route.smoothTransitionSpeed).toDouble();
 	route.showRunner = settings->value("route/showRunner", defaultSettings.route.showRunner).toBool();
 	route.showControls = settings->value("route/showControls", defaultSettings.route.showControls).toBool();
 	route.wholeRouteRenderMode = (RouteRenderMode)settings->value("route/wholeRouteRenderMode", defaultSettings.route.wholeRouteRenderMode).toInt();
@@ -131,14 +131,14 @@ void Settings::writeToQSettings(QSettings* settings)
 	settings->setValue("route/controlTimeOffset", route.controlTimeOffset);
 	settings->setValue("route/runnerTimeOffset", route.runnerTimeOffset);
 	settings->setValue("route/scale", route.scale);
-	settings->setValue("route/minimumScale", route.minimumScale);
-	settings->setValue("route/maximumScale", route.maximumScale);
-	settings->setValue("route/highPace", route.highPace);
-	settings->setValue("route/lowPace", route.lowPace);
 	settings->setValue("route/topBottomMargin", route.topBottomMargin);
 	settings->setValue("route/leftRightMargin", route.leftRightMargin);
-	settings->setValue("route/smoothTransitionSpeed", route.smoothTransitionSpeed);
+	settings->setValue("route/minimumZoom", route.minimumZoom);
+	settings->setValue("route/maximumZoom", route.maximumZoom);
+	settings->setValue("route/lowPace", route.lowPace);
+	settings->setValue("route/highPace", route.highPace);
 	settings->setValue("route/useSmoothTransition", route.useSmoothTransition);
+	settings->setValue("route/smoothTransitionSpeed", route.smoothTransitionSpeed);
 	settings->setValue("route/showRunner", route.showRunner);
 	settings->setValue("route/showControls", route.showControls);
 	settings->setValue("route/wholeRouteRenderMode", route.wholeRouteRenderMode);
@@ -220,23 +220,25 @@ void Settings::writeToQSettings(QSettings* settings)
 void Settings::readFromUI(Ui::MainWindow* ui)
 {
 	map.imageFilePath = ui->lineEditMapImageFile->text();
-	map.relativeWidth = ui->doubleSpinBoxMapPanelWidth->value();
-	map.scale = ui->doubleSpinBoxMapPanelScale->value();
-	map.backgroundColor = QColor(ui->lineEditMapPanelBackgroundColor->text());
-	map.rescaleShader = ui->comboBoxMapPanelRescaleShader->currentText();
+	map.relativeWidth = ui->doubleSpinBoxMapWidth->value();
+	map.scale = ui->doubleSpinBoxMapScale->value();
+	map.backgroundColor = QColor(ui->lineEditMapBackgroundColor->text());
+	map.rescaleShader = ui->comboBoxMapRescaleShader->currentText();
 
 	route.quickRouteJpegFilePath = ui->lineEditQuickRouteJpegFile->text();
 	route.controlTimeOffset = ui->doubleSpinBoxRouteControlTimeOffset->value();
 	route.runnerTimeOffset = ui->doubleSpinBoxRouteRunnerTimeOffset->value();
 	route.scale = ui->doubleSpinBoxRouteScale->value();
+	route.topBottomMargin = ui->doubleSpinBoxRouteTopBottomMargin->value();
+	route.leftRightMargin = ui->doubleSpinBoxRouteLeftRightMargin->value();
 	
 	video.inputVideoFilePath = ui->lineEditInputVideoFile->text();
 	video.startTimeOffset = ui->doubleSpinBoxVideoStartTimeOffset->value();
-	video.scale = ui->doubleSpinBoxVideoPanelScale->value();
-	video.backgroundColor = QColor(ui->lineEditVideoPanelBackgroundColor->text());
-	video.rescaleShader = ui->comboBoxVideoPanelRescaleShader->currentText();
-	video.enableClipping = ui->checkBoxVideoPanelEnableClipping->isChecked();
-	video.enableClearing = ui->checkBoxVideoPanelEnableClearing->isChecked();
+	video.scale = ui->doubleSpinBoxVideoScale->value();
+	video.backgroundColor = QColor(ui->lineEditVideoBackgroundColor->text());
+	video.rescaleShader = ui->comboBoxVideoRescaleShader->currentText();
+	video.enableClipping = ui->checkBoxVideoEnableClipping->isChecked();
+	video.enableClearing = ui->checkBoxVideoEnableClearing->isChecked();
 	video.frameCountDivisor = ui->spinBoxVideoDecoderFrameCountDivisor->value();
 	video.frameDurationDivisor = ui->spinBoxVideoDecoderFrameDurationDivisor->value();
 	video.frameSizeDivisor = ui->spinBoxVideoDecoderFrameSizeDivisor->value();
@@ -273,23 +275,25 @@ void Settings::readFromUI(Ui::MainWindow* ui)
 void Settings::writeToUI(Ui::MainWindow* ui)
 {
 	ui->lineEditMapImageFile->setText(map.imageFilePath);
-	ui->doubleSpinBoxMapPanelWidth->setValue(map.relativeWidth);
-	ui->doubleSpinBoxMapPanelScale->setValue(map.scale);
-	ui->lineEditMapPanelBackgroundColor->setText(map.backgroundColor.name());
-	ui->comboBoxMapPanelRescaleShader->setCurrentText(map.rescaleShader);
+	ui->doubleSpinBoxMapWidth->setValue(map.relativeWidth);
+	ui->doubleSpinBoxMapScale->setValue(map.scale);
+	ui->lineEditMapBackgroundColor->setText(map.backgroundColor.name());
+	ui->comboBoxMapRescaleShader->setCurrentText(map.rescaleShader);
 
 	ui->lineEditQuickRouteJpegFile->setText(route.quickRouteJpegFilePath);
 	ui->doubleSpinBoxRouteControlTimeOffset->setValue(route.controlTimeOffset);
 	ui->doubleSpinBoxRouteRunnerTimeOffset->setValue(route.runnerTimeOffset);
 	ui->doubleSpinBoxRouteScale->setValue(route.scale);
+	ui->doubleSpinBoxRouteTopBottomMargin->setValue(route.topBottomMargin);
+	ui->doubleSpinBoxRouteLeftRightMargin->setValue(route.leftRightMargin);
 
 	ui->lineEditInputVideoFile->setText(video.inputVideoFilePath);
 	ui->doubleSpinBoxVideoStartTimeOffset->setValue(video.startTimeOffset);
-	ui->doubleSpinBoxVideoPanelScale->setValue(video.scale);
-	ui->lineEditVideoPanelBackgroundColor->setText(video.backgroundColor.name());
-	ui->comboBoxVideoPanelRescaleShader->setCurrentText(video.rescaleShader);
-	ui->checkBoxVideoPanelEnableClipping->setChecked(video.enableClipping);
-	ui->checkBoxVideoPanelEnableClearing->setChecked(video.enableClearing);
+	ui->doubleSpinBoxVideoScale->setValue(video.scale);
+	ui->lineEditVideoBackgroundColor->setText(video.backgroundColor.name());
+	ui->comboBoxVideoRescaleShader->setCurrentText(video.rescaleShader);
+	ui->checkBoxVideoEnableClipping->setChecked(video.enableClipping);
+	ui->checkBoxVideoEnableClearing->setChecked(video.enableClearing);
 	ui->spinBoxVideoDecoderFrameCountDivisor->setValue(video.frameCountDivisor);
 	ui->spinBoxVideoDecoderFrameDurationDivisor->setValue(video.frameDurationDivisor);
 	ui->spinBoxVideoDecoderFrameSizeDivisor->setValue(video.frameSizeDivisor);

@@ -20,14 +20,14 @@ void RouteManager::initialize(QuickRouteReader* quickRouteReader, SplitTimeManag
 	defaultRoute.controlTimeOffset = settings->route.controlTimeOffset;
 	defaultRoute.runnerTimeOffset = settings->route.runnerTimeOffset;
 	defaultRoute.userScale = settings->route.scale;
-	defaultRoute.minimumScale = settings->route.minimumScale;
-	defaultRoute.maximumScale = settings->route.maximumScale;
-	defaultRoute.highPace = settings->route.highPace;
-	defaultRoute.lowPace = settings->route.lowPace;
+	defaultRoute.minimumZoom = settings->route.minimumZoom;
+	defaultRoute.maximumZoom = settings->route.maximumZoom;
 	defaultRoute.topBottomMargin = settings->route.topBottomMargin;
 	defaultRoute.leftRightMargin = settings->route.leftRightMargin;
-	defaultRoute.smoothTransitionSpeed = settings->route.smoothTransitionSpeed;
+	defaultRoute.lowPace = settings->route.lowPace;
+	defaultRoute.highPace = settings->route.highPace;
 	defaultRoute.useSmoothTransition = settings->route.useSmoothTransition;
+	defaultRoute.smoothTransitionSpeed = settings->route.smoothTransitionSpeed;
 	defaultRoute.showRunner = settings->route.showRunner;
 	defaultRoute.showControls = settings->route.showControls;
 	defaultRoute.wholeRouteRenderMode = settings->route.wholeRouteRenderMode;
@@ -302,7 +302,7 @@ void RouteManager::calculateSplitTransformations()
 			double scaleX = (windowWidth * renderer->getMapPanel().relativeWidth) / splitWidth;
 			double scaleY = windowHeight / splitHeight;
 			double finalScale = std::min(scaleX, scaleY);
-			finalScale = std::max(defaultRoute.minimumScale, std::min(finalScale, defaultRoute.maximumScale));
+			finalScale = std::max(defaultRoute.minimumZoom, std::min(finalScale, defaultRoute.maximumZoom));
 
 			splitTransformation.x = -middlePoint.x();
 			splitTransformation.y = middlePoint.y();

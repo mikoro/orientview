@@ -569,7 +569,7 @@ void MainWindow::on_pushButtonBrowseOutputVideoFile_clicked()
 		ui->lineEditOutputVideoFile->setText(fileDialog.selectedFiles().at(0));
 }
 
-void MainWindow::on_pushButtonPickVideoPanelBackgroundColor_clicked()
+void MainWindow::on_pushButtonPickVideoBackgroundColor_clicked()
 {
 	settings->readFromUI(ui);
 
@@ -582,7 +582,7 @@ void MainWindow::on_pushButtonPickVideoPanelBackgroundColor_clicked()
 	settings->writeToUI(ui);
 }
 
-void MainWindow::on_pushButtonPickMapPanelBackgroundColor_clicked()
+void MainWindow::on_pushButtonPickMapBackgroundColor_clicked()
 {
 	settings->readFromUI(ui);
 

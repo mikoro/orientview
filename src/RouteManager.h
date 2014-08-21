@@ -37,20 +37,20 @@ namespace OrientView
 		double controlTimeOffset = 0.0;
 		double runnerTimeOffset = 0.0;
 		double userScale = 1.0;
-		double minimumScale = 0.0;
-		double maximumScale = 9999.0;
-		double highPace = 5.0;
-		double lowPace = 15.0;
 		double topBottomMargin = 30.0;
 		double leftRightMargin = 10.0;
+		double minimumZoom = 0.0;
+		double maximumZoom = 9999.0;
+		double lowPace = 15.0;
+		double highPace = 5.0;
 
+		bool useSmoothTransition = true;
+		double smoothTransitionSpeed = 0.001;
 		SplitTransformation currentSplitTransformation;
 		SplitTransformation previousSplitTransformation;
 		SplitTransformation nextSplitTransformation;
 		int currentSplitTransformationIndex = 0;
 		double transitionAlpha = 0.0;
-		double smoothTransitionSpeed = 0.001;
-		bool useSmoothTransition = true;
 		bool transitionInProgress = false;
 
 		bool showRunner = true;
