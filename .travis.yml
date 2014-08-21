@@ -4,6 +4,8 @@ compiler:
   - clang
 
 before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install -y clang
   - wget https://dl.dropboxusercontent.com/u/41666920/orientview-travis/ffmpeg.tar.xz -P /var/tmp
   - wget https://dl.dropboxusercontent.com/u/41666920/orientview-travis/l-smash.tar.xz -P /var/tmp
   - wget https://dl.dropboxusercontent.com/u/41666920/orientview-travis/opencv.tar.xz -P /var/tmp
