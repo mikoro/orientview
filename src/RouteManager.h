@@ -47,11 +47,11 @@ namespace OrientView
 		SplitTransformation currentSplitTransformation;
 		SplitTransformation previousSplitTransformation;
 		SplitTransformation nextSplitTransformation;
-		int currentSplitTransformationIndex = -1;
+		int currentSplitTransformationIndex = 0;
 		double transitionAlpha = 0.0;
 		double smoothTransitionSpeed = 0.001;
 		bool useSmoothTransition = true;
-		bool transitionInProgress = true;
+		bool transitionInProgress = false;
 
 		bool showRunner = true;
 		bool showControls = true;
@@ -82,6 +82,7 @@ namespace OrientView
 
 		void update(double currentTime, double frameTime);
 		void requestFullUpdate();
+		void requestInstantTransition();
 
 		void windowResized(double newWidth, double newHeight);
 
@@ -107,8 +108,8 @@ namespace OrientView
 
 		Route defaultRoute;
 
-		bool fullUpdateRequested = false;
-		bool shouldRestartTransition = false;
+		bool fullUpdateRequested = true;
+		bool instantTransitionRequested = true;
 
 		double windowWidth = 0.0;
 		double windowHeight = 0.0;

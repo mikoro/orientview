@@ -294,12 +294,14 @@ void InputHandler::handleInput(double frameTime)
 	{
 		defaultRoute.controlTimeOffset += translateVelocity * 0.1;
 		routeManager->requestFullUpdate();
+		routeManager->requestInstantTransition();
 	}
 
 	if (videoWindow->keyIsDown(Qt::Key_End))
 	{
 		defaultRoute.controlTimeOffset -= translateVelocity * 0.1;
 		routeManager->requestFullUpdate();
+		routeManager->requestInstantTransition();
 	}
 
 	if (videoWindow->keyIsDown(Qt::Key_Insert))

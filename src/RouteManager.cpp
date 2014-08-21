@@ -48,8 +48,6 @@ void RouteManager::initialize(QuickRouteReader* quickRouteReader, SplitTimeManag
 	constructWholeRoutePath();
 	calculateRoutePointColors();
 
-	fullUpdateRequested = true;
-
 	update(0.0, 0.0);
 }
 
@@ -70,6 +68,11 @@ void RouteManager::update(double currentTime, double frameTime)
 void RouteManager::requestFullUpdate()
 {
 	fullUpdateRequested = true;
+}
+
+void RouteManager::requestInstantTransition()
+{
+	instantTransitionRequested = true;
 }
 
 void RouteManager::windowResized(double newWidth, double newHeight)
@@ -309,8 +312,6 @@ void RouteManager::calculateSplitTransformations()
 
 		defaultRoute.splitTransformations.push_back(splitTransformation);
 	}
-
-	shouldRestartTransition = true;
 }
 
 void RouteManager::calculateRoutePointColors()
@@ -359,7 +360,12 @@ void RouteManager::calculateCurrentSplitTransformation(double currentTime, doubl
 
 		if (runnerOffsetTime >= firstSplitOffsetTime && runnerOffsetTime < secondSplitOffsetTime)
 		{
-			if (i != defaultRoute.currentSplitTransformationIndex || shouldRestartTransition)
+			if (instantTransitionRequested)
+			{
+				defaultRoute.currentSplitTransformation = defaultRoute.splitTransformations.at(i);
+				instantTransitionRequested = false;
+			}
+			else if (i != defaultRoute.currentSplitTransformationIndex)
 			{
 				if (defaultRoute.useSmoothTransition)
 				{
@@ -372,7 +378,6 @@ void RouteManager::calculateCurrentSplitTransformation(double currentTime, doubl
 					defaultRoute.currentSplitTransformation = defaultRoute.splitTransformations.at(i);
 
 				defaultRoute.currentSplitTransformationIndex = i;
-				shouldRestartTransition = false;
 			}
 
 			break;
