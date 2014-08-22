@@ -49,6 +49,12 @@ void RouteManager::initialize(QuickRouteReader* quickRouteReader, SplitTimeManag
 	calculateRoutePointColors();
 
 	update(0.0, 0.0);
+
+	if (defaultRoute.currentSplitTransformationIndex == -1 && defaultRoute.splitTransformations.size() > 0)
+	{
+		defaultRoute.currentSplitTransformation = defaultRoute.splitTransformations.at(0);
+		defaultRoute.currentSplitTransformationIndex = 0;
+	}
 }
 
 void RouteManager::update(double currentTime, double frameTime)
@@ -359,6 +365,7 @@ void RouteManager::calculateCurrentSplitTransformation(double currentTime, doubl
 			if (instantTransitionRequested)
 			{
 				defaultRoute.currentSplitTransformation = defaultRoute.splitTransformations.at(i);
+				defaultRoute.currentSplitTransformationIndex = i;
 				instantTransitionRequested = false;
 			}
 			else if (i != defaultRoute.currentSplitTransformationIndex)

@@ -50,7 +50,7 @@ namespace OrientView
 		SplitTransformation currentSplitTransformation;
 		SplitTransformation previousSplitTransformation;
 		SplitTransformation nextSplitTransformation;
-		int currentSplitTransformationIndex = 0;
+		int currentSplitTransformationIndex = -1;
 		double transitionAlpha = 0.0;
 		bool transitionInProgress = false;
 
