@@ -305,6 +305,8 @@ void RouteManager::calculateSplitTransformations()
 
 		defaultRoute.splitTransformations.push_back(splitTransformation);
 	}
+
+	instantTransitionRequested = true;
 }
 
 void RouteManager::calculateRoutePointColors()
