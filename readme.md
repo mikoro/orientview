@@ -13,10 +13,10 @@ OrientView is an orienteering video analyzing program which displays the video a
 
 Download the latest version:
 
-| Windows 64-bit                                                                                                     | Linux 64-bit                                                                                                                 |
-|--------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------|
-| [orientview-1.0.0-win.msi](https://github.com/mikoro/orientview/releases/download/v1.0.0/orientview-1.0.0-win.msi) | [orientview-1.0.0-linux.tar.gz](https://github.com/mikoro/orientview/releases/download/v1.0.0/orientview-1.0.0-linux.tar.gz) |
-| [orientview-1.0.0-win.zip](https://github.com/mikoro/orientview/releases/download/v1.0.0/orientview-1.0.0-win.zip) |                                                                                                                              | 
+| Windows 64-bit                                                                                                         | Mac OS X          | Linux                                  |
+|------------------------------------------------------------------------------------------------------------------------|-------------------|----------------------------------------|
+| [OrientView-1.0.0-Setup.msi](https://github.com/mikoro/orientview/releases/download/v1.0.0/OrientView-1.0.0-Setup.msi) | Not yet available | [See build instructions](#linux_build) |
+| [OrientView-1.0.0.zip](https://github.com/mikoro/orientview/releases/download/v1.0.0/OrientView-1.0.0.zip)             |                   |                                        |
 
 For testing out the program, you can also [download test data](https://mega.co.nz/#F!nM1gHbZJ!pvFqf3UOrHrmMyuUTlMSrg).
 
@@ -44,7 +44,7 @@ For testing out the program, you can also [download test data](https://mega.co.n
 * Fix the map (orientation, cropping, levels etc.) and export one version with the original resolution (TIFF format preferrable) and export a smaller version for use with QuickRoute. Modern GPUs can easily take in 8192x8192 250 MB TIFF image - so there is no need to scale down or compress the map image that gets sent to the GPU. The QuickRoute image data will not be used so it's quality doesn't matter (only data inserted by QuickRoute to the JPEG file headers is used).
 * Using [QuickRoute](http://www.matstroeng.se/quickroute/en/) cut and align the gps track to the map. You can use as many aligment points as you want. Then export the map as a JPEG image.
 * Format the split times to a single string. Format is "hours:minutes:seconds" with hours and minutes being optional and the separator between splits being "|" or ";". For example: `0:00|1:23|1:23:45`. Time separator can also be ".". For example: `0.00;1.23;1.23.45`. Split times can be absolute or relative.
-* Open OrientView and select the map image file, the QuickRoute JPEG file, and the video file. Input the split times and press play!
+* Open OrientView and select the map image file, the QuickRoute JPEG file, and the video file. Input the split times and press Play!
 
 ### Controls
 
@@ -86,6 +86,16 @@ For testing out the program, you can also [download test data](https://mega.co.n
 ### Misc
 
 * Not all settings are exposed to the UI. Save the settings to a file and open it with a text editor. Then load the edited settings back.
+
+### <a name="linux_build"></a>Linux build
+
+1. Install [FFmpeg 2.3](https://www.ffmpeg.org/).
+2. Install [OpenCV 2.4](http://opencv.org/).
+3. Install [x264](http://www.videolan.org/developers/x264.html).
+4. Install [L-SMASH](https://github.com/l-smash/l-smash).
+5. Install [Qt 5.3](http://qt-project.org/).
+6. Clone [https://github.com/mikoro/orientview.git](https://github.com/mikoro/orientview.git).
+6. Run `qmake && make`.
 
 ## License
 
