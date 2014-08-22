@@ -3341,6 +3341,8 @@
   <tabstop>doubleSpinBoxRouteControlTimeOffset</tabstop>
   <tabstop>doubleSpinBoxRouteRunnerTimeOffset</tabstop>
   <tabstop>doubleSpinBoxRouteScale</tabstop>
+  <tabstop>doubleSpinBoxRouteTopBottomMargin</tabstop>
+  <tabstop>doubleSpinBoxRouteLeftRightMargin</tabstop>
   <tabstop>lineEditInputVideoFile</tabstop>
   <tabstop>pushButtonBrowseInputVideoFile</tabstop>
   <tabstop>doubleSpinBoxVideoStartTimeOffset</tabstop>
