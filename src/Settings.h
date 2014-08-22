@@ -116,7 +116,8 @@ namespace OrientView
 			QString inputDataFilePath = "";
 			double averagingFactor = 0.1;
 			double dampingFactor = 1.0;
-			double maxDisplacementFactor = 0.25;
+			double maxDisplacementFactor = 0.5;
+			double maxAngle = 5.0;
 			int frameSizeDivisor = 8;
 			QString passOneOutputFilePath = "";
 			QString passTwoInputFilePath = "";

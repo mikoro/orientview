@@ -81,6 +81,7 @@ void Settings::readFromQSettings(QSettings* settings)
 	stabilizer.averagingFactor = settings->value("stabilizer/averagingFactor", defaultSettings.stabilizer.averagingFactor).toDouble();
 	stabilizer.dampingFactor = settings->value("stabilizer/dampingFactor", defaultSettings.stabilizer.dampingFactor).toDouble();
 	stabilizer.maxDisplacementFactor = settings->value("stabilizer/maxDisplacementFactor", defaultSettings.stabilizer.maxDisplacementFactor).toDouble();
+	stabilizer.maxAngle = settings->value("stabilizer/maxAngle", defaultSettings.stabilizer.maxAngle).toDouble();
 	stabilizer.frameSizeDivisor = settings->value("stabilizer/frameSizeDivisor", defaultSettings.stabilizer.frameSizeDivisor).toInt();
 	stabilizer.passOneOutputFilePath = settings->value("stabilizer/passOneOutputFilePath", defaultSettings.stabilizer.passOneOutputFilePath).toString();
 	stabilizer.passTwoInputFilePath = settings->value("stabilizer/passTwoInputFilePath", defaultSettings.stabilizer.passTwoInputFilePath).toString();
@@ -184,6 +185,7 @@ void Settings::writeToQSettings(QSettings* settings)
 	settings->setValue("stabilizer/averagingFactor", stabilizer.averagingFactor);
 	settings->setValue("stabilizer/dampingFactor", stabilizer.dampingFactor);
 	settings->setValue("stabilizer/maxDisplacementFactor", stabilizer.maxDisplacementFactor);
+	settings->setValue("stabilizer/maxAngle", stabilizer.maxAngle);
 	settings->setValue("stabilizer/frameSizeDivisor", stabilizer.frameSizeDivisor);
 	settings->setValue("stabilizer/passOneOutputFilePath", stabilizer.passOneOutputFilePath);
 	settings->setValue("stabilizer/passTwoInputFilePath", stabilizer.passTwoInputFilePath);
@@ -260,6 +262,7 @@ void Settings::readFromUI(Ui::MainWindow* ui)
 	stabilizer.averagingFactor = ui->doubleSpinBoxVideoStabilizerAveragingFactor->value();
 	stabilizer.dampingFactor = ui->doubleSpinBoxVideoStabilizerDampingFactor->value();
 	stabilizer.maxDisplacementFactor = ui->doubleSpinBoxVideoStabilizerMaxDisplacementFactor->value();
+	stabilizer.maxAngle = ui->doubleSpinBoxVideoStabilizerMaxAngle->value();
 	stabilizer.frameSizeDivisor = ui->spinBoxVideoStabilizerFrameSizeDivisor->value();
 	stabilizer.passOneOutputFilePath = ui->lineEditVideoStabilizerPassOneOutputFile->text();
 	stabilizer.passTwoInputFilePath = ui->lineEditVideoStabilizerPassTwoInputFile->text();
@@ -315,6 +318,7 @@ void Settings::writeToUI(Ui::MainWindow* ui)
 	ui->doubleSpinBoxVideoStabilizerAveragingFactor->setValue(stabilizer.averagingFactor);
 	ui->doubleSpinBoxVideoStabilizerDampingFactor->setValue(stabilizer.dampingFactor);
 	ui->doubleSpinBoxVideoStabilizerMaxDisplacementFactor->setValue(stabilizer.maxDisplacementFactor);
+	ui->doubleSpinBoxVideoStabilizerMaxAngle->setValue(stabilizer.maxAngle);
 	ui->spinBoxVideoStabilizerFrameSizeDivisor->setValue(stabilizer.frameSizeDivisor);
 	ui->lineEditVideoStabilizerPassOneOutputFile->setText(stabilizer.passOneOutputFilePath);
 	ui->lineEditVideoStabilizerPassTwoInputFile->setText(stabilizer.passTwoInputFilePath);

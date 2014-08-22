@@ -62,6 +62,7 @@ namespace OrientView
 
 		double dampingFactor = 0.0;
 		double maxDisplacementFactor = 0.0;
+		double maxAngle = 5.0;
 
 		double cumulativeX = 0.0;
 		double cumulativeY = 0.0;

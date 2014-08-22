@@ -24,6 +24,7 @@ bool VideoStabilizer::initialize(Settings* settings, bool isPreprocessing)
 	cumulativeAngleAverage.setAlpha(settings->stabilizer.averagingFactor);
 	dampingFactor = settings->stabilizer.dampingFactor;
 	maxDisplacementFactor = settings->stabilizer.maxDisplacementFactor;
+	maxAngle = settings->stabilizer.maxAngle;
 
 	reset();
 
@@ -69,9 +70,11 @@ void VideoStabilizer::processFrame(const FrameData& frameDataGrayscale)
 
 	normalizedFramePosition.x *= dampingFactor;
 	normalizedFramePosition.y *= dampingFactor;
+	normalizedFramePosition.angle *= dampingFactor;
 
 	normalizedFramePosition.x = std::max(-maxDisplacementFactor, std::min(normalizedFramePosition.x, maxDisplacementFactor));
 	normalizedFramePosition.y = std::max(-maxDisplacementFactor, std::min(normalizedFramePosition.y, maxDisplacementFactor));
+	normalizedFramePosition.angle = std::max(-maxAngle, std::min(normalizedFramePosition.angle, maxAngle));
 
 	lastProcessTime = processTimer.nsecsElapsed() / 1000000.0;
 }
