@@ -32,7 +32,7 @@ namespace OrientView
 		struct Map
 		{
 			QString imageFilePath = "";
-			double relativeWidth = 0.3;
+			double relativeWidth = 0.25;
 			double x = 0.0;
 			double y = 0.0;
 			double angle = 0.0;
