@@ -24,6 +24,7 @@ namespace OrientView
 		double x = 0.0;
 		double y = 0.0;
 		double angle = 0.0;
+		double angleDelta = 0.0;
 		double scale = 1.0;
 	};
 

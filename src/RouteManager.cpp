@@ -252,24 +252,17 @@ void RouteManager::calculateSplitTransformations()
 			RoutePoint stopRp = defaultRoute.alignedRoutePoints.at(stopIndex);
 			QPointF startToStop = stopRp.position - startRp.position; // vector pointing from start to stop
 
+			// rotate towards positive y-axis
 			double angle = atan2(-startToStop.y(), startToStop.x());
-			double finalAngle = 0.0;
+			angle *= (180.0 / M_PI);
+			angle = 90.0 - angle;
 
-			// always rotate towards positive y-axis
-			// start control should be below the stop control
-			if (angle >= 0.0 && angle < (M_PI / 2.0))
-				finalAngle = (M_PI / 2.0) - angle;
-			else if (angle >= (M_PI / 2.0))
-				finalAngle = -(angle - (M_PI / 2.0));
-			else if (angle < 0.0 && angle >= -(M_PI / 2.0))
-				finalAngle = (M_PI / 2.0) + (-angle);
-			else if (angle < -(M_PI / 2.0))
-				finalAngle = -((M_PI + angle) + (M_PI / 2.0));
-
-			finalAngle *= 180.0 / M_PI;
+			// offset so that left quadrants rotate cw and right quadrants ccw
+			if (angle > 180.0)
+				angle = -(360.0 - angle);
 
 			QMatrix rotateMatrix;
-			rotateMatrix.rotate(-finalAngle);
+			rotateMatrix.rotate(-angle);
 
 			double minX = std::numeric_limits<double>::max();
 			double maxX = -std::numeric_limits<double>::max();
@@ -292,12 +285,12 @@ void RouteManager::calculateSplitTransformations()
 			QPointF middlePoint = (startRp.position + stopRp.position) / 2.0; // doesn't need to be rotated
 
 			// split width is taken from the maximum deviation from center line to either left or right side
-			double splitWidthLeft = abs(minX - startPosition.x()) * 2.0 + 2 * defaultRoute.leftRightMargin;
-			double splitWidthRight = abs(maxX - startPosition.x()) * 2.0 + 2 * defaultRoute.leftRightMargin;
+			double splitWidthLeft = abs(minX - startPosition.x()) * 2.0 + 2.0 * defaultRoute.leftRightMargin;
+			double splitWidthRight = abs(maxX - startPosition.x()) * 2.0 + 2.0 * defaultRoute.leftRightMargin;
 			double splitWidth = std::max(splitWidthLeft, splitWidthRight);
 
 			// split height is the maximum vertical delta
-			double splitHeight = maxY - minY + 2 * defaultRoute.topBottomMargin;
+			double splitHeight = maxY - minY + 2.0 * defaultRoute.topBottomMargin;
 
 			double scaleX = (windowWidth * renderer->getMapPanel().relativeWidth) / splitWidth;
 			double scaleY = windowHeight / splitHeight;
@@ -306,7 +299,7 @@ void RouteManager::calculateSplitTransformations()
 
 			splitTransformation.x = -middlePoint.x();
 			splitTransformation.y = middlePoint.y();
-			splitTransformation.angle = finalAngle;
+			splitTransformation.angle = angle;
 			splitTransformation.scale = finalScale;
 		}
 
@@ -358,6 +351,7 @@ void RouteManager::calculateCurrentSplitTransformation(double currentTime, doubl
 		double secondSplitOffsetTime = defaultRoute.splitTimes.splitTimes.at(i + 1).time + defaultRoute.controlTimeOffset;
 		double runnerOffsetTime = currentTime + defaultRoute.runnerTimeOffset;
 
+		// check if we are inside the time range of two consecutive controls
 		if (runnerOffsetTime >= firstSplitOffsetTime && runnerOffsetTime < secondSplitOffsetTime)
 		{
 			if (instantTransitionRequested)
@@ -373,6 +367,19 @@ void RouteManager::calculateCurrentSplitTransformation(double currentTime, doubl
 					defaultRoute.nextSplitTransformation = defaultRoute.splitTransformations.at(i);
 					defaultRoute.transitionAlpha = 0.0;
 					defaultRoute.transitionInProgress = true;
+
+					double angleDelta = defaultRoute.nextSplitTransformation.angle - defaultRoute.previousSplitTransformation.angle;
+					double absoluteAngleDelta = abs(angleDelta);
+					double finalAngleDelta = angleDelta;
+
+					// always try to rotate as little as possible
+					if (absoluteAngleDelta > 180.0)
+					{
+						finalAngleDelta = 360.0 - absoluteAngleDelta;
+						finalAngleDelta *= (angleDelta < 0.0) ? 1.0 : -1.0;
+					}
+
+					defaultRoute.previousSplitTransformation.angleDelta = finalAngleDelta;
 				}
 				else
 					defaultRoute.currentSplitTransformation = defaultRoute.splitTransformations.at(i);
@@ -388,19 +395,21 @@ void RouteManager::calculateCurrentSplitTransformation(double currentTime, doubl
 	{
 		if (defaultRoute.transitionAlpha > 1.0)
 		{
-			defaultRoute.transitionAlpha = 1.0;
+			defaultRoute.currentSplitTransformation = defaultRoute.nextSplitTransformation;
 			defaultRoute.transitionInProgress = false;
 		}
+		else
+		{
+			double alpha = defaultRoute.transitionAlpha;
+			alpha = alpha * alpha * alpha * (alpha * (alpha * 6 - 15) + 10); // smootherstep
 
-		double alpha = defaultRoute.transitionAlpha;
-		alpha = alpha * alpha * alpha * (alpha * (alpha * 6 - 15) + 10); // smootherstep
+			defaultRoute.currentSplitTransformation.x = (1.0 - alpha) * defaultRoute.previousSplitTransformation.x + alpha * defaultRoute.nextSplitTransformation.x;
+			defaultRoute.currentSplitTransformation.y = (1.0 - alpha) * defaultRoute.previousSplitTransformation.y + alpha * defaultRoute.nextSplitTransformation.y;
+			defaultRoute.currentSplitTransformation.angle = defaultRoute.previousSplitTransformation.angle + alpha * defaultRoute.previousSplitTransformation.angleDelta;
+			defaultRoute.currentSplitTransformation.scale = (1.0 - alpha) * defaultRoute.previousSplitTransformation.scale + alpha * defaultRoute.nextSplitTransformation.scale;
 
-		defaultRoute.currentSplitTransformation.x = (1.0 - alpha) * defaultRoute.previousSplitTransformation.x + alpha * defaultRoute.nextSplitTransformation.x;
-		defaultRoute.currentSplitTransformation.y = (1.0 - alpha) * defaultRoute.previousSplitTransformation.y + alpha * defaultRoute.nextSplitTransformation.y;
-		defaultRoute.currentSplitTransformation.angle = (1.0 - alpha) * defaultRoute.previousSplitTransformation.angle + alpha * defaultRoute.nextSplitTransformation.angle;
-		defaultRoute.currentSplitTransformation.scale = (1.0 - alpha) * defaultRoute.previousSplitTransformation.scale + alpha * defaultRoute.nextSplitTransformation.scale;
-
-		defaultRoute.transitionAlpha += defaultRoute.smoothTransitionSpeed * frameTime;
+			defaultRoute.transitionAlpha += defaultRoute.smoothTransitionSpeed * frameTime;
+		}
 	}
 }
 
