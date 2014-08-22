@@ -38,6 +38,18 @@
 			<assemblyIdentity type="win32" name="msvcp120.dll" version="9.9.9.9" processorArchitecture="amd64" />
 		</dependentAssembly>
 	</dependency>
+	
+	<dependency>
+		<dependentAssembly>
+			<assemblyIdentity type="win32" name="libmmd.dll" version="9.9.9.9" processorArchitecture="amd64" />
+		</dependentAssembly>
+	</dependency>
+	
+	<dependency>
+		<dependentAssembly>
+			<assemblyIdentity type="win32" name="svml_dispmd.dll" version="9.9.9.9" processorArchitecture="amd64" />
+		</dependentAssembly>
+	</dependency>
 
 	<dependency>
 		<dependentAssembly>
@@ -50,13 +62,31 @@
 			<assemblyIdentity type="win32" name="Qt5Gui.dll" version="9.9.9.9" processorArchitecture="amd64" />
 		</dependentAssembly>
 	</dependency>
-
+	
+	<dependency>
+		<dependentAssembly>
+			<assemblyIdentity type="win32" name="Qt5OpenGL.dll" version="9.9.9.9" processorArchitecture="amd64" />
+		</dependentAssembly>
+	</dependency>
+	
+	<dependency>
+		<dependentAssembly>
+			<assemblyIdentity type="win32" name="Qt5Svg.dll" version="9.9.9.9" processorArchitecture="amd64" />
+		</dependentAssembly>
+	</dependency>
+	
 	<dependency>
 		<dependentAssembly>
 			<assemblyIdentity type="win32" name="Qt5Widgets.dll" version="9.9.9.9" processorArchitecture="amd64" />
 		</dependentAssembly>
 	</dependency>
 
+	<dependency>
+		<dependentAssembly>
+			<assemblyIdentity type="win32" name="Qt5Xml.dll" version="9.9.9.9" processorArchitecture="amd64" />
+		</dependentAssembly>
+	</dependency>
+	
 	<dependency>
 		<dependentAssembly>
 			<assemblyIdentity type="win32" name="icuin52.dll" version="9.9.9.9" processorArchitecture="amd64" />
