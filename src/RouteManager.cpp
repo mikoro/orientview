@@ -362,6 +362,9 @@ void RouteManager::calculateCurrentSplitTransformation(double currentTime, doubl
 		// check if we are inside the time range of two consecutive controls
 		if (runnerOffsetTime >= firstSplitOffsetTime && runnerOffsetTime < secondSplitOffsetTime)
 		{
+			if (i >= defaultRoute.splitTransformations.size())
+				break;
+
 			if (instantTransitionRequested)
 			{
 				defaultRoute.currentSplitTransformation = defaultRoute.splitTransformations.at(i);
