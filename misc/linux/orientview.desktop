@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Name=OrientView
+Comment=Orienteering video and map analysis
+Exec=orientview
+Icon=/opt/orientview/orientview-256x256.png
+Terminal=false
+Type=Application
+Categories=Multimedia;
+StartupWMClass=OrientView
+MimeType=application/orientview;application/x-orientview;
