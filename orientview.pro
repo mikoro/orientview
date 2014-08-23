@@ -14,9 +14,12 @@ unix {
     QMAKE_LIBDIR += /var/tmp/ffmpeg/lib /var/tmp/opencv/lib /var/tmp/x264/lib /var/tmp/l-smash/lib
 }
 
+# data folder, *.config and debug dlls need to be copied to output folder
 win32 {
     INCLUDEPATH += include
     QMAKE_LIBDIR += lib
+    CONFIG -= embed_manifest_exe
+    RC_FILE = misc/windows/orientview.rc
     LIBS += avformat.lib avutil.lib avcodec.lib swscale.lib libx264.dll.lib liblsmash.lib
     debug:LIBS += opencv_core249d.lib opencv_imgproc249d.lib opencv_photo249d.lib opencv_video249d.lib
     release:LIBS += opencv_core249.lib opencv_imgproc249.lib opencv_photo249.lib opencv_video249.lib

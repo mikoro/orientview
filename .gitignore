@@ -1,6 +1,8 @@
 /bin
 /build
 /include
+/debug
+/release
 /My*
 *.sdf
 *.opensdf
@@ -11,5 +13,5 @@
 *.dll
 *.lib
 orientview
-Makefile
+Makefile*
 .directory
