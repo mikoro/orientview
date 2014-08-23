@@ -12,6 +12,7 @@
 *.log
 *.dll
 *.lib
+*.tar.gz
 orientview
 Makefile*
 .directory

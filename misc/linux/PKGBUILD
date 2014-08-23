@@ -2,7 +2,7 @@
 
 pkgname=orientview
 pkgver=1.0.0
-pkgrel=1
+pkgrel=2
 pkgdesc="Orienteering video and map analysis"
 arch=("i686" "x86_64")
 url="https://github.com/mikoro/orientview"
