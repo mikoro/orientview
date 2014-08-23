@@ -23,7 +23,7 @@ void SplitTimeManager::initialize(Settings* settings)
 
 		if (timeParts.length() == 1)
 		{
-			seconds = timeParts.at(1).toDouble();
+			seconds = timeParts.at(0).toDouble();
 		}
 
 		if (timeParts.length() == 2)
