@@ -15,8 +15,8 @@ Download the latest version:
 
 | Windows 64-bit                                                                                                         | Mac OS X          | Linux                                  |
 |------------------------------------------------------------------------------------------------------------------------|-------------------|----------------------------------------|
-| [OrientView-1.0.0-Setup.msi](https://github.com/mikoro/orientview/releases/download/v1.0.0/OrientView-1.0.0-Setup.msi) | Not yet available | [See build instructions](#linux_build) |
-| [OrientView-1.0.0.zip](https://github.com/mikoro/orientview/releases/download/v1.0.0/OrientView-1.0.0.zip)             |                   |                                        |
+| [OrientView-1.0.0-Setup.msi](https://github.com/mikoro/orientview/releases/download/v1.0.0/OrientView-1.0.0-Setup.msi) | Not yet available | [Arch Linux AUR](#)                    |
+| [OrientView-1.0.0.zip](https://github.com/mikoro/orientview/releases/download/v1.0.0/OrientView-1.0.0.zip)             | &nbsp;            | [Build instructions](#linux_build)     |
 
 For testing out the program, you can also [download test data](https://mega.co.nz/#F!nM1gHbZJ!pvFqf3UOrHrmMyuUTlMSrg).
 
@@ -87,15 +87,22 @@ For testing out the program, you can also [download test data](https://mega.co.n
 
 * Not all settings are exposed to the UI. Save the settings to a file and open it with a text editor. Then load the edited settings back.
 
-### <a name="linux_build"></a>Linux build
+### Building on Windows
 
-1. Install [FFmpeg 2.3](https://www.ffmpeg.org/).
-2. Install [OpenCV 2.4](http://opencv.org/).
-3. Install [x264](http://www.videolan.org/developers/x264.html).
-4. Install [L-SMASH](https://github.com/l-smash/l-smash).
-5. Install [Qt 5.3](http://qt-project.org/).
+1. Clone [https://github.com/mikoro/orientview.git](https://github.com/mikoro/orientview.git).
+2. Clone [https://github.com/mikoro/orientview-binaries.git](https://github.com/mikoro/orientview-binaries.git).
+3. Copy the windows-specific files from orientview-binaries to the orientview project root folder.
+4. Build using either Visual Studio or QtCreator.
+
+### <a name="linux_build"></a>Building on Linux
+
+1. Install [Qt 5.3](http://qt-project.org/).
+2. Install [FFmpeg 2.3](https://www.ffmpeg.org/).
+3. Install [OpenCV 2.4](http://opencv.org/).
+4. Install [x264](http://www.videolan.org/developers/x264.html).
+5. Install [L-SMASH](https://github.com/l-smash/l-smash).
 6. Clone [https://github.com/mikoro/orientview.git](https://github.com/mikoro/orientview.git).
-6. Run `qmake && make`.
+7. Run `qmake && make`.
 
 ## License
 
