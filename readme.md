@@ -5,7 +5,8 @@ OrientView is an orienteering video analyzing program which displays the video a
 * Author: [Mikko Ronkainen](http://mikkoronkainen.com)
 * Website: [github.com/mikoro/orientview](https://github.com/mikoro/orientview)
 
-[![Build Status](https://travis-ci.org/mikoro/orientview.svg?branch=master)](https://travis-ci.org/mikoro/orientview)
+[![Travis Status](https://travis-ci.org/mikoro/orientview.svg?branch=master)](https://travis-ci.org/mikoro/orientview)
+[![Coverity Status](https://scan.coverity.com/projects/2849/badge.svg)](https://scan.coverity.com/projects/2849)
 
 ![Screenshot](http://mikoro.github.io/images/orientview/readme-screenshot.jpg "Screenshot")
 
@@ -13,10 +14,10 @@ OrientView is an orienteering video analyzing program which displays the video a
 
 Download the latest version:
 
-| Windows 64-bit                                                                                                         | Mac OS X          | Linux                                  |
-|------------------------------------------------------------------------------------------------------------------------|-------------------|----------------------------------------|
-| [OrientView-1.0.0-Setup.msi](https://github.com/mikoro/orientview/releases/download/v1.0.0/OrientView-1.0.0-Setup.msi) | Not yet available | [Arch Linux AUR](#)                    |
-| [OrientView-1.0.0.zip](https://github.com/mikoro/orientview/releases/download/v1.0.0/OrientView-1.0.0.zip)             | &nbsp;            | [Build instructions](#linux_build)     |
+| Windows 64-bit                                                                                                         | Mac OS X          | Linux                                                            |
+|------------------------------------------------------------------------------------------------------------------------|-------------------|------------------------------------------------------------------|
+| [OrientView-1.0.0-Setup.msi](https://github.com/mikoro/orientview/releases/download/v1.0.0/OrientView-1.0.0-Setup.msi) | Not yet available | [Arch Linux AUR](https://aur.archlinux.org/packages/orientview/) |
+| [OrientView-1.0.0.zip](https://github.com/mikoro/orientview/releases/download/v1.0.0/OrientView-1.0.0.zip)             | &nbsp;            | [Build instructions](#linux_build)                               |
 
 For testing out the program, you can also [download test data](https://mega.co.nz/#F!nM1gHbZJ!pvFqf3UOrHrmMyuUTlMSrg).
 

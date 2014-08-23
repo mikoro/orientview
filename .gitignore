@@ -4,6 +4,7 @@
 /debug
 /release
 /My*
+/cov-int
 *.sdf
 *.opensdf
 *.suo
@@ -13,6 +14,7 @@
 *.dll
 *.lib
 *.tar.gz
+*.tgz
 orientview
 Makefile*
 .directory
