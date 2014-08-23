@@ -14,9 +14,12 @@ unix {
     QMAKE_LFLAGS += -L/var/tmp/ffmpeg/lib -L/var/tmp/opencv/lib -L/var/tmp/x264/lib -L/var/tmp/l-smash/lib
 
     target.path = $$PREFIX/opt/orientview
-    target.files = orientview data
-
-    INSTALLS += target
+    target.files = orientview data misc/icons/orientview-256x256.png
+    
+    desktop.path = $$PREFIX/usr/share/applications
+    desktop.files = misc/linux/orientview.desktop
+    
+    INSTALLS += target desktop
 }
 
 win32 {
