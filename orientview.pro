@@ -12,9 +12,13 @@ unix {
     # travis-ci specific
     QMAKE_CXXFLAGS += -isystem /var/tmp/ffmpeg/include -isystem /var/tmp/opencv/include -isystem /var/tmp/x264/include -isystem /var/tmp/l-smash/include
     QMAKE_LFLAGS += -L/var/tmp/ffmpeg/lib -L/var/tmp/opencv/lib -L/var/tmp/x264/lib -L/var/tmp/l-smash/lib
+
+    target.path = /opt/orientview
+    target.files = orientview data
+
+    INSTALLS += target
 }
 
-# data folder, *.config and debug dlls need to be copied to output folder
 win32 {
     INCLUDEPATH += include
     QMAKE_LIBDIR += lib
@@ -23,6 +27,7 @@ win32 {
     LIBS += avformat.lib avutil.lib avcodec.lib swscale.lib libx264.dll.lib liblsmash.lib
     debug:LIBS += opencv_core249d.lib opencv_imgproc249d.lib opencv_photo249d.lib opencv_video249d.lib
     release:LIBS += opencv_core249.lib opencv_imgproc249.lib opencv_photo249.lib opencv_video249.lib
+    # data folder, *.config and debug dlls need to be copied to output folder
 }
 
 OBJECTS_DIR = build

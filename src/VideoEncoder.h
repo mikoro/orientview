@@ -9,7 +9,7 @@
 extern "C"
 {
 #include <stdint.h>
-#include "x264/x264.h"
+#include "x264.h"
 #include "libswscale/swscale.h"
 }
 

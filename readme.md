@@ -102,7 +102,7 @@ For testing out the program, you can also [download test data](https://mega.co.n
 4. Install [x264](http://www.videolan.org/developers/x264.html).
 5. Install [L-SMASH](https://github.com/l-smash/l-smash).
 6. Clone [https://github.com/mikoro/orientview.git](https://github.com/mikoro/orientview.git).
-7. Run `qmake && make`.
+7. Run `export CXX=gcc && qmake && make`.
 
 ## License
 

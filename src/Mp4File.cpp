@@ -34,8 +34,8 @@
 
 extern "C"
 {
-#include "x264/x264.h"
-#include "lsmash/lsmash.h"
+#include "x264.h"
+#include "lsmash.h"
 }
 
 #include "Mp4File.h"
