@@ -2,13 +2,24 @@ TARGET = orientview
 TEMPLATE = app
 
 CONFIG += qt c++11 warn_on
-QT += core gui widgets opengl svg xml
-INCLUDEPATH += include
-LIBS += -lavcodec -lavformat -lavutil -lswscale -lswresample -lopencv_core -lopencv_imgproc -lopencv_photo -lopencv_video -lx264 -llsmash
+QT += core gui opengl svg widgets xml
 
-#QMAKE_CXX = clang
-QMAKE_CXXFLAGS += -Werror
-QMAKE_LFLAGS += -L/var/tmp/ffmpeg/lib -L/var/tmp/opencv/lib -L/var/tmp/x264/lib -L/var/tmp/l-smash/lib
+unix {
+    QMAKE_CXX = $$(CCX)
+    QMAKE_CXXFLAGS += -Werror
+    LIBS += -lavcodec -lavformat -lavutil -lswresample -lswscale -lopencv_core -lopencv_imgproc -lopencv_photo -lopencv_video -lx264 -llsmash
+
+    # travis-ci specific
+    QMAKE_LFLAGS += -L/var/tmp/ffmpeg/lib -L/var/tmp/opencv/lib -L/var/tmp/x264/lib -L/var/tmp/l-smash/lib
+}
+
+win32 {
+    INCLUDEPATH += include
+    QMAKE_LIBDIR += lib
+    LIBS += avformat.lib avutil.lib avcodec.lib swscale.lib libx264.dll.lib liblsmash.lib
+    debug:LIBS += opencv_core249d.lib opencv_imgproc249d.lib opencv_photo249d.lib opencv_video249d.lib
+    release:LIBS += opencv_core249.lib opencv_imgproc249.lib opencv_photo249.lib opencv_video249.lib
+}
 
 OBJECTS_DIR = build
 MOC_DIR = build
