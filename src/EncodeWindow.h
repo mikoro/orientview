@@ -53,9 +53,9 @@ namespace OrientView
 
 		bool event(QEvent* event);
 
-		VideoEncoderThread* videoEncoderThread;
-
 		Ui::EncodeWindow* ui = nullptr;
+		VideoEncoderThread* videoEncoderThread = nullptr;
+
 		QTime startTime;
 
 		QOffscreenSurface* surface = nullptr;

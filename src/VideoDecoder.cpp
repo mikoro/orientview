@@ -154,8 +154,8 @@ bool VideoDecoder::initialize(Settings* settings)
 
 	totalFrameCount = videoStream->nb_frames / frameCountDivisor;
 
-	frameRateNum = videoStream->avg_frame_rate.num / frameCountDivisor * frameDurationDivisor;
-	frameRateDen = videoStream->avg_frame_rate.den;
+	frameRateNum = (int64_t)videoStream->avg_frame_rate.num / (int64_t)frameCountDivisor * (int64_t)frameDurationDivisor;
+	frameRateDen = (int64_t)videoStream->avg_frame_rate.den;
 	frameDuration = frameRateDen * 1000000 / frameRateNum;
 
 	isInitialized = true;

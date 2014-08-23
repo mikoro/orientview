@@ -213,10 +213,17 @@ void VideoStabilizer::convertCumulativeFramePositionsToNormalized(QFile& fileIn,
 			}
 		}
 
-		double averageX = sumX / (double)sumCount;
-		double averageY = sumY / (double)sumCount;
-		double averageAngle = sumAngle / (double)sumCount;
+		double averageX = 0.0;
+		double averageY = 0.0;
+		double averageAngle = 0.0;
 
+		if (sumCount > 0)
+		{
+			averageX = sumX / (double)sumCount;
+			averageY = sumY / (double)sumCount;
+			averageAngle = sumAngle / (double)sumCount;
+		}
+		
 		FramePosition currentFp = positions.at(i);
 		FramePosition normalizedFp;
 
