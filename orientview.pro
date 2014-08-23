@@ -13,7 +13,7 @@ unix {
     QMAKE_CXXFLAGS += -isystem /var/tmp/ffmpeg/include -isystem /var/tmp/opencv/include -isystem /var/tmp/x264/include -isystem /var/tmp/l-smash/include
     QMAKE_LFLAGS += -L/var/tmp/ffmpeg/lib -L/var/tmp/opencv/lib -L/var/tmp/x264/lib -L/var/tmp/l-smash/lib
 
-    target.path = /opt/orientview
+    target.path = $$PREFIX/opt/orientview
     target.files = orientview data
 
     INSTALLS += target
