@@ -10,8 +10,8 @@ unix {
     LIBS += -lavcodec -lavformat -lavutil -lswresample -lswscale -lopencv_core -lopencv_imgproc -lopencv_photo -lopencv_video -lx264 -llsmash
 
     # travis-ci specific
-    INCLUDEPATH += /var/tmp/ffmpeg/include /var/tmp/opencv/include /var/tmp/x264/include /var/tmp/l-smash/include
-    QMAKE_LIBDIR += /var/tmp/ffmpeg/lib /var/tmp/opencv/lib /var/tmp/x264/lib /var/tmp/l-smash/lib
+    QMAKE_CXXFLAGS += -isystem /var/tmp/ffmpeg/include -isystem /var/tmp/opencv/include -isystem /var/tmp/x264/include -isystem /var/tmp/l-smash/include
+    QMAKE_LFLAGS += -L/var/tmp/ffmpeg/lib -L/var/tmp/opencv/lib -L/var/tmp/x264/lib -L/var/tmp/l-smash/lib
 }
 
 # data folder, *.config and debug dlls need to be copied to output folder
