@@ -5,6 +5,7 @@
 /release
 /My*
 /cov-int
+setup/
 *.sdf
 *.opensdf
 *.suo
@@ -15,6 +16,7 @@
 *.lib
 *.tar.gz
 *.tgz
+*.html
 orientview
 Makefile*
 .directory

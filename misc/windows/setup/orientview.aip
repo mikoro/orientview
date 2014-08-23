@@ -198,7 +198,7 @@
     <ROW File="swscale2.dll.manifest" Component_="swscale2.dll.manifest" FileName="SWSCAL~1.MAN|swscale-2.dll.manifest" Attributes="0" SourcePath="..\..\..\bin\Release\data\dll\swscale-2.dll\swscale-2.dll.manifest" SelfReg="false" NextFile="dejavusansbold.ttf"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BuildComponent">
-    <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="0" PackageFileName="[|ProductName]-[|ProductVersion]" Languages="en" InstallationType="4" UseLargeSchema="true" MsiPackageType="x64"/>
+    <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="0" PackageFileName="[|ProductName]-[|ProductVersion]-Setup" Languages="en" InstallationType="4" UseLargeSchema="true" MsiPackageType="x64"/>
     <ATTRIBUTE name="CurrentBuild" value="DefaultBuild"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.DictionaryComponent">
