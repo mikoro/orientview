@@ -266,6 +266,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="misc\orientview.rc" />
+    <ResourceCompile Include="misc\windows\orientview.rc" />
   </ItemGroup>
 </Project>

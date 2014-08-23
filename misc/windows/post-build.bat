@@ -5,5 +5,5 @@ if not exist bin\%1\data (
 )
 
 if not exist bin\%1\orientview.exe.config (
-  xcopy /Y /Q misc\orientview.exe.config bin\%1
+  xcopy /Y /Q misc\windows\orientview.exe.config bin\%1
 )
