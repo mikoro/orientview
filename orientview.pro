@@ -5,7 +5,7 @@ CONFIG += qt c++11 warn_on
 QT += core gui opengl svg widgets xml
 
 unix {
-    QMAKE_CXX = $$(CCX)
+    QMAKE_CXX = $$(CXX)
     QMAKE_CXXFLAGS += -Werror
     LIBS += -lavcodec -lavformat -lavutil -lswresample -lswscale -lopencv_core -lopencv_imgproc -lopencv_photo -lopencv_video -lx264 -llsmash
 
