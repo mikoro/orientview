@@ -44,7 +44,7 @@ For testing out the program, you can also [download test data](https://mega.co.n
 * Scan the map with high resolution (600 dpi TIFF format is preferrable).
 * Fix the map (orientation, cropping, levels etc.) and export one version with the original resolution (TIFF format preferrable) and export a smaller version for use with QuickRoute. Modern GPUs can easily take in 8192x8192 250 MB TIFF image - so there is no need to scale down or compress the map image that gets sent to the GPU. The QuickRoute image data will not be used so it's quality doesn't matter (only data inserted by QuickRoute to the JPEG file headers is used).
 * Using [QuickRoute](http://www.matstroeng.se/quickroute/en/) cut and align the gps track to the map. You can use as many aligment points as you want. Then export the map as a JPEG image.
-* Format the split times to a single string. Format is "hours:minutes:seconds" with hours and minutes being optional and the separator between splits being "|" or ";". For example: `0:00|1:23|1:23:45`. Time separator can also be ".". For example: `0.00;1.23;1.23.45`. Split times can be absolute or relative.
+* Format the split times to a single string. Format is "hours:minutes:seconds" with hours and minutes being optional and the separator between splits being "|" or ";". For example: `1:23|1:23:45`. Time separator can also be ".". For example: `1.23;1.23.45`. Split times can be absolute or relative.
 * Open OrientView and select the map image file, the QuickRoute JPEG file, and the video file. Input the split times and press Play!
 
 ### Controls
@@ -94,6 +94,9 @@ For testing out the program, you can also [download test data](https://mega.co.n
 
 1. Install [Visual Studio 2013 Professional](http://www.visualstudio.com/).
 2. Install [Qt 5.3](http://qt-project.org/downloads) (64-bit, VS 2013, OpenGL).
+3. Install [Visual Studio Add-in for Qt5](http://qt-project.org/downloads).
+4. Configure Qt Visual Studio settings to point to the correct Qt installation.
+5. Add Qt bin folder to your path.
 1. Clone [https://github.com/mikoro/orientview.git](https://github.com/mikoro/orientview.git).
 2. Clone [https://github.com/mikoro/orientview-binaries.git](https://github.com/mikoro/orientview-binaries.git).
 3. Copy the files from orientview-binaries/windows to the orientview root folder.
