@@ -41,6 +41,7 @@ extern "C"
 #include "Mp4File.h"
 
 #define H264_NALU_LENGTH_SIZE 4
+#define LOG_IF_ERR(cond, ...) if(cond) { qWarning(__VA_ARGS__); }
 #define RETURN_IF_ERR(cond, ...) if(cond) { qWarning(__VA_ARGS__); return false; }
 
 namespace OrientView
@@ -226,7 +227,7 @@ bool Mp4File::writeFrame(uint8_t* payload, size_t size, x264_picture_t* picture)
 	return true;
 }
 
-bool Mp4File::close(int64_t lastPts)
+void Mp4File::close(int64_t lastPts)
 {
 	if (mp4Handle != nullptr)
 	{
@@ -234,7 +235,7 @@ bool Mp4File::close(int64_t lastPts)
 		{
 			if (mp4Handle->track)
 			{
-				RETURN_IF_ERR(lsmash_flush_pooled_samples(mp4Handle->root, mp4Handle->track, mp4Handle->timeIncrement), "Failed to flush the rest of samples");
+				LOG_IF_ERR(lsmash_flush_pooled_samples(mp4Handle->root, mp4Handle->track, mp4Handle->timeIncrement), "Failed to flush the rest of samples");
 
 				double actualDuration = 0;
 
@@ -247,10 +248,10 @@ bool Mp4File::close(int64_t lastPts)
 				edit.duration = actualDuration;
 				edit.start_time = mp4Handle->firstCts;
 				edit.rate = ISOM_EDIT_MODE_NORMAL;
-				RETURN_IF_ERR(lsmash_create_explicit_timeline_map(mp4Handle->root, mp4Handle->track, edit), "Failed to set timeline map for video");
+				LOG_IF_ERR(lsmash_create_explicit_timeline_map(mp4Handle->root, mp4Handle->track, edit), "Failed to set timeline map for video");
 			}
 
-			RETURN_IF_ERR(lsmash_finish_movie(mp4Handle->root, nullptr), "Failed to finish movie");
+			LOG_IF_ERR(lsmash_finish_movie(mp4Handle->root, nullptr), "Failed to finish movie");
 		}
 
 		lsmash_cleanup_summary((lsmash_summary_t*)mp4Handle->summary);
@@ -262,6 +263,4 @@ bool Mp4File::close(int64_t lastPts)
 
 		mp4Handle = nullptr;
 	}
-
-	return true;
 }

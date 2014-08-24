@@ -97,7 +97,6 @@ VideoEncoder::~VideoEncoder()
 {
 	if (mp4File != nullptr)
 	{
-		mp4File->close(frameNumber);
 		delete mp4File;
 		mp4File = nullptr;
 	}
