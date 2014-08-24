@@ -5,18 +5,10 @@ CONFIG += qt c++11 warn_on
 QT += core gui opengl svg widgets xml
 
 unix {
-    
-    !isEmpty($$(CXX)) {
-        QMAKE_CXX = $$(CXX)
-    }
-    
+
     QMAKE_CXXFLAGS += -Werror
     LIBS += -lavcodec -lavformat -lavutil -lswresample -lswscale -lopencv_core -lopencv_imgproc -lopencv_photo -lopencv_video -lx264 -llsmash
-
-    # travis-ci specific
-    QMAKE_CXXFLAGS += -isystem /var/tmp/ffmpeg/include -isystem /var/tmp/opencv/include -isystem /var/tmp/x264/include -isystem /var/tmp/l-smash/include
-    QMAKE_LFLAGS += -L/var/tmp/ffmpeg/lib -L/var/tmp/opencv/lib -L/var/tmp/x264/lib -L/var/tmp/l-smash/lib
-
+    
     target.path = $$PREFIX/opt/orientview
     target.files = orientview data misc/icons/orientview-256x256.png
     
@@ -24,9 +16,20 @@ unix {
     desktop.files = misc/linux/orientview.desktop
     
     INSTALLS += target desktop
+    
+    TEMP_CXX = $$(CXX)
+    !isEmpty(TEMP_CXX) { QMAKE_CXX = $$TEMP_CXX }
+    
+    # travis-ci specific
+    TRAVIS = $$(TRAVIS)
+    equals(TRAVIS, "true") {
+        QMAKE_CXXFLAGS += -isystem /var/tmp/ffmpeg/include -isystem /var/tmp/opencv/include -isystem /var/tmp/x264/include -isystem /var/tmp/l-smash/include
+        QMAKE_LFLAGS += -L/var/tmp/ffmpeg/lib -L/var/tmp/opencv/lib -L/var/tmp/x264/lib -L/var/tmp/l-smash/lib
+    }
 }
 
 win32 {
+
     INCLUDEPATH += include
     QMAKE_LIBDIR += lib
     CONFIG -= embed_manifest_exe
