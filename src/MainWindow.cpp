@@ -21,7 +21,7 @@
 #include "MapImageReader.h"
 #include "VideoStabilizer.h"
 #include "InputHandler.h"
-#include "SplitTimeManager.h"
+#include "SplitsManager.h"
 #include "RouteManager.h"
 #include "Renderer.h"
 #include "VideoDecoderThread.h"
@@ -197,7 +197,7 @@ void MainWindow::on_actionPlayVideo_triggered()
 		renderer = new Renderer();
 		videoStabilizer = new VideoStabilizer();
 		inputHandler = new InputHandler();
-		splitTimeManager = new SplitTimeManager();
+		splitsManager = new SplitsManager();
 		routeManager = new RouteManager();
 		videoDecoderThread = new VideoDecoderThread();
 		renderOnScreenThread = new RenderOnScreenThread();
@@ -214,8 +214,8 @@ void MainWindow::on_actionPlayVideo_triggered()
 			throw std::runtime_error("Could not initialize video stabilizer");
 
 		inputHandler->initialize(videoWindow, renderer, videoDecoder, videoDecoderThread, videoStabilizer, routeManager, renderOnScreenThread, settings);
-		splitTimeManager->initialize(settings);
-		routeManager->initialize(quickRouteReader, splitTimeManager, renderer, settings);
+		splitsManager->initialize(settings);
+		routeManager->initialize(quickRouteReader, splitsManager, renderer, settings);
 		videoDecoderThread->initialize(videoDecoder);
 		renderOnScreenThread->initialize(this, videoWindow, videoDecoder, videoDecoderThread, videoStabilizer, routeManager, renderer, inputHandler);
 
@@ -273,10 +273,10 @@ void MainWindow::playVideoFinished()
 		routeManager = nullptr;
 	}
 
-	if (splitTimeManager != nullptr)
+	if (splitsManager != nullptr)
 	{
-		delete splitTimeManager;
-		splitTimeManager = nullptr;
+		delete splitsManager;
+		splitsManager = nullptr;
 	}
 
 	if (inputHandler != nullptr)
@@ -374,7 +374,7 @@ void MainWindow::on_actionEncodeVideo_triggered()
 		renderer = new Renderer();
 		videoStabilizer = new VideoStabilizer();
 		inputHandler = new InputHandler();
-		splitTimeManager = new SplitTimeManager();
+		splitsManager = new SplitsManager();
 		routeManager = new RouteManager();
 		videoDecoderThread = new VideoDecoderThread();
 		renderOffScreenThread = new RenderOffScreenThread();
@@ -392,8 +392,8 @@ void MainWindow::on_actionEncodeVideo_triggered()
 		if (!videoStabilizer->initialize(settings, false))
 			throw std::runtime_error("Could not initialize video stabilizer");
 
-		splitTimeManager->initialize(settings);
-		routeManager->initialize(quickRouteReader, splitTimeManager, renderer, settings);
+		splitsManager->initialize(settings);
+		routeManager->initialize(quickRouteReader, splitsManager, renderer, settings);
 		videoDecoderThread->initialize(videoDecoder);
 		renderOffScreenThread->initialize(this, encodeWindow, videoDecoder, videoDecoderThread, videoStabilizer, routeManager, renderer, videoEncoder);
 		videoEncoderThread->initialize(videoDecoder, videoEncoder, renderOffScreenThread);
@@ -463,10 +463,10 @@ void MainWindow::encodeVideoFinished()
 		routeManager = nullptr;
 	}
 
-	if (splitTimeManager != nullptr)
+	if (splitsManager != nullptr)
 	{
-		delete splitTimeManager;
-		splitTimeManager = nullptr;
+		delete splitsManager;
+		splitsManager = nullptr;
 	}
 
 	if (inputHandler != nullptr)

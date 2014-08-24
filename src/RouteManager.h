@@ -9,7 +9,7 @@
 #include <QColor>
 
 #include "RoutePoint.h"
-#include "SplitTimeManager.h"
+#include "SplitsManager.h"
 
 namespace OrientView
 {
@@ -33,7 +33,7 @@ namespace OrientView
 		std::vector<RoutePoint> routePoints;
 		std::vector<RoutePoint> alignedRoutePoints;
 		std::vector<SplitTransformation> splitTransformations;
-		SplitTimes splitTimes;
+		RunnerInfo runnerInfo;
 
 		double controlTimeOffset = 0.0;
 		double runnerTimeOffset = 0.0;
@@ -79,7 +79,7 @@ namespace OrientView
 
 	public:
 
-		void initialize(QuickRouteReader* quickRouteReader, SplitTimeManager* splitTimeManager, Renderer* renderer, Settings* settings);
+		void initialize(QuickRouteReader* quickRouteReader, SplitsManager* splitsManager, Renderer* renderer, Settings* settings);
 
 		void update(double currentTime, double frameTime);
 		void requestFullUpdate();

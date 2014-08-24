@@ -85,7 +85,7 @@
     <ClCompile Include="src\RouteManager.cpp" />
     <ClCompile Include="src\Settings.cpp" />
     <ClCompile Include="src\SimpleLogger.cpp" />
-    <ClCompile Include="src\SplitTimeManager.cpp" />
+    <ClCompile Include="src\SplitsManager.cpp" />
     <ClCompile Include="src\StabilizeWindow.cpp" />
     <ClCompile Include="src\VideoDecoder.cpp" />
     <ClCompile Include="src\VideoDecoderThread.cpp" />
@@ -109,7 +109,7 @@
     <ClInclude Include="src\QuickRouteReader.h" />
     <ClInclude Include="src\RouteManager.h" />
     <ClInclude Include="src\RoutePoint.h" />
-    <ClInclude Include="src\SplitTimeManager.h" />
+    <ClInclude Include="src\SplitsManager.h" />
     <CustomBuild Include="src\VideoStabilizerThread.h">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc%27ing VideoStabilizerThread.h...</Message>

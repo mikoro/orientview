@@ -1,17 +1,20 @@
 // Copyright © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
 // License: GPLv3, see the LICENSE file.
 
-#include "SplitTimeManager.h"
+#include "SplitsManager.h"
 #include "Settings.h"
 
 using namespace OrientView;
 
-void SplitTimeManager::initialize(Settings* settings)
+void SplitsManager::initialize(Settings* settings)
 {
 	QStringList timeStrings = settings->splits.splitTimes.split(QRegExp("[;|]"), QString::SkipEmptyParts);
-	SplitTimeType type = settings->splits.type;
+	SplitTimeType timeType = settings->splits.type;
 
 	double totalTime = 0.0;
+
+	// implicit first split at time zero
+	defaultRunnerInfo.splits.push_back(Split());
 
 	for (const QString& timeString : timeStrings)
 	{
@@ -39,24 +42,23 @@ void SplitTimeManager::initialize(Settings* settings)
 			seconds = timeParts.at(2).toDouble();
 		}
 
-		SplitTime splitTime;
-		splitTime.position = 0;
+		Split split;
 
-		if (type == SplitTimeType::Absolute)
+		if (timeType == SplitTimeType::Absolute)
 		{
-			splitTime.time = (hours * 3600.0 + minutes * 60.0 + seconds);
+			split.absoluteTime = (hours * 3600.0 + minutes * 60.0 + seconds);
 		}
 		else
 		{
 			totalTime += (hours * 3600.0 + minutes * 60.0 + seconds);
-			splitTime.time = totalTime;
+			split.absoluteTime = totalTime;
 		}
 
-		defaultSplitTimes.splitTimes.push_back(splitTime);
+		defaultRunnerInfo.splits.push_back(split);
 	}
 }
 
-const SplitTimes& SplitTimeManager::getDefaultSplitTimes() const
+const RunnerInfo& SplitsManager::getDefaultRunnerInfo() const
 {
-	return defaultSplitTimes;
+	return defaultRunnerInfo;
 }

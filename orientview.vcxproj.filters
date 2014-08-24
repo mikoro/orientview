@@ -140,9 +140,6 @@
     <ClCompile Include="build\GeneratedFiles\qrc_OrientView.cpp">
       <Filter>Generated Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\SplitTimeManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\RouteManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -163,6 +160,9 @@
     </ClCompile>
     <ClCompile Include="build\GeneratedFiles\Release\moc_VideoStabilizerThread.cpp">
       <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SplitsManager.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -255,14 +255,14 @@
     <ClInclude Include="src\RoutePoint.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\SplitTimeManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\RouteManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="build\GeneratedFiles\ui_StabilizeWindow.h">
       <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SplitsManager.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

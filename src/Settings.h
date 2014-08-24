@@ -8,7 +8,7 @@
 #include <QColor>
 
 #include "RouteManager.h"
-#include "SplitTimeManager.h"
+#include "SplitsManager.h"
 #include "VideoStabilizer.h"
 
 namespace Ui

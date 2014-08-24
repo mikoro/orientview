@@ -11,12 +11,12 @@
 
 using namespace OrientView;
 
-void RouteManager::initialize(QuickRouteReader* quickRouteReader, SplitTimeManager* splitTimeManager, Renderer* renderer, Settings* settings)
+void RouteManager::initialize(QuickRouteReader* quickRouteReader, SplitsManager* splitsManager, Renderer* renderer, Settings* settings)
 {
 	this->renderer = renderer;
 
 	defaultRoute.routePoints = quickRouteReader->getRoutePoints();
-	defaultRoute.splitTimes = splitTimeManager->getDefaultSplitTimes();
+	defaultRoute.runnerInfo = splitsManager->getDefaultRunnerInfo();
 	defaultRoute.controlTimeOffset = settings->route.controlTimeOffset;
 	defaultRoute.runnerTimeOffset = settings->route.runnerTimeOffset;
 	defaultRoute.userScale = settings->route.scale;
@@ -199,14 +199,14 @@ void RouteManager::constructWholeRoutePath()
 
 void RouteManager::calculateControlPositions()
 {
-	if (defaultRoute.splitTimes.splitTimes.empty() || defaultRoute.alignedRoutePoints.empty())
+	if (defaultRoute.runnerInfo.splits.empty() || defaultRoute.alignedRoutePoints.empty())
 		return;
 
 	defaultRoute.controlPositions.clear();
 
-	for (const SplitTime& splitTime : defaultRoute.splitTimes.splitTimes)
+	for (const Split& split : defaultRoute.runnerInfo.splits)
 	{
-		double offsetTime = splitTime.time + defaultRoute.controlTimeOffset;
+		double offsetTime = split.absoluteTime + defaultRoute.controlTimeOffset;
 		double previousWholeSecond = floor(offsetTime);
 		double alpha = offsetTime - previousWholeSecond;
 
@@ -231,20 +231,20 @@ void RouteManager::calculateControlPositions()
 
 void RouteManager::calculateSplitTransformations()
 {
-	if (defaultRoute.splitTimes.splitTimes.empty() || defaultRoute.alignedRoutePoints.empty())
+	if (defaultRoute.runnerInfo.splits.empty() || defaultRoute.alignedRoutePoints.empty())
 		return;
 
 	defaultRoute.splitTransformations.clear();
 
 	// take two consecutive controls and then figure out the transformation needed
 	// to make the line from start to stop control vertical, centered and zoomed appropriately
-	for (int i = 0; i < (int)defaultRoute.splitTimes.splitTimes.size() - 1; ++i)
+	for (int i = 0; i < (int)defaultRoute.runnerInfo.splits.size() - 1; ++i)
 	{
-		SplitTime st1 = defaultRoute.splitTimes.splitTimes.at(i);
-		SplitTime st2 = defaultRoute.splitTimes.splitTimes.at(i + 1);
+		Split split1 = defaultRoute.runnerInfo.splits.at(i);
+		Split split2 = defaultRoute.runnerInfo.splits.at(i + 1);
 
-		int startIndex = (int)round(st1.time + defaultRoute.controlTimeOffset);
-		int stopIndex = (int)round(st2.time + defaultRoute.controlTimeOffset);
+		int startIndex = (int)round(split1.absoluteTime + defaultRoute.controlTimeOffset);
+		int stopIndex = (int)round(split2.absoluteTime + defaultRoute.controlTimeOffset);
 		int indexMax = (int)defaultRoute.alignedRoutePoints.size() - 1;
 
 		startIndex = std::max(0, std::min(startIndex, indexMax));
@@ -254,9 +254,9 @@ void RouteManager::calculateSplitTransformations()
 
 		if (startIndex != stopIndex)
 		{
-			RoutePoint startRp = defaultRoute.alignedRoutePoints.at(startIndex);
-			RoutePoint stopRp = defaultRoute.alignedRoutePoints.at(stopIndex);
-			QPointF startToStop = stopRp.position - startRp.position; // vector pointing from start to stop
+			RoutePoint startRoutePoint = defaultRoute.alignedRoutePoints.at(startIndex);
+			RoutePoint stopRoutePoint = defaultRoute.alignedRoutePoints.at(stopIndex);
+			QPointF startToStop = stopRoutePoint.position - startRoutePoint.position; // vector pointing from start to stop
 
 			// rotate towards positive y-axis
 			double angle = atan2(-startToStop.y(), startToStop.x());
@@ -265,7 +265,7 @@ void RouteManager::calculateSplitTransformations()
 
 			// offset so that left quadrants rotate cw and right quadrants ccw
 			if (angle > 180.0)
-				angle = -(360.0 - angle);
+				angle = angle - 360.0;
 
 			QMatrix rotateMatrix;
 			rotateMatrix.rotate(-angle);
@@ -287,8 +287,8 @@ void RouteManager::calculateSplitTransformations()
 				maxY = std::max(maxY, position.y());
 			}
 
-			QPointF startPosition = rotateMatrix.map(startRp.position); // rotated starting position
-			QPointF middlePoint = (startRp.position + stopRp.position) / 2.0; // doesn't need to be rotated
+			QPointF startPosition = rotateMatrix.map(startRoutePoint.position); // rotated starting position
+			QPointF middlePoint = (startRoutePoint.position + stopRoutePoint.position) / 2.0; // doesn't need to be rotated
 
 			// split width is taken from the maximum deviation from center line to either left or right side
 			double splitWidthLeft = abs(minX - startPosition.x()) * 2.0 + 2.0 * defaultRoute.leftRightMargin;
@@ -353,10 +353,10 @@ void RouteManager::calculateRunnerPosition(double currentTime)
 
 void RouteManager::calculateCurrentSplitTransformation(double currentTime, double frameTime)
 {
-	for (int i = 0; i < (int)defaultRoute.splitTimes.splitTimes.size() - 1; ++i)
+	for (int i = 0; i < (int)defaultRoute.runnerInfo.splits.size() - 1; ++i)
 	{
-		double firstSplitOffsetTime = defaultRoute.splitTimes.splitTimes.at(i).time + defaultRoute.controlTimeOffset;
-		double secondSplitOffsetTime = defaultRoute.splitTimes.splitTimes.at(i + 1).time + defaultRoute.controlTimeOffset;
+		double firstSplitOffsetTime = defaultRoute.runnerInfo.splits.at(i).absoluteTime + defaultRoute.controlTimeOffset;
+		double secondSplitOffsetTime = defaultRoute.runnerInfo.splits.at(i + 1).absoluteTime + defaultRoute.controlTimeOffset;
 		double runnerOffsetTime = currentTime + defaultRoute.runnerTimeOffset;
 
 		// check if we are inside the time range of two consecutive controls

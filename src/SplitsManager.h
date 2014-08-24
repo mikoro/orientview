@@ -13,30 +13,30 @@ namespace OrientView
 
 	enum SplitTimeType { Absolute, Relative };
 
-	struct SplitTime
+	struct Split
 	{
-		double time = 0.0;
 		int position = 0;
+		double absoluteTime = 0.0;
 	};
 
-	struct SplitTimes
+	struct RunnerInfo
 	{
+		int finalPosition = 0;
 		QString name = "";
-		int position = 0;
-		std::vector<SplitTime> splitTimes;
+		std::vector<Split> splits;
 	};
 
-	class SplitTimeManager
+	class SplitsManager
 	{
 
 	public:
 
 		void initialize(Settings* settings);
 
-		const SplitTimes& getDefaultSplitTimes() const;
+		const RunnerInfo& getDefaultRunnerInfo() const;
 
 	private:
 
-		SplitTimes defaultSplitTimes;
+		RunnerInfo defaultRunnerInfo;
 	};
 }
