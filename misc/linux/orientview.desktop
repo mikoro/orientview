@@ -6,6 +6,6 @@ Exec=orientview
 Icon=orientview
 Terminal=false
 Type=Application
-Categories=Multimedia;
+Categories=AudioVideo;
 StartupWMClass=OrientView
 MimeType=application/orientview;application/x-orientview;
