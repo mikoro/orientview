@@ -159,6 +159,7 @@ bool VideoDecoder::initialize(Settings* settings)
 	frameDuration = frameRateDen * 1000000 / frameRateNum;
 
 	isInitialized = true;
+	isFinished = false;
 
 	if (settings->video.startTimeOffset > 0.0)
 		seekRelative(settings->video.startTimeOffset);
@@ -345,6 +346,8 @@ void VideoDecoder::seekRelative(double seconds)
 				return;
 			}
 		}
+
+		isFinished = false;
 	}
 	else
 		qWarning("Could not seek video");

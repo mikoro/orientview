@@ -75,7 +75,7 @@ namespace OrientView
 		double currentTimeInSeconds = 0.0;
 
 		bool isInitialized = false;
-		bool isFinished = false;
+		bool isFinished = true;
 		bool seekToAnyFrame = false;
 
 		QElapsedTimer decodeTimer;
