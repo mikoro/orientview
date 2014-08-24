@@ -86,13 +86,17 @@ For testing out the program, you can also [download test data](https://mega.co.n
 
 ### Misc
 
-* Not all settings are exposed to the UI. Save the settings to a file and open it with a text editor. Then load the edited settings back.
+* Most of the UI controls have tooltips explaining what they are for.
+* Not all settings are exposed to the UI. You can edit the extra settings by first saving the current settings to a file, open it with a text editor (the file is in ini format), do some modifications, and then load the file back.
+* The difference between real-time and preprocessed stabilization is that the latter can look at the future when doing the stabilization analysis. This makes the centering faster with sudden large frame movements and also makes the stabilization a little bit more responsive to small movements.
 
 ### Building on Windows
 
+1. Install [Visual Studio 2013 Professional](http://www.visualstudio.com/).
+2. Install [Qt 5.3](http://qt-project.org/downloads).
 1. Clone [https://github.com/mikoro/orientview.git](https://github.com/mikoro/orientview.git).
 2. Clone [https://github.com/mikoro/orientview-binaries.git](https://github.com/mikoro/orientview-binaries.git).
-3. Copy the windows-specific files from orientview-binaries to the orientview project root folder.
+3. Copy the files from orientview-binaries/windows to the orientview root folder.
 4. Build using either Visual Studio or QtCreator.
 
 ### <a name="linux_build"></a>Building on Linux
@@ -103,7 +107,7 @@ For testing out the program, you can also [download test data](https://mega.co.n
 4. Install [x264](http://www.videolan.org/developers/x264.html).
 5. Install [L-SMASH](https://github.com/l-smash/l-smash).
 6. Clone [https://github.com/mikoro/orientview.git](https://github.com/mikoro/orientview.git).
-7. Run `export CXX=gcc && qmake && make`.
+7. Run `qmake && make`.
 
 ## License
 
