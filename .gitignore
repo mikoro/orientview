@@ -6,6 +6,8 @@
 /My*
 /cov-int
 setup/
+/misc/linux/src
+/misc/linux/pkg
 *.sdf
 *.opensdf
 *.suo
@@ -16,6 +18,7 @@ setup/
 *.lib
 *.tar.gz
 *.tgz
+*.xz
 *.html
 orientview
 Makefile*

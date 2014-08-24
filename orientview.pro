@@ -10,12 +10,9 @@ unix {
     LIBS += -lavcodec -lavformat -lavutil -lswresample -lswscale -lopencv_core -lopencv_imgproc -lopencv_photo -lopencv_video -lx264 -llsmash
     
     target.path = $$PREFIX/opt/orientview
-    target.files = orientview data misc/icons/orientview-256x256.png
+    target.files = orientview data
     
-    desktop.path = $$PREFIX/usr/share/applications
-    desktop.files = misc/linux/orientview.desktop
-    
-    INSTALLS += target desktop
+    INSTALLS += target
     
     TEMP_CXX = $$(CXX)
     !isEmpty(TEMP_CXX) { QMAKE_CXX = $$TEMP_CXX }
