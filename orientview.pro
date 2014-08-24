@@ -59,7 +59,7 @@ HEADERS  += \
     src/RoutePoint.h \
     src/Settings.h \
     src/SimpleLogger.h \
-    src/SplitTimeManager.h \
+    src/SplitsManager.h \
     src/StabilizeWindow.h \
     src/VideoDecoder.h \
     src/VideoDecoderThread.h \
@@ -85,7 +85,7 @@ SOURCES += \
     src/RouteManager.cpp \
     src/Settings.cpp \
     src/SimpleLogger.cpp \
-    src/SplitTimeManager.cpp \
+    src/SplitsManager.cpp \
     src/StabilizeWindow.cpp \
     src/VideoDecoder.cpp \
     src/VideoDecoderThread.cpp \
