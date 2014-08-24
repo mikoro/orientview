@@ -16,7 +16,6 @@ md5sums=("SKIP")
 
 build() {
   cd orientview-${pkgver}
-  export CXX=gcc
   qmake PREFIX=${pkgdir}
   make
 }
