@@ -207,7 +207,7 @@ void MainWindow::on_actionPlayVideo_triggered()
 		if (!videoWindow->initialize(settings))
 			throw std::runtime_error("Could not initialize video window");
 
-		if (!renderer->initialize(videoDecoder, mapImageReader, videoStabilizer, inputHandler, routeManager, settings))
+		if (!renderer->initialize(videoDecoder, mapImageReader, videoStabilizer, inputHandler, routeManager, settings, false))
 			throw std::runtime_error("Could not initialize renderer");
 
 		if (!videoStabilizer->initialize(settings, false))
@@ -224,9 +224,6 @@ void MainWindow::on_actionPlayVideo_triggered()
 
 		videoWindow->getContext()->doneCurrent();
 		videoWindow->getContext()->moveToThread(renderOnScreenThread);
-
-		renderer->setFlipOutput(false);
-		renderer->setIsEncoding(false);
 
 		videoDecoderThread->start();
 		renderOnScreenThread->start();
@@ -386,7 +383,7 @@ void MainWindow::on_actionEncodeVideo_triggered()
 		if (!videoEncoder->initialize(videoDecoder, settings))
 			throw std::runtime_error("Could not initialize video encoder");
 
-		if (!renderer->initialize(videoDecoder, mapImageReader, videoStabilizer, inputHandler, routeManager, settings))
+		if (!renderer->initialize(videoDecoder, mapImageReader, videoStabilizer, inputHandler, routeManager, settings, true))
 			throw std::runtime_error("Could not initialize renderer");
 
 		if (!videoStabilizer->initialize(settings, false))
@@ -407,9 +404,6 @@ void MainWindow::on_actionEncodeVideo_triggered()
 
 		encodeWindow->getContext()->doneCurrent();
 		encodeWindow->getContext()->moveToThread(renderOffScreenThread);
-
-		renderer->setFlipOutput(true);
-		renderer->setIsEncoding(true);
 
 		videoDecoderThread->start();
 		renderOffScreenThread->start();

@@ -73,7 +73,7 @@ namespace OrientView
 
 	public:
 
-		bool initialize(VideoDecoder* videoDecoder, MapImageReader* mapImageReader, VideoStabilizer* videoStabilizer, InputHandler* inputHandler, RouteManager* routeManager, Settings* settings);
+		bool initialize(VideoDecoder* videoDecoder, MapImageReader* mapImageReader, VideoStabilizer* videoStabilizer, InputHandler* inputHandler, RouteManager* routeManager, Settings* settings, bool renderToOffscreen);
 		bool windowResized(int newWidth, int newHeight);
 		~Renderer();
 
@@ -88,8 +88,6 @@ namespace OrientView
 		RenderMode getRenderMode() const;
 
 		void setRenderMode(RenderMode mode);
-		void setFlipOutput(bool value);
-		void setIsEncoding(bool value);
 		void toggleShowInfoPanel();
 		void requestFullClear();
 
@@ -107,8 +105,7 @@ namespace OrientView
 		InputHandler* inputHandler = nullptr;
 		RouteManager* routeManager = nullptr;
 
-		bool shouldFlipOutput = false;
-		bool isEncoding = false;
+		bool renderToOffscreen = false;
 		bool showInfoPanel = false;
 		bool fullClearRequested = true;
 

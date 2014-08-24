@@ -14,13 +14,14 @@
 
 using namespace OrientView;
 
-bool Renderer::initialize(VideoDecoder* videoDecoder, MapImageReader* mapImageReader, VideoStabilizer* videoStabilizer, InputHandler* inputHandler, RouteManager* routeManager, Settings* settings)
+bool Renderer::initialize(VideoDecoder* videoDecoder, MapImageReader* mapImageReader, VideoStabilizer* videoStabilizer, InputHandler* inputHandler, RouteManager* routeManager, Settings* settings, bool renderToOffscreen)
 {
 	qDebug("Initializing renderer");
 
 	this->videoStabilizer = videoStabilizer;
 	this->inputHandler = inputHandler;
 	this->routeManager = routeManager;
+	this->renderToOffscreen = renderToOffscreen;
 
 	videoPanel.clearColor = settings->video.backgroundColor;
 	videoPanel.clippingEnabled = settings->video.enableClipping;
@@ -120,8 +121,9 @@ bool Renderer::initialize(VideoDecoder* videoDecoder, MapImageReader* mapImageRe
 	mapPanel.texture->release();
 
 	paintDevice = new QOpenGLPaintDevice();
+	paintDevice->setPaintFlipped(renderToOffscreen);
 	painter = new QPainter();
-
+	
 	return true;
 }
 
@@ -132,52 +134,55 @@ bool Renderer::windowResized(int newWidth, int newHeight)
 
 	fullClearRequested = true;
 
-	QOpenGLFramebufferObjectFormat format;
-	format.setSamples(multisamples);
-	format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
-
-	if (outputFramebuffer != nullptr)
+	if (renderToOffscreen)
 	{
-		delete outputFramebuffer;
-		outputFramebuffer = nullptr;
+		QOpenGLFramebufferObjectFormat format;
+		format.setSamples(multisamples);
+		format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
+
+		if (outputFramebuffer != nullptr)
+		{
+			delete outputFramebuffer;
+			outputFramebuffer = nullptr;
+		}
+
+		outputFramebuffer = new QOpenGLFramebufferObject(windowWidth, windowHeight, format);
+
+		if (!outputFramebuffer->isValid())
+		{
+			qWarning("Could not create main frame buffer");
+			return false;
+		}
+
+		format.setSamples(0);
+
+		if (outputFramebufferNonMultisample != nullptr)
+		{
+			delete outputFramebufferNonMultisample;
+			outputFramebufferNonMultisample = nullptr;
+		}
+
+		outputFramebufferNonMultisample = new QOpenGLFramebufferObject(windowWidth, windowHeight, format);
+
+		if (!outputFramebufferNonMultisample->isValid())
+		{
+			qWarning("Could not create non multisampled main frame buffer");
+			return false;
+		}
+
+		if (renderedFrameData.data != nullptr)
+		{
+			delete renderedFrameData.data;
+			renderedFrameData.data = nullptr;
+		}
+
+		renderedFrameData = FrameData();
+		renderedFrameData.dataLength = (size_t)(windowWidth * windowHeight * 4);
+		renderedFrameData.rowLength = (size_t)(windowWidth * 4);
+		renderedFrameData.data = new uint8_t[renderedFrameData.dataLength];
+		renderedFrameData.width = windowWidth;
+		renderedFrameData.height = windowHeight;
 	}
-
-	outputFramebuffer = new QOpenGLFramebufferObject(windowWidth, windowHeight, format);
-
-	if (!outputFramebuffer->isValid())
-	{
-		qWarning("Could not create main frame buffer");
-		return false;
-	}
-
-	format.setSamples(0);
-
-	if (outputFramebufferNonMultisample != nullptr)
-	{
-		delete outputFramebufferNonMultisample;
-		outputFramebufferNonMultisample = nullptr;
-	}
-
-	outputFramebufferNonMultisample = new QOpenGLFramebufferObject(windowWidth, windowHeight, format);
-
-	if (!outputFramebufferNonMultisample->isValid())
-	{
-		qWarning("Could not create non multisampled main frame buffer");
-		return false;
-	}
-
-	if (renderedFrameData.data != nullptr)
-	{
-		delete renderedFrameData.data;
-		renderedFrameData.data = nullptr;
-	}
-
-	renderedFrameData = FrameData();
-	renderedFrameData.dataLength = (size_t)(windowWidth * windowHeight * 4);
-	renderedFrameData.rowLength = (size_t)(windowWidth * 4);
-	renderedFrameData.data = new uint8_t[renderedFrameData.dataLength];
-	renderedFrameData.width = windowWidth;
-	renderedFrameData.height = windowHeight;
 
 	return true;
 }
@@ -327,7 +332,7 @@ void Renderer::uploadFrameData(const FrameData& frameData)
 
 void Renderer::renderAll()
 {
-	if (isEncoding)
+	if (renderToOffscreen)
 		outputFramebuffer->bind();
 
 	if (renderMode == RenderMode::All || renderMode == RenderMode::Video)
@@ -352,7 +357,7 @@ void Renderer::renderAll()
 	if (showInfoPanel)
 		renderInfoPanel();
 
-	if (isEncoding)
+	if (renderToOffscreen)
 		outputFramebuffer->release();
 }
 
@@ -363,6 +368,9 @@ void Renderer::stopRendering()
 
 FrameData Renderer::getRenderedFrame()
 {
+	if (!renderToOffscreen)
+		return FrameData();
+
 	QOpenGLFramebufferObject* sourceFbo = outputFramebuffer;
 
 	// pixels cannot be directly read from a multisampled framebuffer
@@ -385,7 +393,7 @@ void Renderer::renderVideoPanel()
 {
 	videoPanel.vertexMatrix.setToIdentity();
 
-	if (!shouldFlipOutput)
+	if (!renderToOffscreen)
 		videoPanel.vertexMatrix.ortho(-windowWidth / 2, windowWidth / 2, -windowHeight / 2, windowHeight / 2, 0.0f, 1.0f);
 	else
 		videoPanel.vertexMatrix.ortho(-windowWidth / 2, windowWidth / 2, windowHeight / 2, -windowHeight / 2, 0.0f, 1.0f);
@@ -447,7 +455,7 @@ void Renderer::renderMapPanel()
 {
 	mapPanel.vertexMatrix.setToIdentity();
 
-	if (!shouldFlipOutput)
+	if (!renderToOffscreen)
 		mapPanel.vertexMatrix.ortho(-windowWidth / 2, windowWidth / 2, -windowHeight / 2, windowHeight / 2, 0.0f, 1.0f);
 	else
 		mapPanel.vertexMatrix.ortho(-windowWidth / 2, windowWidth / 2, windowHeight / 2, -windowHeight / 2, 0.0f, 1.0f);
@@ -656,7 +664,7 @@ void Renderer::renderInfoPanel()
 	painter->drawText(textX, textY += lineSpacing, lineWidth1, lineHeight, 0, "stabilize:");
 	painter->drawText(textX, textY += lineSpacing, lineWidth1, lineHeight, 0, "render:");
 
-	if (isEncoding)
+	if (renderToOffscreen)
 		painter->drawText(textX, textY += lineSpacing, lineWidth1, lineHeight, 0, "encode:");
 	else
 		painter->drawText(textX, textY += lineSpacing, lineWidth1, lineHeight, 0, "spare:");
@@ -691,7 +699,7 @@ void Renderer::renderInfoPanel()
 	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString("%1 ms").arg(QString::number(averageStabilizeTime.getAverage(), 'f', 2)));
 	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString("%1 ms").arg(QString::number(averageRenderTime.getAverage(), 'f', 2)));
 
-	if (isEncoding)
+	if (renderToOffscreen)
 		painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString("%1 ms").arg(QString::number(averageEncodeTime.getAverage(), 'f', 2)));
 	else
 	{
@@ -760,17 +768,6 @@ RenderMode Renderer::getRenderMode() const
 void Renderer::setRenderMode(RenderMode mode)
 {
 	renderMode = mode;
-}
-
-void Renderer::setFlipOutput(bool value)
-{
-	paintDevice->setPaintFlipped(value);
-	shouldFlipOutput = value;
-}
-
-void Renderer::setIsEncoding(bool value)
-{
-	isEncoding = value;
 }
 
 void Renderer::toggleShowInfoPanel()
