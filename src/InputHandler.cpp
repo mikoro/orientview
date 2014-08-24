@@ -23,6 +23,15 @@ void InputHandler::initialize(VideoWindow* videoWindow, Renderer* renderer, Vide
 	this->routeManager = routeManager;
 	this->renderOnScreenThread = renderOnScreenThread;
 	this->settings = settings;
+
+	seekBackwardRepeatHandler.firstRepeatTimer.start();
+	seekBackwardRepeatHandler.repeatTimer.start();
+
+	seekForwardRepeatHandler.firstRepeatTimer.start();
+	seekForwardRepeatHandler.repeatTimer.start();
+
+	advanceOneFrameRepeatHandler.firstRepeatTimer.start();
+	advanceOneFrameRepeatHandler.repeatTimer.start();
 }
 
 void InputHandler::handleInput(double frameTime)
