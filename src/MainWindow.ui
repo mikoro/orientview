@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>572</width>
-    <height>623</height>
+    <height>723</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -155,7 +155,7 @@
               </size>
              </property>
              <property name="toolTip">
-              <string>Relative width of the map</string>
+              <string>Relative width of the map (relative to window width)</string>
              </property>
              <property name="maximum">
               <double>1.000000000000000</double>
@@ -275,7 +275,7 @@
                 </size>
                </property>
                <property name="toolTip">
-                <string>Background clear color of the map</string>
+                <string>Background color of the map</string>
                </property>
                <property name="text">
                 <string>#ffffff</string>
@@ -492,7 +492,7 @@
               </size>
              </property>
              <property name="text">
-              <string>Control time offset</string>
+              <string>Control time offset (s)</string>
              </property>
             </widget>
            </item>
@@ -517,7 +517,7 @@
               </size>
              </property>
              <property name="toolTip">
-              <string>Used to adjust control positions on the route</string>
+              <string>Adjust control positions on the route</string>
              </property>
              <property name="minimum">
               <double>-99999.000000000000000</double>
@@ -554,7 +554,7 @@
               </size>
              </property>
              <property name="text">
-              <string>Runner time offset</string>
+              <string>Runner time offset (s)</string>
              </property>
             </widget>
            </item>
@@ -579,7 +579,7 @@
               </size>
              </property>
              <property name="toolTip">
-              <string>Used to adjust the runner position on the route</string>
+              <string>Adjust the runner position on the route</string>
              </property>
              <property name="minimum">
               <double>-99999.000000000000000</double>
@@ -690,7 +690,7 @@
               </size>
              </property>
              <property name="text">
-              <string>Top/bottom margin</string>
+              <string>Top/bottom margin (px)</string>
              </property>
             </widget>
            </item>
@@ -715,7 +715,7 @@
               </size>
              </property>
              <property name="text">
-              <string>Left/right margin</string>
+              <string>Left/right margin (px)</string>
              </property>
             </widget>
            </item>
@@ -740,7 +740,7 @@
               </size>
              </property>
              <property name="toolTip">
-              <string>How much to leave margin at the top and bottom</string>
+              <string>How many pixels to leave margin at the top and bottom of the map (measuring from control positions)</string>
              </property>
              <property name="minimum">
               <double>0.000000000000000</double>
@@ -777,7 +777,7 @@
               </size>
              </property>
              <property name="toolTip">
-              <string>How much to leave margin at the left and right sides</string>
+              <string>How many pixels to leave margin at the left and right sides of the map (measuring from route edges)</string>
              </property>
              <property name="minimum">
               <double>0.000000000000000</double>
@@ -893,7 +893,7 @@
               </size>
              </property>
              <property name="text">
-              <string>Start time offset</string>
+              <string>Start time offset (s)</string>
              </property>
             </widget>
            </item>
@@ -1053,7 +1053,7 @@
                 </size>
                </property>
                <property name="toolTip">
-                <string>Background clear color of the video</string>
+                <string>Background color of the video</string>
                </property>
                <property name="text">
                 <string>#003200</string>
@@ -1346,7 +1346,7 @@
               </size>
              </property>
              <property name="toolTip">
-              <string>Increase to decrease fps (will skip frames)</string>
+              <string>Larger divisors will skip more frames (fps will decrease)</string>
              </property>
              <property name="minimum">
               <number>1</number>
@@ -1402,7 +1402,7 @@
               </size>
              </property>
              <property name="toolTip">
-              <string>Increase to increase fps (will show each frame for less time)</string>
+              <string>Larger divisor will shorten frame durations (fps will increase)</string>
              </property>
              <property name="minimum">
               <number>1</number>
@@ -1458,7 +1458,7 @@
               </size>
              </property>
              <property name="toolTip">
-              <string>Increase to decrease to video frame size</string>
+              <string>Larger divisors will make the video frame size smaller</string>
              </property>
              <property name="minimum">
               <number>1</number>
@@ -1657,6 +1657,20 @@
              </property>
              <property name="text">
               <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_3">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QLabel" name="label_4">
+             <property name="text">
+              <string>Example: 1:23|2:55|1:13:22</string>
              </property>
             </widget>
            </item>
@@ -2323,7 +2337,7 @@
               </size>
              </property>
              <property name="toolTip">
-              <string>Used with real-time mode - lower means better reaction to movements but worse centering</string>
+              <string>Used with real-time mode -- lower means better reaction to movements but worse centering</string>
              </property>
              <property name="decimals">
               <number>2</number>
@@ -2459,7 +2473,7 @@
               <double>0.100000000000000</double>
              </property>
              <property name="value">
-              <double>1.000000000000000</double>
+              <double>0.500000000000000</double>
              </property>
             </widget>
            </item>
@@ -2509,7 +2523,7 @@
               </size>
              </property>
              <property name="toolTip">
-              <string>Increase to decrease the frame size used for analysis (will be faster)</string>
+              <string>Larger divisor will mean faster stabilization analysis but less precision</string>
              </property>
              <property name="minimum">
               <number>1</number>
@@ -2543,7 +2557,7 @@
               </size>
              </property>
              <property name="text">
-              <string>Max angle</string>
+              <string>Max angle (deg)</string>
              </property>
             </widget>
            </item>
@@ -2568,7 +2582,7 @@
               </size>
              </property>
              <property name="toolTip">
-              <string>Decrease to hard limit the maximum frame displacement</string>
+              <string>Limit the video rotation to this angle</string>
              </property>
              <property name="decimals">
               <number>2</number>
@@ -2864,7 +2878,7 @@
               <number>99999</number>
              </property>
              <property name="value">
-              <number>15</number>
+              <number>30</number>
              </property>
             </widget>
            </item>
@@ -3201,7 +3215,7 @@
               </size>
              </property>
              <property name="toolTip">
-              <string>Constant Rate Factor - select the quality of the encoded video (lower is better)</string>
+              <string>Constant Rate Factor -- select the quality of the encoded video (lower is better)</string>
              </property>
              <property name="minimum">
               <number>1</number>
