@@ -93,7 +93,7 @@ For testing out the program, you can also [download test data](https://mega.co.n
 ### Building on Windows
 
 1. Install [Visual Studio 2013 Professional](http://www.visualstudio.com/).
-2. Install [Qt 5.3](http://qt-project.org/downloads).
+2. Install [Qt 5.3](http://qt-project.org/downloads) (64-bit, VS 2013, OpenGL).
 1. Clone [https://github.com/mikoro/orientview.git](https://github.com/mikoro/orientview.git).
 2. Clone [https://github.com/mikoro/orientview-binaries.git](https://github.com/mikoro/orientview-binaries.git).
 3. Copy the files from orientview-binaries/windows to the orientview root folder.
