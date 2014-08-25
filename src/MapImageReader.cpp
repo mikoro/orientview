@@ -15,15 +15,20 @@ bool MapImageReader::initialize(Settings* settings)
 	if (!tempImage.load(settings->map.imageFilePath))
 	{
 		qWarning("Could not load map image");
+
+		mapImage = QImage(1024, 1024, QImage::Format::Format_ARGB32);
+		mapImage.fill(Qt::red);
+
 		return false;
 	}
-
-	if (settings->map.headerCrop > 0)
-		mapImage = tempImage.copy(0, settings->map.headerCrop, tempImage.width(), tempImage.height() - settings->map.headerCrop);
 	else
-		mapImage = tempImage;
+	{
+		if (settings->map.headerCrop > 0 && tempImage.height() > settings->map.headerCrop)
+			tempImage = tempImage.copy(0, settings->map.headerCrop, tempImage.width(), tempImage.height() - settings->map.headerCrop);
 
-	return true;
+		mapImage = tempImage;
+		return true;
+	}
 }
 
 QImage MapImageReader::getMapImage() const

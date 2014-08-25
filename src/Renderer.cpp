@@ -123,7 +123,7 @@ bool Renderer::initialize(VideoDecoder* videoDecoder, MapImageReader* mapImageRe
 	paintDevice = new QOpenGLPaintDevice();
 	paintDevice->setPaintFlipped(renderToOffscreen);
 	painter = new QPainter();
-	
+
 	return true;
 }
 
