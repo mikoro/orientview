@@ -23,3 +23,7 @@ setup/
 orientview
 Makefile*
 .directory
+.DS_Store
+.qmake.stash
+OrientView.app
+orientview_plugin_import.cpp

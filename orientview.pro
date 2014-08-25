@@ -5,7 +5,6 @@ CONFIG += qt c++11 warn_on
 QT += core gui opengl svg widgets xml
 
 unix {
-
     QMAKE_CXXFLAGS += -Werror
     LIBS += -lavcodec -lavformat -lavutil -lswresample -lswscale -lopencv_core -lopencv_imgproc -lopencv_photo -lopencv_video -lx264 -llsmash
     
@@ -26,7 +25,6 @@ unix {
 }
 
 win32 {
-
     INCLUDEPATH += include
     QMAKE_LIBDIR += lib
     CONFIG -= embed_manifest_exe
@@ -35,6 +33,23 @@ win32 {
     debug:LIBS += opencv_core249d.lib opencv_imgproc249d.lib opencv_photo249d.lib opencv_video249d.lib
     release:LIBS += opencv_core249.lib opencv_imgproc249.lib opencv_photo249.lib opencv_video249.lib
     # data folder, *.config and debug dlls need to be copied to output folder
+}
+
+mac {
+    TARGET = OrientView
+    ICON = misc/icons/orientview.icns
+    QMAKE_INFO_PLIST = misc/mac/Info.plist
+    
+    LIBS += -lavcodec -lavformat -lavutil -lswresample -lswscale -lopencv_core -lopencv_imgproc -lopencv_photo -lopencv_video -lx264 -llsmash
+    QTPLUGIN += 
+    
+    target.path = Contents/MacOs
+    target.files = data
+
+    QMAKE_BUNDLE_DATA += target
+
+    QMAKE_CXXFLAGS += -isystem /usr/local/include
+    QMAKE_LFLAGS += -L/usr/local/lib
 }
 
 OBJECTS_DIR = build
