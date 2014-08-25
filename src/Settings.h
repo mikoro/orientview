@@ -37,6 +37,7 @@ namespace OrientView
 			double y = 0.0;
 			double angle = 0.0;
 			double scale = 1.0;
+			int headerCrop = 0;
 			QColor backgroundColor = QColor(255, 255, 255, 255);
 			QString rescaleShader = "legacy";
 

@@ -21,6 +21,7 @@ void Settings::readFromQSettings(QSettings* settings)
 	map.y = settings->value("map/y", defaultSettings.map.y).toDouble();
 	map.angle = settings->value("map/angle", defaultSettings.map.angle).toDouble();
 	map.scale = settings->value("map/scale", defaultSettings.map.scale).toDouble();
+	map.headerCrop = settings->value("map/headerCrop", defaultSettings.map.headerCrop).toInt();
 	map.backgroundColor = settings->value("map/backgroundColor", defaultSettings.map.backgroundColor).value<QColor>();
 	map.rescaleShader = settings->value("map/rescaleShader", defaultSettings.map.rescaleShader).toString();
 
@@ -125,6 +126,7 @@ void Settings::writeToQSettings(QSettings* settings)
 	settings->setValue("map/y", map.y);
 	settings->setValue("map/angle", map.angle);
 	settings->setValue("map/scale", map.scale);
+	settings->setValue("map/headerCrop", map.headerCrop);
 	settings->setValue("map/backgroundColor", map.backgroundColor);
 	settings->setValue("map/rescaleShader", map.rescaleShader);
 
@@ -224,6 +226,7 @@ void Settings::readFromUI(Ui::MainWindow* ui)
 	map.imageFilePath = ui->lineEditMapImageFile->text();
 	map.relativeWidth = ui->doubleSpinBoxMapWidth->value();
 	map.scale = ui->doubleSpinBoxMapScale->value();
+	map.headerCrop = ui->spinBoxMapHeaderCrop->value();
 	map.backgroundColor = QColor(ui->lineEditMapBackgroundColor->text());
 	map.rescaleShader = ui->comboBoxMapRescaleShader->currentText();
 
@@ -280,6 +283,7 @@ void Settings::writeToUI(Ui::MainWindow* ui)
 	ui->lineEditMapImageFile->setText(map.imageFilePath);
 	ui->doubleSpinBoxMapWidth->setValue(map.relativeWidth);
 	ui->doubleSpinBoxMapScale->setValue(map.scale);
+	ui->spinBoxMapHeaderCrop->setValue(map.headerCrop);
 	ui->lineEditMapBackgroundColor->setText(map.backgroundColor.name());
 	ui->comboBoxMapRescaleShader->setCurrentText(map.rescaleShader);
 
