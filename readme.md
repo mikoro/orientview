@@ -14,14 +14,15 @@ OrientView is an orienteering video analyzing program which displays the video a
 
 Download the latest version:
 
-| Windows 64-bit                                                                                                         | Mac OS X          | Linux                                                            |
-|------------------------------------------------------------------------------------------------------------------------|-------------------|------------------------------------------------------------------|
-| [OrientView-1.0.0-Setup.msi](https://github.com/mikoro/orientview/releases/download/v1.0.0/OrientView-1.0.0-Setup.msi) | Not yet available | [Arch Linux AUR](https://aur.archlinux.org/packages/orientview/) |
-| [OrientView-1.0.0.zip](https://github.com/mikoro/orientview/releases/download/v1.0.0/OrientView-1.0.0.zip)             | &nbsp;            | [Build instructions](#linux_build)                               |
+| Windows 64-bit                                                                                                         | Mac OS X                                                                                                           | Linux                                                            |
+|------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------|
+| [OrientView-1.0.0-Setup.msi](https://github.com/mikoro/orientview/releases/download/v1.0.0/OrientView-1.0.0-Setup.msi) | [OrientView-1.0.0-mac.zip](https://github.com/mikoro/orientview/releases/download/v1.0.0/OrientView-1.0.0-mac.zip) | [Arch Linux AUR](https://aur.archlinux.org/packages/orientview/) |
+| [OrientView-1.0.0-win.zip](https://github.com/mikoro/orientview/releases/download/v1.0.0/OrientView-1.0.0-win.zip)     | &nbsp;                                                                                                             | [Build instructions](#linux_build)                               |
 
 For testing out the program, you can also [download test data](https://mega.co.nz/#F!nM1gHbZJ!pvFqf3UOrHrmMyuUTlMSrg) ([mirror](http://orientview-test.s3-website-us-east-1.amazonaws.com/)).
 
 **Note:** You will need a pretty recent GPU (less than four years old) with up-to-date graphics drivers.
+
 ## Features
 
 * Opens all the image formats supported by [Qt](http://qt-project.org/doc/qt/QImage.html#reading-and-writing-image-files).
