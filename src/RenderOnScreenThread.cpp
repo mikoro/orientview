@@ -58,30 +58,27 @@ void RenderOnScreenThread::run()
 			shouldAdvanceOneFrame = false;
 		}
 
-		if (gotFrame)
-			videoStabilizer->processFrame(frameDataGrayscale);
-
-		routeManager->update(videoDecoder->getCurrentTime(), frameDuration);
-
 		videoWindow->getContext()->makeCurrent(videoWindow);
-		renderer->startRendering(videoDecoder->getCurrentTime(), frameDuration, spareTime, videoDecoder->getLastDecodeTime(), videoStabilizer->getLastProcessTime(), 0.0);
-
+		
 		if (gotFrame)
 		{
 			renderer->uploadFrameData(frameData);
-			videoDecoderThread->signalFrameRead();
+			videoStabilizer->processFrame(frameDataGrayscale);
 		}
 
+		videoDecoderThread->signalFrameRead();
+
+		routeManager->update(videoDecoder->getCurrentTime(), frameDuration);
+		inputHandler->handleInput(frameDuration);
+
+		renderer->startRendering(videoDecoder->getCurrentTime(), frameDuration, spareTime, videoDecoder->getLastDecodeTime(), videoStabilizer->getLastProcessTime(), 0.0);
 		renderer->renderAll();
 		renderer->stopRendering();
-
-		inputHandler->handleInput(frameDuration);
 
 		if (windowHasBeenResized)
 		{
 			renderer->windowResized(windowWidth, windowHeight);
 			routeManager->windowResized(windowWidth, windowHeight);
-
 			windowHasBeenResized = false;
 		}
 

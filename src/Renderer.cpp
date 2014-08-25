@@ -321,13 +321,16 @@ void Renderer::startRendering(double currentTime, double frameTime, double spare
 
 void Renderer::uploadFrameData(const FrameData& frameData)
 {
-	QOpenGLPixelTransferOptions options;
+	if (frameData.data != nullptr && frameData.width > 0 && frameData.height > 0)
+	{
+		QOpenGLPixelTransferOptions options;
 
-	options.setRowLength((int)(frameData.rowLength / 4));
-	options.setImageHeight(frameData.height);
-	options.setAlignment(1);
+		options.setRowLength((int)(frameData.rowLength / 4));
+		options.setImageHeight(frameData.height);
+		options.setAlignment(1);
 
-	videoPanel.texture->setData(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, frameData.data, &options);
+		videoPanel.texture->setData(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, frameData.data, &options);
+	}
 }
 
 void Renderer::renderAll()
