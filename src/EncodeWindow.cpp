@@ -48,6 +48,7 @@ bool EncodeWindow::initialize(VideoDecoder* videoDecoder, VideoEncoderThread* vi
 	this->videoEncoderThread = videoEncoderThread;
 
 	setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+	resize(10, 10);
 
 	QSurfaceFormat surfaceFormat;
 	surfaceFormat.setSamples(settings->window.multisamples);

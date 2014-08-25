@@ -35,6 +35,7 @@ using namespace OrientView;
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
 	ui->setupUi(this);
+	resize(600, 500);
 
 	logDataModel = new QStandardItemModel(0, 3);
 	settings = new Settings();

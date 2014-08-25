@@ -33,6 +33,7 @@ bool StabilizeWindow::initialize(VideoDecoder* videoDecoder, VideoStabilizerThre
 	this->videoStabilizerThread = videoStabilizerThread;
 
 	setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+	resize(10, 10);
 
 	totalFrameCount = videoDecoder->getTotalFrameCount();
 
