@@ -59,13 +59,16 @@ void RenderOffScreenThread::run()
 	{
 		if (videoDecoderThread->tryGetNextFrame(decodedFrameData, decodedFrameDataGrayscale, 100))
 		{
+			encodeWindow->getContext()->makeCurrent(encodeWindow->getSurface());
+
+			renderer->uploadFrameData(decodedFrameData);
 			videoStabilizer->processFrame(decodedFrameDataGrayscale);
+
+			videoDecoderThread->signalFrameRead();
+
 			routeManager->update(videoDecoder->getCurrentTime(), frameDuration);
 
-			encodeWindow->getContext()->makeCurrent(encodeWindow->getSurface());
 			renderer->startRendering(videoDecoder->getCurrentTime(), frameDuration, 0.0, videoDecoder->getLastDecodeTime(), videoStabilizer->getLastProcessTime(), videoEncoder->getLastEncodeTime());
-			renderer->uploadFrameData(decodedFrameData);
-			videoDecoderThread->signalFrameRead();
 			renderer->renderAll();
 			renderer->stopRendering();
 
