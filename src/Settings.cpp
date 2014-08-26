@@ -39,9 +39,9 @@ void Settings::readFromQSettings(QSettings* settings)
 	route.smoothTransitionSpeed = settings->value("route/smoothTransitionSpeed", defaultSettings.route.smoothTransitionSpeed).toDouble();
 	route.showRunner = settings->value("route/showRunner", defaultSettings.route.showRunner).toBool();
 	route.showControls = settings->value("route/showControls", defaultSettings.route.showControls).toBool();
-	route.wholeRouteRenderMode = (RouteRenderMode)settings->value("route/wholeRouteRenderMode", defaultSettings.route.wholeRouteRenderMode).toInt();
-	route.wholeRouteColor = settings->value("route/wholeRouteColor", defaultSettings.route.wholeRouteColor).value<QColor>();
-	route.wholeRouteWidth = settings->value("route/wholeRouteWidth", defaultSettings.route.wholeRouteWidth).toDouble();
+	route.routeRenderMode = (RouteRenderMode)settings->value("route/routeRenderMode", defaultSettings.route.routeRenderMode).toInt();
+	route.routeColor = settings->value("route/routeColor", defaultSettings.route.routeColor).value<QColor>();
+	route.routeWidth = settings->value("route/routeWidth", defaultSettings.route.routeWidth).toDouble();
 	route.controlBorderColor = settings->value("route/controlBorderColor", defaultSettings.route.controlBorderColor).value<QColor>();
 	route.controlRadius = settings->value("route/controlRadius", defaultSettings.route.controlRadius).toDouble();
 	route.controlBorderWidth = settings->value("route/controlBorderWidth", defaultSettings.route.controlBorderWidth).toDouble();
@@ -144,9 +144,9 @@ void Settings::writeToQSettings(QSettings* settings)
 	settings->setValue("route/smoothTransitionSpeed", route.smoothTransitionSpeed);
 	settings->setValue("route/showRunner", route.showRunner);
 	settings->setValue("route/showControls", route.showControls);
-	settings->setValue("route/wholeRouteRenderMode", route.wholeRouteRenderMode);
-	settings->setValue("route/wholeRouteColor", route.wholeRouteColor);
-	settings->setValue("route/wholeRouteWidth", route.wholeRouteWidth);
+	settings->setValue("route/routeRenderMode", route.routeRenderMode);
+	settings->setValue("route/routeColor", route.routeColor);
+	settings->setValue("route/routeWidth", route.routeWidth);
 	settings->setValue("route/controlBorderColor", route.controlBorderColor);
 	settings->setValue("route/controlRadius", route.controlRadius);
 	settings->setValue("route/controlBorderWidth", route.controlBorderWidth);

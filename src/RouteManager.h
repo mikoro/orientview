@@ -7,6 +7,8 @@
 
 #include <QPainterPath>
 #include <QColor>
+#include <QOpenGLShaderProgram>
+#include <QOpenGLBuffer>
 
 #include "RoutePoint.h"
 #include "SplitsManager.h"
@@ -26,6 +28,18 @@ namespace OrientView
 		double angle = 0.0;
 		double angleDelta = 0.0;
 		double scale = 1.0;
+	};
+
+	struct RouteVertex
+	{
+		float x = 0.0f;
+		float y = 0.0f;
+		float u = 0.0f;
+		float v = 0.0f;
+		float r = 0.0f;
+		float g = 0.0f;
+		float b = 0.0f;
+		float a = 1.0f;
 	};
 
 	struct Route
@@ -57,10 +71,20 @@ namespace OrientView
 		bool showRunner = true;
 		bool showControls = true;
 
-		RouteRenderMode wholeRouteRenderMode = RouteRenderMode::Normal;
-		QPainterPath wholeRoutePath;
-		QColor wholeRouteColor = QColor(0, 0, 0, 50);
-		double wholeRouteWidth = 10.0;
+		std::vector<RouteVertex> normalRouteVertices;
+		std::vector<RouteVertex> paceRouteVertices;
+		QOpenGLBuffer normalRouteVertexBuffer;
+		QOpenGLBuffer paceRouteVertexBuffer;
+		QOpenGLBuffer tailVertexBuffer;
+		QOpenGLShaderProgram* shaderProgram;
+		int vertexMatrixUniform = 0;
+		int borderColorUniform = 0;
+		int borderRelativeWidthUniform = 0;
+		RouteRenderMode routeRenderMode = RouteRenderMode::Normal;
+		QColor routeColor = QColor(80, 0, 0, 50);
+		QColor routeBorderColor = QColor(0, 0, 0, 255);
+		double routeWidth = 10.0;
+		double routeBorderWidth = 2.0;
 
 		std::vector<QPointF> controlPositions;
 		QColor controlBorderColor = QColor(140, 40, 140, 255);
@@ -96,18 +120,20 @@ namespace OrientView
 
 	private:
 
-		void generateAlignedRoutePoints();
-		void constructWholeRoutePath();
-		void calculateControlPositions();
-		void calculateSplitTransformations();
-		void calculateRoutePointColors();
-		void calculateRunnerPosition(double currentTime);
-		void calculateCurrentSplitTransformation(double currentTime, double frameTime);
+		void generateAlignedRoutePoints(Route& route);
+		void calculateRoutePointColors(Route& route);
+		void generateRouteVertices(Route& route);
+
+		void calculateControlPositions(Route& route);
+		void calculateSplitTransformations(Route& route);
+		void calculateRunnerPosition(Route& route, double currentTime);
+		void calculateCurrentSplitTransformation(Route& route, double currentTime, double frameTime);
+
 		QColor interpolateFromGreenToRed(double greenValue, double redValue, double value);
 
 		Renderer* renderer = nullptr;
 
-		Route defaultRoute;
+		std::vector<Route> routes;
 
 		bool fullUpdateRequested = true;
 		bool instantTransitionRequested = true;

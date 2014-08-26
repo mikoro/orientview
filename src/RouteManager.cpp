@@ -15,6 +15,9 @@ void RouteManager::initialize(QuickRouteReader* quickRouteReader, SplitsManager*
 {
 	this->renderer = renderer;
 
+	routes.push_back(Route());
+	Route& defaultRoute = routes.at(0);
+
 	defaultRoute.routePoints = quickRouteReader->getRoutePoints();
 	defaultRoute.runnerInfo = splitsManager->getDefaultRunnerInfo();
 	defaultRoute.controlTimeOffset = settings->route.controlTimeOffset;
@@ -30,9 +33,9 @@ void RouteManager::initialize(QuickRouteReader* quickRouteReader, SplitsManager*
 	defaultRoute.smoothTransitionSpeed = settings->route.smoothTransitionSpeed;
 	defaultRoute.showRunner = settings->route.showRunner;
 	defaultRoute.showControls = settings->route.showControls;
-	defaultRoute.wholeRouteRenderMode = settings->route.wholeRouteRenderMode;
-	defaultRoute.wholeRouteColor = settings->route.wholeRouteColor;
-	defaultRoute.wholeRouteWidth = settings->route.wholeRouteWidth;
+	defaultRoute.routeRenderMode = settings->route.routeRenderMode;
+	defaultRoute.routeColor = settings->route.routeColor;
+	defaultRoute.routeWidth = settings->route.routeWidth;
 	defaultRoute.controlBorderColor = settings->route.controlBorderColor;
 	defaultRoute.controlRadius = settings->route.controlRadius;
 	defaultRoute.controlBorderWidth = settings->route.controlBorderWidth;
@@ -44,9 +47,12 @@ void RouteManager::initialize(QuickRouteReader* quickRouteReader, SplitsManager*
 	windowWidth = settings->window.width;
 	windowHeight = settings->window.height;
 
-	generateAlignedRoutePoints();
-	constructWholeRoutePath();
-	calculateRoutePointColors();
+	for (Route& route : routes)
+	{
+		generateAlignedRoutePoints(route);
+		calculateRoutePointColors(route);
+		generateRouteVertices(route);
+	}
 
 	update(0.0, 0.0);
 
@@ -61,76 +67,39 @@ void RouteManager::update(double currentTime, double frameTime)
 {
 	if (fullUpdateRequested)
 	{
-		calculateControlPositions();
-		calculateSplitTransformations();
+		for (Route& route : routes)
+		{
+			calculateControlPositions(route);
+			calculateSplitTransformations(route);
+		}
 
 		fullUpdateRequested = false;
 	}
 
-	calculateRunnerPosition(currentTime);
-	calculateCurrentSplitTransformation(currentTime, frameTime);
+	for (Route& route : routes)
+	{
+		calculateRunnerPosition(route, currentTime);
+		calculateCurrentSplitTransformation(route, currentTime, frameTime);
+	}
 }
 
-void RouteManager::requestFullUpdate()
+void RouteManager::generateAlignedRoutePoints(Route& route)
 {
-	fullUpdateRequested = true;
-}
-
-void RouteManager::requestInstantTransition()
-{
-	instantTransitionRequested = true;
-}
-
-void RouteManager::windowResized(double newWidth, double newHeight)
-{
-	windowWidth = newWidth;
-	windowHeight = newHeight;
-
-	fullUpdateRequested = true;
-}
-
-double RouteManager::getX() const
-{
-	return defaultRoute.currentSplitTransformation.x;
-}
-
-double RouteManager::getY() const
-{
-	return defaultRoute.currentSplitTransformation.y;
-}
-
-double RouteManager::getScale() const
-{
-	return defaultRoute.currentSplitTransformation.scale;
-}
-
-double RouteManager::getAngle() const
-{
-	return defaultRoute.currentSplitTransformation.angle;
-}
-
-Route& RouteManager::getDefaultRoute()
-{
-	return defaultRoute;
-}
-
-void RouteManager::generateAlignedRoutePoints()
-{
-	if (defaultRoute.routePoints.size() < 2)
+	if (route.routePoints.size() < 2)
 		return;
 
 	double alignedTime = 0.0;
-	RoutePoint currentRoutePoint = defaultRoute.routePoints.at(0);
+	RoutePoint currentRoutePoint = route.routePoints.at(0);
 	RoutePoint alignedRoutePoint;
 
 	// align and interpolate route point data to one second intervals
-	for (int i = 0; i < (int)defaultRoute.routePoints.size() - 1;)
+	for (int i = 0; i < (int)route.routePoints.size() - 1;)
 	{
 		int nextIndex = 0;
 
-		for (int j = i + 1; j < (int)defaultRoute.routePoints.size(); ++j)
+		for (int j = i + 1; j < (int)route.routePoints.size(); ++j)
 		{
-			if (defaultRoute.routePoints.at(j).time - currentRoutePoint.time > 1.0)
+			if (route.routePoints.at(j).time - currentRoutePoint.time > 1.0)
 			{
 				nextIndex = j;
 				break;
@@ -142,7 +111,7 @@ void RouteManager::generateAlignedRoutePoints()
 
 		i = nextIndex;
 
-		RoutePoint nextRoutePoint = defaultRoute.routePoints.at(nextIndex);
+		RoutePoint nextRoutePoint = route.routePoints.at(nextIndex);
 
 		alignedRoutePoint.dateTime = currentRoutePoint.dateTime;
 		alignedRoutePoint.coordinate = currentRoutePoint.coordinate;
@@ -165,7 +134,7 @@ void RouteManager::generateAlignedRoutePoints()
 
 			if (k < stepCount)
 			{
-				defaultRoute.alignedRoutePoints.push_back(alignedRoutePoint);
+				route.alignedRoutePoints.push_back(alignedRoutePoint);
 				alignedTime += 1.0;
 			}
 		}
@@ -175,77 +144,142 @@ void RouteManager::generateAlignedRoutePoints()
 		currentRoutePoint.coordinate = nextRoutePoint.coordinate;
 	}
 
-	defaultRoute.alignedRoutePoints.push_back(alignedRoutePoint);
+	route.alignedRoutePoints.push_back(alignedRoutePoint);
 }
 
-void RouteManager::constructWholeRoutePath()
+void RouteManager::calculateRoutePointColors(Route& route)
 {
-	if (defaultRoute.routePoints.size() < 2)
+	for (RoutePoint& rp : route.routePoints)
+		rp.color = interpolateFromGreenToRed(route.highPace, route.lowPace, rp.pace);
+
+	for (RoutePoint& rp : route.alignedRoutePoints)
+		rp.color = interpolateFromGreenToRed(route.highPace, route.lowPace, rp.pace);
+}
+
+void RouteManager::generateRouteVertices(Route& route)
+{
+	if (route.alignedRoutePoints.size() < 2)
 		return;
 
-	for (size_t i = 0; i < defaultRoute.routePoints.size(); ++i)
+	route.normalRouteVertices.clear();
+	route.paceRouteVertices.clear();
+
+	for (int i = 0; i < (int)route.routePoints.size() - 1; ++i)
 	{
-		RoutePoint rp = defaultRoute.routePoints.at(i);
+		RoutePoint& rp1 = route.routePoints.at(i);
+		RoutePoint& rp2 = route.routePoints.at(i + 1);
 
-		double x = rp.position.x();
-		double y = rp.position.y();
+		QPointF routePointVector = rp2.position - rp1.position;
 
-		if (i == 0)
-			defaultRoute.wholeRoutePath.moveTo(x, y);
-		else
-			defaultRoute.wholeRoutePath.lineTo(x, y);
+		double angle = atan2(routePointVector.y(), routePointVector.x());
+
+		QPointF deltaVertex;
+		deltaVertex.setX(-sin(angle) * route.routeWidth);
+		deltaVertex.setY(cos(angle) * route.routeWidth);
+
+		QPointF leftVertex = rp1.position + deltaVertex;
+		QPointF rightVertex = rp1.position - deltaVertex;
+
+		RouteVertex rv1, rv2;
+
+		rv1.x = leftVertex.x();
+		rv1.y = -leftVertex.y();
+		rv1.u = -1.0f;
+		rv1.v = 0.0f;
+
+		rv2.x = rightVertex.x();
+		rv2.y = -rightVertex.y();
+		rv2.u = 1.0f;
+		rv2.v = 0.0f;
+
+		rv1.r = rv2.r = route.routeColor.redF();
+		rv1.g = rv2.g = route.routeColor.greenF();
+		rv1.b = rv2.b = route.routeColor.blueF();
+		rv1.a = rv2.a = route.routeColor.alphaF();
+
+		route.normalRouteVertices.push_back(rv1);
+		route.normalRouteVertices.push_back(rv2);
+
+		rv1.r = rv2.r = rp1.color.redF();
+		rv1.g = rv2.g = rp1.color.greenF();
+		rv1.b = rv2.b = rp1.color.blueF();
+		rv1.a = rv2.a = rp1.color.alphaF();
+
+		route.paceRouteVertices.push_back(rv1);
+		route.paceRouteVertices.push_back(rv2);
 	}
+	
+	route.shaderProgram = new QOpenGLShaderProgram();
+	route.shaderProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, "data/shaders/route.vert");
+	route.shaderProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, "data/shaders/route.frag");
+	route.shaderProgram->link();
+
+	route.vertexMatrixUniform = route.shaderProgram->uniformLocation("vertexMatrix");
+	route.borderColorUniform = route.shaderProgram->uniformLocation("borderColor");
+	route.borderRelativeWidthUniform = route.shaderProgram->uniformLocation("borderRelativeWidth");
+
+	route.normalRouteVertexBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
+	route.normalRouteVertexBuffer.create();
+	route.normalRouteVertexBuffer.bind();
+	route.normalRouteVertexBuffer.allocate(route.normalRouteVertices.data(), sizeof(RouteVertex) * route.normalRouteVertices.size());
+	route.normalRouteVertexBuffer.release();
+
+	route.paceRouteVertexBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
+	route.paceRouteVertexBuffer.create();
+	route.paceRouteVertexBuffer.bind();
+	route.paceRouteVertexBuffer.allocate(route.paceRouteVertices.data(), sizeof(RouteVertex) * route.paceRouteVertices.size());
+	route.paceRouteVertexBuffer.release();
 }
 
-void RouteManager::calculateControlPositions()
+void RouteManager::calculateControlPositions(Route& route)
 {
-	if (defaultRoute.runnerInfo.splits.empty() || defaultRoute.alignedRoutePoints.empty())
+	if (route.runnerInfo.splits.empty() || route.alignedRoutePoints.empty())
 		return;
 
-	defaultRoute.controlPositions.clear();
+	route.controlPositions.clear();
 
-	for (const Split& split : defaultRoute.runnerInfo.splits)
+	for (const Split& split : route.runnerInfo.splits)
 	{
-		double offsetTime = split.absoluteTime + defaultRoute.controlTimeOffset;
+		double offsetTime = split.absoluteTime + route.controlTimeOffset;
 		double previousWholeSecond = floor(offsetTime);
 		double alpha = offsetTime - previousWholeSecond;
 
 		int firstIndex = (int)previousWholeSecond;
 		int secondIndex = firstIndex + 1;
-		int indexMax = (int)defaultRoute.alignedRoutePoints.size() - 1;
+		int indexMax = (int)route.alignedRoutePoints.size() - 1;
 
 		firstIndex = std::max(0, std::min(firstIndex, indexMax));
 		secondIndex = std::max(0, std::min(secondIndex, indexMax));
 
 		if (firstIndex == secondIndex)
-			defaultRoute.controlPositions.push_back(defaultRoute.alignedRoutePoints.at(firstIndex).position);
+			route.controlPositions.push_back(route.alignedRoutePoints.at(firstIndex).position);
 		else
 		{
-			RoutePoint rp1 = defaultRoute.alignedRoutePoints.at(firstIndex);
-			RoutePoint rp2 = defaultRoute.alignedRoutePoints.at(secondIndex);
+			RoutePoint rp1 = route.alignedRoutePoints.at(firstIndex);
+			RoutePoint rp2 = route.alignedRoutePoints.at(secondIndex);
 
-			defaultRoute.controlPositions.push_back((1.0 - alpha) * rp1.position + alpha * rp2.position);
+			route.controlPositions.push_back((1.0 - alpha) * rp1.position + alpha * rp2.position);
 		}
 	}
 }
 
-void RouteManager::calculateSplitTransformations()
+void RouteManager::calculateSplitTransformations(Route& route)
 {
-	if (defaultRoute.runnerInfo.splits.empty() || defaultRoute.alignedRoutePoints.empty())
+	if (route.runnerInfo.splits.empty() || route.alignedRoutePoints.empty())
 		return;
 
-	defaultRoute.splitTransformations.clear();
+	route.splitTransformations.clear();
 
 	// take two consecutive controls and then figure out the transformation needed
 	// to make the line from start to stop control vertical, centered and zoomed appropriately
-	for (int i = 0; i < (int)defaultRoute.runnerInfo.splits.size() - 1; ++i)
+	for (int i = 0; i < (int)route.runnerInfo.splits.size() - 1; ++i)
 	{
-		Split split1 = defaultRoute.runnerInfo.splits.at(i);
-		Split split2 = defaultRoute.runnerInfo.splits.at(i + 1);
+		Split split1 = route.runnerInfo.splits.at(i);
+		Split split2 = route.runnerInfo.splits.at(i + 1);
 
-		int startIndex = (int)round(split1.absoluteTime + defaultRoute.controlTimeOffset);
-		int stopIndex = (int)round(split2.absoluteTime + defaultRoute.controlTimeOffset);
-		int indexMax = (int)defaultRoute.alignedRoutePoints.size() - 1;
+		int startIndex = (int)round(split1.absoluteTime + route.controlTimeOffset);
+		int stopIndex = (int)round(split2.absoluteTime + route.controlTimeOffset);
+		int indexMax = (int)route.alignedRoutePoints.size() - 1;
 
 		startIndex = std::max(0, std::min(startIndex, indexMax));
 		stopIndex = std::max(0, std::min(stopIndex, indexMax));
@@ -254,8 +288,8 @@ void RouteManager::calculateSplitTransformations()
 
 		if (startIndex != stopIndex)
 		{
-			RoutePoint startRoutePoint = defaultRoute.alignedRoutePoints.at(startIndex);
-			RoutePoint stopRoutePoint = defaultRoute.alignedRoutePoints.at(stopIndex);
+			RoutePoint startRoutePoint = route.alignedRoutePoints.at(startIndex);
+			RoutePoint stopRoutePoint = route.alignedRoutePoints.at(stopIndex);
 			QPointF startToStop = stopRoutePoint.position - startRoutePoint.position; // vector pointing from start to stop
 
 			// rotate towards positive y-axis
@@ -279,7 +313,7 @@ void RouteManager::calculateSplitTransformations()
 			for (int j = startIndex; j <= stopIndex; ++j)
 			{
 				// points need to be rotated
-				QPointF position = rotateMatrix.map(defaultRoute.alignedRoutePoints.at(j).position);
+				QPointF position = rotateMatrix.map(route.alignedRoutePoints.at(j).position);
 
 				minX = std::min(minX, position.x());
 				maxX = std::max(maxX, position.x());
@@ -291,17 +325,17 @@ void RouteManager::calculateSplitTransformations()
 			QPointF middlePoint = (startRoutePoint.position + stopRoutePoint.position) / 2.0; // doesn't need to be rotated
 
 			// split width is taken from the maximum deviation from center line to either left or right side
-			double splitWidthLeft = abs(minX - startPosition.x()) * 2.0 + 2.0 * defaultRoute.leftRightMargin;
-			double splitWidthRight = abs(maxX - startPosition.x()) * 2.0 + 2.0 * defaultRoute.leftRightMargin;
+			double splitWidthLeft = abs(minX - startPosition.x()) * 2.0 + 2.0 * route.leftRightMargin;
+			double splitWidthRight = abs(maxX - startPosition.x()) * 2.0 + 2.0 * route.leftRightMargin;
 			double splitWidth = std::max(splitWidthLeft, splitWidthRight);
 
 			// split height is the maximum vertical delta
-			double splitHeight = maxY - minY + 2.0 * defaultRoute.topBottomMargin;
+			double splitHeight = maxY - minY + 2.0 * route.topBottomMargin;
 
 			double scaleX = (windowWidth * renderer->getMapPanel().relativeWidth) / splitWidth;
 			double scaleY = windowHeight / splitHeight;
 			double finalScale = std::min(scaleX, scaleY);
-			finalScale = std::max(defaultRoute.minimumZoom, std::min(finalScale, defaultRoute.maximumZoom));
+			finalScale = std::max(route.minimumZoom, std::min(finalScale, route.maximumZoom));
 
 			splitTransformation.x = -middlePoint.x();
 			splitTransformation.y = middlePoint.y();
@@ -309,78 +343,69 @@ void RouteManager::calculateSplitTransformations()
 			splitTransformation.scale = finalScale;
 		}
 
-		defaultRoute.splitTransformations.push_back(splitTransformation);
+		route.splitTransformations.push_back(splitTransformation);
 	}
 
 	instantTransitionRequested = true;
 }
 
-void RouteManager::calculateRoutePointColors()
+void RouteManager::calculateRunnerPosition(Route& route, double currentTime)
 {
-	for (RoutePoint& rp : defaultRoute.routePoints)
-		rp.color = interpolateFromGreenToRed(defaultRoute.highPace, defaultRoute.lowPace, rp.pace);
-
-	for (RoutePoint& rp : defaultRoute.alignedRoutePoints)
-		rp.color = interpolateFromGreenToRed(defaultRoute.highPace, defaultRoute.lowPace, rp.pace);
-}
-
-void RouteManager::calculateRunnerPosition(double currentTime)
-{
-	if (defaultRoute.alignedRoutePoints.empty())
+	if (route.alignedRoutePoints.empty())
 		return;
 
-	double offsetTime = currentTime + defaultRoute.runnerTimeOffset;
+	double offsetTime = currentTime + route.runnerTimeOffset;
 	double previousWholeSecond = floor(offsetTime);
 	double alpha = offsetTime - previousWholeSecond;
 
 	int firstIndex = (int)previousWholeSecond;
 	int secondIndex = firstIndex + 1;
-	int indexMax = (int)defaultRoute.alignedRoutePoints.size() - 1;
+	int indexMax = (int)route.alignedRoutePoints.size() - 1;
 
 	firstIndex = std::max(0, std::min(firstIndex, indexMax));
 	secondIndex = std::max(0, std::min(secondIndex, indexMax));
 
 	if (firstIndex == secondIndex)
-		defaultRoute.runnerPosition = defaultRoute.alignedRoutePoints.at(firstIndex).position;
+		route.runnerPosition = route.alignedRoutePoints.at(firstIndex).position;
 	else
 	{
-		RoutePoint rp1 = defaultRoute.alignedRoutePoints.at(firstIndex);
-		RoutePoint rp2 = defaultRoute.alignedRoutePoints.at(secondIndex);
+		RoutePoint rp1 = route.alignedRoutePoints.at(firstIndex);
+		RoutePoint rp2 = route.alignedRoutePoints.at(secondIndex);
 
-		defaultRoute.runnerPosition = (1.0 - alpha) * rp1.position + alpha * rp2.position;
+		route.runnerPosition = (1.0 - alpha) * rp1.position + alpha * rp2.position;
 	}
 }
 
-void RouteManager::calculateCurrentSplitTransformation(double currentTime, double frameTime)
+void RouteManager::calculateCurrentSplitTransformation(Route& route, double currentTime, double frameTime)
 {
-	for (int i = 0; i < (int)defaultRoute.runnerInfo.splits.size() - 1; ++i)
+	for (int i = 0; i < (int)route.runnerInfo.splits.size() - 1; ++i)
 	{
-		double firstSplitOffsetTime = defaultRoute.runnerInfo.splits.at(i).absoluteTime + defaultRoute.controlTimeOffset;
-		double secondSplitOffsetTime = defaultRoute.runnerInfo.splits.at(i + 1).absoluteTime + defaultRoute.controlTimeOffset;
-		double runnerOffsetTime = currentTime + defaultRoute.runnerTimeOffset;
+		double firstSplitOffsetTime = route.runnerInfo.splits.at(i).absoluteTime + route.controlTimeOffset;
+		double secondSplitOffsetTime = route.runnerInfo.splits.at(i + 1).absoluteTime + route.controlTimeOffset;
+		double runnerOffsetTime = currentTime + route.runnerTimeOffset;
 
 		// check if we are inside the time range of two consecutive controls
 		if (runnerOffsetTime >= firstSplitOffsetTime && runnerOffsetTime < secondSplitOffsetTime)
 		{
-			if (i >= (int)defaultRoute.splitTransformations.size())
+			if (i >= (int)route.splitTransformations.size())
 				break;
 
 			if (instantTransitionRequested)
 			{
-				defaultRoute.currentSplitTransformation = defaultRoute.splitTransformations.at(i);
-				defaultRoute.currentSplitTransformationIndex = i;
+				route.currentSplitTransformation = route.splitTransformations.at(i);
+				route.currentSplitTransformationIndex = i;
 				instantTransitionRequested = false;
 			}
-			else if (i != defaultRoute.currentSplitTransformationIndex)
+			else if (i != route.currentSplitTransformationIndex)
 			{
-				if (defaultRoute.useSmoothTransition)
+				if (route.useSmoothTransition)
 				{
-					defaultRoute.previousSplitTransformation = defaultRoute.currentSplitTransformation;
-					defaultRoute.nextSplitTransformation = defaultRoute.splitTransformations.at(i);
-					defaultRoute.transitionAlpha = 0.0;
-					defaultRoute.transitionInProgress = true;
+					route.previousSplitTransformation = route.currentSplitTransformation;
+					route.nextSplitTransformation = route.splitTransformations.at(i);
+					route.transitionAlpha = 0.0;
+					route.transitionInProgress = true;
 
-					double angleDelta = defaultRoute.nextSplitTransformation.angle - defaultRoute.previousSplitTransformation.angle;
+					double angleDelta = route.nextSplitTransformation.angle - route.previousSplitTransformation.angle;
 					double absoluteAngleDelta = abs(angleDelta);
 					double finalAngleDelta = angleDelta;
 
@@ -391,36 +416,36 @@ void RouteManager::calculateCurrentSplitTransformation(double currentTime, doubl
 						finalAngleDelta *= (angleDelta < 0.0) ? 1.0 : -1.0;
 					}
 
-					defaultRoute.previousSplitTransformation.angleDelta = finalAngleDelta;
+					route.previousSplitTransformation.angleDelta = finalAngleDelta;
 				}
 				else
-					defaultRoute.currentSplitTransformation = defaultRoute.splitTransformations.at(i);
+					route.currentSplitTransformation = route.splitTransformations.at(i);
 
-				defaultRoute.currentSplitTransformationIndex = i;
+				route.currentSplitTransformationIndex = i;
 			}
 
 			break;
 		}
 	}
 
-	if (defaultRoute.useSmoothTransition && defaultRoute.transitionInProgress)
+	if (route.useSmoothTransition && route.transitionInProgress)
 	{
-		if (defaultRoute.transitionAlpha > 1.0)
+		if (route.transitionAlpha > 1.0)
 		{
-			defaultRoute.currentSplitTransformation = defaultRoute.nextSplitTransformation;
-			defaultRoute.transitionInProgress = false;
+			route.currentSplitTransformation = route.nextSplitTransformation;
+			route.transitionInProgress = false;
 		}
 		else
 		{
-			double alpha = defaultRoute.transitionAlpha;
+			double alpha = route.transitionAlpha;
 			alpha = alpha * alpha * alpha * (alpha * (alpha * 6 - 15) + 10); // smootherstep
 
-			defaultRoute.currentSplitTransformation.x = (1.0 - alpha) * defaultRoute.previousSplitTransformation.x + alpha * defaultRoute.nextSplitTransformation.x;
-			defaultRoute.currentSplitTransformation.y = (1.0 - alpha) * defaultRoute.previousSplitTransformation.y + alpha * defaultRoute.nextSplitTransformation.y;
-			defaultRoute.currentSplitTransformation.angle = defaultRoute.previousSplitTransformation.angle + alpha * defaultRoute.previousSplitTransformation.angleDelta;
-			defaultRoute.currentSplitTransformation.scale = (1.0 - alpha) * defaultRoute.previousSplitTransformation.scale + alpha * defaultRoute.nextSplitTransformation.scale;
+			route.currentSplitTransformation.x = (1.0 - alpha) * route.previousSplitTransformation.x + alpha * route.nextSplitTransformation.x;
+			route.currentSplitTransformation.y = (1.0 - alpha) * route.previousSplitTransformation.y + alpha * route.nextSplitTransformation.y;
+			route.currentSplitTransformation.angle = route.previousSplitTransformation.angle + alpha * route.previousSplitTransformation.angleDelta;
+			route.currentSplitTransformation.scale = (1.0 - alpha) * route.previousSplitTransformation.scale + alpha * route.nextSplitTransformation.scale;
 
-			defaultRoute.transitionAlpha += defaultRoute.smoothTransitionSpeed * frameTime;
+			route.transitionAlpha += route.smoothTransitionSpeed * frameTime;
 		}
 	}
 }
@@ -435,4 +460,47 @@ QColor RouteManager::interpolateFromGreenToRed(double greenValue, double redValu
 	double b = 0.0;
 
 	return QColor::fromRgbF(r, g, b);
+}
+
+void RouteManager::requestFullUpdate()
+{
+	fullUpdateRequested = true;
+}
+
+void RouteManager::requestInstantTransition()
+{
+	instantTransitionRequested = true;
+}
+
+void RouteManager::windowResized(double newWidth, double newHeight)
+{
+	windowWidth = newWidth;
+	windowHeight = newHeight;
+
+	fullUpdateRequested = true;
+}
+
+double RouteManager::getX() const
+{
+	return routes.at(0).currentSplitTransformation.x;
+}
+
+double RouteManager::getY() const
+{
+	return routes.at(0).currentSplitTransformation.y;
+}
+
+double RouteManager::getScale() const
+{
+	return routes.at(0).currentSplitTransformation.scale;
+}
+
+double RouteManager::getAngle() const
+{
+	return routes.at(0).currentSplitTransformation.angle;
+}
+
+Route& RouteManager::getDefaultRoute()
+{
+	return routes.at(0);
 }

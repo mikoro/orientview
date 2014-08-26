@@ -49,24 +49,24 @@ bool Renderer::initialize(VideoDecoder* videoDecoder, MapImageReader* mapImageRe
 	multisamples = settings->window.multisamples;
 	showInfoPanel = settings->window.showInfoPanel;
 
-	const double movingAverageAlpha = 0.1;
-	averageFps.setAlpha(movingAverageAlpha);
-	averageFrameTime.setAlpha(movingAverageAlpha);
-	averageDecodeTime.setAlpha(movingAverageAlpha);
-	averageStabilizeTime.setAlpha(movingAverageAlpha);
-	averageRenderTime.setAlpha(movingAverageAlpha);
-	averageEncodeTime.setAlpha(movingAverageAlpha);
-	averageSpareTime.setAlpha(movingAverageAlpha);
+	const double alpha = 0.1;
+	averageFps.setAlpha(alpha);
+	averageFrameTime.setAlpha(alpha);
+	averageDecodeTime.setAlpha(alpha);
+	averageStabilizeTime.setAlpha(alpha);
+	averageRenderTime.setAlpha(alpha);
+	averageEncodeTime.setAlpha(alpha);
+	averageSpareTime.setAlpha(alpha);
 
 	initializeOpenGLFunctions();
 
 	if (!windowResized(settings->window.width, settings->window.height))
 		return false;
 
-	if (!loadShaders(videoPanel, settings->video.rescaleShader))
+	if (!loadRescaleShader(videoPanel, settings->video.rescaleShader))
 		return false;
 
-	if (!loadShaders(mapPanel, settings->map.rescaleShader))
+	if (!loadRescaleShader(mapPanel, settings->map.rescaleShader))
 		return false;
 
 	// 1 2
@@ -99,8 +99,19 @@ bool Renderer::initialize(VideoDecoder* videoDecoder, MapImageReader* mapImageRe
 		0.0f, 1.0f  // 4
 	};
 
-	loadBuffer(videoPanel, videoPanelBuffer, 20);
-	loadBuffer(mapPanel, mapPanelBuffer, 20);
+	videoPanel.vertexBuffer = new QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
+	videoPanel.vertexBuffer->setUsagePattern(QOpenGLBuffer::StaticDraw);
+	videoPanel.vertexBuffer->create();
+	videoPanel.vertexBuffer->bind();
+	videoPanel.vertexBuffer->allocate(videoPanelBuffer, sizeof(GLfloat) * 20);
+	videoPanel.vertexBuffer->release();
+
+	mapPanel.vertexBuffer = new QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
+	mapPanel.vertexBuffer->setUsagePattern(QOpenGLBuffer::StaticDraw);
+	mapPanel.vertexBuffer->create();
+	mapPanel.vertexBuffer->bind();
+	mapPanel.vertexBuffer->allocate(mapPanelBuffer, sizeof(GLfloat) * 20);
+	mapPanel.vertexBuffer->release();
 
 	videoPanel.texture = new QOpenGLTexture(QOpenGLTexture::Target2D);
 	videoPanel.texture->create();
@@ -231,72 +242,56 @@ Renderer::~Renderer()
 		videoPanel.texture = nullptr;
 	}
 
-	if (mapPanel.buffer != nullptr)
+	if (mapPanel.vertexBuffer != nullptr)
 	{
-		delete mapPanel.buffer;
-		mapPanel.buffer = nullptr;
+		delete mapPanel.vertexBuffer;
+		mapPanel.vertexBuffer = nullptr;
 	}
 
-	if (videoPanel.buffer != nullptr)
+	if (videoPanel.vertexBuffer != nullptr)
 	{
-		delete videoPanel.buffer;
-		videoPanel.buffer = nullptr;
+		delete videoPanel.vertexBuffer;
+		videoPanel.vertexBuffer = nullptr;
 	}
 
-	if (mapPanel.program != nullptr)
+	if (mapPanel.shaderProgram != nullptr)
 	{
-		delete mapPanel.program;
-		mapPanel.program = nullptr;
+		delete mapPanel.shaderProgram;
+		mapPanel.shaderProgram = nullptr;
 	}
 
-	if (videoPanel.program != nullptr)
+	if (videoPanel.shaderProgram != nullptr)
 	{
-		delete videoPanel.program;
-		videoPanel.program = nullptr;
+		delete videoPanel.shaderProgram;
+		videoPanel.shaderProgram = nullptr;
 	}
 }
 
-bool Renderer::loadShaders(Panel& panel, const QString& shaderName)
+bool Renderer::loadRescaleShader(Panel& panel, const QString& shaderName)
 {
-	panel.program = new QOpenGLShaderProgram();
+	panel.shaderProgram = new QOpenGLShaderProgram();
 
-	if (!panel.program->addShaderFromSourceFile(QOpenGLShader::Vertex, QString("data/shaders/%1.vert").arg(shaderName)))
+	if (!panel.shaderProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, QString("data/shaders/rescale_%1.vert").arg(shaderName)))
 		return false;
 
-	if (!panel.program->addShaderFromSourceFile(QOpenGLShader::Fragment, QString("data/shaders/%1.frag").arg(shaderName)))
+	if (!panel.shaderProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, QString("data/shaders/rescale_%1.frag").arg(shaderName)))
 		return false;
 
-	if (!panel.program->link())
+	if (!panel.shaderProgram->link())
 		return false;
 
-	if ((panel.vertexMatrixUniform = panel.program->uniformLocation("vertexMatrix")) == -1)
+	if ((panel.vertexMatrixUniform = panel.shaderProgram->uniformLocation("vertexMatrix")) == -1)
 		qWarning("Could not find vertexMatrix uniform");
 
-	if ((panel.vertexPositionAttribute = panel.program->attributeLocation("vertexPosition")) == -1)
-		qWarning("Could not find vertexPosition attribute");
-
-	if ((panel.vertexTextureCoordinateAttribute = panel.program->attributeLocation("vertexTextureCoordinate")) == -1)
-		qWarning("Could not find vertexTextureCoordinate attribute");
-
-	if ((panel.textureSamplerUniform = panel.program->uniformLocation("textureSampler")) == -1)
+	if ((panel.textureSamplerUniform = panel.shaderProgram->uniformLocation("textureSampler")) == -1)
 		qWarning("Could not find textureSampler uniform");
 
-	panel.textureWidthUniform = panel.program->uniformLocation("textureWidth");
-	panel.textureHeightUniform = panel.program->uniformLocation("textureHeight");
-	panel.texelWidthUniform = panel.program->uniformLocation("texelWidth");
-	panel.texelHeightUniform = panel.program->uniformLocation("texelHeight");
+	panel.textureWidthUniform = panel.shaderProgram->uniformLocation("textureWidth");
+	panel.textureHeightUniform = panel.shaderProgram->uniformLocation("textureHeight");
+	panel.texelWidthUniform = panel.shaderProgram->uniformLocation("texelWidth");
+	panel.texelHeightUniform = panel.shaderProgram->uniformLocation("texelHeight");
 
 	return true;
-}
-
-void Renderer::loadBuffer(Panel& panel, GLfloat* buffer, size_t size)
-{
-	panel.buffer = new QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
-	panel.buffer->setUsagePattern(QOpenGLBuffer::StaticDraw);
-	panel.buffer->create();
-	panel.buffer->bind();
-	panel.buffer->allocate(buffer, (int)(sizeof(GLfloat) * size));
-	panel.buffer->release();
 }
 
 void Renderer::startRendering(double currentTime, double frameTime, double spareTime, double decoderTime, double stabilizerTime, double encoderTime)
@@ -317,6 +312,7 @@ void Renderer::startRendering(double currentTime, double frameTime, double spare
 
 	glViewport(0, 0, windowWidth, windowHeight);
 	glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	glDisable(GL_DEPTH_TEST);
 }
 
 void Renderer::uploadFrameData(const FrameData& frameData)
@@ -498,54 +494,58 @@ void Renderer::renderMapPanel()
 	glDisable(GL_SCISSOR_TEST);
 }
 
-void Renderer::renderPanel(const Panel& panel)
+void Renderer::renderPanel(Panel& panel)
 {
-	panel.program->bind();
+	panel.shaderProgram->bind();
 
 	if (panel.vertexMatrixUniform >= 0)
-		panel.program->setUniformValue((GLuint)panel.vertexMatrixUniform, panel.vertexMatrix);
+		panel.shaderProgram->setUniformValue((GLuint)panel.vertexMatrixUniform, panel.vertexMatrix);
 
 	if (panel.textureSamplerUniform >= 0)
-		panel.program->setUniformValue((GLuint)panel.textureSamplerUniform, 0);
+		panel.shaderProgram->setUniformValue((GLuint)panel.textureSamplerUniform, 0);
 
 	if (panel.textureWidthUniform >= 0)
-		panel.program->setUniformValue((GLuint)panel.textureWidthUniform, (float)panel.textureWidth);
+		panel.shaderProgram->setUniformValue((GLuint)panel.textureWidthUniform, (float)panel.textureWidth);
 
 	if (panel.textureHeightUniform >= 0)
-		panel.program->setUniformValue((GLuint)panel.textureHeightUniform, (float)panel.textureHeight);
+		panel.shaderProgram->setUniformValue((GLuint)panel.textureHeightUniform, (float)panel.textureHeight);
 
 	if (panel.texelWidthUniform >= 0)
-		panel.program->setUniformValue((GLuint)panel.texelWidthUniform, (float)panel.texelWidth);
+		panel.shaderProgram->setUniformValue((GLuint)panel.texelWidthUniform, (float)panel.texelWidth);
 
 	if (panel.texelHeightUniform >= 0)
-		panel.program->setUniformValue((GLuint)panel.texelHeightUniform, (float)panel.texelHeight);
+		panel.shaderProgram->setUniformValue((GLuint)panel.texelHeightUniform, (float)panel.texelHeight);
 
-	panel.buffer->bind();
+	panel.vertexBuffer->bind();
 	panel.texture->bind();
-
-	int* textureCoordinateOffset = (int*)(sizeof(GLfloat) * 12);
 
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(panel.vertexPositionAttribute, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	glVertexAttribPointer(panel.vertexTextureCoordinateAttribute, 2, GL_FLOAT, GL_FALSE, 0, textureCoordinateOffset);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (int*)(sizeof(GLfloat) * 12));
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
 
 	panel.texture->release();
-	panel.buffer->release();
-	panel.program->release();
+	panel.vertexBuffer->release();
+	panel.shaderProgram->release();
 }
 
-void Renderer::renderRoute(const Route& route)
+void Renderer::renderRoute(Route& route)
 {
-	QMatrix m;
-	m.translate(windowWidth / 2.0, windowHeight / 2.0);
-	m.translate(mapPanel.offsetX, mapPanel.offsetY);
-	m.rotate(-(mapPanel.angle + mapPanel.userAngle + routeManager->getAngle()));
-	m.scale(mapPanel.scale * mapPanel.userScale * routeManager->getScale(), mapPanel.scale * mapPanel.userScale * routeManager->getScale());
-	m.translate(mapPanel.x + mapPanel.userX + routeManager->getX(), -(mapPanel.y + mapPanel.userY + routeManager->getY()));
+	QMatrix painterMatrix;
+	painterMatrix.translate(windowWidth / 2.0, windowHeight / 2.0);
+	painterMatrix.translate(mapPanel.offsetX, mapPanel.offsetY);
+	painterMatrix.rotate(-(mapPanel.angle + mapPanel.userAngle + routeManager->getAngle()));
+	painterMatrix.scale(mapPanel.scale * mapPanel.userScale * routeManager->getScale(), mapPanel.scale * mapPanel.userScale * routeManager->getScale());
+	painterMatrix.translate(mapPanel.x + mapPanel.userX + routeManager->getX(), -(mapPanel.y + mapPanel.userY + routeManager->getY()));
+
+	if (route.routeRenderMode == RouteRenderMode::Normal)
+		renderRouteVertexBuffer(route, route.normalRouteVertexBuffer, route.normalRouteVertices.size());
+
+	if (route.routeRenderMode == RouteRenderMode::Pace)
+		renderRouteVertexBuffer(route, route.paceRouteVertexBuffer, route.paceRouteVertices.size());
 
 	painter->begin(paintDevice);
 	painter->setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform | QPainter::HighQualityAntialiasing);
@@ -556,41 +556,7 @@ void Renderer::renderRoute(const Route& route)
 		painter->setClipRect(0, 0, (int)(mapPanel.relativeWidth * windowWidth + 0.5), (int)windowHeight);
 	}
 
-	painter->setWorldMatrix(m);
-
-	if (route.wholeRouteRenderMode == RouteRenderMode::Normal)
-	{
-		QPen wholeRoutePen;
-		wholeRoutePen.setWidthF(route.wholeRouteWidth * route.userScale);
-		wholeRoutePen.setColor(route.wholeRouteColor);
-		wholeRoutePen.setJoinStyle(Qt::PenJoinStyle::RoundJoin);
-		wholeRoutePen.setCapStyle(Qt::PenCapStyle::RoundCap);
-
-		painter->setPen(wholeRoutePen);
-		painter->setBrush(Qt::NoBrush);
-		painter->drawPath(route.wholeRoutePath);
-	}
-
-	if (route.wholeRouteRenderMode == RouteRenderMode::Pace)
-	{
-		QPen paceRoutePen;
-		paceRoutePen.setWidthF(route.wholeRouteWidth * route.userScale);
-		paceRoutePen.setJoinStyle(Qt::PenJoinStyle::RoundJoin);
-		paceRoutePen.setCapStyle(Qt::PenCapStyle::RoundCap);
-
-		painter->setBrush(Qt::NoBrush);
-
-		for (size_t i = 1; i < routeManager->getDefaultRoute().routePoints.size(); ++i)
-		{
-			RoutePoint rp1 = routeManager->getDefaultRoute().routePoints.at(i - 1);
-			RoutePoint rp2 = routeManager->getDefaultRoute().routePoints.at(i);
-
-			paceRoutePen.setColor(rp2.color);
-
-			painter->setPen(paceRoutePen);
-			painter->drawLine(rp1.position, rp2.position);
-		}
-	}
+	painter->setWorldMatrix(painterMatrix);
 
 	if (route.showControls)
 	{
@@ -616,7 +582,7 @@ void Renderer::renderRoute(const Route& route)
 		runnerBrush.setColor(route.runnerColor);
 		runnerBrush.setStyle(Qt::SolidPattern);
 
-		double runnerRadius = (((route.wholeRouteWidth / 2.0) - (route.runnerBorderWidth / 2.0)) * route.runnerScale) * route.userScale;
+		double runnerRadius = (((route.routeWidth / 2.0) - (route.runnerBorderWidth / 2.0)) * route.runnerScale) * route.userScale;
 
 		painter->setPen(runnerPen);
 		painter->setBrush(runnerBrush);
@@ -625,6 +591,42 @@ void Renderer::renderRoute(const Route& route)
 
 	painter->setClipping(false);
 	painter->end();
+}
+
+void Renderer::renderRouteVertexBuffer(Route& route, QOpenGLBuffer& vertexBuffer, size_t vertexCount)
+{
+	route.shaderProgram->bind();
+
+	if (route.vertexMatrixUniform >= 0)
+		route.shaderProgram->setUniformValue((GLuint)route.vertexMatrixUniform, mapPanel.vertexMatrix);
+
+	if (route.borderColorUniform >= 0)
+		route.shaderProgram->setUniformValue((GLuint)route.borderColorUniform, route.routeBorderColor);
+
+	if (route.borderRelativeWidthUniform >= 0)
+		route.shaderProgram->setUniformValue((GLuint)route.borderRelativeWidthUniform, (GLfloat)(route.routeBorderWidth / route.routeWidth));
+
+	vertexBuffer.bind();
+
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
+
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 8, 0); // position
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 8, (void*)(sizeof(GLfloat) * 2)); // texture coordinate
+	glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 8, (void*)(sizeof(GLfloat) * 4)); // color
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, vertexCount);
+	glDisable(GL_BLEND);
+
+	glDisableVertexAttribArray(0);
+	glDisableVertexAttribArray(1);
+	glDisableVertexAttribArray(2);
+
+	vertexBuffer.release();
+	route.shaderProgram->release();
 }
 
 void Renderer::renderInfoPanel()

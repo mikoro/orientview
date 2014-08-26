@@ -29,8 +29,8 @@ namespace OrientView
 
 	struct Panel
 	{
-		QOpenGLShaderProgram* program = nullptr;
-		QOpenGLBuffer* buffer = nullptr;
+		QOpenGLShaderProgram* shaderProgram = nullptr;
+		QOpenGLBuffer* vertexBuffer = nullptr;
 		QOpenGLTexture* texture = nullptr;
 
 		QMatrix4x4 vertexMatrix;
@@ -58,8 +58,6 @@ namespace OrientView
 		double relativeWidth = 1.0;
 
 		int vertexMatrixUniform = 0;
-		int vertexPositionAttribute = 0;
-		int vertexTextureCoordinateAttribute = 0;
 		int textureSamplerUniform = 0;
 		int textureWidthUniform = 0;
 		int textureHeightUniform = 0;
@@ -81,8 +79,8 @@ namespace OrientView
 		void uploadFrameData(const FrameData& frameData);
 		void renderAll();
 		void stopRendering();
-		FrameData getRenderedFrame();
 
+		FrameData getRenderedFrame();
 		Panel& getVideoPanel();
 		Panel& getMapPanel();
 		RenderMode getRenderMode() const;
@@ -93,12 +91,12 @@ namespace OrientView
 
 	private:
 
-		bool loadShaders(Panel& panel, const QString& shaderName);
-		void loadBuffer(Panel& panel, GLfloat* buffer, size_t size);
+		bool loadRescaleShader(Panel& panel, const QString& shaderName);
 		void renderVideoPanel();
 		void renderMapPanel();
-		void renderPanel(const Panel& panel);
-		void renderRoute(const Route& route);
+		void renderPanel(Panel& panel);
+		void renderRoute(Route& route);
+		void renderRouteVertexBuffer(Route& route, QOpenGLBuffer& vertexBuffer, size_t vertexCount);
 		void renderInfoPanel();
 
 		VideoStabilizer* videoStabilizer = nullptr;

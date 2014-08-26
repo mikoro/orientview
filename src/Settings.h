@@ -39,7 +39,7 @@ namespace OrientView
 			double scale = 1.0;
 			int headerCrop = 0;
 			QColor backgroundColor = QColor(255, 255, 255, 255);
-			QString rescaleShader = "legacy";
+			QString rescaleShader = "default";
 
 		} map;
 
@@ -59,9 +59,9 @@ namespace OrientView
 			double smoothTransitionSpeed = 0.001;
 			bool showRunner = true;
 			bool showControls = true;
-			RouteRenderMode wholeRouteRenderMode = RouteRenderMode::Normal;
-			QColor wholeRouteColor = QColor(0, 0, 0, 80);
-			double wholeRouteWidth = 10.0;
+			RouteRenderMode routeRenderMode = RouteRenderMode::Normal;
+			QColor routeColor = QColor(0, 0, 0, 80);
+			double routeWidth = 10.0;
 			QColor controlBorderColor = QColor(140, 40, 140, 255);
 			double controlRadius = 15.0;
 			double controlBorderWidth = 5.0;
@@ -82,7 +82,7 @@ namespace OrientView
 			double angle = 0.0;
 			double scale = 1.0;
 			QColor backgroundColor = QColor(0, 50, 0, 255);
-			QString rescaleShader = "legacy";
+			QString rescaleShader = "default";
 			bool enableClipping = true;
 			bool enableClearing = true;
 			int frameCountDivisor = 1;
