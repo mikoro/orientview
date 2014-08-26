@@ -164,8 +164,8 @@ void RouteManager::generateRouteVertices(Route& route)
 	route.normalRouteVertices.clear();
 	route.paceRouteVertices.clear();
 
-	QPointF previousTlVertex;
-	QPointF previousTrVertex;
+	QPointF previousTlVertex, previousTrVertex;
+	RouteVertex previousTlRouteVertex, previousTrRouteVertex;
 	double previousAngle = 0.0;
 
 	for (int i = 0; i < (int)route.routePoints.size() - 1; ++i)
@@ -190,16 +190,18 @@ void RouteManager::generateRouteVertices(Route& route)
 		deltaVertex.setX(sin(angle) * route.routeWidth);
 		deltaVertex.setY(cos(angle) * route.routeWidth);
 
-		QPointF blVertex;
-		QPointF brVertex;
-		QPointF tlVertex = rp2.position + deltaVertex;
-		QPointF trVertex = rp2.position - deltaVertex;
-
 		if (i == 0)
 		{
 			previousTlVertex = rp1.position + deltaVertex;
 			previousTrVertex = rp1.position - deltaVertex;
 		}
+
+		QPointF blVertex;
+		QPointF brVertex;
+		QPointF tlVertex = rp2.position + deltaVertex;
+		QPointF trVertex = rp2.position - deltaVertex;
+
+		RouteVertex blRouteVertex, brRouteVertex, tlRouteVertex, trRouteVertex;
 
 		if (finalAngleDelta > 0.0)
 		{
@@ -212,31 +214,21 @@ void RouteManager::generateRouteVertices(Route& route)
 			brVertex = previousTlVertex - 2.0 * deltaVertex;
 		}
 
-		previousTlVertex = tlVertex;
-		previousTrVertex = trVertex;
-		previousAngle = angle;
-
-		RouteVertex blRouteVertex, brRouteVertex, tlRouteVertex, trRouteVertex;
-
 		blRouteVertex.x = blVertex.x();
 		blRouteVertex.y = -blVertex.y();
 		blRouteVertex.u = -1.0f;
-		blRouteVertex.v = 0.0f;
 
 		brRouteVertex.x = brVertex.x();
 		brRouteVertex.y = -brVertex.y();
 		brRouteVertex.u = 1.0f;
-		brRouteVertex.v = 0.0f;
 
 		tlRouteVertex.x = tlVertex.x();
 		tlRouteVertex.y = -tlVertex.y();
 		tlRouteVertex.u = -1.0f;
-		tlRouteVertex.v = 0.0f;
 
 		trRouteVertex.x = trVertex.x();
 		trRouteVertex.y = -trVertex.y();
 		trRouteVertex.u = 1.0f;
-		trRouteVertex.v = 0.0f;
 
 		blRouteVertex.r = brRouteVertex.r = rp1.color.redF();
 		blRouteVertex.g = brRouteVertex.g = rp1.color.greenF();
@@ -248,12 +240,36 @@ void RouteManager::generateRouteVertices(Route& route)
 		tlRouteVertex.b = trRouteVertex.b = rp2.color.blueF();
 		tlRouteVertex.a = trRouteVertex.a = rp2.color.alphaF();
 
+		RouteVertex jointOrigoRouteVertex, jointStartRouteVertex, jointEndRouteVertex;
+
+		if (finalAngleDelta > 0.0)
+		{
+			jointOrigoRouteVertex = brRouteVertex;
+			jointStartRouteVertex = previousTlRouteVertex;
+			jointEndRouteVertex = blRouteVertex;
+		}
+		else
+		{
+			jointOrigoRouteVertex = blRouteVertex;
+			jointStartRouteVertex = previousTrRouteVertex;
+			jointEndRouteVertex = brRouteVertex;
+		}
+
+		route.paceRouteVertices.push_back(jointOrigoRouteVertex);
+		route.paceRouteVertices.push_back(jointStartRouteVertex);
+		route.paceRouteVertices.push_back(jointEndRouteVertex);
 		route.paceRouteVertices.push_back(blRouteVertex);
 		route.paceRouteVertices.push_back(brRouteVertex);
 		route.paceRouteVertices.push_back(trRouteVertex);
 		route.paceRouteVertices.push_back(blRouteVertex);
 		route.paceRouteVertices.push_back(trRouteVertex);
 		route.paceRouteVertices.push_back(tlRouteVertex);
+
+		previousTlVertex = tlVertex;
+		previousTrVertex = trVertex;
+		previousTlRouteVertex = tlRouteVertex;
+		previousTrRouteVertex = trRouteVertex;
+		previousAngle = angle;
 	}
 
 	route.shaderProgram = new QOpenGLShaderProgram();
