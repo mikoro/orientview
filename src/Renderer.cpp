@@ -541,10 +541,10 @@ void Renderer::renderRoute(Route& route)
 	painterMatrix.scale(mapPanel.scale * mapPanel.userScale * routeManager->getScale(), mapPanel.scale * mapPanel.userScale * routeManager->getScale());
 	painterMatrix.translate(mapPanel.x + mapPanel.userX + routeManager->getX(), -(mapPanel.y + mapPanel.userY + routeManager->getY()));
 
-	if (route.routeRenderMode == RouteRenderMode::Normal)
-		renderRouteVertexBuffer(route, route.normalRouteVertexBuffer, route.normalRouteVertices.size());
+	//if (route.routeRenderMode == RouteRenderMode::Normal)
+		//renderRouteVertexBuffer(route, route.normalRouteVertexBuffer, route.normalRouteVertices.size());
 
-	if (route.routeRenderMode == RouteRenderMode::Pace)
+	//if (route.routeRenderMode == RouteRenderMode::Pace)
 		renderRouteVertexBuffer(route, route.paceRouteVertexBuffer, route.paceRouteVertices.size());
 
 	painter->begin(paintDevice);
@@ -618,7 +618,7 @@ void Renderer::renderRouteVertexBuffer(Route& route, QOpenGLBuffer& vertexBuffer
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, vertexCount);
+	glDrawArrays(GL_TRIANGLES, 0, vertexCount);
 	glDisable(GL_BLEND);
 
 	glDisableVertexAttribArray(0);

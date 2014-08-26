@@ -164,6 +164,10 @@ void RouteManager::generateRouteVertices(Route& route)
 	route.normalRouteVertices.clear();
 	route.paceRouteVertices.clear();
 
+	QPointF previousTlVertex;
+	QPointF previousTrVertex;
+	double previousAngle = 0.0;
+
 	for (int i = 0; i < (int)route.routePoints.size() - 1; ++i)
 	{
 		RoutePoint& rp1 = route.routePoints.at(i);
@@ -171,44 +175,87 @@ void RouteManager::generateRouteVertices(Route& route)
 
 		QPointF routePointVector = rp2.position - rp1.position;
 
-		double angle = atan2(routePointVector.y(), routePointVector.x());
+		double angle = atan2(-routePointVector.y(), routePointVector.x());
+		double angleDelta = angle - previousAngle;
+		double absoluteAngleDelta = abs(angleDelta);
+		double finalAngleDelta = angleDelta;
+
+		if (absoluteAngleDelta > M_PI)
+		{
+			finalAngleDelta = 2.0 * M_PI - absoluteAngleDelta;
+			finalAngleDelta *= (angleDelta < 0.0) ? 1.0 : -1.0;
+		}
 
 		QPointF deltaVertex;
-		deltaVertex.setX(-sin(angle) * route.routeWidth);
+		deltaVertex.setX(sin(angle) * route.routeWidth);
 		deltaVertex.setY(cos(angle) * route.routeWidth);
 
-		QPointF leftVertex = rp1.position + deltaVertex;
-		QPointF rightVertex = rp1.position - deltaVertex;
+		QPointF blVertex;
+		QPointF brVertex;
+		QPointF tlVertex = rp2.position + deltaVertex;
+		QPointF trVertex = rp2.position - deltaVertex;
 
-		RouteVertex rv1, rv2;
+		if (i == 0)
+		{
+			previousTlVertex = rp1.position + deltaVertex;
+			previousTrVertex = rp1.position - deltaVertex;
+		}
 
-		rv1.x = leftVertex.x();
-		rv1.y = -leftVertex.y();
-		rv1.u = -1.0f;
-		rv1.v = 0.0f;
+		if (finalAngleDelta > 0.0)
+		{
+			blVertex = previousTrVertex + 2.0 * deltaVertex;
+			brVertex = previousTrVertex;
+		}
+		else
+		{
+			blVertex = previousTlVertex;
+			brVertex = previousTlVertex - 2.0 * deltaVertex;
+		}
 
-		rv2.x = rightVertex.x();
-		rv2.y = -rightVertex.y();
-		rv2.u = 1.0f;
-		rv2.v = 0.0f;
+		previousTlVertex = tlVertex;
+		previousTrVertex = trVertex;
+		previousAngle = angle;
 
-		rv1.r = rv2.r = route.routeColor.redF();
-		rv1.g = rv2.g = route.routeColor.greenF();
-		rv1.b = rv2.b = route.routeColor.blueF();
-		rv1.a = rv2.a = route.routeColor.alphaF();
+		RouteVertex blRouteVertex, brRouteVertex, tlRouteVertex, trRouteVertex;
 
-		route.normalRouteVertices.push_back(rv1);
-		route.normalRouteVertices.push_back(rv2);
+		blRouteVertex.x = blVertex.x();
+		blRouteVertex.y = -blVertex.y();
+		blRouteVertex.u = -1.0f;
+		blRouteVertex.v = 0.0f;
 
-		rv1.r = rv2.r = rp1.color.redF();
-		rv1.g = rv2.g = rp1.color.greenF();
-		rv1.b = rv2.b = rp1.color.blueF();
-		rv1.a = rv2.a = rp1.color.alphaF();
+		brRouteVertex.x = brVertex.x();
+		brRouteVertex.y = -brVertex.y();
+		brRouteVertex.u = 1.0f;
+		brRouteVertex.v = 0.0f;
 
-		route.paceRouteVertices.push_back(rv1);
-		route.paceRouteVertices.push_back(rv2);
+		tlRouteVertex.x = tlVertex.x();
+		tlRouteVertex.y = -tlVertex.y();
+		tlRouteVertex.u = -1.0f;
+		tlRouteVertex.v = 0.0f;
+
+		trRouteVertex.x = trVertex.x();
+		trRouteVertex.y = -trVertex.y();
+		trRouteVertex.u = 1.0f;
+		trRouteVertex.v = 0.0f;
+
+		blRouteVertex.r = brRouteVertex.r = rp1.color.redF();
+		blRouteVertex.g = brRouteVertex.g = rp1.color.greenF();
+		blRouteVertex.b = brRouteVertex.b = rp1.color.blueF();
+		blRouteVertex.a = brRouteVertex.a = rp1.color.alphaF();
+
+		tlRouteVertex.r = trRouteVertex.r = rp2.color.redF();
+		tlRouteVertex.g = trRouteVertex.g = rp2.color.greenF();
+		tlRouteVertex.b = trRouteVertex.b = rp2.color.blueF();
+		tlRouteVertex.a = trRouteVertex.a = rp2.color.alphaF();
+
+		route.paceRouteVertices.push_back(blRouteVertex);
+		route.paceRouteVertices.push_back(brRouteVertex);
+		route.paceRouteVertices.push_back(trRouteVertex);
+		route.paceRouteVertices.push_back(blRouteVertex);
+		route.paceRouteVertices.push_back(trRouteVertex);
+		route.paceRouteVertices.push_back(tlRouteVertex);
 	}
-	
+
 	route.shaderProgram = new QOpenGLShaderProgram();
 	route.shaderProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, "data/shaders/route.vert");
 	route.shaderProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, "data/shaders/route.frag");
