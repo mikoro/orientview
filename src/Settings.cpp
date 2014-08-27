@@ -26,6 +26,19 @@ void Settings::readFromQSettings(QSettings* settings)
 	map.rescaleShader = settings->value("map/rescaleShader", defaultSettings.map.rescaleShader).toString();
 
 	route.quickRouteJpegFilePath = settings->value("route/quickRouteJpegFilePath", defaultSettings.route.quickRouteJpegFilePath).toString();
+	route.renderMode = (RouteRenderMode)settings->value("route/renderMode", defaultSettings.route.renderMode).toInt();
+	route.color = settings->value("route/color", defaultSettings.route.color).value<QColor>();
+	route.width = settings->value("route/width", defaultSettings.route.width).toDouble();
+	route.borderWidth = settings->value("route/borderWidth", defaultSettings.route.borderWidth).toDouble();
+	route.controlBorderColor = settings->value("route/controlBorderColor", defaultSettings.route.controlBorderColor).value<QColor>();
+	route.controlRadius = settings->value("route/controlRadius", defaultSettings.route.controlRadius).toDouble();
+	route.controlBorderWidth = settings->value("route/controlBorderWidth", defaultSettings.route.controlBorderWidth).toDouble();
+	route.showControls = settings->value("route/showControls", defaultSettings.route.showControls).toBool();
+	route.runnerColor = settings->value("route/runnerColor", defaultSettings.route.runnerColor).value<QColor>();
+	route.runnerBorderColor = settings->value("route/runnerBorderColor", defaultSettings.route.runnerBorderColor).value<QColor>();
+	route.runnerBorderWidth = settings->value("route/runnerBorderWidth", defaultSettings.route.runnerBorderWidth).toDouble();
+	route.runnerScale = settings->value("route/runnerScale", defaultSettings.route.runnerScale).toDouble();
+	route.showRunner = settings->value("route/showRunner", defaultSettings.route.showRunner).toBool();
 	route.controlTimeOffset = settings->value("route/controlTimeOffset", defaultSettings.route.controlTimeOffset).toDouble();
 	route.runnerTimeOffset = settings->value("route/runnerTimeOffset", defaultSettings.route.runnerTimeOffset).toDouble();
 	route.scale = settings->value("route/scale", defaultSettings.route.scale).toDouble();
@@ -37,19 +50,7 @@ void Settings::readFromQSettings(QSettings* settings)
 	route.highPace = settings->value("route/highPace", defaultSettings.route.highPace).toDouble();
 	route.useSmoothTransition = settings->value("route/useSmoothTransition", defaultSettings.route.useSmoothTransition).toBool();
 	route.smoothTransitionSpeed = settings->value("route/smoothTransitionSpeed", defaultSettings.route.smoothTransitionSpeed).toDouble();
-	route.showRunner = settings->value("route/showRunner", defaultSettings.route.showRunner).toBool();
-	route.showControls = settings->value("route/showControls", defaultSettings.route.showControls).toBool();
-	route.routeRenderMode = (RouteRenderMode)settings->value("route/routeRenderMode", defaultSettings.route.routeRenderMode).toInt();
-	route.routeColor = settings->value("route/routeColor", defaultSettings.route.routeColor).value<QColor>();
-	route.routeWidth = settings->value("route/routeWidth", defaultSettings.route.routeWidth).toDouble();
-	route.controlBorderColor = settings->value("route/controlBorderColor", defaultSettings.route.controlBorderColor).value<QColor>();
-	route.controlRadius = settings->value("route/controlRadius", defaultSettings.route.controlRadius).toDouble();
-	route.controlBorderWidth = settings->value("route/controlBorderWidth", defaultSettings.route.controlBorderWidth).toDouble();
-	route.runnerColor = settings->value("route/runnerColor", defaultSettings.route.runnerColor).value<QColor>();
-	route.runnerBorderColor = settings->value("route/runnerBorderColor", defaultSettings.route.runnerBorderColor).value<QColor>();
-	route.runnerBorderWidth = settings->value("route/runnerBorderWidth", defaultSettings.route.runnerBorderWidth).toDouble();
-	route.runnerScale = settings->value("route/runnerScale", defaultSettings.route.runnerScale).toDouble();
-
+	
 	video.inputVideoFilePath = settings->value("video/inputVideoFilePath", defaultSettings.video.inputVideoFilePath).toString();
 	video.startTimeOffset = settings->value("video/startTimeOffset", defaultSettings.video.startTimeOffset).toDouble();
 	video.seekToAnyFrame = settings->value("video/seekToAnyFrame", defaultSettings.video.seekToAnyFrame).toBool();
@@ -131,6 +132,19 @@ void Settings::writeToQSettings(QSettings* settings)
 	settings->setValue("map/rescaleShader", map.rescaleShader);
 
 	settings->setValue("route/quickRouteJpegFilePath", route.quickRouteJpegFilePath);
+	settings->setValue("route/renderMode", route.renderMode);
+	settings->setValue("route/color", route.color);
+	settings->setValue("route/width", route.width);
+	settings->setValue("route/borderWidth", route.borderWidth);
+	settings->setValue("route/controlBorderColor", route.controlBorderColor);
+	settings->setValue("route/controlRadius", route.controlRadius);
+	settings->setValue("route/controlBorderWidth", route.controlBorderWidth);
+	settings->setValue("route/showControls", route.showControls);
+	settings->setValue("route/runnerColor", route.runnerColor);
+	settings->setValue("route/runnerBorderColor", route.runnerBorderColor);
+	settings->setValue("route/runnerBorderWidth", route.runnerBorderWidth);
+	settings->setValue("route/runnerScale", route.runnerScale);
+	settings->setValue("route/showRunner", route.showRunner);
 	settings->setValue("route/controlTimeOffset", route.controlTimeOffset);
 	settings->setValue("route/runnerTimeOffset", route.runnerTimeOffset);
 	settings->setValue("route/scale", route.scale);
@@ -142,19 +156,7 @@ void Settings::writeToQSettings(QSettings* settings)
 	settings->setValue("route/highPace", route.highPace);
 	settings->setValue("route/useSmoothTransition", route.useSmoothTransition);
 	settings->setValue("route/smoothTransitionSpeed", route.smoothTransitionSpeed);
-	settings->setValue("route/showRunner", route.showRunner);
-	settings->setValue("route/showControls", route.showControls);
-	settings->setValue("route/routeRenderMode", route.routeRenderMode);
-	settings->setValue("route/routeColor", route.routeColor);
-	settings->setValue("route/routeWidth", route.routeWidth);
-	settings->setValue("route/controlBorderColor", route.controlBorderColor);
-	settings->setValue("route/controlRadius", route.controlRadius);
-	settings->setValue("route/controlBorderWidth", route.controlBorderWidth);
-	settings->setValue("route/runnerColor", route.runnerColor);
-	settings->setValue("route/runnerBorderColor", route.runnerBorderColor);
-	settings->setValue("route/runnerBorderWidth", route.runnerBorderWidth);
-	settings->setValue("route/runnerScale", route.runnerScale);
-
+	
 	settings->setValue("video/inputVideoFilePath", video.inputVideoFilePath);
 	settings->setValue("video/startTimeOffset", video.startTimeOffset);
 	settings->setValue("video/seekToAnyFrame", video.seekToAnyFrame);

@@ -23,6 +23,19 @@ bool RouteManager::initialize(QuickRouteReader* quickRouteReader, SplitsManager*
 
 	defaultRoute.routePoints = quickRouteReader->getRoutePoints();
 	defaultRoute.runnerInfo = splitsManager->getDefaultRunnerInfo();
+	defaultRoute.renderMode = settings->route.renderMode;
+	defaultRoute.color = settings->route.color;
+	defaultRoute.width = settings->route.width;
+	defaultRoute.borderWidth = settings->route.borderWidth;
+	defaultRoute.controlBorderColor = settings->route.controlBorderColor;
+	defaultRoute.controlRadius = settings->route.controlRadius;
+	defaultRoute.controlBorderWidth = settings->route.controlBorderWidth;
+	defaultRoute.showControls = settings->route.showControls;
+	defaultRoute.runnerColor = settings->route.runnerColor;
+	defaultRoute.runnerBorderColor = settings->route.runnerBorderColor;
+	defaultRoute.runnerBorderWidth = settings->route.runnerBorderWidth;
+	defaultRoute.runnerScale = settings->route.runnerScale;
+	defaultRoute.showRunner = settings->route.showRunner;
 	defaultRoute.controlTimeOffset = settings->route.controlTimeOffset;
 	defaultRoute.runnerTimeOffset = settings->route.runnerTimeOffset;
 	defaultRoute.userScale = settings->route.scale;
@@ -34,18 +47,6 @@ bool RouteManager::initialize(QuickRouteReader* quickRouteReader, SplitsManager*
 	defaultRoute.highPace = settings->route.highPace;
 	defaultRoute.useSmoothTransition = settings->route.useSmoothTransition;
 	defaultRoute.smoothTransitionSpeed = settings->route.smoothTransitionSpeed;
-	defaultRoute.showRunner = settings->route.showRunner;
-	defaultRoute.showControls = settings->route.showControls;
-	defaultRoute.renderMode = settings->route.routeRenderMode;
-	defaultRoute.color = settings->route.routeColor;
-	defaultRoute.width = settings->route.routeWidth;
-	defaultRoute.controlBorderColor = settings->route.controlBorderColor;
-	defaultRoute.controlRadius = settings->route.controlRadius;
-	defaultRoute.controlBorderWidth = settings->route.controlBorderWidth;
-	defaultRoute.runnerColor = settings->route.runnerColor;
-	defaultRoute.runnerBorderColor = settings->route.runnerBorderColor;
-	defaultRoute.runnerBorderWidth = settings->route.runnerBorderWidth;
-	defaultRoute.runnerScale = settings->route.runnerScale;
 
 	for (Route& route : routes)
 	{
