@@ -15,6 +15,9 @@ void RouteManager::initialize(QuickRouteReader* quickRouteReader, SplitsManager*
 {
 	this->renderer = renderer;
 
+	windowWidth = settings->window.width;
+	windowHeight = settings->window.height;
+
 	routes.push_back(Route());
 	Route& defaultRoute = routes.at(0);
 
@@ -43,9 +46,6 @@ void RouteManager::initialize(QuickRouteReader* quickRouteReader, SplitsManager*
 	defaultRoute.runnerBorderColor = settings->route.runnerBorderColor;
 	defaultRoute.runnerBorderWidth = settings->route.runnerBorderWidth;
 	defaultRoute.runnerScale = settings->route.runnerScale;
-
-	windowWidth = settings->window.width;
-	windowHeight = settings->window.height;
 
 	for (Route& route : routes)
 	{
@@ -78,7 +78,7 @@ void RouteManager::update(double currentTime, double frameTime)
 
 	for (Route& route : routes)
 	{
-		calculateRunnerPosition(route, currentTime);
+		calculateCurrentRunnerPosition(route, currentTime);
 		calculateCurrentSplitTransformation(route, currentTime, frameTime);
 	}
 }
@@ -307,33 +307,12 @@ void RouteManager::generateRouteVertices(Route& route)
 
 void RouteManager::calculateControlPositions(Route& route)
 {
-	if (route.runnerInfo.splits.empty() || route.alignedRoutePoints.empty())
-		return;
-
 	route.controlPositions.clear();
 
 	for (const Split& split : route.runnerInfo.splits)
 	{
-		double offsetTime = split.absoluteTime + route.controlTimeOffset;
-		double previousWholeSecond = floor(offsetTime);
-		double alpha = offsetTime - previousWholeSecond;
-
-		int firstIndex = (int)previousWholeSecond;
-		int secondIndex = firstIndex + 1;
-		int indexMax = (int)route.alignedRoutePoints.size() - 1;
-
-		firstIndex = std::max(0, std::min(firstIndex, indexMax));
-		secondIndex = std::max(0, std::min(secondIndex, indexMax));
-
-		if (firstIndex == secondIndex)
-			route.controlPositions.push_back(route.alignedRoutePoints.at(firstIndex).position);
-		else
-		{
-			RoutePoint rp1 = route.alignedRoutePoints.at(firstIndex);
-			RoutePoint rp2 = route.alignedRoutePoints.at(secondIndex);
-
-			route.controlPositions.push_back((1.0 - alpha) * rp1.position + alpha * rp2.position);
-		}
+		RoutePoint rp = getInterpolatedRoutePoint(route, split.absoluteTime + route.controlTimeOffset);
+		route.controlPositions.push_back(rp.position);
 	}
 }
 
@@ -423,31 +402,10 @@ void RouteManager::calculateSplitTransformations(Route& route)
 	instantTransitionRequested = true;
 }
 
-void RouteManager::calculateRunnerPosition(Route& route, double currentTime)
+void RouteManager::calculateCurrentRunnerPosition(Route& route, double currentTime)
 {
-	if (route.alignedRoutePoints.empty())
-		return;
-
-	double offsetTime = currentTime + route.runnerTimeOffset;
-	double previousWholeSecond = floor(offsetTime);
-	double alpha = offsetTime - previousWholeSecond;
-
-	int firstIndex = (int)previousWholeSecond;
-	int secondIndex = firstIndex + 1;
-	int indexMax = (int)route.alignedRoutePoints.size() - 1;
-
-	firstIndex = std::max(0, std::min(firstIndex, indexMax));
-	secondIndex = std::max(0, std::min(secondIndex, indexMax));
-
-	if (firstIndex == secondIndex)
-		route.runnerPosition = route.alignedRoutePoints.at(firstIndex).position;
-	else
-	{
-		RoutePoint rp1 = route.alignedRoutePoints.at(firstIndex);
-		RoutePoint rp2 = route.alignedRoutePoints.at(secondIndex);
-
-		route.runnerPosition = (1.0 - alpha) * rp1.position + alpha * rp2.position;
-	}
+	RoutePoint rp = getInterpolatedRoutePoint(route, currentTime + route.runnerTimeOffset);
+	route.runnerPosition = rp.position;
 }
 
 void RouteManager::calculateCurrentSplitTransformation(Route& route, double currentTime, double frameTime)
@@ -521,6 +479,40 @@ void RouteManager::calculateCurrentSplitTransformation(Route& route, double curr
 
 			route.transitionAlpha += route.smoothTransitionSpeed * frameTime;
 		}
+	}
+}
+
+RoutePoint RouteManager::getInterpolatedRoutePoint(Route& route, double time)
+{
+	if (route.alignedRoutePoints.empty())
+		return RoutePoint();
+
+	double previousWholeSecond = floor(time);
+	double alpha = time - previousWholeSecond;
+
+	int firstIndex = (int)previousWholeSecond;
+	int secondIndex = firstIndex + 1;
+	int indexMax = (int)route.alignedRoutePoints.size() - 1;
+
+	firstIndex = std::max(0, std::min(firstIndex, indexMax));
+	secondIndex = std::max(0, std::min(secondIndex, indexMax));
+
+	if (firstIndex == secondIndex)
+		return route.alignedRoutePoints.at(firstIndex);
+	else
+	{
+		RoutePoint firstRoutePoint = route.alignedRoutePoints.at(firstIndex);
+		RoutePoint secondRoutePoint = route.alignedRoutePoints.at(secondIndex);
+		RoutePoint interpolatedRoutePoint = firstRoutePoint;
+
+		interpolatedRoutePoint.time = time;
+		interpolatedRoutePoint.position = (1.0 - alpha) * firstRoutePoint.position + alpha * secondRoutePoint.position;
+		interpolatedRoutePoint.elevation = (1.0 - alpha) * firstRoutePoint.elevation + alpha * secondRoutePoint.elevation;
+		interpolatedRoutePoint.heartRate = (1.0 - alpha) * firstRoutePoint.heartRate + alpha * secondRoutePoint.heartRate;
+		interpolatedRoutePoint.pace = (1.0 - alpha) * firstRoutePoint.pace + alpha * secondRoutePoint.pace;
+		interpolatedRoutePoint.color = interpolateFromGreenToRed(route.highPace, route.lowPace, interpolatedRoutePoint.pace);
+
+		return interpolatedRoutePoint;
 	}
 }
 

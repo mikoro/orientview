@@ -104,18 +104,15 @@ namespace OrientView
 	public:
 
 		void initialize(QuickRouteReader* quickRouteReader, SplitsManager* splitsManager, Renderer* renderer, Settings* settings);
-
 		void update(double currentTime, double frameTime);
+
 		void requestFullUpdate();
 		void requestInstantTransition();
-
 		void windowResized(double newWidth, double newHeight);
-
 		double getX() const;
 		double getY() const;
 		double getScale() const;
 		double getAngle() const;
-
 		Route& getDefaultRoute();
 
 	private:
@@ -126,8 +123,9 @@ namespace OrientView
 
 		void calculateControlPositions(Route& route);
 		void calculateSplitTransformations(Route& route);
-		void calculateRunnerPosition(Route& route, double currentTime);
+		void calculateCurrentRunnerPosition(Route& route, double currentTime);
 		void calculateCurrentSplitTransformation(Route& route, double currentTime, double frameTime);
+		RoutePoint getInterpolatedRoutePoint(Route& route, double time);
 
 		QColor interpolateFromGreenToRed(double greenValue, double redValue, double value);
 
