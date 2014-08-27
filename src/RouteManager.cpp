@@ -411,64 +411,76 @@ std::vector<RouteVertex> RouteManager::generateRouteVertices(Route& route)
 
 	QPointF previousTlVertex, previousTrVertex;
 	RouteVertex previousTlRouteVertex, previousTrRouteVertex;
-	double previousAngle = 0.0;
+	double previousAngleDeg = 0.0;
+	bool isFirstPoint = true;
 
+	// go through the points and generate rectangles of given width between them
 	for (int i = 0; i < (int)route.alignedRoutePoints.size() - 1;)
 	{
 		RoutePoint rp1 = route.alignedRoutePoints.at(i);
 		RoutePoint rp2;
 		QPointF routePointVector;
 
+		// find the next point that isn't too close
+		// if the next point is too close it will be left inside the joint and the line segment will be drawn backwards
 		for (int j = i + 1; j < (int)route.alignedRoutePoints.size(); ++j)
 		{
 			i = j;
 
 			rp2 = route.alignedRoutePoints.at(j);
 			routePointVector = rp2.position - rp1.position;
+
 			double length = sqrt(routePointVector.x() * routePointVector.x() + routePointVector.y() * routePointVector.y());
 
+			// this seems to work quite well, no good theory for it
 			if (length > route.width)
 				break;
 		}
 
 		double angle = atan2(-routePointVector.y(), routePointVector.x());
-		double angleDelta = angle - previousAngle;
+		double angleDeg = angle * 180.0 / M_PI;
+		double angleDelta = angleDeg - previousAngleDeg;
 		double absoluteAngleDelta = abs(angleDelta);
 		double finalAngleDelta = angleDelta;
 
-		if (absoluteAngleDelta > M_PI)
+		// if rotating more than 180 degrees, rotate to the opposite direction instead
+		if (absoluteAngleDelta > 180.0)
 		{
-			finalAngleDelta = 2.0 * M_PI - absoluteAngleDelta;
+			finalAngleDelta = 360.0 - absoluteAngleDelta;
 			finalAngleDelta *= (angleDelta < 0.0) ? 1.0 : -1.0;
 		}
 
+		// this is a vector that points 90 degrees left from the center line
 		QPointF deltaVertex;
-		deltaVertex.setX(sin(angle) * route.width);
-		deltaVertex.setY(cos(angle) * route.width);
+		deltaVertex.setX(sin(angle) * (route.width / 2.0 + route.borderWidth));
+		deltaVertex.setY(cos(angle) * (route.width / 2.0 + route.borderWidth));
 
-		if (i == 0)
+		if (isFirstPoint)
 		{
 			previousTlVertex = rp1.position + deltaVertex;
 			previousTrVertex = rp1.position - deltaVertex;
 		}
 
+		// the corner vertices of the rectangle
 		QPointF blVertex;
 		QPointF brVertex;
 		QPointF tlVertex = rp2.position + deltaVertex;
 		QPointF trVertex = rp2.position - deltaVertex;
 
-		RouteVertex blRouteVertex, brRouteVertex, tlRouteVertex, trRouteVertex;
-
 		if (finalAngleDelta > 0.0)
 		{
+			// pivot around the top right vertex of the previous rectangle
 			blVertex = previousTrVertex + 2.0 * deltaVertex;
 			brVertex = previousTrVertex;
 		}
 		else
 		{
+			// pivot around the top left vertex of the previous rectangle
 			blVertex = previousTlVertex;
 			brVertex = previousTlVertex - 2.0 * deltaVertex;
 		}
+
+		RouteVertex blRouteVertex, brRouteVertex, tlRouteVertex, trRouteVertex;
 
 		blRouteVertex.x = blVertex.x();
 		blRouteVertex.y = -blVertex.y();
@@ -516,9 +528,13 @@ std::vector<RouteVertex> RouteManager::generateRouteVertices(Route& route)
 			jointEndRouteVertex = brRouteVertex;
 		}
 
-		//routeVertices.push_back(jointOrigoRouteVertex);
-		//routeVertices.push_back(jointStartRouteVertex);
-		//routeVertices.push_back(jointEndRouteVertex);
+		if (!isFirstPoint)
+		{
+			routeVertices.push_back(jointOrigoRouteVertex);
+			routeVertices.push_back(jointStartRouteVertex);
+			routeVertices.push_back(jointEndRouteVertex);
+		}
+
 		routeVertices.push_back(blRouteVertex);
 		routeVertices.push_back(brRouteVertex);
 		routeVertices.push_back(trRouteVertex);
@@ -530,7 +546,9 @@ std::vector<RouteVertex> RouteManager::generateRouteVertices(Route& route)
 		previousTrVertex = trVertex;
 		previousTlRouteVertex = tlRouteVertex;
 		previousTrRouteVertex = trRouteVertex;
-		previousAngle = angle;
+		previousAngleDeg = angleDeg;
+
+		isFirstPoint = false;
 	}
 
 	return routeVertices;
@@ -542,12 +560,13 @@ RoutePoint RouteManager::getInterpolatedRoutePoint(Route& route, double time)
 		return RoutePoint();
 
 	double previousWholeSecond = floor(time);
-	double alpha = time - previousWholeSecond;
+	double alpha = time - previousWholeSecond; // the fractional part, i.e milliseconds
 
 	int firstIndex = (int)previousWholeSecond;
 	int secondIndex = firstIndex + 1;
 	int indexMax = (int)route.alignedRoutePoints.size() - 1;
 
+	// limit the indexes inside a valid range
 	firstIndex = std::max(0, std::min(firstIndex, indexMax));
 	secondIndex = std::max(0, std::min(secondIndex, indexMax));
 
