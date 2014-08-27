@@ -50,7 +50,7 @@ void Settings::readFromQSettings(QSettings* settings)
 	route.highPace = settings->value("route/highPace", defaultSettings.route.highPace).toDouble();
 	route.useSmoothTransition = settings->value("route/useSmoothTransition", defaultSettings.route.useSmoothTransition).toBool();
 	route.smoothTransitionSpeed = settings->value("route/smoothTransitionSpeed", defaultSettings.route.smoothTransitionSpeed).toDouble();
-	
+
 	video.inputVideoFilePath = settings->value("video/inputVideoFilePath", defaultSettings.video.inputVideoFilePath).toString();
 	video.startTimeOffset = settings->value("video/startTimeOffset", defaultSettings.video.startTimeOffset).toDouble();
 	video.seekToAnyFrame = settings->value("video/seekToAnyFrame", defaultSettings.video.seekToAnyFrame).toBool();
@@ -156,7 +156,7 @@ void Settings::writeToQSettings(QSettings* settings)
 	settings->setValue("route/highPace", route.highPace);
 	settings->setValue("route/useSmoothTransition", route.useSmoothTransition);
 	settings->setValue("route/smoothTransitionSpeed", route.smoothTransitionSpeed);
-	
+
 	settings->setValue("video/inputVideoFilePath", video.inputVideoFilePath);
 	settings->setValue("video/startTimeOffset", video.startTimeOffset);
 	settings->setValue("video/seekToAnyFrame", video.seekToAnyFrame);

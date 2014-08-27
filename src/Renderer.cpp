@@ -301,7 +301,7 @@ void Renderer::renderAll()
 
 	if (renderMode == RenderMode::All || renderMode == RenderMode::Video)
 		renderVideoPanel();
-	
+
 	if (renderMode == RenderMode::All || renderMode == RenderMode::Map)
 	{
 		renderMapPanel();
@@ -317,7 +317,7 @@ void Renderer::renderAll()
 			painter->end();
 		}
 	}
-	
+
 	if (showInfoPanel)
 		renderInfoPanel();
 
@@ -472,7 +472,7 @@ void Renderer::renderPanel(Panel& panel)
 
 	panel.vertexArrayObject.bind();
 	panel.texture.bind();
-	
+
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
 	panel.texture.release();
@@ -482,18 +482,15 @@ void Renderer::renderPanel(Panel& panel)
 
 void Renderer::renderRoute(Route& route)
 {
+	if (route.renderMode != RouteRenderMode::None)
+		renderRouteVertexBuffer(route);
+
 	QMatrix painterMatrix;
 	painterMatrix.translate(windowWidth / 2.0, windowHeight / 2.0);
 	painterMatrix.translate(mapPanel.offsetX, mapPanel.offsetY);
 	painterMatrix.rotate(-(mapPanel.angle + mapPanel.userAngle + routeManager->getAngle()));
 	painterMatrix.scale(mapPanel.scale * mapPanel.userScale * routeManager->getScale(), mapPanel.scale * mapPanel.userScale * routeManager->getScale());
 	painterMatrix.translate(mapPanel.x + mapPanel.userX + routeManager->getX(), -(mapPanel.y + mapPanel.userY + routeManager->getY()));
-
-	//if (route.routeRenderMode == RouteRenderMode::Normal)
-		//renderRouteVertexBuffer(route, route.normalRouteVertexBuffer, route.normalRouteVertices.size());
-
-	//if (route.routeRenderMode == RouteRenderMode::Pace)
-		renderRouteVertexBuffer(route);
 
 	painter->begin(paintDevice);
 	painter->setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform | QPainter::HighQualityAntialiasing);
@@ -548,6 +545,7 @@ void Renderer::renderRouteVertexBuffer(Route& route)
 	route.shaderProgram->setUniformValue("vertexMatrix", mapPanel.vertexMatrix);
 	route.shaderProgram->setUniformValue("borderColor", route.borderColor);
 	route.shaderProgram->setUniformValue("borderRelativeWidth", (GLfloat)(route.borderWidth / route.width));
+	route.shaderProgram->setUniformValue("usePaceColoring", (route.renderMode == RouteRenderMode::Pace));
 
 	route.vertexArrayObject->bind();
 

@@ -77,7 +77,6 @@ RouteManager::~RouteManager()
 			delete route.shaderProgram;
 			route.shaderProgram = nullptr;
 		}
-
 		if (route.vertexArrayObject != nullptr)
 		{
 			delete route.vertexArrayObject;
@@ -211,15 +210,15 @@ bool RouteManager::initializeShaderAndBuffer(Route& route)
 
 	route.vertexArrayObject->create();
 	route.vertexArrayObject->bind();
-
 	route.vertexBuffer->bind();
 	route.shaderProgram->enableAttributeArray("vertexPosition");
 	route.shaderProgram->enableAttributeArray("vertexTextureCoordinate");
-	route.shaderProgram->enableAttributeArray("vertexColor");
-	route.shaderProgram->setAttributeBuffer("vertexPosition", GL_FLOAT, 0, 2, sizeof(GLfloat) * 8);
-	route.shaderProgram->setAttributeBuffer("vertexTextureCoordinate", GL_FLOAT, sizeof(GLfloat) * 2, 2, sizeof(GLfloat) * 8);
-	route.shaderProgram->setAttributeBuffer("vertexColor", GL_FLOAT, sizeof(GLfloat) * 4, 4, sizeof(GLfloat) * 8);
-
+	route.shaderProgram->enableAttributeArray("vertexColorNormal");
+	route.shaderProgram->enableAttributeArray("vertexColorPace");
+	route.shaderProgram->setAttributeBuffer("vertexPosition", GL_FLOAT, 0, 2, sizeof(GLfloat) * 12);
+	route.shaderProgram->setAttributeBuffer("vertexTextureCoordinate", GL_FLOAT, sizeof(GLfloat) * 2, 2, sizeof(GLfloat) * 12);
+	route.shaderProgram->setAttributeBuffer("vertexColorNormal", GL_FLOAT, sizeof(GLfloat) * 4, 4, sizeof(GLfloat) * 12);
+	route.shaderProgram->setAttributeBuffer("vertexColorPace", GL_FLOAT, sizeof(GLfloat) * 8, 4, sizeof(GLfloat) * 12);
 	route.vertexArrayObject->release();
 	route.vertexBuffer->release();
 
@@ -487,15 +486,20 @@ std::vector<RouteVertex> RouteManager::generateRouteVertices(Route& route)
 		trRouteVertex.y = -trVertex.y();
 		trRouteVertex.u = 1.0f;
 
-		blRouteVertex.r = brRouteVertex.r = rp1.color.redF();
-		blRouteVertex.g = brRouteVertex.g = rp1.color.greenF();
-		blRouteVertex.b = brRouteVertex.b = rp1.color.blueF();
-		blRouteVertex.a = brRouteVertex.a = rp1.color.alphaF();
+		blRouteVertex.normalR = brRouteVertex.normalR = tlRouteVertex.normalR = trRouteVertex.normalR = route.color.redF();
+		blRouteVertex.normalG = brRouteVertex.normalG = tlRouteVertex.normalG = trRouteVertex.normalG = route.color.greenF();
+		blRouteVertex.normalB = brRouteVertex.normalB = tlRouteVertex.normalB = trRouteVertex.normalB = route.color.blueF();
+		blRouteVertex.normalA = brRouteVertex.normalA = tlRouteVertex.normalA = trRouteVertex.normalA = route.color.alphaF();
 
-		tlRouteVertex.r = trRouteVertex.r = rp2.color.redF();
-		tlRouteVertex.g = trRouteVertex.g = rp2.color.greenF();
-		tlRouteVertex.b = trRouteVertex.b = rp2.color.blueF();
-		tlRouteVertex.a = trRouteVertex.a = rp2.color.alphaF();
+		blRouteVertex.paceR = brRouteVertex.paceR = rp1.color.redF();
+		blRouteVertex.paceG = brRouteVertex.paceG = rp1.color.greenF();
+		blRouteVertex.paceB = brRouteVertex.paceB = rp1.color.blueF();
+		blRouteVertex.paceA = brRouteVertex.paceA = rp1.color.alphaF();
+
+		tlRouteVertex.paceR = trRouteVertex.paceR = rp2.color.redF();
+		tlRouteVertex.paceG = trRouteVertex.paceG = rp2.color.greenF();
+		tlRouteVertex.paceB = trRouteVertex.paceB = rp2.color.blueF();
+		tlRouteVertex.paceA = trRouteVertex.paceA = rp2.color.alphaF();
 
 		RouteVertex jointOrigoRouteVertex, jointStartRouteVertex, jointEndRouteVertex;
 

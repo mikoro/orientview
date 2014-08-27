@@ -36,10 +36,14 @@ namespace OrientView
 		float y = 0.0f;
 		float u = 0.0f;
 		float v = 0.0f;
-		float r = 0.0f;
-		float g = 0.0f;
-		float b = 0.0f;
-		float a = 1.0f;
+		float normalR = 0.0f;
+		float normalG = 0.0f;
+		float normalB = 0.0f;
+		float normalA = 1.0f;
+		float paceR = 0.0f;
+		float paceG = 0.0f;
+		float paceB = 0.0f;
+		float paceA = 1.0f;
 	};
 
 	struct Route
