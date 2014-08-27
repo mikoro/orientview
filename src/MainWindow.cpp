@@ -216,7 +216,10 @@ void MainWindow::on_actionPlayVideo_triggered()
 
 		inputHandler->initialize(videoWindow, renderer, videoDecoder, videoDecoderThread, videoStabilizer, routeManager, renderOnScreenThread, settings);
 		splitsManager->initialize(settings);
-		routeManager->initialize(quickRouteReader, splitsManager, renderer, settings);
+
+		if (!routeManager->initialize(quickRouteReader, splitsManager, renderer, settings))
+			throw std::runtime_error("Could not initialize route manager");
+
 		videoDecoderThread->initialize(videoDecoder);
 		renderOnScreenThread->initialize(this, videoWindow, videoDecoder, videoDecoderThread, videoStabilizer, routeManager, renderer, inputHandler);
 
@@ -391,7 +394,10 @@ void MainWindow::on_actionEncodeVideo_triggered()
 			throw std::runtime_error("Could not initialize video stabilizer");
 
 		splitsManager->initialize(settings);
-		routeManager->initialize(quickRouteReader, splitsManager, renderer, settings);
+
+		if (!routeManager->initialize(quickRouteReader, splitsManager, renderer, settings))
+			throw std::runtime_error("Could not initialize route manager");
+
 		videoDecoderThread->initialize(videoDecoder);
 		renderOffScreenThread->initialize(this, encodeWindow, videoDecoder, videoDecoderThread, videoStabilizer, routeManager, renderer, videoEncoder);
 		videoEncoderThread->initialize(videoDecoder, videoEncoder, renderOffScreenThread);

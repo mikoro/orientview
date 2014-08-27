@@ -93,7 +93,7 @@ namespace OrientView
 		void renderMapPanel();
 		void renderPanel(Panel& panel);
 		void renderRoute(Route& route);
-		void renderRouteVertexBuffer(Route& route, QOpenGLBuffer& vertexBuffer, size_t vertexCount);
+		void renderRouteVertexBuffer(Route& route);
 		void renderInfoPanel();
 
 		VideoStabilizer* videoStabilizer = nullptr;

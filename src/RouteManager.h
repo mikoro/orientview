@@ -5,10 +5,10 @@
 
 #include <vector>
 
-#include <QPainterPath>
-#include <QColor>
 #include <QOpenGLShaderProgram>
+#include <QOpenGLVertexArrayObject>
 #include <QOpenGLBuffer>
+#include <QColor>
 
 #include "RoutePoint.h"
 #include "SplitsManager.h"
@@ -49,6 +49,31 @@ namespace OrientView
 		std::vector<SplitTransformation> splitTransformations;
 		RunnerInfo runnerInfo;
 
+		QOpenGLShaderProgram* shaderProgram = nullptr;
+		QOpenGLVertexArrayObject* vertexArrayObject = nullptr;
+		QOpenGLBuffer* vertexBuffer = nullptr;
+		int vertexCount = 0;
+
+		RouteRenderMode renderMode = RouteRenderMode::Normal;
+
+		QColor color = QColor(80, 0, 0, 50);
+		QColor borderColor = QColor(0, 0, 0, 255);
+		double width = 10.0;
+		double borderWidth = 2.0;
+
+		std::vector<QPointF> controlPositions;
+		QColor controlBorderColor = QColor(140, 40, 140, 255);
+		double controlRadius = 15.0;
+		double controlBorderWidth = 5.0;
+		bool showControls = true;
+
+		QPointF runnerPosition;
+		QColor runnerColor = QColor(0, 100, 255, 220);
+		QColor runnerBorderColor = QColor(0, 0, 0, 255);
+		double runnerBorderWidth = 1.0;
+		double runnerScale = 1.0;
+		bool showRunner = true;
+
 		double controlTimeOffset = 0.0;
 		double runnerTimeOffset = 0.0;
 		double userScale = 1.0;
@@ -67,35 +92,6 @@ namespace OrientView
 		int currentSplitTransformationIndex = -1;
 		double transitionAlpha = 0.0;
 		bool transitionInProgress = false;
-
-		bool showRunner = true;
-		bool showControls = true;
-
-		std::vector<RouteVertex> normalRouteVertices;
-		std::vector<RouteVertex> paceRouteVertices;
-		QOpenGLBuffer normalRouteVertexBuffer;
-		QOpenGLBuffer paceRouteVertexBuffer;
-		QOpenGLBuffer tailVertexBuffer;
-		QOpenGLShaderProgram* shaderProgram;
-		int vertexMatrixUniform = 0;
-		int borderColorUniform = 0;
-		int borderRelativeWidthUniform = 0;
-		RouteRenderMode routeRenderMode = RouteRenderMode::Normal;
-		QColor routeColor = QColor(80, 0, 0, 50);
-		QColor routeBorderColor = QColor(0, 0, 0, 255);
-		double routeWidth = 10.0;
-		double routeBorderWidth = 2.0;
-
-		std::vector<QPointF> controlPositions;
-		QColor controlBorderColor = QColor(140, 40, 140, 255);
-		double controlRadius = 15.0;
-		double controlBorderWidth = 5.0;
-
-		QPointF runnerPosition;
-		QColor runnerColor = QColor(0, 100, 255, 220);
-		QColor runnerBorderColor = QColor(0, 0, 0, 255);
-		double runnerBorderWidth = 1.0;
-		double runnerScale = 1.0;
 	};
 
 	class RouteManager
@@ -103,7 +99,9 @@ namespace OrientView
 
 	public:
 
-		void initialize(QuickRouteReader* quickRouteReader, SplitsManager* splitsManager, Renderer* renderer, Settings* settings);
+		bool initialize(QuickRouteReader* quickRouteReader, SplitsManager* splitsManager, Renderer* renderer, Settings* settings);
+		~RouteManager();
+
 		void update(double currentTime, double frameTime);
 
 		void requestFullUpdate();
@@ -119,15 +117,16 @@ namespace OrientView
 
 		void generateAlignedRoutePoints(Route& route);
 		void calculateRoutePointColors(Route& route);
-		void generateRouteVertices(Route& route);
+		bool initializeShaderAndBuffer(Route& route);
 
 		void calculateControlPositions(Route& route);
 		void calculateSplitTransformations(Route& route);
 		void calculateCurrentRunnerPosition(Route& route, double currentTime);
 		void calculateCurrentSplitTransformation(Route& route, double currentTime, double frameTime);
-		RoutePoint getInterpolatedRoutePoint(Route& route, double time);
 
-		QColor interpolateFromGreenToRed(double greenValue, double redValue, double value);
+		static std::vector<RouteVertex> generateRouteVertices(Route& route);
+		static RoutePoint getInterpolatedRoutePoint(Route& route, double time);
+		static QColor interpolateFromGreenToRed(double greenValue, double redValue, double value);
 
 		Renderer* renderer = nullptr;
 

@@ -135,9 +135,7 @@ bool Renderer::initialize(VideoDecoder* videoDecoder, MapImageReader* mapImageRe
 
 	paintDevice = new QOpenGLPaintDevice(windowWidth, windowHeight);
 	paintDevice->setPaintFlipped(renderToOffscreen);
-
 	painter = new QPainter();
-	painter->setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform | QPainter::HighQualityAntialiasing);
 
 	return true;
 }
@@ -495,9 +493,10 @@ void Renderer::renderRoute(Route& route)
 		//renderRouteVertexBuffer(route, route.normalRouteVertexBuffer, route.normalRouteVertices.size());
 
 	//if (route.routeRenderMode == RouteRenderMode::Pace)
-		renderRouteVertexBuffer(route, route.paceRouteVertexBuffer, route.paceRouteVertices.size());
+		renderRouteVertexBuffer(route);
 
 	painter->begin(paintDevice);
+	painter->setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform | QPainter::HighQualityAntialiasing);
 
 	if (renderMode != RenderMode::Map)
 	{
@@ -531,7 +530,7 @@ void Renderer::renderRoute(Route& route)
 		runnerBrush.setColor(route.runnerColor);
 		runnerBrush.setStyle(Qt::SolidPattern);
 
-		double runnerRadius = (((route.routeWidth / 2.0) - (route.runnerBorderWidth / 2.0)) * route.runnerScale) * route.userScale;
+		double runnerRadius = (((route.width / 2.0) - (route.runnerBorderWidth / 2.0)) * route.runnerScale) * route.userScale;
 
 		painter->setPen(runnerPen);
 		painter->setBrush(runnerBrush);
@@ -542,39 +541,22 @@ void Renderer::renderRoute(Route& route)
 	painter->end();
 }
 
-void Renderer::renderRouteVertexBuffer(Route& route, QOpenGLBuffer& vertexBuffer, size_t vertexCount)
+void Renderer::renderRouteVertexBuffer(Route& route)
 {
 	route.shaderProgram->bind();
 
-	if (route.vertexMatrixUniform >= 0)
-		route.shaderProgram->setUniformValue((GLuint)route.vertexMatrixUniform, mapPanel.vertexMatrix);
+	route.shaderProgram->setUniformValue("vertexMatrix", mapPanel.vertexMatrix);
+	route.shaderProgram->setUniformValue("borderColor", route.borderColor);
+	route.shaderProgram->setUniformValue("borderRelativeWidth", (GLfloat)(route.borderWidth / route.width));
 
-	if (route.borderColorUniform >= 0)
-		route.shaderProgram->setUniformValue((GLuint)route.borderColorUniform, route.routeBorderColor);
-
-	if (route.borderRelativeWidthUniform >= 0)
-		route.shaderProgram->setUniformValue((GLuint)route.borderRelativeWidthUniform, (GLfloat)(route.routeBorderWidth / route.routeWidth));
-
-	vertexBuffer.bind();
-
-	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
-	glEnableVertexAttribArray(2);
-
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 8, 0); // position
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 8, (void*)(sizeof(GLfloat) * 2)); // texture coordinate
-	glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 8, (void*)(sizeof(GLfloat) * 4)); // color
+	route.vertexArrayObject->bind();
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glDrawArrays(GL_TRIANGLES, 0, vertexCount);
+	glDrawArrays(GL_TRIANGLES, 0, route.vertexCount);
 	glDisable(GL_BLEND);
 
-	glDisableVertexAttribArray(0);
-	glDisableVertexAttribArray(1);
-	glDisableVertexAttribArray(2);
-
-	vertexBuffer.release();
+	route.vertexArrayObject->release();
 	route.shaderProgram->release();
 }
 
@@ -599,6 +581,7 @@ void Renderer::renderInfoPanel()
 	QColor textRedColor = QColor(255, 0, 0, 200);
 
 	painter->begin(paintDevice);
+	painter->setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform | QPainter::HighQualityAntialiasing);
 
 	painter->setPen(QColor(0, 0, 0));
 	painter->setBrush(QBrush(QColor(20, 20, 20, 220)));

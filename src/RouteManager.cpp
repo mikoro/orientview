@@ -11,7 +11,7 @@
 
 using namespace OrientView;
 
-void RouteManager::initialize(QuickRouteReader* quickRouteReader, SplitsManager* splitsManager, Renderer* renderer, Settings* settings)
+bool RouteManager::initialize(QuickRouteReader* quickRouteReader, SplitsManager* splitsManager, Renderer* renderer, Settings* settings)
 {
 	this->renderer = renderer;
 
@@ -36,9 +36,9 @@ void RouteManager::initialize(QuickRouteReader* quickRouteReader, SplitsManager*
 	defaultRoute.smoothTransitionSpeed = settings->route.smoothTransitionSpeed;
 	defaultRoute.showRunner = settings->route.showRunner;
 	defaultRoute.showControls = settings->route.showControls;
-	defaultRoute.routeRenderMode = settings->route.routeRenderMode;
-	defaultRoute.routeColor = settings->route.routeColor;
-	defaultRoute.routeWidth = settings->route.routeWidth;
+	defaultRoute.renderMode = settings->route.routeRenderMode;
+	defaultRoute.color = settings->route.routeColor;
+	defaultRoute.width = settings->route.routeWidth;
 	defaultRoute.controlBorderColor = settings->route.controlBorderColor;
 	defaultRoute.controlRadius = settings->route.controlRadius;
 	defaultRoute.controlBorderWidth = settings->route.controlBorderWidth;
@@ -51,7 +51,9 @@ void RouteManager::initialize(QuickRouteReader* quickRouteReader, SplitsManager*
 	{
 		generateAlignedRoutePoints(route);
 		calculateRoutePointColors(route);
-		generateRouteVertices(route);
+
+		if (!initializeShaderAndBuffer(route))
+			return false;
 	}
 
 	update(0.0, 0.0);
@@ -60,6 +62,32 @@ void RouteManager::initialize(QuickRouteReader* quickRouteReader, SplitsManager*
 	{
 		defaultRoute.currentSplitTransformation = defaultRoute.splitTransformations.at(0);
 		defaultRoute.currentSplitTransformationIndex = 0;
+	}
+
+	return true;
+}
+
+RouteManager::~RouteManager()
+{
+	for (Route& route : routes)
+	{
+		if (route.shaderProgram != nullptr)
+		{
+			delete route.shaderProgram;
+			route.shaderProgram = nullptr;
+		}
+
+		if (route.vertexArrayObject != nullptr)
+		{
+			delete route.vertexArrayObject;
+			route.vertexArrayObject = nullptr;
+		}
+
+		if (route.vertexBuffer != nullptr)
+		{
+			delete route.vertexBuffer;
+			route.vertexBuffer = nullptr;
+		}
 	}
 }
 
@@ -156,153 +184,45 @@ void RouteManager::calculateRoutePointColors(Route& route)
 		rp.color = interpolateFromGreenToRed(route.highPace, route.lowPace, rp.pace);
 }
 
-void RouteManager::generateRouteVertices(Route& route)
+bool RouteManager::initializeShaderAndBuffer(Route& route)
 {
-	if (route.alignedRoutePoints.size() < 2)
-		return;
-
-	route.normalRouteVertices.clear();
-	route.paceRouteVertices.clear();
-
-	QPointF previousTlVertex, previousTrVertex;
-	RouteVertex previousTlRouteVertex, previousTrRouteVertex;
-	double previousAngle = 0.0;
-
-	for (int i = 0; i < (int)route.alignedRoutePoints.size() - 1;)
-	{
-		RoutePoint rp1 = route.alignedRoutePoints.at(i);
-		RoutePoint rp2;
-		QPointF routePointVector;
-
-		for (int j = i + 1; j < (int)route.alignedRoutePoints.size(); ++j)
-		{
-			i = j;
-
-			rp2 = route.alignedRoutePoints.at(j);
-			routePointVector = rp2.position - rp1.position;
-			double length = sqrt(routePointVector.x() * routePointVector.x() + routePointVector.y() * routePointVector.y());
-
-			if (length > route.routeWidth)
-				break;
-		}
-
-		double angle = atan2(-routePointVector.y(), routePointVector.x());
-		double angleDelta = angle - previousAngle;
-		double absoluteAngleDelta = abs(angleDelta);
-		double finalAngleDelta = angleDelta;
-
-		if (absoluteAngleDelta > M_PI)
-		{
-			finalAngleDelta = 2.0 * M_PI - absoluteAngleDelta;
-			finalAngleDelta *= (angleDelta < 0.0) ? 1.0 : -1.0;
-		}
-
-		QPointF deltaVertex;
-		deltaVertex.setX(sin(angle) * route.routeWidth);
-		deltaVertex.setY(cos(angle) * route.routeWidth);
-
-		if (i == 0)
-		{
-			previousTlVertex = rp1.position + deltaVertex;
-			previousTrVertex = rp1.position - deltaVertex;
-		}
-
-		QPointF blVertex;
-		QPointF brVertex;
-		QPointF tlVertex = rp2.position + deltaVertex;
-		QPointF trVertex = rp2.position - deltaVertex;
-
-		RouteVertex blRouteVertex, brRouteVertex, tlRouteVertex, trRouteVertex;
-
-		if (finalAngleDelta > 0.0)
-		{
-			blVertex = previousTrVertex + 2.0 * deltaVertex;
-			brVertex = previousTrVertex;
-		}
-		else
-		{
-			blVertex = previousTlVertex;
-			brVertex = previousTlVertex - 2.0 * deltaVertex;
-		}
-
-		blRouteVertex.x = blVertex.x();
-		blRouteVertex.y = -blVertex.y();
-		blRouteVertex.u = -1.0f;
-
-		brRouteVertex.x = brVertex.x();
-		brRouteVertex.y = -brVertex.y();
-		brRouteVertex.u = 1.0f;
-
-		tlRouteVertex.x = tlVertex.x();
-		tlRouteVertex.y = -tlVertex.y();
-		tlRouteVertex.u = -1.0f;
-
-		trRouteVertex.x = trVertex.x();
-		trRouteVertex.y = -trVertex.y();
-		trRouteVertex.u = 1.0f;
-
-		blRouteVertex.r = brRouteVertex.r = rp1.color.redF();
-		blRouteVertex.g = brRouteVertex.g = rp1.color.greenF();
-		blRouteVertex.b = brRouteVertex.b = rp1.color.blueF();
-		blRouteVertex.a = brRouteVertex.a = rp1.color.alphaF();
-
-		tlRouteVertex.r = trRouteVertex.r = rp2.color.redF();
-		tlRouteVertex.g = trRouteVertex.g = rp2.color.greenF();
-		tlRouteVertex.b = trRouteVertex.b = rp2.color.blueF();
-		tlRouteVertex.a = trRouteVertex.a = rp2.color.alphaF();
-
-		RouteVertex jointOrigoRouteVertex, jointStartRouteVertex, jointEndRouteVertex;
-
-		if (finalAngleDelta > 0.0)
-		{
-			jointOrigoRouteVertex = brRouteVertex;
-			jointStartRouteVertex = previousTlRouteVertex;
-			jointEndRouteVertex = blRouteVertex;
-		}
-		else
-		{
-			jointOrigoRouteVertex = blRouteVertex;
-			jointStartRouteVertex = previousTrRouteVertex;
-			jointEndRouteVertex = brRouteVertex;
-		}
-
-		//route.paceRouteVertices.push_back(jointOrigoRouteVertex);
-		//route.paceRouteVertices.push_back(jointStartRouteVertex);
-		//route.paceRouteVertices.push_back(jointEndRouteVertex);
-		route.paceRouteVertices.push_back(blRouteVertex);
-		route.paceRouteVertices.push_back(brRouteVertex);
-		route.paceRouteVertices.push_back(trRouteVertex);
-		route.paceRouteVertices.push_back(blRouteVertex);
-		route.paceRouteVertices.push_back(trRouteVertex);
-		route.paceRouteVertices.push_back(tlRouteVertex);
-
-		previousTlVertex = tlVertex;
-		previousTrVertex = trVertex;
-		previousTlRouteVertex = tlRouteVertex;
-		previousTrRouteVertex = trRouteVertex;
-		previousAngle = angle;
-	}
+	std::vector<RouteVertex> routeVertices = generateRouteVertices(route);
+	route.vertexCount = routeVertices.size();
 
 	route.shaderProgram = new QOpenGLShaderProgram();
-	route.shaderProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, "data/shaders/route.vert");
-	route.shaderProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, "data/shaders/route.frag");
-	route.shaderProgram->link();
+	route.vertexArrayObject = new QOpenGLVertexArrayObject();
+	route.vertexBuffer = new QOpenGLBuffer();
 
-	route.vertexMatrixUniform = route.shaderProgram->uniformLocation("vertexMatrix");
-	route.borderColorUniform = route.shaderProgram->uniformLocation("borderColor");
-	route.borderRelativeWidthUniform = route.shaderProgram->uniformLocation("borderRelativeWidth");
+	route.vertexBuffer->setUsagePattern(QOpenGLBuffer::StaticDraw);
+	route.vertexBuffer->create();
+	route.vertexBuffer->bind();
+	route.vertexBuffer->allocate(routeVertices.data(), sizeof(RouteVertex) * routeVertices.size());
+	route.vertexBuffer->release();
 
-	route.normalRouteVertexBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
-	route.normalRouteVertexBuffer.create();
-	route.normalRouteVertexBuffer.bind();
-	route.normalRouteVertexBuffer.allocate(route.normalRouteVertices.data(), sizeof(RouteVertex) * route.normalRouteVertices.size());
-	route.normalRouteVertexBuffer.release();
+	if (!route.shaderProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, "data/shaders/route.vert"))
+		return false;
 
-	route.paceRouteVertexBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
-	route.paceRouteVertexBuffer.create();
-	route.paceRouteVertexBuffer.bind();
-	route.paceRouteVertexBuffer.allocate(route.paceRouteVertices.data(), sizeof(RouteVertex) * route.paceRouteVertices.size());
-	route.paceRouteVertexBuffer.release();
+	if (!route.shaderProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, "data/shaders/route.frag"))
+		return false;
+
+	if (!route.shaderProgram->link())
+		return false;
+
+	route.vertexArrayObject->create();
+	route.vertexArrayObject->bind();
+
+	route.vertexBuffer->bind();
+	route.shaderProgram->enableAttributeArray("vertexPosition");
+	route.shaderProgram->enableAttributeArray("vertexTextureCoordinate");
+	route.shaderProgram->enableAttributeArray("vertexColor");
+	route.shaderProgram->setAttributeBuffer("vertexPosition", GL_FLOAT, 0, 2, sizeof(GLfloat) * 8);
+	route.shaderProgram->setAttributeBuffer("vertexTextureCoordinate", GL_FLOAT, sizeof(GLfloat) * 2, 2, sizeof(GLfloat) * 8);
+	route.shaderProgram->setAttributeBuffer("vertexColor", GL_FLOAT, sizeof(GLfloat) * 4, 4, sizeof(GLfloat) * 8);
+
+	route.vertexArrayObject->release();
+	route.vertexBuffer->release();
+
+	return true;
 }
 
 void RouteManager::calculateControlPositions(Route& route)
@@ -480,6 +400,135 @@ void RouteManager::calculateCurrentSplitTransformation(Route& route, double curr
 			route.transitionAlpha += route.smoothTransitionSpeed * frameTime;
 		}
 	}
+}
+
+std::vector<RouteVertex> RouteManager::generateRouteVertices(Route& route)
+{
+	std::vector<RouteVertex> routeVertices;
+
+	if (route.alignedRoutePoints.size() < 2)
+		return routeVertices;
+
+	QPointF previousTlVertex, previousTrVertex;
+	RouteVertex previousTlRouteVertex, previousTrRouteVertex;
+	double previousAngle = 0.0;
+
+	for (int i = 0; i < (int)route.alignedRoutePoints.size() - 1;)
+	{
+		RoutePoint rp1 = route.alignedRoutePoints.at(i);
+		RoutePoint rp2;
+		QPointF routePointVector;
+
+		for (int j = i + 1; j < (int)route.alignedRoutePoints.size(); ++j)
+		{
+			i = j;
+
+			rp2 = route.alignedRoutePoints.at(j);
+			routePointVector = rp2.position - rp1.position;
+			double length = sqrt(routePointVector.x() * routePointVector.x() + routePointVector.y() * routePointVector.y());
+
+			if (length > route.width)
+				break;
+		}
+
+		double angle = atan2(-routePointVector.y(), routePointVector.x());
+		double angleDelta = angle - previousAngle;
+		double absoluteAngleDelta = abs(angleDelta);
+		double finalAngleDelta = angleDelta;
+
+		if (absoluteAngleDelta > M_PI)
+		{
+			finalAngleDelta = 2.0 * M_PI - absoluteAngleDelta;
+			finalAngleDelta *= (angleDelta < 0.0) ? 1.0 : -1.0;
+		}
+
+		QPointF deltaVertex;
+		deltaVertex.setX(sin(angle) * route.width);
+		deltaVertex.setY(cos(angle) * route.width);
+
+		if (i == 0)
+		{
+			previousTlVertex = rp1.position + deltaVertex;
+			previousTrVertex = rp1.position - deltaVertex;
+		}
+
+		QPointF blVertex;
+		QPointF brVertex;
+		QPointF tlVertex = rp2.position + deltaVertex;
+		QPointF trVertex = rp2.position - deltaVertex;
+
+		RouteVertex blRouteVertex, brRouteVertex, tlRouteVertex, trRouteVertex;
+
+		if (finalAngleDelta > 0.0)
+		{
+			blVertex = previousTrVertex + 2.0 * deltaVertex;
+			brVertex = previousTrVertex;
+		}
+		else
+		{
+			blVertex = previousTlVertex;
+			brVertex = previousTlVertex - 2.0 * deltaVertex;
+		}
+
+		blRouteVertex.x = blVertex.x();
+		blRouteVertex.y = -blVertex.y();
+		blRouteVertex.u = -1.0f;
+
+		brRouteVertex.x = brVertex.x();
+		brRouteVertex.y = -brVertex.y();
+		brRouteVertex.u = 1.0f;
+
+		tlRouteVertex.x = tlVertex.x();
+		tlRouteVertex.y = -tlVertex.y();
+		tlRouteVertex.u = -1.0f;
+
+		trRouteVertex.x = trVertex.x();
+		trRouteVertex.y = -trVertex.y();
+		trRouteVertex.u = 1.0f;
+
+		blRouteVertex.r = brRouteVertex.r = rp1.color.redF();
+		blRouteVertex.g = brRouteVertex.g = rp1.color.greenF();
+		blRouteVertex.b = brRouteVertex.b = rp1.color.blueF();
+		blRouteVertex.a = brRouteVertex.a = rp1.color.alphaF();
+
+		tlRouteVertex.r = trRouteVertex.r = rp2.color.redF();
+		tlRouteVertex.g = trRouteVertex.g = rp2.color.greenF();
+		tlRouteVertex.b = trRouteVertex.b = rp2.color.blueF();
+		tlRouteVertex.a = trRouteVertex.a = rp2.color.alphaF();
+
+		RouteVertex jointOrigoRouteVertex, jointStartRouteVertex, jointEndRouteVertex;
+
+		if (finalAngleDelta > 0.0)
+		{
+			jointOrigoRouteVertex = brRouteVertex;
+			jointStartRouteVertex = previousTlRouteVertex;
+			jointEndRouteVertex = blRouteVertex;
+		}
+		else
+		{
+			jointOrigoRouteVertex = blRouteVertex;
+			jointStartRouteVertex = previousTrRouteVertex;
+			jointEndRouteVertex = brRouteVertex;
+		}
+
+		//routeVertices.push_back(jointOrigoRouteVertex);
+		//routeVertices.push_back(jointStartRouteVertex);
+		//routeVertices.push_back(jointEndRouteVertex);
+		routeVertices.push_back(blRouteVertex);
+		routeVertices.push_back(brRouteVertex);
+		routeVertices.push_back(trRouteVertex);
+		routeVertices.push_back(blRouteVertex);
+		routeVertices.push_back(trRouteVertex);
+		routeVertices.push_back(tlRouteVertex);
+
+		previousTlVertex = tlVertex;
+		previousTrVertex = trVertex;
+		previousTlRouteVertex = tlRouteVertex;
+		previousTrRouteVertex = trRouteVertex;
+		previousAngle = angle;
+	}
+
+	return routeVertices;
 }
 
 RoutePoint RouteManager::getInterpolatedRoutePoint(Route& route, double time)
