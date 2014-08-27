@@ -415,6 +415,8 @@ std::vector<RouteVertex> RouteManager::generateRouteVertices(Route& route)
 	bool isFirstPoint = true;
 
 	// go through the points and generate rectangles of given width between them
+	// start the next rectangle from either the top left or top right vertex of the previous rectangle (prevents overdraw when rectangles rotate)
+	// fill in the joints with round join to make a smooth line
 	for (int i = 0; i < (int)route.alignedRoutePoints.size() - 1;)
 	{
 		RoutePoint rp1 = route.alignedRoutePoints.at(i);
@@ -422,7 +424,7 @@ std::vector<RouteVertex> RouteManager::generateRouteVertices(Route& route)
 		QPointF routePointVector;
 
 		// find the next point that isn't too close
-		// if the next point is too close it will be left inside the joint and the line segment will be drawn backwards
+		// if the next point is too close (and delta angle is large) it will be left inside the joint and the next rectangle will be drawn backwards
 		for (int j = i + 1; j < (int)route.alignedRoutePoints.size(); ++j)
 		{
 			i = j;
@@ -440,13 +442,12 @@ std::vector<RouteVertex> RouteManager::generateRouteVertices(Route& route)
 		double angle = atan2(-routePointVector.y(), routePointVector.x());
 		double angleDeg = angle * 180.0 / M_PI;
 		double angleDelta = angleDeg - previousAngleDeg;
-		double absoluteAngleDelta = abs(angleDelta);
 		double finalAngleDelta = angleDelta;
 
 		// if rotating more than 180 degrees, rotate to the opposite direction instead
-		if (absoluteAngleDelta > 180.0)
+		if (abs(angleDelta) > 180.0)
 		{
-			finalAngleDelta = 360.0 - absoluteAngleDelta;
+			finalAngleDelta = 360.0 - abs(angleDelta);
 			finalAngleDelta *= (angleDelta < 0.0) ? 1.0 : -1.0;
 		}
 
@@ -484,11 +485,11 @@ std::vector<RouteVertex> RouteManager::generateRouteVertices(Route& route)
 
 		blRouteVertex.x = blVertex.x();
 		blRouteVertex.y = -blVertex.y();
-		blRouteVertex.u = -1.0f;
+		blRouteVertex.u = -1.0f; // indicate left edge
 
 		brRouteVertex.x = brVertex.x();
 		brRouteVertex.y = -brVertex.y();
-		brRouteVertex.u = 1.0f;
+		brRouteVertex.u = 1.0f; // indicate right edge
 
 		tlRouteVertex.x = tlVertex.x();
 		tlRouteVertex.y = -tlVertex.y();
@@ -513,16 +514,26 @@ std::vector<RouteVertex> RouteManager::generateRouteVertices(Route& route)
 		tlRouteVertex.paceB = trRouteVertex.paceB = rp2.color.blueF();
 		tlRouteVertex.paceA = trRouteVertex.paceA = rp2.color.alphaF();
 
+		QPointF jointOrigoVertex, jointStartVertex, jointEndVertex;
 		RouteVertex jointOrigoRouteVertex, jointStartRouteVertex, jointEndRouteVertex;
 
+		// figure out where is the origo of the joint and its start and end points
 		if (finalAngleDelta > 0.0)
 		{
+			jointOrigoVertex = brVertex;
+			jointStartVertex = previousTlVertex;
+			jointEndVertex = blVertex;
+
 			jointOrigoRouteVertex = brRouteVertex;
 			jointStartRouteVertex = previousTlRouteVertex;
 			jointEndRouteVertex = blRouteVertex;
 		}
 		else
 		{
+			jointOrigoVertex = blVertex;
+			jointStartVertex = previousTrVertex;
+			jointEndVertex = brVertex;
+
 			jointOrigoRouteVertex = blRouteVertex;
 			jointStartRouteVertex = previousTrRouteVertex;
 			jointEndRouteVertex = brRouteVertex;
@@ -530,9 +541,51 @@ std::vector<RouteVertex> RouteManager::generateRouteVertices(Route& route)
 
 		if (!isFirstPoint)
 		{
-			routeVertices.push_back(jointOrigoRouteVertex);
-			routeVertices.push_back(jointStartRouteVertex);
-			routeVertices.push_back(jointEndRouteVertex);
+			// small joints can be just filled in with one triangle
+			if (abs(finalAngleDelta) <= 10.0)
+			{
+				routeVertices.push_back(jointOrigoRouteVertex);
+				routeVertices.push_back(jointStartRouteVertex);
+				routeVertices.push_back(jointEndRouteVertex);
+			}
+			else // fill out the joint with a round fan of triangles
+			{
+				QPointF origoToStart = jointStartVertex - jointOrigoVertex;
+				QPointF origoToEnd = jointEndVertex - jointOrigoVertex;
+
+				double jointAngleIncrement = 10.0 * ((finalAngleDelta < 0.0) ? -1.0 : 1.0);
+				double cumulativeJointAngle = 0.0;
+				double routeWidth = route.width + 2.0 * route.borderWidth;
+				double currentJointAngle = atan2(-origoToStart.y(), origoToStart.x());
+
+				currentJointAngle += jointAngleIncrement * M_PI / 180.0;
+				cumulativeJointAngle += jointAngleIncrement;
+
+				RouteVertex jointNewStartRouteVertex = jointStartRouteVertex;
+
+				while (abs(cumulativeJointAngle) < abs(finalAngleDelta))
+				{
+					QPointF origoToNew(cos(currentJointAngle) * routeWidth, -sin(currentJointAngle) * routeWidth);
+					QPointF newPosition = jointOrigoVertex + origoToNew;
+
+					RouteVertex jointNewEndRouteVertex = jointEndRouteVertex;
+					jointNewEndRouteVertex.x = newPosition.x();
+					jointNewEndRouteVertex.y = -newPosition.y();
+
+					routeVertices.push_back(jointOrigoRouteVertex);
+					routeVertices.push_back(jointNewStartRouteVertex);
+					routeVertices.push_back(jointNewEndRouteVertex);
+
+					currentJointAngle += jointAngleIncrement * M_PI / 180.0;
+					cumulativeJointAngle += jointAngleIncrement;
+
+					jointNewStartRouteVertex = jointNewEndRouteVertex;
+				}
+
+				routeVertices.push_back(jointOrigoRouteVertex);
+				routeVertices.push_back(jointNewStartRouteVertex);
+				routeVertices.push_back(jointEndRouteVertex);
+			}
 		}
 
 		routeVertices.push_back(blRouteVertex);
