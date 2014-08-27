@@ -14,6 +14,10 @@
 
 using namespace OrientView;
 
+Panel::Panel() : texture(QOpenGLTexture::Target2D)
+{
+}
+
 bool Renderer::initialize(VideoDecoder* videoDecoder, MapImageReader* mapImageReader, VideoStabilizer* videoStabilizer, InputHandler* inputHandler, RouteManager* routeManager, Settings* settings, bool renderToOffscreen)
 {
 	qDebug("Initializing renderer");
@@ -63,12 +67,6 @@ bool Renderer::initialize(VideoDecoder* videoDecoder, MapImageReader* mapImageRe
 	if (!windowResized(settings->window.width, settings->window.height))
 		return false;
 
-	if (!loadRescaleShader(videoPanel, settings->video.rescaleShader))
-		return false;
-
-	if (!loadRescaleShader(mapPanel, settings->map.rescaleShader))
-		return false;
-
 	// 1 2
 	// 4 3
 	GLfloat videoPanelBuffer[] =
@@ -99,41 +97,47 @@ bool Renderer::initialize(VideoDecoder* videoDecoder, MapImageReader* mapImageRe
 		0.0f, 1.0f  // 4
 	};
 
-	videoPanel.vertexBuffer = new QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
-	videoPanel.vertexBuffer->setUsagePattern(QOpenGLBuffer::StaticDraw);
-	videoPanel.vertexBuffer->create();
-	videoPanel.vertexBuffer->bind();
-	videoPanel.vertexBuffer->allocate(videoPanelBuffer, sizeof(GLfloat) * 20);
-	videoPanel.vertexBuffer->release();
+	videoPanel.vertexBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
+	videoPanel.vertexBuffer.create();
+	videoPanel.vertexBuffer.bind();
+	videoPanel.vertexBuffer.allocate(videoPanelBuffer, sizeof(GLfloat) * 20);
+	videoPanel.vertexBuffer.release();
 
-	mapPanel.vertexBuffer = new QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
-	mapPanel.vertexBuffer->setUsagePattern(QOpenGLBuffer::StaticDraw);
-	mapPanel.vertexBuffer->create();
-	mapPanel.vertexBuffer->bind();
-	mapPanel.vertexBuffer->allocate(mapPanelBuffer, sizeof(GLfloat) * 20);
-	mapPanel.vertexBuffer->release();
+	mapPanel.vertexBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
+	mapPanel.vertexBuffer.create();
+	mapPanel.vertexBuffer.bind();
+	mapPanel.vertexBuffer.allocate(mapPanelBuffer, sizeof(GLfloat) * 20);
+	mapPanel.vertexBuffer.release();
 
-	videoPanel.texture = new QOpenGLTexture(QOpenGLTexture::Target2D);
-	videoPanel.texture->create();
-	videoPanel.texture->bind();
-	videoPanel.texture->setSize(videoPanel.textureWidth, videoPanel.textureHeight);
-	videoPanel.texture->setFormat(QOpenGLTexture::RGBA8_UNorm);
-	videoPanel.texture->setMinificationFilter(QOpenGLTexture::Linear);
-	videoPanel.texture->setMagnificationFilter(QOpenGLTexture::Linear);
-	videoPanel.texture->setWrapMode(QOpenGLTexture::ClampToEdge);
-	videoPanel.texture->allocateStorage();
-	videoPanel.texture->release();
+	videoPanel.texture.create();
+	videoPanel.texture.bind();
+	videoPanel.texture.setSize(videoPanel.textureWidth, videoPanel.textureHeight);
+	videoPanel.texture.setFormat(QOpenGLTexture::RGBA8_UNorm);
+	videoPanel.texture.setMinificationFilter(QOpenGLTexture::Linear);
+	videoPanel.texture.setMagnificationFilter(QOpenGLTexture::Linear);
+	videoPanel.texture.setWrapMode(QOpenGLTexture::ClampToEdge);
+	videoPanel.texture.allocateStorage();
+	videoPanel.texture.release();
 
-	mapPanel.texture = new QOpenGLTexture(mapImageReader->getMapImage());
-	mapPanel.texture->bind();
-	mapPanel.texture->setMinificationFilter(QOpenGLTexture::Linear);
-	mapPanel.texture->setMagnificationFilter(QOpenGLTexture::Linear);
-	mapPanel.texture->setWrapMode(QOpenGLTexture::ClampToEdge);
-	mapPanel.texture->release();
+	mapPanel.texture.create();
+	mapPanel.texture.bind();
+	mapPanel.texture.setData(mapImageReader->getMapImage());
+	mapPanel.texture.setMinificationFilter(QOpenGLTexture::Linear);
+	mapPanel.texture.setMagnificationFilter(QOpenGLTexture::Linear);
+	mapPanel.texture.setWrapMode(QOpenGLTexture::ClampToEdge);
+	mapPanel.texture.release();
 
-	paintDevice = new QOpenGLPaintDevice();
+	if (!loadRescaleShader(videoPanel, settings->video.rescaleShader))
+		return false;
+
+	if (!loadRescaleShader(mapPanel, settings->map.rescaleShader))
+		return false;
+
+	paintDevice = new QOpenGLPaintDevice(windowWidth, windowHeight);
 	paintDevice->setPaintFlipped(renderToOffscreen);
+
 	painter = new QPainter();
+	painter->setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform | QPainter::HighQualityAntialiasing);
 
 	return true;
 }
@@ -151,15 +155,15 @@ bool Renderer::windowResized(int newWidth, int newHeight)
 		format.setSamples(multisamples);
 		format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
 
-		if (outputFramebuffer != nullptr)
+		if (offscreenFramebuffer != nullptr)
 		{
-			delete outputFramebuffer;
-			outputFramebuffer = nullptr;
+			delete offscreenFramebuffer;
+			offscreenFramebuffer = nullptr;
 		}
 
-		outputFramebuffer = new QOpenGLFramebufferObject(windowWidth, windowHeight, format);
+		offscreenFramebuffer = new QOpenGLFramebufferObject(windowWidth, windowHeight, format);
 
-		if (!outputFramebuffer->isValid())
+		if (!offscreenFramebuffer->isValid())
 		{
 			qWarning("Could not create main frame buffer");
 			return false;
@@ -167,15 +171,15 @@ bool Renderer::windowResized(int newWidth, int newHeight)
 
 		format.setSamples(0);
 
-		if (outputFramebufferNonMultisample != nullptr)
+		if (offscreenFramebufferNonMultisample != nullptr)
 		{
-			delete outputFramebufferNonMultisample;
-			outputFramebufferNonMultisample = nullptr;
+			delete offscreenFramebufferNonMultisample;
+			offscreenFramebufferNonMultisample = nullptr;
 		}
 
-		outputFramebufferNonMultisample = new QOpenGLFramebufferObject(windowWidth, windowHeight, format);
+		offscreenFramebufferNonMultisample = new QOpenGLFramebufferObject(windowWidth, windowHeight, format);
 
-		if (!outputFramebufferNonMultisample->isValid())
+		if (!offscreenFramebufferNonMultisample->isValid())
 		{
 			qWarning("Could not create non multisampled main frame buffer");
 			return false;
@@ -206,16 +210,16 @@ Renderer::~Renderer()
 		renderedFrameData.data = nullptr;
 	}
 
-	if (outputFramebufferNonMultisample != nullptr)
+	if (offscreenFramebufferNonMultisample != nullptr)
 	{
-		delete outputFramebufferNonMultisample;
-		outputFramebufferNonMultisample = nullptr;
+		delete offscreenFramebufferNonMultisample;
+		offscreenFramebufferNonMultisample = nullptr;
 	}
 
-	if (outputFramebuffer != nullptr)
+	if (offscreenFramebuffer != nullptr)
 	{
-		delete outputFramebuffer;
-		outputFramebuffer = nullptr;
+		delete offscreenFramebuffer;
+		offscreenFramebuffer = nullptr;
 	}
 
 	if (painter != nullptr)
@@ -229,67 +233,30 @@ Renderer::~Renderer()
 		delete paintDevice;
 		paintDevice = nullptr;
 	}
-
-	if (mapPanel.texture != nullptr)
-	{
-		delete mapPanel.texture;
-		mapPanel.texture = nullptr;
-	}
-
-	if (videoPanel.texture != nullptr)
-	{
-		delete videoPanel.texture;
-		videoPanel.texture = nullptr;
-	}
-
-	if (mapPanel.vertexBuffer != nullptr)
-	{
-		delete mapPanel.vertexBuffer;
-		mapPanel.vertexBuffer = nullptr;
-	}
-
-	if (videoPanel.vertexBuffer != nullptr)
-	{
-		delete videoPanel.vertexBuffer;
-		videoPanel.vertexBuffer = nullptr;
-	}
-
-	if (mapPanel.shaderProgram != nullptr)
-	{
-		delete mapPanel.shaderProgram;
-		mapPanel.shaderProgram = nullptr;
-	}
-
-	if (videoPanel.shaderProgram != nullptr)
-	{
-		delete videoPanel.shaderProgram;
-		videoPanel.shaderProgram = nullptr;
-	}
 }
 
 bool Renderer::loadRescaleShader(Panel& panel, const QString& shaderName)
 {
-	panel.shaderProgram = new QOpenGLShaderProgram();
-
-	if (!panel.shaderProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, QString("data/shaders/rescale_%1.vert").arg(shaderName)))
+	if (!panel.shaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, QString("data/shaders/rescale_%1.vert").arg(shaderName)))
 		return false;
 
-	if (!panel.shaderProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, QString("data/shaders/rescale_%1.frag").arg(shaderName)))
+	if (!panel.shaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, QString("data/shaders/rescale_%1.frag").arg(shaderName)))
 		return false;
 
-	if (!panel.shaderProgram->link())
+	if (!panel.shaderProgram.link())
 		return false;
 
-	if ((panel.vertexMatrixUniform = panel.shaderProgram->uniformLocation("vertexMatrix")) == -1)
-		qWarning("Could not find vertexMatrix uniform");
+	panel.vertexArrayObject.create();
+	panel.vertexArrayObject.bind();
 
-	if ((panel.textureSamplerUniform = panel.shaderProgram->uniformLocation("textureSampler")) == -1)
-		qWarning("Could not find textureSampler uniform");
+	panel.vertexBuffer.bind();
+	panel.shaderProgram.enableAttributeArray("vertexPosition");
+	panel.shaderProgram.enableAttributeArray("vertexTextureCoordinate");
+	panel.shaderProgram.setAttributeBuffer("vertexPosition", GL_FLOAT, 0, 3, 0);
+	panel.shaderProgram.setAttributeBuffer("vertexTextureCoordinate", GL_FLOAT, sizeof(GLfloat) * 12, 2, 0);
 
-	panel.textureWidthUniform = panel.shaderProgram->uniformLocation("textureWidth");
-	panel.textureHeightUniform = panel.shaderProgram->uniformLocation("textureHeight");
-	panel.texelWidthUniform = panel.shaderProgram->uniformLocation("texelWidth");
-	panel.texelHeightUniform = panel.shaderProgram->uniformLocation("texelHeight");
+	panel.vertexArrayObject.release();
+	panel.vertexBuffer.release();
 
 	return true;
 }
@@ -325,18 +292,18 @@ void Renderer::uploadFrameData(const FrameData& frameData)
 		options.setImageHeight(frameData.height);
 		options.setAlignment(1);
 
-		videoPanel.texture->setData(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, frameData.data, &options);
+		videoPanel.texture.setData(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, frameData.data, &options);
 	}
 }
 
 void Renderer::renderAll()
 {
 	if (renderToOffscreen)
-		outputFramebuffer->bind();
+		offscreenFramebuffer->bind();
 
 	if (renderMode == RenderMode::All || renderMode == RenderMode::Video)
 		renderVideoPanel();
-
+	
 	if (renderMode == RenderMode::All || renderMode == RenderMode::Map)
 	{
 		renderMapPanel();
@@ -352,12 +319,12 @@ void Renderer::renderAll()
 			painter->end();
 		}
 	}
-
+	
 	if (showInfoPanel)
 		renderInfoPanel();
 
 	if (renderToOffscreen)
-		outputFramebuffer->release();
+		offscreenFramebuffer->release();
 }
 
 void Renderer::stopRendering()
@@ -370,15 +337,15 @@ FrameData Renderer::getRenderedFrame()
 	if (!renderToOffscreen)
 		return FrameData();
 
-	QOpenGLFramebufferObject* sourceFbo = outputFramebuffer;
+	QOpenGLFramebufferObject* sourceFbo = offscreenFramebuffer;
 
 	// pixels cannot be directly read from a multisampled framebuffer
 	// copy the framebuffer to a non-multisampled framebuffer and continue
 	if (sourceFbo->format().samples() != 0)
 	{
 		QRect rect(0, 0, windowWidth, windowHeight);
-		QOpenGLFramebufferObject::blitFramebuffer(outputFramebufferNonMultisample, rect, sourceFbo, rect);
-		sourceFbo = outputFramebufferNonMultisample;
+		QOpenGLFramebufferObject::blitFramebuffer(offscreenFramebufferNonMultisample, rect, sourceFbo, rect);
+		sourceFbo = offscreenFramebufferNonMultisample;
 	}
 
 	sourceFbo->bind();
@@ -496,40 +463,23 @@ void Renderer::renderMapPanel()
 
 void Renderer::renderPanel(Panel& panel)
 {
-	panel.shaderProgram->bind();
+	panel.shaderProgram.bind();
 
-	if (panel.vertexMatrixUniform >= 0)
-		panel.shaderProgram->setUniformValue((GLuint)panel.vertexMatrixUniform, panel.vertexMatrix);
+	panel.shaderProgram.setUniformValue("vertexMatrix", panel.vertexMatrix);
+	panel.shaderProgram.setUniformValue("textureSampler", 0);
+	panel.shaderProgram.setUniformValue("textureWidth", (float)panel.textureWidth);
+	panel.shaderProgram.setUniformValue("textureHeight", (float)panel.textureHeight);
+	panel.shaderProgram.setUniformValue("texelWidth", (float)panel.texelWidth);
+	panel.shaderProgram.setUniformValue("texelHeight", (float)panel.texelHeight);
 
-	if (panel.textureSamplerUniform >= 0)
-		panel.shaderProgram->setUniformValue((GLuint)panel.textureSamplerUniform, 0);
-
-	if (panel.textureWidthUniform >= 0)
-		panel.shaderProgram->setUniformValue((GLuint)panel.textureWidthUniform, (float)panel.textureWidth);
-
-	if (panel.textureHeightUniform >= 0)
-		panel.shaderProgram->setUniformValue((GLuint)panel.textureHeightUniform, (float)panel.textureHeight);
-
-	if (panel.texelWidthUniform >= 0)
-		panel.shaderProgram->setUniformValue((GLuint)panel.texelWidthUniform, (float)panel.texelWidth);
-
-	if (panel.texelHeightUniform >= 0)
-		panel.shaderProgram->setUniformValue((GLuint)panel.texelHeightUniform, (float)panel.texelHeight);
-
-	panel.vertexBuffer->bind();
-	panel.texture->bind();
-
-	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (int*)(sizeof(GLfloat) * 12));
+	panel.vertexArrayObject.bind();
+	panel.texture.bind();
+	
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-	glDisableVertexAttribArray(0);
-	glDisableVertexAttribArray(1);
 
-	panel.texture->release();
-	panel.vertexBuffer->release();
-	panel.shaderProgram->release();
+	panel.texture.release();
+	panel.vertexArrayObject.release();
+	panel.shaderProgram.release();
 }
 
 void Renderer::renderRoute(Route& route)
@@ -548,7 +498,6 @@ void Renderer::renderRoute(Route& route)
 		renderRouteVertexBuffer(route, route.paceRouteVertexBuffer, route.paceRouteVertices.size());
 
 	painter->begin(paintDevice);
-	painter->setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform | QPainter::HighQualityAntialiasing);
 
 	if (renderMode != RenderMode::Map)
 	{
@@ -650,7 +599,6 @@ void Renderer::renderInfoPanel()
 	QColor textRedColor = QColor(255, 0, 0, 200);
 
 	painter->begin(paintDevice);
-	painter->setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform | QPainter::HighQualityAntialiasing);
 
 	painter->setPen(QColor(0, 0, 0));
 	painter->setBrush(QBrush(QColor(20, 20, 20, 220)));

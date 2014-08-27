@@ -6,11 +6,12 @@
 #include <QElapsedTimer>
 #include <QOpenGLFunctions>
 #include <QOpenGLShaderProgram>
-#include <QOpenGLPaintDevice>
-#include <QPainter>
+#include <QOpenGLVertexArrayObject>
 #include <QOpenGLBuffer>
 #include <QOpenGLTexture>
 #include <QOpenGLFramebufferObject>
+#include <QOpenGLPaintDevice>
+#include <QPainter>
 
 #include "MovingAverage.h"
 #include "FrameData.h"
@@ -29,9 +30,12 @@ namespace OrientView
 
 	struct Panel
 	{
-		QOpenGLShaderProgram* shaderProgram = nullptr;
-		QOpenGLBuffer* vertexBuffer = nullptr;
-		QOpenGLTexture* texture = nullptr;
+		Panel();
+
+		QOpenGLShaderProgram shaderProgram;
+		QOpenGLVertexArrayObject vertexArrayObject;
+		QOpenGLBuffer vertexBuffer;
+		QOpenGLTexture texture;
 
 		QMatrix4x4 vertexMatrix;
 
@@ -56,13 +60,6 @@ namespace OrientView
 		double texelHeight = 0.0;
 
 		double relativeWidth = 1.0;
-
-		int vertexMatrixUniform = 0;
-		int textureSamplerUniform = 0;
-		int textureWidthUniform = 0;
-		int textureHeightUniform = 0;
-		int texelWidthUniform = 0;
-		int texelHeightUniform = 0;
 	};
 
 	// Does the actual drawing using OpenGL.
@@ -130,8 +127,8 @@ namespace OrientView
 		QOpenGLPaintDevice* paintDevice = nullptr;
 		QPainter* painter = nullptr;
 
-		QOpenGLFramebufferObject* outputFramebuffer = nullptr;
-		QOpenGLFramebufferObject* outputFramebufferNonMultisample = nullptr;
+		QOpenGLFramebufferObject* offscreenFramebuffer = nullptr;
+		QOpenGLFramebufferObject* offscreenFramebufferNonMultisample = nullptr;
 		FrameData renderedFrameData;
 	};
 }
