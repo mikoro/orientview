@@ -168,12 +168,23 @@ void RouteManager::generateRouteVertices(Route& route)
 	RouteVertex previousTlRouteVertex, previousTrRouteVertex;
 	double previousAngle = 0.0;
 
-	for (int i = 0; i < (int)route.routePoints.size() - 1; ++i)
+	for (int i = 0; i < (int)route.alignedRoutePoints.size() - 1;)
 	{
-		RoutePoint& rp1 = route.routePoints.at(i);
-		RoutePoint& rp2 = route.routePoints.at(i + 1);
+		RoutePoint rp1 = route.alignedRoutePoints.at(i);
+		RoutePoint rp2;
+		QPointF routePointVector;
 
-		QPointF routePointVector = rp2.position - rp1.position;
+		for (int j = i + 1; j < (int)route.alignedRoutePoints.size(); ++j)
+		{
+			i = j;
+
+			rp2 = route.alignedRoutePoints.at(j);
+			routePointVector = rp2.position - rp1.position;
+			double length = sqrt(routePointVector.x() * routePointVector.x() + routePointVector.y() * routePointVector.y());
+
+			if (length > route.routeWidth)
+				break;
+		}
 
 		double angle = atan2(-routePointVector.y(), routePointVector.x());
 		double angleDelta = angle - previousAngle;
@@ -255,9 +266,9 @@ void RouteManager::generateRouteVertices(Route& route)
 			jointEndRouteVertex = brRouteVertex;
 		}
 
-		route.paceRouteVertices.push_back(jointOrigoRouteVertex);
-		route.paceRouteVertices.push_back(jointStartRouteVertex);
-		route.paceRouteVertices.push_back(jointEndRouteVertex);
+		//route.paceRouteVertices.push_back(jointOrigoRouteVertex);
+		//route.paceRouteVertices.push_back(jointStartRouteVertex);
+		//route.paceRouteVertices.push_back(jointEndRouteVertex);
 		route.paceRouteVertices.push_back(blRouteVertex);
 		route.paceRouteVertices.push_back(brRouteVertex);
 		route.paceRouteVertices.push_back(trRouteVertex);
