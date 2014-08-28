@@ -24,12 +24,16 @@ void Settings::readFromQSettings(QSettings* settings)
 	map.headerCrop = settings->value("map/headerCrop", defaultSettings.map.headerCrop).toInt();
 	map.backgroundColor = settings->value("map/backgroundColor", defaultSettings.map.backgroundColor).value<QColor>();
 	map.rescaleShader = settings->value("map/rescaleShader", defaultSettings.map.rescaleShader).toString();
-
 	route.quickRouteJpegFilePath = settings->value("route/quickRouteJpegFilePath", defaultSettings.route.quickRouteJpegFilePath).toString();
-	route.renderMode = (RouteRenderMode)settings->value("route/renderMode", defaultSettings.route.renderMode).toInt();
-	route.color = settings->value("route/color", defaultSettings.route.color).value<QColor>();
-	route.width = settings->value("route/width", defaultSettings.route.width).toDouble();
-	route.borderWidth = settings->value("route/borderWidth", defaultSettings.route.borderWidth).toDouble();
+	route.wholeRouteRenderMode = (RouteRenderMode)settings->value("route/wholeRouteRenderMode", defaultSettings.route.wholeRouteRenderMode).toInt();
+	route.wholeRouteDiscreetColor = settings->value("route/wholeRouteDiscreetColor", defaultSettings.route.wholeRouteDiscreetColor).value<QColor>();
+	route.wholeRouteHighlightColor = settings->value("route/wholeRouteHighlightColor", defaultSettings.route.wholeRouteHighlightColor).value<QColor>();
+	route.wholeRouteWidth = settings->value("route/wholeRouteWidth", defaultSettings.route.wholeRouteWidth).toDouble();
+	route.tailRenderMode = (RouteRenderMode)settings->value("route/tailRenderMode", defaultSettings.route.tailRenderMode).toInt();
+	route.tailDiscreetColor = settings->value("route/tailDiscreetColor", defaultSettings.route.tailDiscreetColor).value<QColor>();
+	route.tailHighlightColor = settings->value("route/tailHighlightColor", defaultSettings.route.tailHighlightColor).value<QColor>();
+	route.tailWidth = settings->value("route/tailWidth", defaultSettings.route.tailWidth).toDouble();
+	route.tailLength = settings->value("route/tailLength", defaultSettings.route.tailLength).toDouble();
 	route.controlBorderColor = settings->value("route/controlBorderColor", defaultSettings.route.controlBorderColor).value<QColor>();
 	route.controlRadius = settings->value("route/controlRadius", defaultSettings.route.controlRadius).toDouble();
 	route.controlBorderWidth = settings->value("route/controlBorderWidth", defaultSettings.route.controlBorderWidth).toDouble();
@@ -132,10 +136,15 @@ void Settings::writeToQSettings(QSettings* settings)
 	settings->setValue("map/rescaleShader", map.rescaleShader);
 
 	settings->setValue("route/quickRouteJpegFilePath", route.quickRouteJpegFilePath);
-	settings->setValue("route/renderMode", route.renderMode);
-	settings->setValue("route/color", route.color);
-	settings->setValue("route/width", route.width);
-	settings->setValue("route/borderWidth", route.borderWidth);
+	settings->setValue("route/wholeRouteRenderMode", route.wholeRouteRenderMode);
+	settings->setValue("route/wholeRouteDiscreetColor", route.wholeRouteDiscreetColor);
+	settings->setValue("route/wholeRouteHighlightColor", route.wholeRouteHighlightColor);
+	settings->setValue("route/wholeRouteWidth", route.wholeRouteWidth);
+	settings->setValue("route/tailRenderMode", route.tailRenderMode);
+	settings->setValue("route/tailDiscreetColor", route.tailDiscreetColor);
+	settings->setValue("route/tailHighlightColor", route.tailHighlightColor);
+	settings->setValue("route/tailWidth", route.tailWidth);
+	settings->setValue("route/tailLength", route.tailLength);
 	settings->setValue("route/controlBorderColor", route.controlBorderColor);
 	settings->setValue("route/controlRadius", route.controlRadius);
 	settings->setValue("route/controlBorderWidth", route.controlBorderWidth);

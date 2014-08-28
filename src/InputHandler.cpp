@@ -71,22 +71,32 @@ void InputHandler::handleInput(double frameTime)
 	{
 		switch (defaultRoute.wholeRouteRenderMode)
 		{
-			case RouteRenderMode::Normal: defaultRoute.wholeRouteRenderMode = RouteRenderMode::Pace; break;
+			case RouteRenderMode::Discreet: defaultRoute.wholeRouteRenderMode = RouteRenderMode::Highlight; break;
+			case RouteRenderMode::Highlight: defaultRoute.wholeRouteRenderMode = RouteRenderMode::Pace; break;
 			case RouteRenderMode::Pace: defaultRoute.wholeRouteRenderMode = RouteRenderMode::None; break;
-			case RouteRenderMode::None: defaultRoute.wholeRouteRenderMode = RouteRenderMode::Normal; break;
+			case RouteRenderMode::None: defaultRoute.wholeRouteRenderMode = RouteRenderMode::Discreet; break;
 			default: break;
 		}
-
-		renderer->requestFullClear();
 	}
 
 	if (videoWindow->keyIsDownOnce(Qt::Key_F5))
-		defaultRoute.showRunner = !defaultRoute.showRunner;
+	{
+		switch (defaultRoute.tailRenderMode)
+		{
+			case RouteRenderMode::Discreet: defaultRoute.tailRenderMode = RouteRenderMode::Highlight; break;
+			case RouteRenderMode::Highlight: defaultRoute.tailRenderMode = RouteRenderMode::None; break;
+			case RouteRenderMode::None: defaultRoute.tailRenderMode = RouteRenderMode::Discreet; break;
+			default: break;
+		}
+	}
 
 	if (videoWindow->keyIsDownOnce(Qt::Key_F6))
-		defaultRoute.showControls = !defaultRoute.showControls;
+		defaultRoute.showRunner = !defaultRoute.showRunner;
 
 	if (videoWindow->keyIsDownOnce(Qt::Key_F7))
+		defaultRoute.showControls = !defaultRoute.showControls;
+
+	if (videoWindow->keyIsDownOnce(Qt::Key_F8))
 		videoStabilizer->toggleEnabled();
 
 	if (!videoWindow->keyIsDown(Qt::Key_Control) && videoWindow->keyIsDownOnce(Qt::Key_Space))

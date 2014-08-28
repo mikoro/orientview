@@ -46,10 +46,15 @@ namespace OrientView
 		struct Route
 		{
 			QString quickRouteJpegFilePath = "";
-			RouteRenderMode renderMode = RouteRenderMode::Normal;
-			QColor color = QColor(0, 0, 0, 80);
-			double width = 10.0;
-			double borderWidth = 2.0;
+			RouteRenderMode wholeRouteRenderMode = RouteRenderMode::Discreet;
+			QColor wholeRouteDiscreetColor = QColor(0, 0, 0, 50);
+			QColor wholeRouteHighlightColor = QColor(0, 100, 255, 220);
+			double wholeRouteWidth = 10.0;
+			RouteRenderMode tailRenderMode = RouteRenderMode::None;
+			QColor tailDiscreetColor = QColor(0, 0, 0, 50);
+			QColor tailHighlightColor = QColor(0, 100, 255, 220);
+			double tailWidth = 10.0;
+			double tailLength = 60.0;
 			QColor controlBorderColor = QColor(140, 40, 140, 255);
 			double controlRadius = 15.0;
 			double controlBorderWidth = 5.0;
@@ -70,6 +75,7 @@ namespace OrientView
 			double highPace = 5.0;
 			bool useSmoothTransition = true;
 			double smoothTransitionSpeed = 0.001;
+
 		} route;
 
 		struct Video
