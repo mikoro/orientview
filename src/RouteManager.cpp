@@ -23,10 +23,10 @@ bool RouteManager::initialize(QuickRouteReader* quickRouteReader, SplitsManager*
 
 	defaultRoute.routePoints = quickRouteReader->getRoutePoints();
 	defaultRoute.runnerInfo = splitsManager->getDefaultRunnerInfo();
-	defaultRoute.renderMode = settings->route.renderMode;
-	defaultRoute.color = settings->route.color;
-	defaultRoute.width = settings->route.width;
-	defaultRoute.borderWidth = settings->route.borderWidth;
+	defaultRoute.wholeRouteRenderMode = settings->route.renderMode;
+	defaultRoute.wholeRouteColor = settings->route.color;
+	defaultRoute.wholeRouteWidth = settings->route.width;
+	defaultRoute.wholeRouteBorderWidth = settings->route.borderWidth;
 	defaultRoute.controlBorderColor = settings->route.controlBorderColor;
 	defaultRoute.controlRadius = settings->route.controlRadius;
 	defaultRoute.controlBorderWidth = settings->route.controlBorderWidth;
@@ -47,6 +47,9 @@ bool RouteManager::initialize(QuickRouteReader* quickRouteReader, SplitsManager*
 	defaultRoute.highPace = settings->route.highPace;
 	defaultRoute.useSmoothTransition = settings->route.useSmoothTransition;
 	defaultRoute.smoothTransitionSpeed = settings->route.smoothTransitionSpeed;
+
+	defaultRoute.wholeRouteRenderMode = RouteRenderMode::None;
+	defaultRoute.tailRenderMode = RouteRenderMode::Pace;
 
 	for (Route& route : routes)
 	{
@@ -77,16 +80,29 @@ RouteManager::~RouteManager()
 			delete route.shaderProgram;
 			route.shaderProgram = nullptr;
 		}
-		if (route.vertexArrayObject != nullptr)
+
+		if (route.wholeRouteVertexBuffer != nullptr)
 		{
-			delete route.vertexArrayObject;
-			route.vertexArrayObject = nullptr;
+			delete route.wholeRouteVertexBuffer;
+			route.wholeRouteVertexBuffer = nullptr;
 		}
 
-		if (route.vertexBuffer != nullptr)
+		if (route.wholeRouteVertexArrayObject != nullptr)
 		{
-			delete route.vertexBuffer;
-			route.vertexBuffer = nullptr;
+			delete route.wholeRouteVertexArrayObject;
+			route.wholeRouteVertexArrayObject = nullptr;
+		}
+
+		if (route.tailVertexBuffer != nullptr)
+		{
+			delete route.tailVertexBuffer;
+			route.tailVertexBuffer = nullptr;
+		}
+
+		if (route.tailVertexArrayObject != nullptr)
+		{
+			delete route.tailVertexArrayObject;
+			route.tailVertexArrayObject = nullptr;
 		}
 	}
 }
@@ -186,18 +202,28 @@ void RouteManager::calculateRoutePointColors(Route& route)
 
 bool RouteManager::initializeShaderAndBuffer(Route& route)
 {
-	std::vector<RouteVertex> routeVertices = generateRouteVertices(route);
-	route.vertexCount = routeVertices.size();
+	double startTime = 0.0;
+	double endTime = route.alignedRoutePoints.empty() ? 0.0 : route.alignedRoutePoints.back().time;
+	std::vector<RouteVertex> wholeRouteVertices = strokeRoutePath(route, startTime, endTime);
+	route.wholeRouteVertexCount = wholeRouteVertices.size();
 
 	route.shaderProgram = new QOpenGLShaderProgram();
-	route.vertexArrayObject = new QOpenGLVertexArrayObject();
-	route.vertexBuffer = new QOpenGLBuffer();
+	route.wholeRouteVertexBuffer = new QOpenGLBuffer();
+	route.wholeRouteVertexArrayObject = new QOpenGLVertexArrayObject();
+	route.tailVertexBuffer = new QOpenGLBuffer();
+	route.tailVertexArrayObject = new QOpenGLVertexArrayObject();
 
-	route.vertexBuffer->setUsagePattern(QOpenGLBuffer::StaticDraw);
-	route.vertexBuffer->create();
-	route.vertexBuffer->bind();
-	route.vertexBuffer->allocate(routeVertices.data(), sizeof(RouteVertex) * routeVertices.size());
-	route.vertexBuffer->release();
+	route.wholeRouteVertexBuffer->setUsagePattern(QOpenGLBuffer::StaticDraw);
+	route.wholeRouteVertexBuffer->create();
+	route.wholeRouteVertexBuffer->bind();
+	route.wholeRouteVertexBuffer->allocate(wholeRouteVertices.data(), sizeof(RouteVertex) * wholeRouteVertices.size());
+	route.wholeRouteVertexBuffer->release();
+
+	route.tailVertexBuffer->setUsagePattern(QOpenGLBuffer::DynamicDraw);
+	route.tailVertexBuffer->create();
+	route.tailVertexBuffer->bind();
+	route.tailVertexBuffer->allocate(sizeof(RouteVertex) * wholeRouteVertices.size());
+	route.tailVertexBuffer->release();
 
 	if (!route.shaderProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, "data/shaders/route.vert"))
 		return false;
@@ -208,19 +234,29 @@ bool RouteManager::initializeShaderAndBuffer(Route& route)
 	if (!route.shaderProgram->link())
 		return false;
 
-	route.vertexArrayObject->create();
-	route.vertexArrayObject->bind();
-	route.vertexBuffer->bind();
+	route.wholeRouteVertexArrayObject->create();
+	route.wholeRouteVertexArrayObject->bind();
+	route.wholeRouteVertexBuffer->bind();
 	route.shaderProgram->enableAttributeArray("vertexPosition");
 	route.shaderProgram->enableAttributeArray("vertexTextureCoordinate");
-	route.shaderProgram->enableAttributeArray("vertexColorNormal");
 	route.shaderProgram->enableAttributeArray("vertexColorPace");
-	route.shaderProgram->setAttributeBuffer("vertexPosition", GL_FLOAT, 0, 2, sizeof(GLfloat) * 12);
-	route.shaderProgram->setAttributeBuffer("vertexTextureCoordinate", GL_FLOAT, sizeof(GLfloat) * 2, 2, sizeof(GLfloat) * 12);
-	route.shaderProgram->setAttributeBuffer("vertexColorNormal", GL_FLOAT, sizeof(GLfloat) * 4, 4, sizeof(GLfloat) * 12);
-	route.shaderProgram->setAttributeBuffer("vertexColorPace", GL_FLOAT, sizeof(GLfloat) * 8, 4, sizeof(GLfloat) * 12);
-	route.vertexArrayObject->release();
-	route.vertexBuffer->release();
+	route.shaderProgram->setAttributeBuffer("vertexPosition", GL_FLOAT, 0, 2, sizeof(GLfloat) * 8);
+	route.shaderProgram->setAttributeBuffer("vertexTextureCoordinate", GL_FLOAT, sizeof(GLfloat) * 2, 2, sizeof(GLfloat) * 8);
+	route.shaderProgram->setAttributeBuffer("vertexColorPace", GL_FLOAT, sizeof(GLfloat) * 4, 4, sizeof(GLfloat) * 8);
+	route.wholeRouteVertexArrayObject->release();
+	route.wholeRouteVertexBuffer->release();
+
+	route.tailVertexArrayObject->create();
+	route.tailVertexArrayObject->bind();
+	route.tailVertexBuffer->bind();
+	route.shaderProgram->enableAttributeArray("vertexPosition");
+	route.shaderProgram->enableAttributeArray("vertexTextureCoordinate");
+	route.shaderProgram->enableAttributeArray("vertexColorPace");
+	route.shaderProgram->setAttributeBuffer("vertexPosition", GL_FLOAT, 0, 2, sizeof(GLfloat) * 8);
+	route.shaderProgram->setAttributeBuffer("vertexTextureCoordinate", GL_FLOAT, sizeof(GLfloat) * 2, 2, sizeof(GLfloat) * 8);
+	route.shaderProgram->setAttributeBuffer("vertexColorPace", GL_FLOAT, sizeof(GLfloat) * 4, 4, sizeof(GLfloat) * 8);
+	route.tailVertexArrayObject->release();
+	route.tailVertexBuffer->release();
 
 	return true;
 }
@@ -402,12 +438,23 @@ void RouteManager::calculateCurrentSplitTransformation(Route& route, double curr
 	}
 }
 
-std::vector<RouteVertex> RouteManager::generateRouteVertices(Route& route)
+std::vector<RouteVertex> RouteManager::strokeRoutePath(Route& route, double startTime, double endTime)
 {
 	std::vector<RouteVertex> routeVertices;
 
-	if (route.alignedRoutePoints.size() < 2)
+	int startIndex = (int)floor(startTime);
+	int endIndex = (int)floor(endTime);
+	int indexMax = (int)route.alignedRoutePoints.size() - 1;
+
+	// limit the indexes inside a valid range
+	startIndex = std::max(0, std::min(startIndex, indexMax));
+	endIndex = std::max(0, std::min(endIndex, indexMax));
+
+	if (startIndex == endIndex)
 		return routeVertices;
+
+	RoutePoint startRoutePoint = getInterpolatedRoutePoint(route, startTime);
+	RoutePoint endRoutePoint = getInterpolatedRoutePoint(route, endTime);
 
 	QPointF previousTlVertex, previousTrVertex;
 	RouteVertex previousTlRouteVertex, previousTrRouteVertex;
@@ -417,7 +464,7 @@ std::vector<RouteVertex> RouteManager::generateRouteVertices(Route& route)
 	// go through the points and generate rectangles of given width between them
 	// start the next rectangle from either the top left or top right vertex of the previous rectangle (prevents overdraw when rectangles rotate)
 	// fill in the joints with round join to make a smooth line
-	for (int i = 0; i < (int)route.alignedRoutePoints.size() - 1;)
+	for (int i = startIndex; i < endIndex;)
 	{
 		RoutePoint rp1 = route.alignedRoutePoints.at(i);
 		RoutePoint rp2;
@@ -425,7 +472,7 @@ std::vector<RouteVertex> RouteManager::generateRouteVertices(Route& route)
 
 		// find the next point that isn't too close
 		// if the next point is too close (and delta angle is large) it will be left inside the joint and the next rectangle will be drawn backwards
-		for (int j = i + 1; j < (int)route.alignedRoutePoints.size(); ++j)
+		for (int j = i + 1; j <= endIndex; ++j)
 		{
 			i = j;
 
@@ -435,7 +482,7 @@ std::vector<RouteVertex> RouteManager::generateRouteVertices(Route& route)
 			double length = sqrt(routePointVector.x() * routePointVector.x() + routePointVector.y() * routePointVector.y());
 
 			// this seems to work quite well, no good theory for it
-			if (length > route.width)
+			if (length > route.wholeRouteWidth)
 				break;
 		}
 
@@ -453,8 +500,8 @@ std::vector<RouteVertex> RouteManager::generateRouteVertices(Route& route)
 
 		// this is a vector that points 90 degrees left from the center line
 		QPointF deltaVertex;
-		deltaVertex.setX(sin(angle) * (route.width / 2.0 + route.borderWidth));
-		deltaVertex.setY(cos(angle) * (route.width / 2.0 + route.borderWidth));
+		deltaVertex.setX(sin(angle) * (route.wholeRouteWidth / 2.0 + route.wholeRouteBorderWidth));
+		deltaVertex.setY(cos(angle) * (route.wholeRouteWidth / 2.0 + route.wholeRouteBorderWidth));
 
 		if (isFirstPoint)
 		{
@@ -498,11 +545,6 @@ std::vector<RouteVertex> RouteManager::generateRouteVertices(Route& route)
 		trRouteVertex.x = trVertex.x();
 		trRouteVertex.y = -trVertex.y();
 		trRouteVertex.u = 1.0f;
-
-		blRouteVertex.normalR = brRouteVertex.normalR = tlRouteVertex.normalR = trRouteVertex.normalR = route.color.redF();
-		blRouteVertex.normalG = brRouteVertex.normalG = tlRouteVertex.normalG = trRouteVertex.normalG = route.color.greenF();
-		blRouteVertex.normalB = brRouteVertex.normalB = tlRouteVertex.normalB = trRouteVertex.normalB = route.color.blueF();
-		blRouteVertex.normalA = brRouteVertex.normalA = tlRouteVertex.normalA = trRouteVertex.normalA = route.color.alphaF();
 
 		blRouteVertex.paceR = brRouteVertex.paceR = rp1.color.redF();
 		blRouteVertex.paceG = brRouteVertex.paceG = rp1.color.greenF();
@@ -551,11 +593,10 @@ std::vector<RouteVertex> RouteManager::generateRouteVertices(Route& route)
 			else // fill out the joint with a round fan of triangles
 			{
 				QPointF origoToStart = jointStartVertex - jointOrigoVertex;
-				QPointF origoToEnd = jointEndVertex - jointOrigoVertex;
 
 				double jointAngleIncrement = 10.0 * ((finalAngleDelta < 0.0) ? -1.0 : 1.0);
 				double cumulativeJointAngle = 0.0;
-				double routeWidth = route.width + 2.0 * route.borderWidth;
+				double routeWidth = route.wholeRouteWidth + 2.0 * route.wholeRouteBorderWidth;
 				double currentJointAngle = atan2(-origoToStart.y(), origoToStart.x());
 
 				currentJointAngle += jointAngleIncrement * M_PI / 180.0;

@@ -1,11 +1,11 @@
 #version 120
 
 uniform mat4 vertexMatrix;
+uniform vec4 customColor;
 uniform bool usePaceColoring;
 
 attribute vec2 vertexPosition;
 attribute vec2 vertexTextureCoordinate;
-attribute vec4 vertexColorNormal;
 attribute vec4 vertexColorPace;
 
 varying vec2 textureCoordinate;
@@ -15,5 +15,5 @@ void main()
 {
 	gl_Position = vertexMatrix * vec4(vertexPosition, 0.0, 1.0);
 	textureCoordinate = vertexTextureCoordinate;
-	color = usePaceColoring ? vertexColorPace : vertexColorNormal;
+	color = usePaceColoring ? vertexColorPace : customColor;
 }

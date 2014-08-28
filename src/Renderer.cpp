@@ -482,8 +482,11 @@ void Renderer::renderPanel(Panel& panel)
 
 void Renderer::renderRoute(Route& route)
 {
-	if (route.renderMode != RouteRenderMode::None)
-		renderRouteVertexBuffer(route);
+	if (route.wholeRouteRenderMode != RouteRenderMode::None)
+		renderWholeRouteVertexBuffer(route);
+
+	if (route.tailRenderMode != RouteRenderMode::None)
+		rendertailVertexBuffer(route);
 
 	QMatrix painterMatrix;
 	painterMatrix.translate(windowWidth / 2.0, windowHeight / 2.0);
@@ -527,7 +530,7 @@ void Renderer::renderRoute(Route& route)
 		runnerBrush.setColor(route.runnerColor);
 		runnerBrush.setStyle(Qt::SolidPattern);
 
-		double runnerRadius = (((route.width / 2.0) - (route.runnerBorderWidth / 2.0)) * route.runnerScale) * route.userScale;
+		double runnerRadius = (((route.wholeRouteWidth / 2.0) - (route.runnerBorderWidth / 2.0)) * route.runnerScale) * route.userScale;
 
 		painter->setPen(runnerPen);
 		painter->setBrush(runnerBrush);
@@ -538,23 +541,51 @@ void Renderer::renderRoute(Route& route)
 	painter->end();
 }
 
-void Renderer::renderRouteVertexBuffer(Route& route)
+void Renderer::renderWholeRouteVertexBuffer(Route& route)
 {
 	route.shaderProgram->bind();
 
 	route.shaderProgram->setUniformValue("vertexMatrix", mapPanel.vertexMatrix);
-	route.shaderProgram->setUniformValue("borderColor", route.borderColor);
-	route.shaderProgram->setUniformValue("borderRelativeWidth", (GLfloat)(route.borderWidth / route.width));
-	route.shaderProgram->setUniformValue("usePaceColoring", (route.renderMode == RouteRenderMode::Pace));
-
-	route.vertexArrayObject->bind();
+	route.shaderProgram->setUniformValue("customColor", route.wholeRouteColor);
+	route.shaderProgram->setUniformValue("usePaceColoring", (route.wholeRouteRenderMode == RouteRenderMode::Pace));
+	route.shaderProgram->setUniformValue("borderColor", route.wholeRouteBorderColor);
+	route.shaderProgram->setUniformValue("borderRelativeWidth", (GLfloat)(route.wholeRouteBorderWidth / route.wholeRouteWidth));
+	
+	route.wholeRouteVertexArrayObject->bind();
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glDrawArrays(GL_TRIANGLES, 0, route.vertexCount);
+	glDrawArrays(GL_TRIANGLES, 0, route.wholeRouteVertexCount);
 	glDisable(GL_BLEND);
 
-	route.vertexArrayObject->release();
+	route.wholeRouteVertexArrayObject->release();
+	route.shaderProgram->release();
+}
+
+void Renderer::rendertailVertexBuffer(Route& route)
+{
+	double offsetTime = currentTime + route.runnerTimeOffset;
+	std::vector<RouteVertex> tailVertices = RouteManager::strokeRoutePath(route, offsetTime - route.tailDuration, offsetTime);
+	route.tailVertexBuffer->bind();
+	route.tailVertexBuffer->write(0, tailVertices.data(), tailVertices.size() * sizeof(RouteVertex));
+	route.tailVertexBuffer->release();
+
+	route.shaderProgram->bind();
+
+	route.shaderProgram->setUniformValue("vertexMatrix", mapPanel.vertexMatrix);
+	route.shaderProgram->setUniformValue("customColor", route.tailColor);
+	route.shaderProgram->setUniformValue("usePaceColoring", (route.tailRenderMode == RouteRenderMode::Pace));
+	route.shaderProgram->setUniformValue("borderColor", route.tailBorderColor);
+	route.shaderProgram->setUniformValue("borderRelativeWidth", (GLfloat)(route.tailBorderWidth / route.tailWidth));
+
+	route.tailVertexArrayObject->bind();
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDrawArrays(GL_TRIANGLES, 0, tailVertices.size());
+	glDisable(GL_BLEND);
+
+	route.tailVertexArrayObject->release();
 	route.shaderProgram->release();
 }
 

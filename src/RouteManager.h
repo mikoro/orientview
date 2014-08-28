@@ -36,10 +36,6 @@ namespace OrientView
 		float y = 0.0f;
 		float u = 0.0f;
 		float v = 0.0f;
-		float normalR = 0.0f;
-		float normalG = 0.0f;
-		float normalB = 0.0f;
-		float normalA = 1.0f;
 		float paceR = 0.0f;
 		float paceG = 0.0f;
 		float paceB = 0.0f;
@@ -54,16 +50,24 @@ namespace OrientView
 		RunnerInfo runnerInfo;
 
 		QOpenGLShaderProgram* shaderProgram = nullptr;
-		QOpenGLVertexArrayObject* vertexArrayObject = nullptr;
-		QOpenGLBuffer* vertexBuffer = nullptr;
-		int vertexCount = 0;
+		QOpenGLBuffer* wholeRouteVertexBuffer = nullptr;
+		QOpenGLVertexArrayObject* wholeRouteVertexArrayObject = nullptr;
+		QOpenGLBuffer* tailVertexBuffer = nullptr;
+		QOpenGLVertexArrayObject* tailVertexArrayObject = nullptr;
+		int wholeRouteVertexCount = 0;
 
-		RouteRenderMode renderMode = RouteRenderMode::Normal;
+		RouteRenderMode wholeRouteRenderMode = RouteRenderMode::Normal;
+		QColor wholeRouteColor = QColor(80, 0, 0, 50);
+		QColor wholeRouteBorderColor = QColor(0, 0, 0, 255);
+		double wholeRouteWidth = 10.0;
+		double wholeRouteBorderWidth = 2.0;
 
-		QColor color = QColor(80, 0, 0, 50);
-		QColor borderColor = QColor(0, 0, 0, 255);
-		double width = 10.0;
-		double borderWidth = 2.0;
+		RouteRenderMode tailRenderMode = RouteRenderMode::Normal;
+		QColor tailColor = QColor(0, 100, 255, 220);
+		QColor tailBorderColor = QColor(0, 0, 0, 255);
+		double tailWidth = 10.0;
+		double tailBorderWidth = 2.0;
+		double tailDuration = 120.0;
 
 		std::vector<QPointF> controlPositions;
 		QColor controlBorderColor = QColor(140, 40, 140, 255);
@@ -108,6 +112,10 @@ namespace OrientView
 
 		void update(double currentTime, double frameTime);
 
+		static std::vector<RouteVertex> strokeRoutePath(Route& route, double startTime, double endTime);
+		static RoutePoint getInterpolatedRoutePoint(Route& route, double time);
+		static QColor interpolateFromGreenToRed(double greenValue, double redValue, double value);
+
 		void requestFullUpdate();
 		void requestInstantTransition();
 		void windowResized(double newWidth, double newHeight);
@@ -127,10 +135,6 @@ namespace OrientView
 		void calculateSplitTransformations(Route& route);
 		void calculateCurrentRunnerPosition(Route& route, double currentTime);
 		void calculateCurrentSplitTransformation(Route& route, double currentTime, double frameTime);
-
-		static std::vector<RouteVertex> generateRouteVertices(Route& route);
-		static RoutePoint getInterpolatedRoutePoint(Route& route, double time);
-		static QColor interpolateFromGreenToRed(double greenValue, double redValue, double value);
 
 		Renderer* renderer = nullptr;
 

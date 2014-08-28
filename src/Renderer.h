@@ -93,7 +93,8 @@ namespace OrientView
 		void renderMapPanel();
 		void renderPanel(Panel& panel);
 		void renderRoute(Route& route);
-		void renderRouteVertexBuffer(Route& route);
+		void renderWholeRouteVertexBuffer(Route& route);
+		void rendertailVertexBuffer(Route& route);
 		void renderInfoPanel();
 
 		VideoStabilizer* videoStabilizer = nullptr;
