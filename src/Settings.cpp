@@ -24,6 +24,7 @@ void Settings::readFromQSettings(QSettings* settings)
 	map.headerCrop = settings->value("map/headerCrop", defaultSettings.map.headerCrop).toInt();
 	map.backgroundColor = settings->value("map/backgroundColor", defaultSettings.map.backgroundColor).value<QColor>();
 	map.rescaleShader = settings->value("map/rescaleShader", defaultSettings.map.rescaleShader).toString();
+
 	route.quickRouteJpegFilePath = settings->value("route/quickRouteJpegFilePath", defaultSettings.route.quickRouteJpegFilePath).toString();
 	route.wholeRouteRenderMode = (RouteRenderMode)settings->value("route/wholeRouteRenderMode", defaultSettings.route.wholeRouteRenderMode).toInt();
 	route.wholeRouteDiscreetColor = settings->value("route/wholeRouteDiscreetColor", defaultSettings.route.wholeRouteDiscreetColor).value<QColor>();
@@ -238,7 +239,6 @@ void Settings::readFromUI(Ui::MainWindow* ui)
 	map.relativeWidth = ui->doubleSpinBoxMapWidth->value();
 	map.scale = ui->doubleSpinBoxMapScale->value();
 	map.headerCrop = ui->spinBoxMapHeaderCrop->value();
-	map.backgroundColor = QColor(ui->lineEditMapBackgroundColor->text());
 	map.rescaleShader = ui->comboBoxMapRescaleShader->currentText();
 
 	route.quickRouteJpegFilePath = ui->lineEditQuickRouteJpegFile->text();
@@ -251,7 +251,6 @@ void Settings::readFromUI(Ui::MainWindow* ui)
 	video.inputVideoFilePath = ui->lineEditInputVideoFile->text();
 	video.startTimeOffset = ui->doubleSpinBoxVideoStartTimeOffset->value();
 	video.scale = ui->doubleSpinBoxVideoScale->value();
-	video.backgroundColor = QColor(ui->lineEditVideoBackgroundColor->text());
 	video.rescaleShader = ui->comboBoxVideoRescaleShader->currentText();
 	video.enableClipping = ui->checkBoxVideoEnableClipping->isChecked();
 	video.enableClearing = ui->checkBoxVideoEnableClearing->isChecked();
@@ -295,7 +294,7 @@ void Settings::writeToUI(Ui::MainWindow* ui)
 	ui->doubleSpinBoxMapWidth->setValue(map.relativeWidth);
 	ui->doubleSpinBoxMapScale->setValue(map.scale);
 	ui->spinBoxMapHeaderCrop->setValue(map.headerCrop);
-	ui->lineEditMapBackgroundColor->setText(map.backgroundColor.name());
+	ui->pushButtonMapBackgroundColor->setStyleSheet(QString("QPushButton { background-color: %1; }").arg(map.backgroundColor.name()));
 	ui->comboBoxMapRescaleShader->setCurrentText(map.rescaleShader);
 
 	ui->lineEditQuickRouteJpegFile->setText(route.quickRouteJpegFilePath);
@@ -308,7 +307,7 @@ void Settings::writeToUI(Ui::MainWindow* ui)
 	ui->lineEditInputVideoFile->setText(video.inputVideoFilePath);
 	ui->doubleSpinBoxVideoStartTimeOffset->setValue(video.startTimeOffset);
 	ui->doubleSpinBoxVideoScale->setValue(video.scale);
-	ui->lineEditVideoBackgroundColor->setText(video.backgroundColor.name());
+	ui->pushButtonVideoBackgroundColor->setStyleSheet(QString("QPushButton { background-color: %1; }").arg(video.backgroundColor.name()));
 	ui->comboBoxVideoRescaleShader->setCurrentText(video.rescaleShader);
 	ui->checkBoxVideoEnableClipping->setChecked(video.enableClipping);
 	ui->checkBoxVideoEnableClearing->setChecked(video.enableClearing);

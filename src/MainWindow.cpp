@@ -570,28 +570,24 @@ void MainWindow::on_pushButtonBrowseOutputVideoFile_clicked()
 		ui->lineEditOutputVideoFile->setText(fileDialog.selectedFiles().at(0));
 }
 
-void MainWindow::on_pushButtonPickVideoBackgroundColor_clicked()
+void MainWindow::on_pushButtonMapBackgroundColor_clicked()
 {
-	settings->readFromUI(ui);
-
 	QColorDialog colorDialog;
-	QColor resultColor = colorDialog.getColor(settings->video.backgroundColor, this, "Pick video panel background color");
+	QColor resultColor = colorDialog.getColor(settings->map.backgroundColor, this, "Pick map background color");
 
 	if (resultColor.isValid())
-		settings->video.backgroundColor = resultColor;
+		settings->map.backgroundColor = resultColor;
 
 	settings->writeToUI(ui);
 }
 
-void MainWindow::on_pushButtonPickMapBackgroundColor_clicked()
+void MainWindow::on_pushButtonVideoBackgroundColor_clicked()
 {
-	settings->readFromUI(ui);
-
 	QColorDialog colorDialog;
-	QColor resultColor = colorDialog.getColor(settings->map.backgroundColor, this, "Pick map panel background color");
+	QColor resultColor = colorDialog.getColor(settings->video.backgroundColor, this, "Pick video background color");
 
 	if (resultColor.isValid())
-		settings->map.backgroundColor = resultColor;
+		settings->video.backgroundColor = resultColor;
 
 	settings->writeToUI(ui);
 }
