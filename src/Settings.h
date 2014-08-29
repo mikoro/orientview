@@ -112,7 +112,7 @@ namespace OrientView
 		{
 			int width = 1280;
 			int height = 720;
-			int multisamples = 0;
+			int multisamples = 16;
 			bool fullscreen = false;
 			bool hideCursor = false;
 			bool showInfoPanel = false;

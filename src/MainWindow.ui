@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>600</width>
-    <height>881</height>
+    <height>708</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -2616,7 +2616,7 @@
               <bool>false</bool>
              </property>
              <property name="currentIndex">
-              <number>0</number>
+              <number>4</number>
              </property>
              <item>
               <property name="text">
@@ -4173,6 +4173,7 @@
   <tabstop>pushButtonBrowseMapImageFile</tabstop>
   <tabstop>doubleSpinBoxMapRelativeWidth</tabstop>
   <tabstop>doubleSpinBoxMapScale</tabstop>
+  <tabstop>pushButtonPickMapBackgroundColor</tabstop>
   <tabstop>spinBoxMapHeaderCrop</tabstop>
   <tabstop>comboBoxMapRescaleShader</tabstop>
   <tabstop>lineEditQuickRouteJpegFile</tabstop>
@@ -4180,6 +4181,9 @@
   <tabstop>doubleSpinBoxRouteControlTimeOffset</tabstop>
   <tabstop>doubleSpinBoxRouteRunnerTimeOffset</tabstop>
   <tabstop>doubleSpinBoxRouteScale</tabstop>
+  <tabstop>pushButtonPickRouteDiscreetColor</tabstop>
+  <tabstop>pushButtonPickRouteHighlightColor</tabstop>
+  <tabstop>pushButtonPickRouteRunnerColor</tabstop>
   <tabstop>comboBoxRouteRenderMode</tabstop>
   <tabstop>comboBoxRouteTailRenderMode</tabstop>
   <tabstop>doubleSpinBoxRouteTailLength</tabstop>
@@ -4194,6 +4198,7 @@
   <tabstop>pushButtonBrowseInputVideoFile</tabstop>
   <tabstop>doubleSpinBoxVideoStartTimeOffset</tabstop>
   <tabstop>doubleSpinBoxVideoScale</tabstop>
+  <tabstop>pushButtonPickVideoBackgroundColor</tabstop>
   <tabstop>comboBoxVideoRescaleShader</tabstop>
   <tabstop>checkBoxVideoEnableClipping</tabstop>
   <tabstop>checkBoxVideoEnableClearing</tabstop>
