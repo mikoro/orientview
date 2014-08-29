@@ -253,38 +253,40 @@
             </widget>
            </item>
            <item row="2" column="1">
-            <widget class="QPushButton" name="pushButtonMapBackgroundColor">
-             <property name="minimumSize">
-              <size>
-               <width>100</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>100</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="toolTip">
-              <string>The background color outside the map boundaries</string>
-             </property>
-             <property name="autoFillBackground">
-              <bool>false</bool>
-             </property>
-             <property name="styleSheet">
-              <string notr="true">background-color: rgb(255, 255, 255);</string>
-             </property>
-             <property name="text">
-              <string/>
-             </property>
-             <property name="default">
-              <bool>false</bool>
-             </property>
-             <property name="flat">
-              <bool>false</bool>
-             </property>
-            </widget>
+            <layout class="QHBoxLayout" name="horizontalLayout_5">
+             <item>
+              <widget class="QLabel" name="labelMapBackgroundColor">
+               <property name="minimumSize">
+                <size>
+                 <width>100</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>100</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">background-color: rgb(255, 255, 255);</string>
+               </property>
+               <property name="frameShape">
+                <enum>QFrame::StyledPanel</enum>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item alignment="Qt::AlignLeft">
+              <widget class="QPushButton" name="pushButtonPickMapBackgroundColor">
+               <property name="text">
+                <string>Pick</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </item>
            <item row="3" column="0">
             <widget class="QLabel" name="label_46">
@@ -719,38 +721,40 @@
             </widget>
            </item>
            <item row="1" column="1">
-            <widget class="QPushButton" name="pushButtonRouteDiscreetColor">
-             <property name="minimumSize">
-              <size>
-               <width>100</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>100</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="toolTip">
-              <string>The discreet color</string>
-             </property>
-             <property name="autoFillBackground">
-              <bool>true</bool>
-             </property>
-             <property name="styleSheet">
-              <string notr="true">background-color: rgb(0, 0, 0, 50);</string>
-             </property>
-             <property name="text">
-              <string/>
-             </property>
-             <property name="default">
-              <bool>false</bool>
-             </property>
-             <property name="flat">
-              <bool>false</bool>
-             </property>
-            </widget>
+            <layout class="QHBoxLayout" name="horizontalLayout_6">
+             <item>
+              <widget class="QLabel" name="labelRouteDiscreetColor">
+               <property name="minimumSize">
+                <size>
+                 <width>100</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>100</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">background-color: rgb(0, 0, 0, 50);</string>
+               </property>
+               <property name="frameShape">
+                <enum>QFrame::StyledPanel</enum>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item alignment="Qt::AlignLeft">
+              <widget class="QPushButton" name="pushButtonPickRouteDiscreetColor">
+               <property name="text">
+                <string>Pick</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </item>
            <item row="2" column="0">
             <widget class="QLabel" name="label_49">
@@ -778,38 +782,40 @@
             </widget>
            </item>
            <item row="2" column="1">
-            <widget class="QPushButton" name="pushButtonRouteHighlightColor">
-             <property name="minimumSize">
-              <size>
-               <width>100</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>100</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="toolTip">
-              <string>The highlight color</string>
-             </property>
-             <property name="autoFillBackground">
-              <bool>true</bool>
-             </property>
-             <property name="styleSheet">
-              <string notr="true">background-color: rgb(0, 100, 255, 200);</string>
-             </property>
-             <property name="text">
-              <string/>
-             </property>
-             <property name="default">
-              <bool>false</bool>
-             </property>
-             <property name="flat">
-              <bool>false</bool>
-             </property>
-            </widget>
+            <layout class="QHBoxLayout" name="horizontalLayout_12">
+             <item>
+              <widget class="QLabel" name="labelRouteHighlightColor">
+               <property name="minimumSize">
+                <size>
+                 <width>100</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>100</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">background-color: rgb(0, 100, 255, 200);</string>
+               </property>
+               <property name="frameShape">
+                <enum>QFrame::StyledPanel</enum>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item alignment="Qt::AlignLeft">
+              <widget class="QPushButton" name="pushButtonPickRouteHighlightColor">
+               <property name="text">
+                <string>Pick</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </item>
            <item row="3" column="0">
             <widget class="QLabel" name="label_50">
@@ -837,38 +843,40 @@
             </widget>
            </item>
            <item row="3" column="1">
-            <widget class="QPushButton" name="pushButtonRouteRunnerColor">
-             <property name="minimumSize">
-              <size>
-               <width>100</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>100</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="toolTip">
-              <string>The runner color</string>
-             </property>
-             <property name="autoFillBackground">
-              <bool>true</bool>
-             </property>
-             <property name="styleSheet">
-              <string notr="true">background-color: rgb(0, 100, 255, 200);</string>
-             </property>
-             <property name="text">
-              <string/>
-             </property>
-             <property name="default">
-              <bool>false</bool>
-             </property>
-             <property name="flat">
-              <bool>false</bool>
-             </property>
-            </widget>
+            <layout class="QHBoxLayout" name="horizontalLayout_14">
+             <item>
+              <widget class="QLabel" name="labelRouteRunnerColor">
+               <property name="minimumSize">
+                <size>
+                 <width>100</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>100</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">background-color: rgb(0, 100, 255, 200);</string>
+               </property>
+               <property name="frameShape">
+                <enum>QFrame::StyledPanel</enum>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item alignment="Qt::AlignLeft">
+              <widget class="QPushButton" name="pushButtonPickRouteRunnerColor">
+               <property name="text">
+                <string>Pick</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </item>
            <item row="4" column="0">
             <widget class="QLabel" name="label_51">
@@ -1636,15 +1644,6 @@
            <string>Appearance</string>
           </property>
           <layout class="QFormLayout" name="formLayout_5">
-           <property name="fieldGrowthPolicy">
-            <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
-           </property>
-           <property name="labelAlignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-           <property name="formAlignment">
-            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-           </property>
            <property name="horizontalSpacing">
             <number>12</number>
            </property>
@@ -1731,6 +1730,42 @@
               <string>Background color</string>
              </property>
             </widget>
+           </item>
+           <item row="1" column="1">
+            <layout class="QHBoxLayout" name="horizontalLayout_15">
+             <item>
+              <widget class="QLabel" name="labelVideoBackgroundColor">
+               <property name="minimumSize">
+                <size>
+                 <width>100</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>100</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">background-color: rgb(0, 50, 0);</string>
+               </property>
+               <property name="frameShape">
+                <enum>QFrame::StyledPanel</enum>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item alignment="Qt::AlignLeft">
+              <widget class="QPushButton" name="pushButtonPickVideoBackgroundColor">
+               <property name="text">
+                <string>Pick</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </item>
            <item row="2" column="0">
             <widget class="QLabel" name="label_12">
@@ -1912,34 +1947,6 @@
              </property>
              <property name="checked">
               <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QPushButton" name="pushButtonVideoBackgroundColor">
-             <property name="minimumSize">
-              <size>
-               <width>100</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>100</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="autoFillBackground">
-              <bool>true</bool>
-             </property>
-             <property name="styleSheet">
-              <string notr="true">background-color: rgb(0, 50, 0);</string>
-             </property>
-             <property name="text">
-              <string/>
-             </property>
-             <property name="flat">
-              <bool>false</bool>
              </property>
             </widget>
            </item>
@@ -4133,7 +4140,6 @@
   <tabstop>pushButtonBrowseMapImageFile</tabstop>
   <tabstop>doubleSpinBoxMapRelativeWidth</tabstop>
   <tabstop>doubleSpinBoxMapScale</tabstop>
-  <tabstop>pushButtonMapBackgroundColor</tabstop>
   <tabstop>spinBoxMapHeaderCrop</tabstop>
   <tabstop>comboBoxMapRescaleShader</tabstop>
   <tabstop>lineEditQuickRouteJpegFile</tabstop>
@@ -4141,9 +4147,6 @@
   <tabstop>doubleSpinBoxRouteControlTimeOffset</tabstop>
   <tabstop>doubleSpinBoxRouteRunnerTimeOffset</tabstop>
   <tabstop>doubleSpinBoxRouteScale</tabstop>
-  <tabstop>pushButtonRouteDiscreetColor</tabstop>
-  <tabstop>pushButtonRouteHighlightColor</tabstop>
-  <tabstop>pushButtonRouteRunnerColor</tabstop>
   <tabstop>comboBoxRouteRenderMode</tabstop>
   <tabstop>comboBoxRouteTailRenderMode</tabstop>
   <tabstop>doubleSpinBoxRouteTailLength</tabstop>
@@ -4158,7 +4161,6 @@
   <tabstop>pushButtonBrowseInputVideoFile</tabstop>
   <tabstop>doubleSpinBoxVideoStartTimeOffset</tabstop>
   <tabstop>doubleSpinBoxVideoScale</tabstop>
-  <tabstop>pushButtonVideoBackgroundColor</tabstop>
   <tabstop>comboBoxVideoRescaleShader</tabstop>
   <tabstop>checkBoxVideoEnableClipping</tabstop>
   <tabstop>checkBoxVideoEnableClearing</tabstop>

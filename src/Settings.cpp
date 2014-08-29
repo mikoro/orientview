@@ -303,17 +303,17 @@ void Settings::writeToUI(Ui::MainWindow* ui)
 	ui->doubleSpinBoxMapRelativeWidth->setValue(map.relativeWidth);
 	ui->doubleSpinBoxMapScale->setValue(map.scale);
 	ui->spinBoxMapHeaderCrop->setValue(map.headerCrop);
-	ui->pushButtonMapBackgroundColor->setStyleSheet(QString("QPushButton { background-color: rgb(%1, %2, %3, %4); }").arg(QString::number(map.backgroundColor.red()), QString::number(map.backgroundColor.green()), QString::number(map.backgroundColor.blue()), QString::number(map.backgroundColor.alpha())));
+	ui->labelMapBackgroundColor->setStyleSheet(QString("background-color: rgb(%1, %2, %3, %4);").arg(QString::number(map.backgroundColor.red()), QString::number(map.backgroundColor.green()), QString::number(map.backgroundColor.blue()), QString::number(map.backgroundColor.alpha())));
 	ui->comboBoxMapRescaleShader->setCurrentText(map.rescaleShader);
 
 	ui->lineEditQuickRouteJpegFile->setText(route.quickRouteJpegFilePath);
-	ui->pushButtonRouteDiscreetColor->setStyleSheet(QString("QPushButton { background-color: rgb(%1, %2, %3, %4); }").arg(QString::number(route.discreetColor.red()), QString::number(route.discreetColor.green()), QString::number(route.discreetColor.blue()), QString::number(route.discreetColor.alpha())));
-	ui->pushButtonRouteHighlightColor->setStyleSheet(QString("QPushButton { background-color: rgb(%1, %2, %3, %4); }").arg(QString::number(route.highlightColor.red()), QString::number(route.highlightColor.green()), QString::number(route.highlightColor.blue()), QString::number(route.highlightColor.alpha())));
+	ui->labelRouteDiscreetColor->setStyleSheet(QString("background-color: rgb(%1, %2, %3, %4);").arg(QString::number(route.discreetColor.red()), QString::number(route.discreetColor.green()), QString::number(route.discreetColor.blue()), QString::number(route.discreetColor.alpha())));
+	ui->labelRouteHighlightColor->setStyleSheet(QString("background-color: rgb(%1, %2, %3, %4);").arg(QString::number(route.highlightColor.red()), QString::number(route.highlightColor.green()), QString::number(route.highlightColor.blue()), QString::number(route.highlightColor.alpha())));
 	ui->comboBoxRouteRenderMode->setCurrentIndex(route.routeRenderMode);
 	ui->comboBoxRouteTailRenderMode->setCurrentIndex(route.tailRenderMode);
 	ui->doubleSpinBoxRouteTailLength->setValue(route.tailLength);
 	ui->checkBoxRouteShowControls->setChecked(route.showControls);
-	ui->pushButtonRouteRunnerColor->setStyleSheet(QString("QPushButton { background-color: rgb(%1, %2, %3, %4); }").arg(QString::number(route.runnerColor.red()), QString::number(route.runnerColor.green()), QString::number(route.runnerColor.blue()), QString::number(route.runnerColor.alpha())));
+	ui->labelRouteRunnerColor->setStyleSheet(QString("background-color: rgb(%1, %2, %3, %4);").arg(QString::number(route.runnerColor.red()), QString::number(route.runnerColor.green()), QString::number(route.runnerColor.blue()), QString::number(route.runnerColor.alpha())));
 	ui->checkBoxRouteShowRunner->setChecked(route.showRunner);
 	ui->doubleSpinBoxRouteControlTimeOffset->setValue(route.controlTimeOffset);
 	ui->doubleSpinBoxRouteRunnerTimeOffset->setValue(route.runnerTimeOffset);
@@ -328,7 +328,7 @@ void Settings::writeToUI(Ui::MainWindow* ui)
 	ui->lineEditInputVideoFile->setText(video.inputVideoFilePath);
 	ui->doubleSpinBoxVideoStartTimeOffset->setValue(video.startTimeOffset);
 	ui->doubleSpinBoxVideoScale->setValue(video.scale);
-	ui->pushButtonVideoBackgroundColor->setStyleSheet(QString("QPushButton { background-color: rgb(%1, %2, %3, %4); }").arg(QString::number(video.backgroundColor.red()), QString::number(video.backgroundColor.green()), QString::number(video.backgroundColor.blue()), QString::number(video.backgroundColor.alpha())));
+	ui->labelVideoBackgroundColor->setStyleSheet(QString("background-color: rgb(%1, %2, %3, %4);").arg(QString::number(video.backgroundColor.red()), QString::number(video.backgroundColor.green()), QString::number(video.backgroundColor.blue()), QString::number(video.backgroundColor.alpha())));
 	ui->comboBoxVideoRescaleShader->setCurrentText(video.rescaleShader);
 	ui->checkBoxVideoEnableClipping->setChecked(video.enableClipping);
 	ui->checkBoxVideoEnableClearing->setChecked(video.enableClearing);

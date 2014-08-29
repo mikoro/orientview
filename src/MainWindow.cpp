@@ -570,7 +570,7 @@ void MainWindow::on_pushButtonBrowseOutputVideoFile_clicked()
 		ui->lineEditOutputVideoFile->setText(fileDialog.selectedFiles().at(0));
 }
 
-void MainWindow::on_pushButtonMapBackgroundColor_clicked()
+void MainWindow::on_pushButtonPickMapBackgroundColor_clicked()
 {
 	QColorDialog colorDialog;
 	QColor resultColor = colorDialog.getColor(settings->map.backgroundColor, this, "Pick map background color");
@@ -581,7 +581,7 @@ void MainWindow::on_pushButtonMapBackgroundColor_clicked()
 	settings->writeToUI(ui);
 }
 
-void MainWindow::on_pushButtonRouteDiscreetColor_clicked()
+void MainWindow::on_pushButtonPickRouteDiscreetColor_clicked()
 {
 	QColorDialog colorDialog;
 	QColor resultColor = colorDialog.getColor(settings->route.discreetColor, this, "Pick route discreet color", QColorDialog::ColorDialogOption::ShowAlphaChannel);
@@ -592,7 +592,7 @@ void MainWindow::on_pushButtonRouteDiscreetColor_clicked()
 	settings->writeToUI(ui);
 }
 
-void MainWindow::on_pushButtonRouteHighlightColor_clicked()
+void MainWindow::on_pushButtonPickRouteHighlightColor_clicked()
 {
 	QColorDialog colorDialog;
 	QColor resultColor = colorDialog.getColor(settings->route.highlightColor, this, "Pick route highlight color", QColorDialog::ColorDialogOption::ShowAlphaChannel);
@@ -603,7 +603,7 @@ void MainWindow::on_pushButtonRouteHighlightColor_clicked()
 	settings->writeToUI(ui);
 }
 
-void MainWindow::on_pushButtonRouteRunnerColor_clicked()
+void MainWindow::on_pushButtonPickRouteRunnerColor_clicked()
 {
 	QColorDialog colorDialog;
 	QColor resultColor = colorDialog.getColor(settings->route.runnerColor, this, "Pick route runner color", QColorDialog::ColorDialogOption::ShowAlphaChannel);
@@ -614,7 +614,7 @@ void MainWindow::on_pushButtonRouteRunnerColor_clicked()
 	settings->writeToUI(ui);
 }
 
-void MainWindow::on_pushButtonVideoBackgroundColor_clicked()
+void MainWindow::on_pushButtonPickVideoBackgroundColor_clicked()
 {
 	QColorDialog colorDialog;
 	QColor resultColor = colorDialog.getColor(settings->video.backgroundColor, this, "Pick video background color");

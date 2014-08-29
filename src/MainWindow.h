@@ -62,11 +62,11 @@ namespace OrientView
 		void on_pushButtonBrowseInputVideoFile_clicked();
 		void on_pushButtonBrowseOutputVideoFile_clicked();
 
-		void on_pushButtonMapBackgroundColor_clicked();
-		void on_pushButtonRouteDiscreetColor_clicked();
-		void on_pushButtonRouteHighlightColor_clicked();
-		void on_pushButtonRouteRunnerColor_clicked();
-		void on_pushButtonVideoBackgroundColor_clicked();
+		void on_pushButtonPickMapBackgroundColor_clicked();
+		void on_pushButtonPickRouteDiscreetColor_clicked();
+		void on_pushButtonPickRouteHighlightColor_clicked();
+		void on_pushButtonPickRouteRunnerColor_clicked();
+		void on_pushButtonPickVideoBackgroundColor_clicked();
 
 		void on_pushButtonVideoStabilizerBrowseInputDataFile_clicked();
 		void on_pushButtonVideoStabilizerBrowsePassOneOutputFile_clicked();
