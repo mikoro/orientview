@@ -17,7 +17,7 @@ namespace OrientView
 	class Renderer;
 	class Settings;
 
-	enum RouteRenderMode { Discreet, Highlight, Pace, None };
+	enum RouteRenderMode { None, Discreet, Highlight, Pace };
 
 	struct SplitTransformation
 	{
@@ -47,16 +47,15 @@ namespace OrientView
 		std::vector<SplitTransformation> splitTransformations;
 		RunnerInfo runnerInfo;
 
-		QPainterPath wholeRoutePath;
-		RouteRenderMode wholeRouteRenderMode = RouteRenderMode::Discreet;
-		QColor wholeRouteDiscreetColor = QColor(0, 0, 0, 50);
-		QColor wholeRouteHighlightColor = QColor(0, 100, 255, 200);
-		double wholeRouteWidth = 10.0;
+		QColor discreetColor = QColor(0, 0, 0, 50);
+		QColor highlightColor = QColor(0, 100, 255, 200);
+
+		QPainterPath routePath;
+		RouteRenderMode routeRenderMode = RouteRenderMode::Discreet;
+		double routeWidth = 10.0;
 
 		QPainterPath tailPath;
 		RouteRenderMode tailRenderMode = RouteRenderMode::None;
-		QColor tailDiscreetColor = QColor(0, 0, 0, 50);
-		QColor tailHighlightColor = QColor(0, 100, 255, 200);
 		double tailWidth = 10.0;
 		double tailLength = 60.0;
 
@@ -76,21 +75,8 @@ namespace OrientView
 		double controlTimeOffset = 0.0;
 		double runnerTimeOffset = 0.0;
 		double userScale = 1.0;
-		double topBottomMargin = 30.0;
-		double leftRightMargin = 10.0;
-		double minimumZoom = 0.0;
-		double maximumZoom = 9999.0;
 		double lowPace = 15.0;
 		double highPace = 5.0;
-
-		bool useSmoothTransition = true;
-		double smoothTransitionSpeed = 0.001;
-		SplitTransformation currentSplitTransformation;
-		SplitTransformation previousSplitTransformation;
-		SplitTransformation nextSplitTransformation;
-		int currentSplitTransformationIndex = -1;
-		double transitionAlpha = 0.0;
-		bool transitionInProgress = false;
 	};
 
 	class RouteManager
@@ -114,7 +100,7 @@ namespace OrientView
 
 		void calculateAlignedRoutePoints(Route& route);
 		void calculateRoutePointColors(Route& route);
-		void calculateWholeRoutePath(Route& route);
+		void calculateRoutePath(Route& route);
 		void calculateTailPath(Route& route, double currentTime);
 		void calculateControlPositions(Route& route);
 		void calculateSplitTransformations(Route& route);
@@ -129,9 +115,22 @@ namespace OrientView
 		std::vector<Route> routes;
 
 		bool fullUpdateRequested = true;
-		bool instantTransitionRequested = true;
+		bool useSmoothSplitTransition = true;
+		bool instantSplitTransitionRequested = true;
+		bool smoothSplitTransitionInProgress = false;
 
+		double smoothSplitTransitionAlpha = 0.0;
+		double smoothSplitTransitionSpeed = 1.0;
+		double topBottomMargin = 30.0;
+		double leftRightMargin = 10.0;
+		double maximumAutomaticZoom = 100.0;
 		double windowWidth = 0.0;
 		double windowHeight = 0.0;
+
+		int currentSplitTransformationIndex = -1;
+
+		SplitTransformation currentSplitTransformation;
+		SplitTransformation previousSplitTransformation;
+		SplitTransformation nextSplitTransformation;
 	};
 }

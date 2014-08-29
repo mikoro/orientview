@@ -26,7 +26,7 @@ namespace OrientView
 	class Settings;
 	struct Route;
 
-	enum class RenderMode { All, Map, Video };
+	enum RenderMode { All, Map, Video };
 
 	struct Panel
 	{

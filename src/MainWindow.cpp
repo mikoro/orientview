@@ -581,6 +581,39 @@ void MainWindow::on_pushButtonMapBackgroundColor_clicked()
 	settings->writeToUI(ui);
 }
 
+void MainWindow::on_pushButtonRouteDiscreetColor_clicked()
+{
+	QColorDialog colorDialog;
+	QColor resultColor = colorDialog.getColor(settings->route.discreetColor, this, "Pick route discreet color", QColorDialog::ColorDialogOption::ShowAlphaChannel);
+
+	if (resultColor.isValid())
+		settings->route.discreetColor = resultColor;
+
+	settings->writeToUI(ui);
+}
+
+void MainWindow::on_pushButtonRouteHighlightColor_clicked()
+{
+	QColorDialog colorDialog;
+	QColor resultColor = colorDialog.getColor(settings->route.highlightColor, this, "Pick route highlight color", QColorDialog::ColorDialogOption::ShowAlphaChannel);
+
+	if (resultColor.isValid())
+		settings->route.highlightColor = resultColor;
+
+	settings->writeToUI(ui);
+}
+
+void MainWindow::on_pushButtonRouteRunnerColor_clicked()
+{
+	QColorDialog colorDialog;
+	QColor resultColor = colorDialog.getColor(settings->route.runnerColor, this, "Pick route runner color", QColorDialog::ColorDialogOption::ShowAlphaChannel);
+
+	if (resultColor.isValid())
+		settings->route.runnerColor = resultColor;
+
+	settings->writeToUI(ui);
+}
+
 void MainWindow::on_pushButtonVideoBackgroundColor_clicked()
 {
 	QColorDialog colorDialog;

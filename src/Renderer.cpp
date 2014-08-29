@@ -52,6 +52,7 @@ bool Renderer::initialize(VideoDecoder* videoDecoder, MapImageReader* mapImageRe
 
 	multisamples = settings->window.multisamples;
 	showInfoPanel = settings->window.showInfoPanel;
+	renderMode = settings->renderer.renderMode;
 
 	const double alpha = 0.1;
 	averageFps.setAlpha(alpha);
@@ -500,23 +501,23 @@ void Renderer::renderRoute(Route& route)
 
 	painter->setWorldMatrix(painterMatrix);
 
-	if (route.wholeRouteRenderMode == RouteRenderMode::Discreet || route.wholeRouteRenderMode == RouteRenderMode::Highlight)
+	if (route.routeRenderMode == RouteRenderMode::Discreet || route.routeRenderMode == RouteRenderMode::Highlight)
 	{
-		QPen wholeRoutePen;
-		wholeRoutePen.setWidthF(route.wholeRouteWidth * route.userScale);
-		wholeRoutePen.setJoinStyle(Qt::PenJoinStyle::RoundJoin);
-		wholeRoutePen.setCapStyle(Qt::PenCapStyle::RoundCap);
-		wholeRoutePen.setColor(route.wholeRouteRenderMode == RouteRenderMode::Discreet ? route.wholeRouteDiscreetColor : route.wholeRouteHighlightColor);
+		QPen routePen;
+		routePen.setWidthF(route.routeWidth * route.userScale);
+		routePen.setJoinStyle(Qt::PenJoinStyle::RoundJoin);
+		routePen.setCapStyle(Qt::PenCapStyle::RoundCap);
+		routePen.setColor(route.routeRenderMode == RouteRenderMode::Discreet ? route.discreetColor : route.highlightColor);
 
-		painter->setPen(wholeRoutePen);
+		painter->setPen(routePen);
 		painter->setBrush(Qt::NoBrush);
-		painter->drawPath(route.wholeRoutePath);
+		painter->drawPath(route.routePath);
 	}
 
-	if (route.wholeRouteRenderMode == RouteRenderMode::Pace)
+	if (route.routeRenderMode == RouteRenderMode::Pace)
 	{
 		QPen paceRoutePen;
-		paceRoutePen.setWidthF(route.wholeRouteWidth * route.userScale);
+		paceRoutePen.setWidthF(route.routeWidth * route.userScale);
 		paceRoutePen.setCapStyle(Qt::PenCapStyle::RoundCap);
 
 		for (int i = 0; i < (int)routeManager->getDefaultRoute().routePoints.size() - 1; ++i)
@@ -542,9 +543,9 @@ void Renderer::renderRoute(Route& route)
 		QColor tailColor;
 
 		if (route.tailRenderMode == RouteRenderMode::Discreet)
-			tailColor = route.tailDiscreetColor;
+			tailColor = route.discreetColor;
 		else
-			tailColor = route.tailHighlightColor;
+			tailColor = route.highlightColor;
 
 		tailPen.setColor(tailColor);
 
@@ -577,7 +578,7 @@ void Renderer::renderRoute(Route& route)
 		runnerBrush.setColor(route.runnerColor);
 		runnerBrush.setStyle(Qt::SolidPattern);
 
-		double runnerRadius = (((route.wholeRouteWidth / 2.0) - (route.runnerBorderWidth / 2.0)) * route.runnerScale) * route.userScale;
+		double runnerRadius = (((route.routeWidth / 2.0) - (route.runnerBorderWidth / 2.0)) * route.runnerScale) * route.userScale;
 
 		painter->setPen(runnerPen);
 		painter->setBrush(runnerBrush);

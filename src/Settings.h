@@ -10,6 +10,7 @@
 #include "RouteManager.h"
 #include "SplitsManager.h"
 #include "VideoStabilizer.h"
+#include "Renderer.h"
 
 namespace Ui
 {
@@ -37,8 +38,8 @@ namespace OrientView
 			double y = 0.0;
 			double angle = 0.0;
 			double scale = 1.0;
-			int headerCrop = 0;
 			QColor backgroundColor = QColor(255, 255, 255, 255);
+			int headerCrop = 0;
 			QString rescaleShader = "default";
 
 		} map;
@@ -46,13 +47,11 @@ namespace OrientView
 		struct Route
 		{
 			QString quickRouteJpegFilePath = "";
-			RouteRenderMode wholeRouteRenderMode = RouteRenderMode::Discreet;
-			QColor wholeRouteDiscreetColor = QColor(0, 0, 0, 50);
-			QColor wholeRouteHighlightColor = QColor(0, 100, 255, 200);
-			double wholeRouteWidth = 10.0;
+			QColor discreetColor = QColor(0, 0, 0, 50);
+			QColor highlightColor = QColor(0, 100, 255, 200);
+			RouteRenderMode routeRenderMode = RouteRenderMode::Discreet;
+			double routeWidth = 10.0;
 			RouteRenderMode tailRenderMode = RouteRenderMode::None;
-			QColor tailDiscreetColor = QColor(0, 0, 0, 50);
-			QColor tailHighlightColor = QColor(0, 100, 255, 200);
 			double tailWidth = 10.0;
 			double tailLength = 60.0;
 			QColor controlBorderColor = QColor(140, 40, 140, 255);
@@ -67,16 +66,20 @@ namespace OrientView
 			double controlTimeOffset = 0.0;
 			double runnerTimeOffset = 0.0;
 			double scale = 1.0;
-			double topBottomMargin = 30.0;
-			double leftRightMargin = 10.0;
-			double minimumZoom = 0.0;
-			double maximumZoom = 9999.0;
 			double lowPace = 15.0;
 			double highPace = 5.0;
-			bool useSmoothTransition = true;
-			double smoothTransitionSpeed = 0.001;
 
 		} route;
+
+		struct RouteManager
+		{
+			bool useSmoothSplitTransition = true;
+			double smoothSplitTransitionSpeed = 1.0;
+			double topBottomMargin = 30.0;
+			double leftRightMargin = 10.0;
+			double maximumAutomaticZoom = 100.0;
+
+		} routeManager;
 
 		struct Video
 		{
@@ -141,6 +144,12 @@ namespace OrientView
 			int constantRateFactor = 23;
 
 		} encoder;
+
+		struct Renderer
+		{
+			RenderMode renderMode = RenderMode::All;
+
+		} renderer;
 
 		struct InputHandler
 		{

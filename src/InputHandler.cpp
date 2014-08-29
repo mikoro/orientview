@@ -50,7 +50,7 @@ void InputHandler::handleInput(double frameTime)
 			case ScrollMode::None: scrollMode = ScrollMode::Map; break;
 			case ScrollMode::Map: scrollMode = ScrollMode::Video; break;
 			case ScrollMode::Video: scrollMode = ScrollMode::None; break;
-			default: break;
+			default: scrollMode = ScrollMode::None;
 		}
 	}
 
@@ -61,7 +61,7 @@ void InputHandler::handleInput(double frameTime)
 			case RenderMode::All: renderer->setRenderMode(RenderMode::Map); break;
 			case RenderMode::Map: renderer->setRenderMode(RenderMode::Video); break;
 			case RenderMode::Video: renderer->setRenderMode(RenderMode::All); break;
-			default: break;
+			default: renderer->setRenderMode(RenderMode::All);
 		}
 
 		renderer->requestFullClear();
@@ -69,13 +69,13 @@ void InputHandler::handleInput(double frameTime)
 
 	if (videoWindow->keyIsDownOnce(Qt::Key_F4))
 	{
-		switch (defaultRoute.wholeRouteRenderMode)
+		switch (defaultRoute.routeRenderMode)
 		{
-			case RouteRenderMode::Discreet: defaultRoute.wholeRouteRenderMode = RouteRenderMode::Highlight; break;
-			case RouteRenderMode::Highlight: defaultRoute.wholeRouteRenderMode = RouteRenderMode::Pace; break;
-			case RouteRenderMode::Pace: defaultRoute.wholeRouteRenderMode = RouteRenderMode::None; break;
-			case RouteRenderMode::None: defaultRoute.wholeRouteRenderMode = RouteRenderMode::Discreet; break;
-			default: break;
+			case RouteRenderMode::None: defaultRoute.routeRenderMode = RouteRenderMode::Discreet; break;
+			case RouteRenderMode::Discreet: defaultRoute.routeRenderMode = RouteRenderMode::Highlight; break;
+			case RouteRenderMode::Highlight: defaultRoute.routeRenderMode = RouteRenderMode::Pace; break;
+			case RouteRenderMode::Pace: defaultRoute.routeRenderMode = RouteRenderMode::None; break;
+			default: defaultRoute.routeRenderMode = RouteRenderMode::Discreet;
 		}
 	}
 
@@ -83,10 +83,10 @@ void InputHandler::handleInput(double frameTime)
 	{
 		switch (defaultRoute.tailRenderMode)
 		{
+			case RouteRenderMode::None: defaultRoute.tailRenderMode = RouteRenderMode::Discreet; break;
 			case RouteRenderMode::Discreet: defaultRoute.tailRenderMode = RouteRenderMode::Highlight; break;
 			case RouteRenderMode::Highlight: defaultRoute.tailRenderMode = RouteRenderMode::None; break;
-			case RouteRenderMode::None: defaultRoute.tailRenderMode = RouteRenderMode::Discreet; break;
-			default: break;
+			default: defaultRoute.tailRenderMode = RouteRenderMode::None;
 		}
 	}
 
@@ -268,13 +268,25 @@ void InputHandler::handleInput(double frameTime)
 
 	if (videoWindow->keyIsDown(Qt::Key_E))
 	{
+		defaultRoute.userScale *= (1.0 + frameTime * scaleSpeed);
+		defaultRoute.userScale = std::max(0.001, defaultRoute.userScale);
+	}
+
+	if (videoWindow->keyIsDown(Qt::Key_D))
+	{
+		defaultRoute.userScale *= (1.0 - frameTime * scaleSpeed);
+		defaultRoute.userScale = std::max(0.001, defaultRoute.userScale);
+	}
+
+	if (videoWindow->keyIsDown(Qt::Key_R))
+	{
 		mapPanel.relativeWidth += translateSpeed * 0.001;
 		mapPanel.relativeWidth = std::max(0.0, std::min(mapPanel.relativeWidth, 1.0));
 		renderer->requestFullClear();
 		routeManager->requestFullUpdate();
 	}
 
-	if (videoWindow->keyIsDown(Qt::Key_D))
+	if (videoWindow->keyIsDown(Qt::Key_F))
 	{
 		mapPanel.relativeWidth -= translateSpeed * 0.001;
 		mapPanel.relativeWidth = std::max(0.0, std::min(mapPanel.relativeWidth, 1.0));
@@ -282,25 +294,25 @@ void InputHandler::handleInput(double frameTime)
 		routeManager->requestFullUpdate();
 	}
 
-	if (videoWindow->keyIsDown(Qt::Key_R))
+	if (videoWindow->keyIsDown(Qt::Key_T))
 	{
 		videoPanel.userScale *= (1.0 + frameTime * scaleSpeed);
 		renderer->requestFullClear();
 	}
 
-	if (videoWindow->keyIsDown(Qt::Key_F))
+	if (videoWindow->keyIsDown(Qt::Key_G))
 	{
 		videoPanel.userScale *= (1.0 - frameTime * scaleSpeed);
 		renderer->requestFullClear();
 	}
 
-	if (videoWindow->keyIsDown(Qt::Key_T))
+	if (videoWindow->keyIsDown(Qt::Key_Y))
 	{
 		videoPanel.userAngle += rotateSpeed;
 		renderer->requestFullClear();
 	}
 
-	if (videoWindow->keyIsDown(Qt::Key_G))
+	if (videoWindow->keyIsDown(Qt::Key_H))
 	{
 		videoPanel.userAngle -= rotateSpeed;
 		renderer->requestFullClear();
@@ -309,39 +321,35 @@ void InputHandler::handleInput(double frameTime)
 	if (videoWindow->keyIsDown(Qt::Key_PageUp))
 	{
 		defaultRoute.runnerTimeOffset += timeOffset;
-		routeManager->requestFullUpdate();
 	}
 
 	if (videoWindow->keyIsDown(Qt::Key_PageDown))
 	{
 		defaultRoute.runnerTimeOffset -= timeOffset;
-		routeManager->requestFullUpdate();
 	}
 
 	if (videoWindow->keyIsDown(Qt::Key_Home))
 	{
 		defaultRoute.controlTimeOffset += timeOffset;
 		routeManager->requestFullUpdate();
-		routeManager->requestInstantTransition();
 	}
 
 	if (videoWindow->keyIsDown(Qt::Key_End))
 	{
 		defaultRoute.controlTimeOffset -= timeOffset;
 		routeManager->requestFullUpdate();
-		routeManager->requestInstantTransition();
 	}
 
 	if (videoWindow->keyIsDown(Qt::Key_Insert))
 	{
-		defaultRoute.userScale *= (1.0 + frameTime * scaleSpeed);
-		defaultRoute.userScale = std::max(0.001, defaultRoute.userScale);
+		defaultRoute.tailLength += timeOffset;
+		defaultRoute.tailLength = std::max(0.0, defaultRoute.tailLength);
 	}
 
 	if (videoWindow->keyIsDown(Qt::Key_Delete))
 	{
-		defaultRoute.userScale *= (1.0 - frameTime * scaleSpeed);
-		defaultRoute.userScale = std::max(0.001, defaultRoute.userScale);
+		defaultRoute.tailLength -= timeOffset;
+		defaultRoute.tailLength = std::max(0.0, defaultRoute.tailLength);
 	}
 }
 

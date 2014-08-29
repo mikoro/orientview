@@ -21,18 +21,16 @@ void Settings::readFromQSettings(QSettings* settings)
 	map.y = settings->value("map/y", defaultSettings.map.y).toDouble();
 	map.angle = settings->value("map/angle", defaultSettings.map.angle).toDouble();
 	map.scale = settings->value("map/scale", defaultSettings.map.scale).toDouble();
-	map.headerCrop = settings->value("map/headerCrop", defaultSettings.map.headerCrop).toInt();
 	map.backgroundColor = settings->value("map/backgroundColor", defaultSettings.map.backgroundColor).value<QColor>();
+	map.headerCrop = settings->value("map/headerCrop", defaultSettings.map.headerCrop).toInt();
 	map.rescaleShader = settings->value("map/rescaleShader", defaultSettings.map.rescaleShader).toString();
 
 	route.quickRouteJpegFilePath = settings->value("route/quickRouteJpegFilePath", defaultSettings.route.quickRouteJpegFilePath).toString();
-	route.wholeRouteRenderMode = (RouteRenderMode)settings->value("route/wholeRouteRenderMode", defaultSettings.route.wholeRouteRenderMode).toInt();
-	route.wholeRouteDiscreetColor = settings->value("route/wholeRouteDiscreetColor", defaultSettings.route.wholeRouteDiscreetColor).value<QColor>();
-	route.wholeRouteHighlightColor = settings->value("route/wholeRouteHighlightColor", defaultSettings.route.wholeRouteHighlightColor).value<QColor>();
-	route.wholeRouteWidth = settings->value("route/wholeRouteWidth", defaultSettings.route.wholeRouteWidth).toDouble();
+	route.discreetColor = settings->value("route/discreetColor", defaultSettings.route.discreetColor).value<QColor>();
+	route.highlightColor = settings->value("route/highlightColor", defaultSettings.route.highlightColor).value<QColor>();
+	route.routeRenderMode = (RouteRenderMode)settings->value("route/routeRenderMode", defaultSettings.route.routeRenderMode).toInt();
+	route.routeWidth = settings->value("route/routeWidth", defaultSettings.route.routeWidth).toDouble();
 	route.tailRenderMode = (RouteRenderMode)settings->value("route/tailRenderMode", defaultSettings.route.tailRenderMode).toInt();
-	route.tailDiscreetColor = settings->value("route/tailDiscreetColor", defaultSettings.route.tailDiscreetColor).value<QColor>();
-	route.tailHighlightColor = settings->value("route/tailHighlightColor", defaultSettings.route.tailHighlightColor).value<QColor>();
 	route.tailWidth = settings->value("route/tailWidth", defaultSettings.route.tailWidth).toDouble();
 	route.tailLength = settings->value("route/tailLength", defaultSettings.route.tailLength).toDouble();
 	route.controlBorderColor = settings->value("route/controlBorderColor", defaultSettings.route.controlBorderColor).value<QColor>();
@@ -47,14 +45,14 @@ void Settings::readFromQSettings(QSettings* settings)
 	route.controlTimeOffset = settings->value("route/controlTimeOffset", defaultSettings.route.controlTimeOffset).toDouble();
 	route.runnerTimeOffset = settings->value("route/runnerTimeOffset", defaultSettings.route.runnerTimeOffset).toDouble();
 	route.scale = settings->value("route/scale", defaultSettings.route.scale).toDouble();
-	route.topBottomMargin = settings->value("route/topBottomMargin", defaultSettings.route.topBottomMargin).toDouble();
-	route.leftRightMargin = settings->value("route/leftRightMargin", defaultSettings.route.leftRightMargin).toDouble();
-	route.minimumZoom = settings->value("route/minimumZoom", defaultSettings.route.minimumZoom).toDouble();
-	route.maximumZoom = settings->value("route/maximumZoom", defaultSettings.route.maximumZoom).toDouble();
 	route.lowPace = settings->value("route/lowPace", defaultSettings.route.lowPace).toDouble();
 	route.highPace = settings->value("route/highPace", defaultSettings.route.highPace).toDouble();
-	route.useSmoothTransition = settings->value("route/useSmoothTransition", defaultSettings.route.useSmoothTransition).toBool();
-	route.smoothTransitionSpeed = settings->value("route/smoothTransitionSpeed", defaultSettings.route.smoothTransitionSpeed).toDouble();
+	
+	routeManager.useSmoothSplitTransition = settings->value("routeManager/useSmoothSplitTransition", defaultSettings.routeManager.useSmoothSplitTransition).toBool();
+	routeManager.smoothSplitTransitionSpeed = settings->value("routeManager/smoothSplitTransitionSpeed", defaultSettings.routeManager.smoothSplitTransitionSpeed).toDouble();
+	routeManager.topBottomMargin = settings->value("routeManager/topBottomMargin", defaultSettings.routeManager.topBottomMargin).toDouble();
+	routeManager.leftRightMargin = settings->value("routeManager/leftRightMargin", defaultSettings.routeManager.leftRightMargin).toDouble();
+	routeManager.maximumAutomaticZoom = settings->value("routeManager/maximumAutomaticZoom", defaultSettings.routeManager.maximumAutomaticZoom).toDouble();
 
 	video.inputVideoFilePath = settings->value("video/inputVideoFilePath", defaultSettings.video.inputVideoFilePath).toString();
 	video.startTimeOffset = settings->value("video/startTimeOffset", defaultSettings.video.startTimeOffset).toDouble();
@@ -100,6 +98,8 @@ void Settings::readFromQSettings(QSettings* settings)
 	encoder.profile = settings->value("encoder/profile", defaultSettings.encoder.profile).toString();
 	encoder.constantRateFactor = settings->value("encoder/constantRateFactor", defaultSettings.encoder.constantRateFactor).toInt();
 
+	renderer.renderMode = (RenderMode)settings->value("renderer/renderMode", defaultSettings.renderer.renderMode).toInt();
+
 	inputHandler.smallSeekAmount = settings->value("inputHandler/smallSeekAmount", defaultSettings.inputHandler.smallSeekAmount).toDouble();
 	inputHandler.normalSeekAmount = settings->value("inputHandler/normalSeekAmount", defaultSettings.inputHandler.normalSeekAmount).toDouble();
 	inputHandler.largeSeekAmount = settings->value("inputHandler/largeSeekAmount", defaultSettings.inputHandler.largeSeekAmount).toDouble();
@@ -132,18 +132,16 @@ void Settings::writeToQSettings(QSettings* settings)
 	settings->setValue("map/y", map.y);
 	settings->setValue("map/angle", map.angle);
 	settings->setValue("map/scale", map.scale);
-	settings->setValue("map/headerCrop", map.headerCrop);
 	settings->setValue("map/backgroundColor", map.backgroundColor);
+	settings->setValue("map/headerCrop", map.headerCrop);
 	settings->setValue("map/rescaleShader", map.rescaleShader);
 
 	settings->setValue("route/quickRouteJpegFilePath", route.quickRouteJpegFilePath);
-	settings->setValue("route/wholeRouteRenderMode", route.wholeRouteRenderMode);
-	settings->setValue("route/wholeRouteDiscreetColor", route.wholeRouteDiscreetColor);
-	settings->setValue("route/wholeRouteHighlightColor", route.wholeRouteHighlightColor);
-	settings->setValue("route/wholeRouteWidth", route.wholeRouteWidth);
+	settings->setValue("route/discreetColor", route.discreetColor);
+	settings->setValue("route/highlightColor", route.highlightColor);
+	settings->setValue("route/routeRenderMode", route.routeRenderMode);
+	settings->setValue("route/routeWidth", route.routeWidth);
 	settings->setValue("route/tailRenderMode", route.tailRenderMode);
-	settings->setValue("route/tailDiscreetColor", route.tailDiscreetColor);
-	settings->setValue("route/tailHighlightColor", route.tailHighlightColor);
 	settings->setValue("route/tailWidth", route.tailWidth);
 	settings->setValue("route/tailLength", route.tailLength);
 	settings->setValue("route/controlBorderColor", route.controlBorderColor);
@@ -158,14 +156,14 @@ void Settings::writeToQSettings(QSettings* settings)
 	settings->setValue("route/controlTimeOffset", route.controlTimeOffset);
 	settings->setValue("route/runnerTimeOffset", route.runnerTimeOffset);
 	settings->setValue("route/scale", route.scale);
-	settings->setValue("route/topBottomMargin", route.topBottomMargin);
-	settings->setValue("route/leftRightMargin", route.leftRightMargin);
-	settings->setValue("route/minimumZoom", route.minimumZoom);
-	settings->setValue("route/maximumZoom", route.maximumZoom);
 	settings->setValue("route/lowPace", route.lowPace);
 	settings->setValue("route/highPace", route.highPace);
-	settings->setValue("route/useSmoothTransition", route.useSmoothTransition);
-	settings->setValue("route/smoothTransitionSpeed", route.smoothTransitionSpeed);
+
+	settings->setValue("routeManager/useSmoothSplitTransition", routeManager.useSmoothSplitTransition);
+	settings->setValue("routeManager/smoothSplitTransitionSpeed", routeManager.smoothSplitTransitionSpeed);
+	settings->setValue("routeManager/topBottomMargin", routeManager.topBottomMargin);
+	settings->setValue("routeManager/leftRightMargin", routeManager.leftRightMargin);
+	settings->setValue("routeManager/maximumAutomaticZoom", routeManager.maximumAutomaticZoom);
 
 	settings->setValue("video/inputVideoFilePath", video.inputVideoFilePath);
 	settings->setValue("video/startTimeOffset", video.startTimeOffset);
@@ -211,6 +209,8 @@ void Settings::writeToQSettings(QSettings* settings)
 	settings->setValue("encoder/profile", encoder.profile);
 	settings->setValue("encoder/constantRateFactor", encoder.constantRateFactor);
 
+	settings->setValue("renderer/renderMode", renderer.renderMode);
+
 	settings->setValue("inputHandler/smallSeekAmount", inputHandler.smallSeekAmount);
 	settings->setValue("inputHandler/normalSeekAmount", inputHandler.normalSeekAmount);
 	settings->setValue("inputHandler/largeSeekAmount", inputHandler.largeSeekAmount);
@@ -236,17 +236,26 @@ void Settings::writeToQSettings(QSettings* settings)
 void Settings::readFromUI(Ui::MainWindow* ui)
 {
 	map.imageFilePath = ui->lineEditMapImageFile->text();
-	map.relativeWidth = ui->doubleSpinBoxMapWidth->value();
+	map.relativeWidth = ui->doubleSpinBoxMapRelativeWidth->value();
 	map.scale = ui->doubleSpinBoxMapScale->value();
 	map.headerCrop = ui->spinBoxMapHeaderCrop->value();
 	map.rescaleShader = ui->comboBoxMapRescaleShader->currentText();
 
 	route.quickRouteJpegFilePath = ui->lineEditQuickRouteJpegFile->text();
+	route.routeRenderMode = (RouteRenderMode)ui->comboBoxRouteRenderMode->currentIndex();
+	route.tailRenderMode = (RouteRenderMode)ui->comboBoxRouteTailRenderMode->currentIndex();
+	route.tailLength = ui->doubleSpinBoxRouteTailLength->value();
+	route.showControls = ui->checkBoxRouteShowControls->isChecked();
+	route.showRunner = ui->checkBoxRouteShowRunner->isChecked();
 	route.controlTimeOffset = ui->doubleSpinBoxRouteControlTimeOffset->value();
 	route.runnerTimeOffset = ui->doubleSpinBoxRouteRunnerTimeOffset->value();
 	route.scale = ui->doubleSpinBoxRouteScale->value();
-	route.topBottomMargin = ui->doubleSpinBoxRouteTopBottomMargin->value();
-	route.leftRightMargin = ui->doubleSpinBoxRouteLeftRightMargin->value();
+	
+	routeManager.useSmoothSplitTransition = ui->checkBoxRouteManagerUseSmoothSplitTransition->isChecked();
+	routeManager.smoothSplitTransitionSpeed = ui->doubleSpinBoxRouteManagerSmoothSplitTransitionSpeed->value();
+	routeManager.topBottomMargin = ui->doubleSpinBoxRouteManagerTopBottomMargin->value();
+	routeManager.leftRightMargin = ui->doubleSpinBoxRouteManagerLeftRightMargin->value();
+	routeManager.maximumAutomaticZoom = ui->doubleSpinBoxRouteManagerMaximumAutomaticZoom->value();
 
 	video.inputVideoFilePath = ui->lineEditInputVideoFile->text();
 	video.startTimeOffset = ui->doubleSpinBoxVideoStartTimeOffset->value();
@@ -291,23 +300,35 @@ void Settings::readFromUI(Ui::MainWindow* ui)
 void Settings::writeToUI(Ui::MainWindow* ui)
 {
 	ui->lineEditMapImageFile->setText(map.imageFilePath);
-	ui->doubleSpinBoxMapWidth->setValue(map.relativeWidth);
+	ui->doubleSpinBoxMapRelativeWidth->setValue(map.relativeWidth);
 	ui->doubleSpinBoxMapScale->setValue(map.scale);
 	ui->spinBoxMapHeaderCrop->setValue(map.headerCrop);
-	ui->pushButtonMapBackgroundColor->setStyleSheet(QString("QPushButton { background-color: %1; }").arg(map.backgroundColor.name()));
+	ui->pushButtonMapBackgroundColor->setStyleSheet(QString("QPushButton { background-color: rgb(%1, %2, %3, %4); }").arg(QString::number(map.backgroundColor.red()), QString::number(map.backgroundColor.green()), QString::number(map.backgroundColor.blue()), QString::number(map.backgroundColor.alpha())));
 	ui->comboBoxMapRescaleShader->setCurrentText(map.rescaleShader);
 
 	ui->lineEditQuickRouteJpegFile->setText(route.quickRouteJpegFilePath);
+	ui->pushButtonRouteDiscreetColor->setStyleSheet(QString("QPushButton { background-color: rgb(%1, %2, %3, %4); }").arg(QString::number(route.discreetColor.red()), QString::number(route.discreetColor.green()), QString::number(route.discreetColor.blue()), QString::number(route.discreetColor.alpha())));
+	ui->pushButtonRouteHighlightColor->setStyleSheet(QString("QPushButton { background-color: rgb(%1, %2, %3, %4); }").arg(QString::number(route.highlightColor.red()), QString::number(route.highlightColor.green()), QString::number(route.highlightColor.blue()), QString::number(route.highlightColor.alpha())));
+	ui->comboBoxRouteRenderMode->setCurrentIndex(route.routeRenderMode);
+	ui->comboBoxRouteTailRenderMode->setCurrentIndex(route.tailRenderMode);
+	ui->doubleSpinBoxRouteTailLength->setValue(route.tailLength);
+	ui->checkBoxRouteShowControls->setChecked(route.showControls);
+	ui->pushButtonRouteRunnerColor->setStyleSheet(QString("QPushButton { background-color: rgb(%1, %2, %3, %4); }").arg(QString::number(route.runnerColor.red()), QString::number(route.runnerColor.green()), QString::number(route.runnerColor.blue()), QString::number(route.runnerColor.alpha())));
+	ui->checkBoxRouteShowRunner->setChecked(route.showRunner);
 	ui->doubleSpinBoxRouteControlTimeOffset->setValue(route.controlTimeOffset);
 	ui->doubleSpinBoxRouteRunnerTimeOffset->setValue(route.runnerTimeOffset);
 	ui->doubleSpinBoxRouteScale->setValue(route.scale);
-	ui->doubleSpinBoxRouteTopBottomMargin->setValue(route.topBottomMargin);
-	ui->doubleSpinBoxRouteLeftRightMargin->setValue(route.leftRightMargin);
+
+	ui->checkBoxRouteManagerUseSmoothSplitTransition->setChecked(routeManager.useSmoothSplitTransition);
+	ui->doubleSpinBoxRouteManagerSmoothSplitTransitionSpeed->setValue(routeManager.smoothSplitTransitionSpeed);
+	ui->doubleSpinBoxRouteManagerTopBottomMargin->setValue(routeManager.topBottomMargin);
+	ui->doubleSpinBoxRouteManagerLeftRightMargin->setValue(routeManager.leftRightMargin);
+	ui->doubleSpinBoxRouteManagerMaximumAutomaticZoom->setValue(routeManager.maximumAutomaticZoom);
 
 	ui->lineEditInputVideoFile->setText(video.inputVideoFilePath);
 	ui->doubleSpinBoxVideoStartTimeOffset->setValue(video.startTimeOffset);
 	ui->doubleSpinBoxVideoScale->setValue(video.scale);
-	ui->pushButtonVideoBackgroundColor->setStyleSheet(QString("QPushButton { background-color: %1; }").arg(video.backgroundColor.name()));
+	ui->pushButtonVideoBackgroundColor->setStyleSheet(QString("QPushButton { background-color: rgb(%1, %2, %3, %4); }").arg(QString::number(video.backgroundColor.red()), QString::number(video.backgroundColor.green()), QString::number(video.backgroundColor.blue()), QString::number(video.backgroundColor.alpha())));
 	ui->comboBoxVideoRescaleShader->setCurrentText(video.rescaleShader);
 	ui->checkBoxVideoEnableClipping->setChecked(video.enableClipping);
 	ui->checkBoxVideoEnableClearing->setChecked(video.enableClearing);

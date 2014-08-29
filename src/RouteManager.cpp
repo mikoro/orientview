@@ -15,6 +15,11 @@ bool RouteManager::initialize(QuickRouteReader* quickRouteReader, SplitsManager*
 {
 	this->renderer = renderer;
 
+	useSmoothSplitTransition = settings->routeManager.useSmoothSplitTransition;
+	smoothSplitTransitionSpeed = settings->routeManager.smoothSplitTransitionSpeed;
+	topBottomMargin = settings->routeManager.topBottomMargin;
+	leftRightMargin = settings->routeManager.leftRightMargin;
+	maximumAutomaticZoom = settings->routeManager.maximumAutomaticZoom;
 	windowWidth = settings->window.width;
 	windowHeight = settings->window.height;
 
@@ -23,13 +28,11 @@ bool RouteManager::initialize(QuickRouteReader* quickRouteReader, SplitsManager*
 
 	defaultRoute.routePoints = quickRouteReader->getRoutePoints();
 	defaultRoute.runnerInfo = splitsManager->getDefaultRunnerInfo();
-	defaultRoute.wholeRouteRenderMode = settings->route.wholeRouteRenderMode;
-	defaultRoute.wholeRouteDiscreetColor = settings->route.wholeRouteDiscreetColor;
-	defaultRoute.wholeRouteHighlightColor = settings->route.wholeRouteHighlightColor;
-	defaultRoute.wholeRouteWidth = settings->route.wholeRouteWidth;
+	defaultRoute.discreetColor = settings->route.discreetColor;
+	defaultRoute.highlightColor = settings->route.highlightColor;
+	defaultRoute.routeRenderMode = settings->route.routeRenderMode;
+	defaultRoute.routeWidth = settings->route.routeWidth;
 	defaultRoute.tailRenderMode = settings->route.tailRenderMode;
-	defaultRoute.tailDiscreetColor = settings->route.tailDiscreetColor;
-	defaultRoute.tailHighlightColor = settings->route.tailHighlightColor;
 	defaultRoute.tailWidth = settings->route.tailWidth;
 	defaultRoute.tailLength = settings->route.tailLength;
 	defaultRoute.controlBorderColor = settings->route.controlBorderColor;
@@ -44,28 +47,22 @@ bool RouteManager::initialize(QuickRouteReader* quickRouteReader, SplitsManager*
 	defaultRoute.controlTimeOffset = settings->route.controlTimeOffset;
 	defaultRoute.runnerTimeOffset = settings->route.runnerTimeOffset;
 	defaultRoute.userScale = settings->route.scale;
-	defaultRoute.minimumZoom = settings->route.minimumZoom;
-	defaultRoute.maximumZoom = settings->route.maximumZoom;
-	defaultRoute.topBottomMargin = settings->route.topBottomMargin;
-	defaultRoute.leftRightMargin = settings->route.leftRightMargin;
 	defaultRoute.lowPace = settings->route.lowPace;
 	defaultRoute.highPace = settings->route.highPace;
-	defaultRoute.useSmoothTransition = settings->route.useSmoothTransition;
-	defaultRoute.smoothTransitionSpeed = settings->route.smoothTransitionSpeed;
 
 	for (Route& route : routes)
 	{
 		calculateAlignedRoutePoints(route);
 		calculateRoutePointColors(route);
-		calculateWholeRoutePath(route);
+		calculateRoutePath(route);
 	}
 
 	update(0.0, 0.0);
 
-	if (defaultRoute.currentSplitTransformationIndex == -1 && defaultRoute.splitTransformations.size() > 0)
+	if (currentSplitTransformationIndex == -1 && defaultRoute.splitTransformations.size() > 0)
 	{
-		defaultRoute.currentSplitTransformation = defaultRoute.splitTransformations.at(0);
-		defaultRoute.currentSplitTransformationIndex = 0;
+		currentSplitTransformation = defaultRoute.splitTransformations.at(0);
+		currentSplitTransformationIndex = 0;
 	}
 
 	return true;
@@ -87,9 +84,10 @@ void RouteManager::update(double currentTime, double frameTime)
 	for (Route& route : routes)
 	{
 		calculateCurrentRunnerPosition(route, currentTime);
-		calculateCurrentSplitTransformation(route, currentTime, frameTime);
 		calculateTailPath(route, currentTime);
 	}
+
+	calculateCurrentSplitTransformation(routes.at(0), currentTime, frameTime);
 }
 
 void RouteManager::calculateAlignedRoutePoints(Route& route)
@@ -165,21 +163,21 @@ void RouteManager::calculateRoutePointColors(Route& route)
 		rp.color = interpolateFromGreenToRed(route.highPace, route.lowPace, rp.pace);
 }
 
-void RouteManager::calculateWholeRoutePath(Route& route)
+void RouteManager::calculateRoutePath(Route& route)
 {
 	if (route.routePoints.size() < 2)
 		return;
 
-	route.wholeRoutePath = QPainterPath();
+	route.routePath = QPainterPath();
 
 	for (size_t i = 0; i < route.routePoints.size(); ++i)
 	{
 		RoutePoint& rp = route.routePoints.at(i);
 
 		if (i == 0)
-			route.wholeRoutePath.moveTo(rp.position.x(), rp.position.y());
+			route.routePath.moveTo(rp.position.x(), rp.position.y());
 		else
-			route.wholeRoutePath.lineTo(rp.position.x(), rp.position.y());
+			route.routePath.lineTo(rp.position.x(), rp.position.y());
 	}
 }
 
@@ -196,10 +194,10 @@ void RouteManager::calculateTailPath(Route& route, double currentTime)
 	startIndex = std::max(0, std::min(startIndex, indexMax));
 	endIndex = std::max(0, std::min(endIndex, indexMax));
 
+	route.tailPath = QPainterPath();
+
 	if (startIndex == endIndex)
 		return;
-
-	route.tailPath = QPainterPath();
 
 	RoutePoint startRoutePoint = getInterpolatedRoutePoint(route, startTime);
 	RoutePoint endRoutePoint = getInterpolatedRoutePoint(route, endTime);
@@ -288,17 +286,17 @@ void RouteManager::calculateSplitTransformations(Route& route)
 			QPointF middlePoint = (startRoutePoint.position + stopRoutePoint.position) / 2.0; // doesn't need to be rotated
 
 			// split width is taken from the maximum deviation from center line to either left or right side
-			double splitWidthLeft = abs(minX - startPosition.x()) * 2.0 + 2.0 * route.leftRightMargin;
-			double splitWidthRight = abs(maxX - startPosition.x()) * 2.0 + 2.0 * route.leftRightMargin;
+			double splitWidthLeft = abs(minX - startPosition.x()) * 2.0 + 2.0 * leftRightMargin;
+			double splitWidthRight = abs(maxX - startPosition.x()) * 2.0 + 2.0 * leftRightMargin;
 			double splitWidth = std::max(splitWidthLeft, splitWidthRight);
 
 			// split height is the maximum vertical delta
-			double splitHeight = maxY - minY + 2.0 * route.topBottomMargin;
+			double splitHeight = maxY - minY + 2.0 * topBottomMargin;
 
 			double scaleX = (windowWidth * renderer->getMapPanel().relativeWidth) / splitWidth;
 			double scaleY = windowHeight / splitHeight;
 			double finalScale = std::min(scaleX, scaleY);
-			finalScale = std::max(route.minimumZoom, std::min(finalScale, route.maximumZoom));
+			finalScale = std::min(finalScale, maximumAutomaticZoom);
 
 			splitTransformation.x = -middlePoint.x();
 			splitTransformation.y = middlePoint.y();
@@ -309,7 +307,7 @@ void RouteManager::calculateSplitTransformations(Route& route)
 		route.splitTransformations.push_back(splitTransformation);
 	}
 
-	instantTransitionRequested = true;
+	instantSplitTransitionRequested = true;
 }
 
 void RouteManager::calculateCurrentRunnerPosition(Route& route, double currentTime)
@@ -332,22 +330,22 @@ void RouteManager::calculateCurrentSplitTransformation(Route& route, double curr
 			if (i >= (int)route.splitTransformations.size())
 				break;
 
-			if (instantTransitionRequested)
+			if (instantSplitTransitionRequested)
 			{
-				route.currentSplitTransformation = route.splitTransformations.at(i);
-				route.currentSplitTransformationIndex = i;
-				instantTransitionRequested = false;
+				currentSplitTransformation = route.splitTransformations.at(i);
+				currentSplitTransformationIndex = i;
+				instantSplitTransitionRequested = false;
 			}
-			else if (i != route.currentSplitTransformationIndex)
+			else if (i != currentSplitTransformationIndex)
 			{
-				if (route.useSmoothTransition)
+				if (useSmoothSplitTransition)
 				{
-					route.previousSplitTransformation = route.currentSplitTransformation;
-					route.nextSplitTransformation = route.splitTransformations.at(i);
-					route.transitionAlpha = 0.0;
-					route.transitionInProgress = true;
+					previousSplitTransformation = currentSplitTransformation;
+					nextSplitTransformation = route.splitTransformations.at(i);
+					smoothSplitTransitionAlpha = 0.0;
+					smoothSplitTransitionInProgress = true;
 
-					double angleDelta = route.nextSplitTransformation.angle - route.previousSplitTransformation.angle;
+					double angleDelta = nextSplitTransformation.angle - previousSplitTransformation.angle;
 					double absoluteAngleDelta = abs(angleDelta);
 					double finalAngleDelta = angleDelta;
 
@@ -358,36 +356,36 @@ void RouteManager::calculateCurrentSplitTransformation(Route& route, double curr
 						finalAngleDelta *= (angleDelta < 0.0) ? 1.0 : -1.0;
 					}
 
-					route.previousSplitTransformation.angleDelta = finalAngleDelta;
+					previousSplitTransformation.angleDelta = finalAngleDelta;
 				}
 				else
-					route.currentSplitTransformation = route.splitTransformations.at(i);
+					currentSplitTransformation = route.splitTransformations.at(i);
 
-				route.currentSplitTransformationIndex = i;
+				currentSplitTransformationIndex = i;
 			}
 
 			break;
 		}
 	}
 
-	if (route.useSmoothTransition && route.transitionInProgress)
+	if (useSmoothSplitTransition && smoothSplitTransitionInProgress)
 	{
-		if (route.transitionAlpha > 1.0)
+		if (smoothSplitTransitionAlpha > 1.0)
 		{
-			route.currentSplitTransformation = route.nextSplitTransformation;
-			route.transitionInProgress = false;
+			currentSplitTransformation = nextSplitTransformation;
+			smoothSplitTransitionInProgress = false;
 		}
 		else
 		{
-			double alpha = route.transitionAlpha;
+			double alpha = smoothSplitTransitionAlpha;
 			alpha = alpha * alpha * alpha * (alpha * (alpha * 6 - 15) + 10); // smootherstep
 
-			route.currentSplitTransformation.x = (1.0 - alpha) * route.previousSplitTransformation.x + alpha * route.nextSplitTransformation.x;
-			route.currentSplitTransformation.y = (1.0 - alpha) * route.previousSplitTransformation.y + alpha * route.nextSplitTransformation.y;
-			route.currentSplitTransformation.angle = route.previousSplitTransformation.angle + alpha * route.previousSplitTransformation.angleDelta;
-			route.currentSplitTransformation.scale = (1.0 - alpha) * route.previousSplitTransformation.scale + alpha * route.nextSplitTransformation.scale;
+			currentSplitTransformation.x = (1.0 - alpha) * previousSplitTransformation.x + alpha * nextSplitTransformation.x;
+			currentSplitTransformation.y = (1.0 - alpha) * previousSplitTransformation.y + alpha * nextSplitTransformation.y;
+			currentSplitTransformation.angle = previousSplitTransformation.angle + alpha * previousSplitTransformation.angleDelta;
+			currentSplitTransformation.scale = (1.0 - alpha) * previousSplitTransformation.scale + alpha * nextSplitTransformation.scale;
 
-			route.transitionAlpha += route.smoothTransitionSpeed * frameTime;
+			smoothSplitTransitionAlpha += smoothSplitTransitionSpeed * frameTime / 1000.0;
 		}
 	}
 }
@@ -446,7 +444,7 @@ void RouteManager::requestFullUpdate()
 
 void RouteManager::requestInstantTransition()
 {
-	instantTransitionRequested = true;
+	instantSplitTransitionRequested = true;
 }
 
 void RouteManager::windowResized(double newWidth, double newHeight)
@@ -459,22 +457,22 @@ void RouteManager::windowResized(double newWidth, double newHeight)
 
 double RouteManager::getX() const
 {
-	return routes.at(0).currentSplitTransformation.x;
+	return currentSplitTransformation.x;
 }
 
 double RouteManager::getY() const
 {
-	return routes.at(0).currentSplitTransformation.y;
+	return currentSplitTransformation.y;
 }
 
 double RouteManager::getScale() const
 {
-	return routes.at(0).currentSplitTransformation.scale;
+	return currentSplitTransformation.scale;
 }
 
 double RouteManager::getAngle() const
 {
-	return routes.at(0).currentSplitTransformation.angle;
+	return currentSplitTransformation.angle;
 }
 
 Route& RouteManager::getDefaultRoute()
