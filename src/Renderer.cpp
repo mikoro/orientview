@@ -517,7 +517,6 @@ void Renderer::renderRoute(Route& route)
 	{
 		QPen paceRoutePen;
 		paceRoutePen.setWidthF(route.wholeRouteWidth * route.userScale);
-		paceRoutePen.setJoinStyle(Qt::PenJoinStyle::RoundJoin);
 		paceRoutePen.setCapStyle(Qt::PenCapStyle::RoundCap);
 
 		for (int i = 0; i < (int)routeManager->getDefaultRoute().routePoints.size() - 1; ++i)

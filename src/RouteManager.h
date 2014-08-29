@@ -49,14 +49,14 @@ namespace OrientView
 
 		QPainterPath wholeRoutePath;
 		RouteRenderMode wholeRouteRenderMode = RouteRenderMode::Discreet;
-		QColor wholeRouteDiscreetColor = QColor(80, 0, 0, 50);
-		QColor wholeRouteHighlightColor = QColor(0, 0, 255, 50);
+		QColor wholeRouteDiscreetColor = QColor(0, 0, 0, 50);
+		QColor wholeRouteHighlightColor = QColor(0, 100, 255, 200);
 		double wholeRouteWidth = 10.0;
 
 		QPainterPath tailPath;
 		RouteRenderMode tailRenderMode = RouteRenderMode::None;
-		QColor tailDiscreetColor = QColor(80, 0, 0, 50);
-		QColor tailHighlightColor = QColor(0, 0, 255, 50);
+		QColor tailDiscreetColor = QColor(0, 0, 0, 50);
+		QColor tailHighlightColor = QColor(0, 100, 255, 200);
 		double tailWidth = 10.0;
 		double tailLength = 60.0;
 
@@ -67,7 +67,7 @@ namespace OrientView
 		bool showControls = true;
 
 		QPointF runnerPosition;
-		QColor runnerColor = QColor(0, 100, 255, 220);
+		QColor runnerColor = QColor(0, 100, 255, 255);
 		QColor runnerBorderColor = QColor(0, 0, 0, 255);
 		double runnerBorderWidth = 1.0;
 		double runnerScale = 1.0;
