@@ -157,14 +157,39 @@ void InputHandler::handleInput(double frameTime)
 	translateSpeed *= frameTime;
 	rotateSpeed *= frameTime;
 
-	if (videoWindow->keyIsDown(Qt::Key_Backspace))
+	if (videoWindow->keyIsDown(Qt::Key_Control) && videoWindow->keyIsDown(Qt::Key_1))
 	{
-		mapPanel.userX = videoPanel.userX = 0.0;
-		mapPanel.userY = videoPanel.userY = 0.0;
-		mapPanel.userAngle = videoPanel.userAngle = 0.0;
-		mapPanel.userScale = videoPanel.userScale = 1.0;
+		mapPanel.userX = 0.0;
+		mapPanel.userY = 0.0;
+		mapPanel.userAngle = 0.0;
+		mapPanel.userScale = 1.0;
+		mapPanel.relativeWidth = 0.25;
 
 		renderer->requestFullClear();
+		routeManager->requestFullUpdate();
+	}
+
+	if (videoWindow->keyIsDown(Qt::Key_Control) && videoWindow->keyIsDown(Qt::Key_2))
+	{
+		videoPanel.userX = 0.0;
+		videoPanel.userY = 0.0;
+		videoPanel.userAngle = 0.0;
+		videoPanel.userScale = 1.0;
+
+		renderer->requestFullClear();
+	}
+
+	if (videoWindow->keyIsDown(Qt::Key_Control) && videoWindow->keyIsDown(Qt::Key_3))
+	{
+		defaultRoute.userScale = 1.0;
+	}
+
+	if (videoWindow->keyIsDown(Qt::Key_Control) && videoWindow->keyIsDown(Qt::Key_4))
+	{
+		defaultRoute.controlTimeOffset = 0.0;
+		defaultRoute.runnerTimeOffset = 0.0;
+
+		routeManager->requestFullUpdate();
 	}
 
 	if (scrollMode == ScrollMode::None)
@@ -279,25 +304,13 @@ void InputHandler::handleInput(double frameTime)
 
 	if (videoWindow->keyIsDown(Qt::Key_E))
 	{
-		defaultRoute.userScale *= (1.0 + frameTime * scaleSpeed);
-		defaultRoute.userScale = std::max(0.001, defaultRoute.userScale);
-	}
-
-	if (videoWindow->keyIsDown(Qt::Key_D))
-	{
-		defaultRoute.userScale *= (1.0 - frameTime * scaleSpeed);
-		defaultRoute.userScale = std::max(0.001, defaultRoute.userScale);
-	}
-
-	if (videoWindow->keyIsDown(Qt::Key_R))
-	{
 		mapPanel.relativeWidth += translateSpeed * 0.001;
 		mapPanel.relativeWidth = std::max(0.0, std::min(mapPanel.relativeWidth, 1.0));
 		renderer->requestFullClear();
 		routeManager->requestFullUpdate();
 	}
 
-	if (videoWindow->keyIsDown(Qt::Key_F))
+	if (videoWindow->keyIsDown(Qt::Key_D))
 	{
 		mapPanel.relativeWidth -= translateSpeed * 0.001;
 		mapPanel.relativeWidth = std::max(0.0, std::min(mapPanel.relativeWidth, 1.0));
@@ -305,28 +318,40 @@ void InputHandler::handleInput(double frameTime)
 		routeManager->requestFullUpdate();
 	}
 
-	if (videoWindow->keyIsDown(Qt::Key_T))
+	if (videoWindow->keyIsDown(Qt::Key_R))
 	{
 		videoPanel.userScale *= (1.0 + frameTime * scaleSpeed);
 		renderer->requestFullClear();
 	}
 
-	if (videoWindow->keyIsDown(Qt::Key_G))
+	if (videoWindow->keyIsDown(Qt::Key_F))
 	{
 		videoPanel.userScale *= (1.0 - frameTime * scaleSpeed);
 		renderer->requestFullClear();
 	}
 
-	if (videoWindow->keyIsDown(Qt::Key_Y))
+	if (videoWindow->keyIsDown(Qt::Key_T))
 	{
 		videoPanel.userAngle += rotateSpeed;
 		renderer->requestFullClear();
 	}
 
-	if (videoWindow->keyIsDown(Qt::Key_H))
+	if (videoWindow->keyIsDown(Qt::Key_G))
 	{
 		videoPanel.userAngle -= rotateSpeed;
 		renderer->requestFullClear();
+	}
+
+	if (videoWindow->keyIsDown(Qt::Key_Y))
+	{
+		defaultRoute.userScale *= (1.0 + frameTime * scaleSpeed);
+		defaultRoute.userScale = std::max(0.001, defaultRoute.userScale);
+	}
+
+	if (videoWindow->keyIsDown(Qt::Key_H))
+	{
+		defaultRoute.userScale *= (1.0 - frameTime * scaleSpeed);
+		defaultRoute.userScale = std::max(0.001, defaultRoute.userScale);
 	}
 
 	if (videoWindow->keyIsDown(Qt::Key_PageUp))

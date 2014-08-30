@@ -55,7 +55,7 @@ For testing out the program, you can also [download test data](https://mega.co.n
 * Most of the UI controls have tooltips explaining what they are for.
 * Not all settings are exposed to the UI. You can edit the extra settings by first saving the current settings to a file, opening it with a text editor (the file is in ini format), and then loading the file back.
 * The difference between real-time and preprocessed stabilization is that the latter can look at the future when doing the stabilization analysis. This makes the centering faster with sudden large frame movements and also makes the stabilization a little bit more responsive to small movements.
-* The rescale shaders are in the *data/shaders* folder. The bicubic shader can be further customized by editing the *bicubic.frag* file (currently there are five different interpolation functions and some other settings).
+* The rescale shaders are in the *data/shaders* folder. The bicubic shader can be further customized by editing the *rescale_bicubic.frag* file (currently there are five different interpolation functions and some other settings).
 
 ### Controls
 
@@ -74,7 +74,10 @@ For testing out the program, you can also [download test data](https://mega.co.n
 | **Ctrl**      | Slow/small modifier                                                                        |
 | **Shift**     | Fast/large modifier                                                                        |
 | **Alt**       | Very fast/large modifier                                                                   |
-| **Backspace** | Reset all user transformations to default                                                  |
+| **Ctrl + 1**  | Reset map modifications                                                                    |
+| **Ctrl + 2**  | Reset video modifications                                                                  |
+| **Ctrl + 3**  | Reset route modifications                                                                  |
+| **Ctrl + 4**  | Reset timing offset modifications                                                          |
 | **Left**      | Seek video backwards <br> Scroll map/video left                                            |
 | **Right**     | Seek video forwards <br> Scroll map/video right                                            |
 | **Up**        | Scroll map/video up                                                                        |
@@ -83,14 +86,14 @@ For testing out the program, you can also [download test data](https://mega.co.n
 | **A**         | Zoom map out                                                                               |
 | **W**         | Rotate map counterclockwise                                                                |
 | **S**         | Rotate map clockwise                                                                       |
-| **E**         | Increase route scale                                                                       |
-| **D**         | Decrease route scale                                                                       |
-| **R**         | Increase map width                                                                         |
-| **F**         | Decrease map width                                                                         |
-| **T**         | Zoom video in                                                                              |
-| **G**         | Zoom video out                                                                             |
-| **Y**         | Rotate video counterclockwise                                                              |
-| **H**         | Rotate video clockwise                                                                     |
+| **E**         | Increase map width                                                                         |
+| **D**         | Decrease map width                                                                         |
+| **R**         | Zoom video in                                                                              |
+| **F**         | Zoom video out                                                                             |
+| **T**         | Rotate video counterclockwise                                                              |
+| **G**         | Rotate video clockwise                                                                     |
+| **Y**         | Increase route scale                                                                       |
+| **H**         | Decrease route scale                                                                       |
 | **Page Up**   | Increase runner offset                                                                     |
 | **Page Down** | Decrease runner offset                                                                     |
 | **Home**      | Increase control offset                                                                    |
@@ -105,10 +108,11 @@ For testing out the program, you can also [download test data](https://mega.co.n
 3. Install [Visual Studio Add-in for Qt5](http://qt-project.org/downloads).
 4. Configure Qt Visual Studio settings to point to the correct Qt installation.
 5. Add Qt bin folder to your path.
-1. Clone [https://github.com/mikoro/orientview.git](https://github.com/mikoro/orientview.git).
-2. Clone [https://github.com/mikoro/orientview-binaries.git](https://github.com/mikoro/orientview-binaries.git).
-3. Copy the files from orientview-binaries/windows to the orientview root folder.
-4. Build using either Visual Studio or QtCreator.
+6. Clone [https://github.com/mikoro/orientview.git](https://github.com/mikoro/orientview.git).
+7. Clone [https://github.com/mikoro/orientview-binaries.git](https://github.com/mikoro/orientview-binaries.git).
+8. Copy the files from *orientview-binaries/windows* to the orientview root folder.
+9. Build using either Visual Studio or QtCreator.
+10. If launching the debug build from Visual Studio fails with warning about missing dlls, edit the project working directory to point to the debug build output folder.
 
 ### <a name="linux_build"></a>Building on Linux
 
