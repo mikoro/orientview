@@ -72,7 +72,7 @@ namespace OrientView
 		bool windowResized(int newWidth, int newHeight);
 		~Renderer();
 
-		void startRendering(double currentTime, double frameTime, double spareTime, double decoderTime, double stabilizerTime, double encoderTime);
+		void startRendering(double currentTime, double frameDuration, double decodeDuration, double stabilizeDuration, double encodeDuration, double spareTime);
 		void uploadFrameData(const FrameData& frameData);
 		void renderAll();
 		void stopRendering();
@@ -112,15 +112,15 @@ namespace OrientView
 		Panel mapPanel;
 		RenderMode renderMode = RenderMode::All;
 
-		QElapsedTimer renderTimer;
-		double lastRenderTime = 0.0;
+		QElapsedTimer renderDurationTimer;
+		double renderDuration = 0.0;
 
 		MovingAverage averageFps;
-		MovingAverage averageFrameTime;
-		MovingAverage averageDecodeTime;
-		MovingAverage averageStabilizeTime;
-		MovingAverage averageRenderTime;
-		MovingAverage averageEncodeTime;
+		MovingAverage averageFrameDuration;
+		MovingAverage averageDecodeDuration;
+		MovingAverage averageStabilizeDuration;
+		MovingAverage averageRenderDuration;
+		MovingAverage averageEncodeDuration;
 		MovingAverage averageSpareTime;
 
 		QOpenGLPaintDevice* paintDevice = nullptr;

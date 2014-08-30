@@ -32,7 +32,9 @@ namespace OrientView
 
 		bool getIsFinished();
 		double getCurrentTime();
-		double getLastDecodeTime();
+		double getDecodeDuration();
+		void resetDecodeDuration();
+
 		int getFrameWidth() const;
 		int getFrameHeight() const;
 		int getTotalFrameCount() const;
@@ -78,7 +80,7 @@ namespace OrientView
 		bool isFinished = true;
 		bool seekToAnyFrame = false;
 
-		QElapsedTimer decodeTimer;
-		double lastDecodeTime = 0.0;
+		QElapsedTimer decodeDurationTimer;
+		double decodeDuration = 0.0;
 	};
 }

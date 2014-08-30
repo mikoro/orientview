@@ -33,14 +33,11 @@ void RenderOnScreenThread::run()
 	FrameData frameData;
 	FrameData frameDataGrayscale;
 
-	QElapsedTimer displaySyncTimer;
-	QElapsedTimer spareTimer;
+	QElapsedTimer frameDurationTimer;
+	double frameDuration = 30.0;
+	double spareTime = 15.0;
 
-	double frameDuration = 0.1;
-	double spareTime = 0.0;
-
-	displaySyncTimer.start();
-	spareTimer.start();
+	frameDurationTimer.start();
 
 	while (!isInterruptionRequested())
 	{
@@ -58,21 +55,26 @@ void RenderOnScreenThread::run()
 			shouldAdvanceOneFrame = false;
 		}
 
+		if (gotFrame)
+			videoStabilizer->processFrame(frameDataGrayscale);
+
 		videoWindow->getContext()->makeCurrent(videoWindow);
-		
+		renderer->startRendering(videoDecoder->getCurrentTime(), frameDuration, videoDecoder->getDecodeDuration(), videoStabilizer->getProcessDuration(), 0.0, spareTime);
+
+		videoDecoder->resetDecodeDuration();
+		videoStabilizer->resetProcessDuration();
+
 		if (gotFrame)
 		{
 			renderer->uploadFrameData(frameData);
-			videoStabilizer->processFrame(frameDataGrayscale);
 			videoDecoderThread->signalFrameRead();
 		}
 
-		routeManager->update(videoDecoder->getCurrentTime(), frameDuration);
-		inputHandler->handleInput(frameDuration);
-
-		renderer->startRendering(videoDecoder->getCurrentTime(), frameDuration, spareTime, videoDecoder->getLastDecodeTime(), videoStabilizer->getLastProcessTime(), 0.0);
 		renderer->renderAll();
 		renderer->stopRendering();
+
+		routeManager->update(videoDecoder->getCurrentTime(), frameDuration);
+		inputHandler->handleInput(frameDuration);
 
 		if (windowHasBeenResized)
 		{
@@ -81,29 +83,33 @@ void RenderOnScreenThread::run()
 			windowHasBeenResized = false;
 		}
 
-		spareTime = (frameData.duration - (spareTimer.nsecsElapsed() / 1000.0)) / 1000.0;
-
-		// use combination of normal and spinning wait to sync the frame rate accurately
-		while (true)
-		{
-			int64_t timeToSleep = frameData.duration - (displaySyncTimer.nsecsElapsed() / 1000);
-
-			if (timeToSleep > 2000)
-			{
-				QThread::msleep(1);
-				continue;
-			}
-			else if (timeToSleep > 0)
-				continue;
-			else
-				break;
-		}
-
-		frameDuration = displaySyncTimer.nsecsElapsed() / 1000000.0;
-		displaySyncTimer.restart();
-		spareTimer.restart();
-
 		videoWindow->getContext()->swapBuffers(videoWindow);
+
+		if (gotFrame)
+		{
+			spareTime = (frameData.duration - (frameDurationTimer.nsecsElapsed() / 1000.0)) / 1000.0;
+
+			// use combination of normal and spinning wait to sync the frame rate accurately
+			while (true)
+			{
+				int64_t timeToSleep = frameData.duration - (frameDurationTimer.nsecsElapsed() / 1000);
+
+				if (timeToSleep > 2000)
+				{
+					QThread::msleep(1);
+					continue;
+				}
+				else if (timeToSleep > 0)
+					continue;
+				else
+					break;
+			}
+		}
+		else
+			spareTime = 0.0;
+
+		frameDuration = frameDurationTimer.nsecsElapsed() / 1000000.0;
+		frameDurationTimer.restart();
 	}
 
 	videoWindow->getContext()->doneCurrent();

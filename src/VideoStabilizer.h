@@ -48,7 +48,8 @@ namespace OrientView
 		double getY() const;
 		double getAngle() const;
 
-		double getLastProcessTime() const;
+		double getProcessDuration() const;
+		void resetProcessDuration();
 
 	private:
 
@@ -79,7 +80,7 @@ namespace OrientView
 		cv::Mat previousImage;
 		cv::Mat previousTransformation;
 
-		QElapsedTimer processTimer;
-		double lastProcessTime = 0.0;
+		QElapsedTimer processDurationTimer;
+		double processDuration = 0.0;
 	};
 }

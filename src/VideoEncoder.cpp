@@ -123,7 +123,7 @@ VideoEncoder::~VideoEncoder()
 
 void VideoEncoder::readFrameData(const FrameData& frameData)
 {
-	encodeTimer.restart();
+	encodeDurationTimer.restart();
 
 	sws_scale(swsContext, &frameData.data, (int*)(&frameData.rowLength), 0, frameData.height, convertedPicture->img.plane, convertedPicture->img.i_stride);
 }
@@ -145,7 +145,7 @@ int VideoEncoder::encodeFrame()
 
 	QMutexLocker locker(&encoderMutex);
 
-	lastEncodeTime = encodeTimer.nsecsElapsed() / 1000000.0;
+	encodeDuration = encodeDurationTimer.nsecsElapsed() / 1000000.0;
 
 	return frameSize;
 }
@@ -155,9 +155,9 @@ void VideoEncoder::close()
 	mp4File->close(frameNumber);
 }
 
-double VideoEncoder::getLastEncodeTime()
+double VideoEncoder::getEncodeDuration()
 {
 	QMutexLocker locker(&encoderMutex);
 
-	return lastEncodeTime;
+	return encodeDuration;
 }

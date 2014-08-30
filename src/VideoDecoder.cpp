@@ -219,10 +219,10 @@ bool VideoDecoder::getNextFrame(FrameData* frameData, FrameData* frameDataGraysc
 	if (!isInitialized)
 		return false;
 
+	decodeDurationTimer.restart();
+
 	int framesRead = 0;
 	int readResult = 0;
-
-	decodeTimer.restart();
 
 	while (true)
 	{
@@ -288,7 +288,7 @@ bool VideoDecoder::getNextFrame(FrameData* frameData, FrameData* frameDataGraysc
 					double totalDurationInSeconds = ((double)videoStream->time_base.num / videoStream->time_base.den) * videoStream->duration;
 					currentTimeInSeconds = ((double)frame->best_effort_timestamp / videoStream->duration) * totalDurationInSeconds;
 					previousFrameTimestamp = frame->best_effort_timestamp;
-					lastDecodeTime = decodeTimer.nsecsElapsed() / 1000000.0;
+					decodeDuration = decodeDurationTimer.nsecsElapsed() / 1000000.0;
 					isFinished = false;
 
 					av_free_packet(&packet);
@@ -303,6 +303,7 @@ bool VideoDecoder::getNextFrame(FrameData* frameData, FrameData* frameDataGraysc
 			if (readResult != AVERROR_EOF)
 				qWarning("Could not read a frame: %d", readResult);
 
+			decodeDuration = decodeDurationTimer.nsecsElapsed() / 1000000.0;
 			isFinished = true;
 
 			return false;
@@ -367,11 +368,18 @@ double VideoDecoder::getCurrentTime()
 	return currentTimeInSeconds;
 }
 
-double VideoDecoder::getLastDecodeTime()
+double VideoDecoder::getDecodeDuration()
 {
 	QMutexLocker locker(&decoderMutex);
 
-	return lastDecodeTime;
+	return decodeDuration;
+}
+
+void  VideoDecoder::resetDecodeDuration()
+{
+	QMutexLocker locker(&decoderMutex);
+
+	decodeDuration = 0.0;
 }
 
 int VideoDecoder::getFrameWidth() const
@@ -403,3 +411,4 @@ double VideoDecoder::getFrameDuration() const
 {
 	return (double)frameDuration / 1000.0;
 }
+

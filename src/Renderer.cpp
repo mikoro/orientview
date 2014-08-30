@@ -54,14 +54,14 @@ bool Renderer::initialize(VideoDecoder* videoDecoder, MapImageReader* mapImageRe
 	showInfoPanel = settings->window.showInfoPanel;
 	renderMode = settings->renderer.renderMode;
 
-	const double alpha = 0.1;
-	averageFps.setAlpha(alpha);
-	averageFrameTime.setAlpha(alpha);
-	averageDecodeTime.setAlpha(alpha);
-	averageStabilizeTime.setAlpha(alpha);
-	averageRenderTime.setAlpha(alpha);
-	averageEncodeTime.setAlpha(alpha);
-	averageSpareTime.setAlpha(alpha);
+	const double averagingFactor = 0.005;
+	averageFps.setAlpha(averagingFactor);
+	averageFrameDuration.setAlpha(averagingFactor);
+	averageDecodeDuration.setAlpha(averagingFactor);
+	averageStabilizeDuration.setAlpha(averagingFactor);
+	averageRenderDuration.setAlpha(averagingFactor);
+	averageEncodeDuration.setAlpha(averagingFactor);
+	averageSpareTime.setAlpha(averagingFactor);
 
 	initializeOpenGLFunctions();
 
@@ -260,19 +260,19 @@ bool Renderer::loadRescaleShader(Panel& panel, const QString& shaderName)
 	return true;
 }
 
-void Renderer::startRendering(double currentTime, double frameTime, double spareTime, double decoderTime, double stabilizerTime, double encoderTime)
+void Renderer::startRendering(double currentTime, double frameDuration, double decodeDuration, double stabilizeDuration, double encodeDuration, double spareTime)
 {
-	renderTimer.restart();
+	renderDurationTimer.restart();
 
 	this->currentTime = currentTime;
 
-	averageFps.addMeasurement(1000.0 / frameTime);
-	averageFrameTime.addMeasurement(frameTime);
-	averageDecodeTime.addMeasurement(decoderTime);
-	averageStabilizeTime.addMeasurement(stabilizerTime);
-	averageRenderTime.addMeasurement(lastRenderTime);
-	averageEncodeTime.addMeasurement(encoderTime);
-	averageSpareTime.addMeasurement(spareTime);
+	averageFps.addMeasurement(1000.0 / frameDuration, frameDuration);
+	averageFrameDuration.addMeasurement(frameDuration, frameDuration);
+	averageDecodeDuration.addMeasurement(decodeDuration, frameDuration);
+	averageStabilizeDuration.addMeasurement(stabilizeDuration, frameDuration);
+	averageRenderDuration.addMeasurement(renderDuration, frameDuration);
+	averageEncodeDuration.addMeasurement(encodeDuration, frameDuration);
+	averageSpareTime.addMeasurement(spareTime, frameDuration);
 
 	paintDevice->setSize(QSize(windowWidth, windowHeight));
 
@@ -328,7 +328,7 @@ void Renderer::renderAll()
 
 void Renderer::stopRendering()
 {
-	lastRenderTime = renderTimer.nsecsElapsed() / 1000000.0;
+	renderDuration = renderDurationTimer.nsecsElapsed() / 1000000.0;
 }
 
 FrameData Renderer::getRenderedFrame()
@@ -603,7 +603,7 @@ void Renderer::renderInfoPanel()
 	int rightPartMargin = 15;
 	int backgroundRadius = 10;
 	int backgroundWidth = textX + backgroundRadius + lineWidth1 + rightPartMargin + lineWidth2 + 10;
-	int backgroundHeight = lineSpacing * 19 + textY + 3;
+	int backgroundHeight = lineSpacing * 18 + textY + 3;
 
 	QColor textColor = QColor(255, 255, 255, 200);
 	QColor textGreenColor = QColor(0, 255, 0, 200);
@@ -636,7 +636,6 @@ void Renderer::renderInfoPanel()
 
 	textY += lineSpacing;
 
-	painter->drawText(textX, textY += lineSpacing, lineWidth1, lineHeight, 0, "render:");
 	painter->drawText(textX, textY += lineSpacing, lineWidth1, lineHeight, 0, "scroll:");
 
 	textY += lineSpacing;
@@ -659,13 +658,13 @@ void Renderer::renderInfoPanel()
 	textY += lineSpacing;
 
 	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString::number(averageFps.getAverage(), 'f', 2));
-	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString("%1 ms").arg(QString::number(averageFrameTime.getAverage(), 'f', 2)));
-	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString("%1 ms").arg(QString::number(averageDecodeTime.getAverage(), 'f', 2)));
-	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString("%1 ms").arg(QString::number(averageStabilizeTime.getAverage(), 'f', 2)));
-	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString("%1 ms").arg(QString::number(averageRenderTime.getAverage(), 'f', 2)));
+	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString("%1 ms").arg(QString::number(averageFrameDuration.getAverage(), 'f', 2)));
+	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString("%1 ms").arg(QString::number(averageDecodeDuration.getAverage(), 'f', 2)));
+	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString("%1 ms").arg(QString::number(averageStabilizeDuration.getAverage(), 'f', 2)));
+	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString("%1 ms").arg(QString::number(averageRenderDuration.getAverage(), 'f', 2)));
 
 	if (renderToOffscreen)
-		painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString("%1 ms").arg(QString::number(averageEncodeTime.getAverage(), 'f', 2)));
+		painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString("%1 ms").arg(QString::number(averageEncodeDuration.getAverage(), 'f', 2)));
 	else
 	{
 		if (averageSpareTime.getAverage() < 0)
@@ -677,20 +676,11 @@ void Renderer::renderInfoPanel()
 		painter->setPen(textColor);
 	}
 
-	QString renderText;
 	QString scrollText;
-
-	switch (renderMode)
-	{
-		case RenderMode::All: renderText = "both"; break;
-		case RenderMode::Map: renderText = "map"; break;
-		case RenderMode::Video: renderText = "video"; break;
-		default: renderText = "unknown"; break;
-	}
 
 	switch (inputHandler->getScrollMode())
 	{
-		case ScrollMode::None: scrollText = "none"; break;
+		case ScrollMode::None: scrollText = "none (seek)"; break;
 		case ScrollMode::Map: scrollText = "map"; break;
 		case ScrollMode::Video: scrollText = "video"; break;
 		default: scrollText = "unknown"; break;
@@ -698,7 +688,6 @@ void Renderer::renderInfoPanel()
 
 	textY += lineSpacing;
 
-	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, renderText);
 	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, scrollText);
 
 	textY += lineSpacing;
