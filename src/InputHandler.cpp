@@ -156,6 +156,8 @@ void InputHandler::handleInput(double frameTime)
 
 	translateSpeed *= frameTime;
 	rotateSpeed *= frameTime;
+	scaleSpeed *= frameTime;
+	timeOffset *= frameTime / 33.367; // time offsets have been calibrated for 30 fps
 
 	if (videoWindow->keyIsDown(Qt::Key_Control) && videoWindow->keyIsDown(Qt::Key_1))
 	{
@@ -280,13 +282,13 @@ void InputHandler::handleInput(double frameTime)
 
 	if (videoWindow->keyIsDown(Qt::Key_Q))
 	{
-		mapPanel.userScale *= (1.0 + frameTime * scaleSpeed);
+		mapPanel.userScale *= (1.0 + scaleSpeed);
 		renderer->requestFullClear();
 	}
 
 	if (videoWindow->keyIsDown(Qt::Key_A))
 	{
-		mapPanel.userScale *= (1.0 - frameTime * scaleSpeed);
+		mapPanel.userScale *= (1.0 - scaleSpeed);
 		renderer->requestFullClear();
 	}
 
@@ -320,13 +322,13 @@ void InputHandler::handleInput(double frameTime)
 
 	if (videoWindow->keyIsDown(Qt::Key_R))
 	{
-		videoPanel.userScale *= (1.0 + frameTime * scaleSpeed);
+		videoPanel.userScale *= (1.0 + scaleSpeed);
 		renderer->requestFullClear();
 	}
 
 	if (videoWindow->keyIsDown(Qt::Key_F))
 	{
-		videoPanel.userScale *= (1.0 - frameTime * scaleSpeed);
+		videoPanel.userScale *= (1.0 - scaleSpeed);
 		renderer->requestFullClear();
 	}
 
@@ -344,13 +346,13 @@ void InputHandler::handleInput(double frameTime)
 
 	if (videoWindow->keyIsDown(Qt::Key_Y))
 	{
-		defaultRoute.userScale *= (1.0 + frameTime * scaleSpeed);
+		defaultRoute.userScale *= (1.0 + scaleSpeed);
 		defaultRoute.userScale = std::max(0.001, defaultRoute.userScale);
 	}
 
 	if (videoWindow->keyIsDown(Qt::Key_H))
 	{
-		defaultRoute.userScale *= (1.0 - frameTime * scaleSpeed);
+		defaultRoute.userScale *= (1.0 - scaleSpeed);
 		defaultRoute.userScale = std::max(0.001, defaultRoute.userScale);
 	}
 
