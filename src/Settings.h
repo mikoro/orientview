@@ -95,7 +95,7 @@ namespace OrientView
 			double scale = 1.0;
 			QColor backgroundColor = QColor(0, 50, 0, 255);
 			QString rescaleShader = "default";
-			bool enableClipping = true;
+			bool enableClipping = false;
 			bool enableClearing = true;
 			int frameCountDivisor = 1;
 			int frameDurationDivisor = 1;
