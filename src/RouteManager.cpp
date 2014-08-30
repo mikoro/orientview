@@ -15,17 +15,19 @@ bool RouteManager::initialize(QuickRouteReader* quickRouteReader, SplitsManager*
 {
 	this->renderer = renderer;
 
+	viewMode = settings->routeManager.viewMode;
 	useSmoothSplitTransition = settings->routeManager.useSmoothSplitTransition;
 	smoothSplitTransitionSpeed = settings->routeManager.smoothSplitTransitionSpeed;
 	topBottomMargin = settings->routeManager.topBottomMargin;
 	leftRightMargin = settings->routeManager.leftRightMargin;
 	maximumAutomaticZoom = settings->routeManager.maximumAutomaticZoom;
+	runnerAveragingFactor = settings->routeManager.runnerAveragingFactor;
 	windowWidth = settings->window.width;
 	windowHeight = settings->window.height;
 
-	averageX.setAlpha(averagingFactor / 1000.0);
-	averageY.setAlpha(averagingFactor / 1000.0);
-	averageAngle.setAlpha(averagingFactor / 1000.0);
+	runnerAverageX.setAlpha(runnerAveragingFactor / 1000.0);
+	runnerAverageY.setAlpha(runnerAveragingFactor / 1000.0);
+	runnerAverageAngle.setAlpha(runnerAveragingFactor / 1000.0);
 
 	routes.push_back(Route());
 	Route& defaultRoute = routes.at(0);
@@ -324,57 +326,46 @@ void RouteManager::calculateCurrentSplitTransformation(Route& route, double curr
 {
 	if (viewMode == ViewMode::FixedSplit)
 	{
-		for (int i = 0; i < (int)route.runnerInfo.splits.size() - 1; ++i)
+		int index = -1;
+
+		if (findCurrentSplitTransformationIndex(route, currentTime, index))
 		{
-			double firstSplitOffsetTime = route.runnerInfo.splits.at(i).absoluteTime + route.controlTimeOffset;
-			double secondSplitOffsetTime = route.runnerInfo.splits.at(i + 1).absoluteTime + route.controlTimeOffset;
-			double runnerOffsetTime = currentTime + route.runnerTimeOffset;
-
-			// check if we are inside the time range of two consecutive controls
-			if (runnerOffsetTime >= firstSplitOffsetTime && runnerOffsetTime < secondSplitOffsetTime)
+			if (instantSplitTransitionRequested)
 			{
-				if (i >= (int)route.splitTransformations.size())
-					break;
+				currentSt = route.splitTransformations.at(index);
+				currentSplitTransformationIndex = index;
+				instantSplitTransitionRequested = false;
+			}
+			else if (index != currentSplitTransformationIndex)
+			{
+				if (useSmoothSplitTransition)
+				{
+					previousSt = currentSt;
+					nextSt = route.splitTransformations.at(index);
+					smoothSplitTransitionAlpha = 0.0;
+					smoothSplitTransitionInProgress = true;
 
-				if (instantSplitTransitionRequested)
-				{
-					currentSt = route.splitTransformations.at(i);
-					currentSplitTransformationIndex = i;
-					instantSplitTransitionRequested = false;
-				}
-				else if (i != currentSplitTransformationIndex)
-				{
-					if (useSmoothSplitTransition)
+					double angleDelta = nextSt.angle - previousSt.angle;
+					double absoluteAngleDelta = abs(angleDelta);
+					double finalAngleDelta = angleDelta;
+
+					// always try to rotate as little as possible
+					if (absoluteAngleDelta > 180.0)
 					{
-						previousSt = currentSt;
-						nextSt = route.splitTransformations.at(i);
-						smoothSplitTransitionAlpha = 0.0;
-						smoothSplitTransitionInProgress = true;
-
-						double angleDelta = nextSt.angle - previousSt.angle;
-						double absoluteAngleDelta = abs(angleDelta);
-						double finalAngleDelta = angleDelta;
-
-						// always try to rotate as little as possible
-						if (absoluteAngleDelta > 180.0)
-						{
-							finalAngleDelta = 360.0 - absoluteAngleDelta;
-							finalAngleDelta *= (angleDelta < 0.0) ? 1.0 : -1.0;
-						}
-
-						previousSt.angleDelta = finalAngleDelta;
+						finalAngleDelta = 360.0 - absoluteAngleDelta;
+						finalAngleDelta *= (angleDelta < 0.0) ? 1.0 : -1.0;
 					}
-					else
-						currentSt = route.splitTransformations.at(i);
 
-					currentSplitTransformationIndex = i;
+					previousSt.angleDelta = finalAngleDelta;
 				}
+				else
+					currentSt = route.splitTransformations.at(index);
 
-				break;
+				currentSplitTransformationIndex = index;
 			}
 		}
 
-		if (useSmoothSplitTransition && smoothSplitTransitionInProgress)
+		if (smoothSplitTransitionInProgress)
 		{
 			if (smoothSplitTransitionAlpha > 1.0)
 			{
@@ -395,33 +386,63 @@ void RouteManager::calculateCurrentSplitTransformation(Route& route, double curr
 			}
 		}
 	}
-	else if (viewMode == ViewMode::RunnerCentered)
+	else if (viewMode == ViewMode::RunnerCentered || viewMode == ViewMode::RunnerCenteredFixedOrientation)
 	{
 		RoutePoint rp = getInterpolatedRoutePoint(route, currentTime + route.runnerTimeOffset);
 
-		/*currentSt.x = -rp.position.x();
-		currentSt.y = rp.position.y();
-		currentSt.angle = rp.orientation;*/
+		double x = -rp.position.x();
+		double y = rp.position.y();
+		double angle = rp.orientation;
+
+		if (viewMode == ViewMode::RunnerCenteredFixedOrientation)
+		{
+			int index = -1;
+
+			if (findCurrentSplitTransformationIndex(route, currentTime, index))
+				angle = route.splitTransformations.at(index).angle;
+		}
 
 		if (instantSplitTransitionRequested)
 		{
-			averageX.reset(-rp.position.x());
-			averageY.reset(rp.position.y());
-			averageAngle.reset(rp.orientation);
+			runnerAverageX.reset(x);
+			runnerAverageY.reset(y);
+			runnerAverageAngle.reset(angle);
 
 			instantSplitTransitionRequested = false;
 		}
 		else
 		{
-			averageX.addMeasurement(-rp.position.x(), frameTime);
-			averageY.addMeasurement(rp.position.y(), frameTime);
-			averageAngle.addMeasurement(rp.orientation, frameTime);
+			runnerAverageX.addMeasurement(x, frameTime);
+			runnerAverageY.addMeasurement(y, frameTime);
+			runnerAverageAngle.addMeasurement(angle, frameTime);
 		}
 
-		currentSt.x = averageX.getAverage();
-		currentSt.y = averageY.getAverage();
-		currentSt.angle = averageAngle.getAverage();
+		currentSt.x = runnerAverageX.getAverage();
+		currentSt.y = runnerAverageY.getAverage();
+		currentSt.angle = runnerAverageAngle.getAverage();
 	}
+}
+
+bool RouteManager::findCurrentSplitTransformationIndex(Route& route, double currentTime, int& index)
+{
+	for (int i = 0; i < (int)route.runnerInfo.splits.size() - 1; ++i)
+	{
+		double firstSplitOffsetTime = route.runnerInfo.splits.at(i).absoluteTime + route.controlTimeOffset;
+		double secondSplitOffsetTime = route.runnerInfo.splits.at(i + 1).absoluteTime + route.controlTimeOffset;
+		double runnerOffsetTime = currentTime + route.runnerTimeOffset;
+
+		// check if we are inside the time range of two consecutive controls
+		if (runnerOffsetTime >= firstSplitOffsetTime && runnerOffsetTime < secondSplitOffsetTime)
+		{
+			if (i >= (int)route.splitTransformations.size())
+				return false;
+
+			index = i;
+			return true;
+		}
+	}
+
+	return false;
 }
 
 RoutePoint RouteManager::getInterpolatedRoutePoint(Route& route, double time)

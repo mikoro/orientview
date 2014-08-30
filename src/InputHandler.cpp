@@ -91,12 +91,23 @@ void InputHandler::handleInput(double frameTime)
 	}
 
 	if (videoWindow->keyIsDownOnce(Qt::Key_F6))
-		defaultRoute.showRunner = !defaultRoute.showRunner;
+	{
+		switch (routeManager->getViewMode())
+		{
+			case ViewMode::FixedSplit: routeManager->setViewMode(ViewMode::RunnerCentered); break;
+			case ViewMode::RunnerCentered: routeManager->setViewMode(ViewMode::RunnerCenteredFixedOrientation); break;
+			case ViewMode::RunnerCenteredFixedOrientation: routeManager->setViewMode(ViewMode::FixedSplit); break;
+			default: routeManager->setViewMode(ViewMode::FixedSplit);
+		}
+	}
 
 	if (videoWindow->keyIsDownOnce(Qt::Key_F7))
-		defaultRoute.showControls = !defaultRoute.showControls;
+		defaultRoute.showRunner = !defaultRoute.showRunner;
 
 	if (videoWindow->keyIsDownOnce(Qt::Key_F8))
+		defaultRoute.showControls = !defaultRoute.showControls;
+
+	if (videoWindow->keyIsDownOnce(Qt::Key_F9))
 		videoStabilizer->toggleEnabled();
 
 	if (!videoWindow->keyIsDown(Qt::Key_Control) && videoWindow->keyIsDownOnce(Qt::Key_Space))

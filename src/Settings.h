@@ -73,11 +73,13 @@ namespace OrientView
 
 		struct RouteManager
 		{
+			ViewMode viewMode = ViewMode::FixedSplit;
 			bool useSmoothSplitTransition = true;
 			double smoothSplitTransitionSpeed = 1.0;
 			double topBottomMargin = 30.0;
 			double leftRightMargin = 10.0;
 			double maximumAutomaticZoom = 100.0;
+			double runnerAveragingFactor = 2.0;
 
 		} routeManager;
 

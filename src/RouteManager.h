@@ -19,7 +19,7 @@ namespace OrientView
 	class Settings;
 
 	enum RouteRenderMode { None, Discreet, Highlight, Pace };
-	enum ViewMode { FixedSplit, RunnerCentered };
+	enum ViewMode { FixedSplit, RunnerCentered, RunnerCenteredFixedOrientation };
 
 	struct SplitTransformation
 	{
@@ -114,12 +114,13 @@ namespace OrientView
 		void calculateCurrentRunnerPosition(Route& route, double currentTime);
 		void calculateCurrentSplitTransformation(Route& route, double currentTime, double frameTime);
 
+		bool findCurrentSplitTransformationIndex(Route& route, double currentTime, int& index);
 		RoutePoint getInterpolatedRoutePoint(Route& route, double time);
 		QColor interpolateFromGreenToRed(double greenValue, double redValue, double value);
 
 		Renderer* renderer = nullptr;
 
-		ViewMode viewMode = ViewMode::RunnerCentered;
+		ViewMode viewMode = ViewMode::FixedSplit;
 
 		std::vector<Route> routes;
 
@@ -136,16 +137,14 @@ namespace OrientView
 		double windowWidth = 0.0;
 		double windowHeight = 0.0;
 
-		int currentSplitTransformationIndex = -1;
-
 		SplitTransformation currentSt;
 		SplitTransformation previousSt;
 		SplitTransformation nextSt;
-
-		double averagingFactor = 2.0;
-
-		MovingAverage averageX;
-		MovingAverage averageY;
-		MovingAverage averageAngle;
+		int currentSplitTransformationIndex = -1;
+		
+		MovingAverage runnerAverageX;
+		MovingAverage runnerAverageY;
+		MovingAverage runnerAverageAngle;
+		double runnerAveragingFactor = 2.0;
 	};
 }
