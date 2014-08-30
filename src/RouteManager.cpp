@@ -22,6 +22,7 @@ bool RouteManager::initialize(QuickRouteReader* quickRouteReader, SplitsManager*
 	leftRightMargin = settings->routeManager.leftRightMargin;
 	maximumAutomaticZoom = settings->routeManager.maximumAutomaticZoom;
 	runnerAveragingFactor = settings->routeManager.runnerAveragingFactor;
+	runnerVerticalOffset = settings->routeManager.runnerVerticalOffset;
 	windowWidth = settings->window.width;
 	windowHeight = settings->window.height;
 
@@ -402,6 +403,9 @@ void RouteManager::calculateCurrentSplitTransformation(Route& route, double curr
 				angle = route.splitTransformations.at(index).angle;
 		}
 
+		x -= sin(angle * M_PI / 180.0) * runnerVerticalOffset;
+		y -= cos(angle * M_PI / 180.0) * runnerVerticalOffset;
+		
 		if (instantSplitTransitionRequested)
 		{
 			runnerAverageX.reset(x);

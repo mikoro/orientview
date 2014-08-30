@@ -134,6 +134,7 @@ namespace OrientView
 		double topBottomMargin = 30.0;
 		double leftRightMargin = 10.0;
 		double maximumAutomaticZoom = 100.0;
+		double runnerVerticalOffset = 0.0;
 		double windowWidth = 0.0;
 		double windowHeight = 0.0;
 
@@ -145,6 +146,6 @@ namespace OrientView
 		MovingAverage runnerAverageX;
 		MovingAverage runnerAverageY;
 		MovingAverage runnerAverageAngle;
-		double runnerAveragingFactor = 2.0;
+		double runnerAveragingFactor = 4.0;
 	};
 }

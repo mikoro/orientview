@@ -55,6 +55,7 @@ void Settings::readFromQSettings(QSettings* settings)
 	routeManager.leftRightMargin = settings->value("routeManager/leftRightMargin", defaultSettings.routeManager.leftRightMargin).toDouble();
 	routeManager.maximumAutomaticZoom = settings->value("routeManager/maximumAutomaticZoom", defaultSettings.routeManager.maximumAutomaticZoom).toDouble();
 	routeManager.runnerAveragingFactor = settings->value("routeManager/runnerAveragingFactor", defaultSettings.routeManager.runnerAveragingFactor).toDouble();
+	routeManager.runnerVerticalOffset = settings->value("routeManager/runnerVerticalOffset", defaultSettings.routeManager.runnerVerticalOffset).toDouble();
 
 	video.inputVideoFilePath = settings->value("video/inputVideoFilePath", defaultSettings.video.inputVideoFilePath).toString();
 	video.startTimeOffset = settings->value("video/startTimeOffset", defaultSettings.video.startTimeOffset).toDouble();
@@ -168,6 +169,7 @@ void Settings::writeToQSettings(QSettings* settings)
 	settings->setValue("routeManager/leftRightMargin", routeManager.leftRightMargin);
 	settings->setValue("routeManager/maximumAutomaticZoom", routeManager.maximumAutomaticZoom);
 	settings->setValue("routeManager/runnerAveragingFactor", routeManager.runnerAveragingFactor);
+	settings->setValue("routeManager/runnerVerticalOffset", routeManager.runnerVerticalOffset);
 
 	settings->setValue("video/inputVideoFilePath", video.inputVideoFilePath);
 	settings->setValue("video/startTimeOffset", video.startTimeOffset);
