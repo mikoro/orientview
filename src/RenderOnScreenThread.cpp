@@ -64,9 +64,8 @@ void RenderOnScreenThread::run()
 		{
 			renderer->uploadFrameData(frameData);
 			videoStabilizer->processFrame(frameDataGrayscale);
+			videoDecoderThread->signalFrameRead();
 		}
-
-		videoDecoderThread->signalFrameRead();
 
 		routeManager->update(videoDecoder->getCurrentTime(), frameDuration);
 		inputHandler->handleInput(frameDuration);
