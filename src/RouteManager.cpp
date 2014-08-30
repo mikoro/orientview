@@ -23,6 +23,10 @@ bool RouteManager::initialize(QuickRouteReader* quickRouteReader, SplitsManager*
 	windowWidth = settings->window.width;
 	windowHeight = settings->window.height;
 
+	averageX.setAlpha(averagingFactor / 1000.0);
+	averageY.setAlpha(averagingFactor / 1000.0);
+	averageAngle.setAlpha(averagingFactor / 1000.0);
+
 	routes.push_back(Route());
 	Route& defaultRoute = routes.at(0);
 
@@ -61,7 +65,7 @@ bool RouteManager::initialize(QuickRouteReader* quickRouteReader, SplitsManager*
 
 	if (currentSplitTransformationIndex == -1 && defaultRoute.splitTransformations.size() > 0)
 	{
-		currentSplitTransformation = defaultRoute.splitTransformations.at(0);
+		currentSt = defaultRoute.splitTransformations.at(0);
 		currentSplitTransformationIndex = 0;
 	}
 
@@ -136,6 +140,7 @@ void RouteManager::calculateAlignedRoutePoints(Route& route)
 			alignedRoutePoint.elevation = (1.0 - alpha) * currentRoutePoint.elevation + alpha * nextRoutePoint.elevation;
 			alignedRoutePoint.heartRate = (1.0 - alpha) * currentRoutePoint.heartRate + alpha * nextRoutePoint.heartRate;
 			alignedRoutePoint.pace = (1.0 - alpha) * currentRoutePoint.pace + alpha * nextRoutePoint.pace;
+			alignedRoutePoint.orientation = (1.0 - alpha) * currentRoutePoint.orientation + alpha * nextRoutePoint.orientation;
 
 			alpha += alphaStep;
 
@@ -254,8 +259,7 @@ void RouteManager::calculateSplitTransformations(Route& route)
 			QPointF startToStop = stopRoutePoint.position - startRoutePoint.position; // vector pointing from start to stop
 
 			// rotate towards positive y-axis
-			double angle = atan2(-startToStop.y(), startToStop.x());
-			angle *= (180.0 / M_PI);
+			double angle = atan2(-startToStop.y(), startToStop.x()) * (180.0 / M_PI);
 			angle = 90.0 - angle;
 
 			// offset so that left quadrants rotate cw and right quadrants ccw
@@ -318,75 +322,105 @@ void RouteManager::calculateCurrentRunnerPosition(Route& route, double currentTi
 
 void RouteManager::calculateCurrentSplitTransformation(Route& route, double currentTime, double frameTime)
 {
-	for (int i = 0; i < (int)route.runnerInfo.splits.size() - 1; ++i)
+	if (viewMode == ViewMode::FixedSplit)
 	{
-		double firstSplitOffsetTime = route.runnerInfo.splits.at(i).absoluteTime + route.controlTimeOffset;
-		double secondSplitOffsetTime = route.runnerInfo.splits.at(i + 1).absoluteTime + route.controlTimeOffset;
-		double runnerOffsetTime = currentTime + route.runnerTimeOffset;
-
-		// check if we are inside the time range of two consecutive controls
-		if (runnerOffsetTime >= firstSplitOffsetTime && runnerOffsetTime < secondSplitOffsetTime)
+		for (int i = 0; i < (int)route.runnerInfo.splits.size() - 1; ++i)
 		{
-			if (i >= (int)route.splitTransformations.size())
-				break;
+			double firstSplitOffsetTime = route.runnerInfo.splits.at(i).absoluteTime + route.controlTimeOffset;
+			double secondSplitOffsetTime = route.runnerInfo.splits.at(i + 1).absoluteTime + route.controlTimeOffset;
+			double runnerOffsetTime = currentTime + route.runnerTimeOffset;
 
-			if (instantSplitTransitionRequested)
+			// check if we are inside the time range of two consecutive controls
+			if (runnerOffsetTime >= firstSplitOffsetTime && runnerOffsetTime < secondSplitOffsetTime)
 			{
-				currentSplitTransformation = route.splitTransformations.at(i);
-				currentSplitTransformationIndex = i;
-				instantSplitTransitionRequested = false;
-			}
-			else if (i != currentSplitTransformationIndex)
-			{
-				if (useSmoothSplitTransition)
+				if (i >= (int)route.splitTransformations.size())
+					break;
+
+				if (instantSplitTransitionRequested)
 				{
-					previousSplitTransformation = currentSplitTransformation;
-					nextSplitTransformation = route.splitTransformations.at(i);
-					smoothSplitTransitionAlpha = 0.0;
-					smoothSplitTransitionInProgress = true;
-
-					double angleDelta = nextSplitTransformation.angle - previousSplitTransformation.angle;
-					double absoluteAngleDelta = abs(angleDelta);
-					double finalAngleDelta = angleDelta;
-
-					// always try to rotate as little as possible
-					if (absoluteAngleDelta > 180.0)
-					{
-						finalAngleDelta = 360.0 - absoluteAngleDelta;
-						finalAngleDelta *= (angleDelta < 0.0) ? 1.0 : -1.0;
-					}
-
-					previousSplitTransformation.angleDelta = finalAngleDelta;
+					currentSt = route.splitTransformations.at(i);
+					currentSplitTransformationIndex = i;
+					instantSplitTransitionRequested = false;
 				}
-				else
-					currentSplitTransformation = route.splitTransformations.at(i);
+				else if (i != currentSplitTransformationIndex)
+				{
+					if (useSmoothSplitTransition)
+					{
+						previousSt = currentSt;
+						nextSt = route.splitTransformations.at(i);
+						smoothSplitTransitionAlpha = 0.0;
+						smoothSplitTransitionInProgress = true;
 
-				currentSplitTransformationIndex = i;
+						double angleDelta = nextSt.angle - previousSt.angle;
+						double absoluteAngleDelta = abs(angleDelta);
+						double finalAngleDelta = angleDelta;
+
+						// always try to rotate as little as possible
+						if (absoluteAngleDelta > 180.0)
+						{
+							finalAngleDelta = 360.0 - absoluteAngleDelta;
+							finalAngleDelta *= (angleDelta < 0.0) ? 1.0 : -1.0;
+						}
+
+						previousSt.angleDelta = finalAngleDelta;
+					}
+					else
+						currentSt = route.splitTransformations.at(i);
+
+					currentSplitTransformationIndex = i;
+				}
+
+				break;
 			}
+		}
 
-			break;
+		if (useSmoothSplitTransition && smoothSplitTransitionInProgress)
+		{
+			if (smoothSplitTransitionAlpha > 1.0)
+			{
+				currentSt = nextSt;
+				smoothSplitTransitionInProgress = false;
+			}
+			else
+			{
+				double alpha = smoothSplitTransitionAlpha;
+				alpha = alpha * alpha * alpha * (alpha * (alpha * 6 - 15) + 10); // smootherstep
+
+				currentSt.x = (1.0 - alpha) * previousSt.x + alpha * nextSt.x;
+				currentSt.y = (1.0 - alpha) * previousSt.y + alpha * nextSt.y;
+				currentSt.angle = previousSt.angle + alpha * previousSt.angleDelta;
+				currentSt.scale = (1.0 - alpha) * previousSt.scale + alpha * nextSt.scale;
+
+				smoothSplitTransitionAlpha += smoothSplitTransitionSpeed * frameTime / 1000.0;
+			}
 		}
 	}
-
-	if (useSmoothSplitTransition && smoothSplitTransitionInProgress)
+	else if (viewMode == ViewMode::RunnerCentered)
 	{
-		if (smoothSplitTransitionAlpha > 1.0)
+		RoutePoint rp = getInterpolatedRoutePoint(route, currentTime + route.runnerTimeOffset);
+
+		/*currentSt.x = -rp.position.x();
+		currentSt.y = rp.position.y();
+		currentSt.angle = rp.orientation;*/
+
+		if (instantSplitTransitionRequested)
 		{
-			currentSplitTransformation = nextSplitTransformation;
-			smoothSplitTransitionInProgress = false;
+			averageX.reset(-rp.position.x());
+			averageY.reset(rp.position.y());
+			averageAngle.reset(rp.orientation);
+
+			instantSplitTransitionRequested = false;
 		}
 		else
 		{
-			double alpha = smoothSplitTransitionAlpha;
-			alpha = alpha * alpha * alpha * (alpha * (alpha * 6 - 15) + 10); // smootherstep
-
-			currentSplitTransformation.x = (1.0 - alpha) * previousSplitTransformation.x + alpha * nextSplitTransformation.x;
-			currentSplitTransformation.y = (1.0 - alpha) * previousSplitTransformation.y + alpha * nextSplitTransformation.y;
-			currentSplitTransformation.angle = previousSplitTransformation.angle + alpha * previousSplitTransformation.angleDelta;
-			currentSplitTransformation.scale = (1.0 - alpha) * previousSplitTransformation.scale + alpha * nextSplitTransformation.scale;
-
-			smoothSplitTransitionAlpha += smoothSplitTransitionSpeed * frameTime / 1000.0;
+			averageX.addMeasurement(-rp.position.x(), frameTime);
+			averageY.addMeasurement(rp.position.y(), frameTime);
+			averageAngle.addMeasurement(rp.orientation, frameTime);
 		}
+
+		currentSt.x = averageX.getAverage();
+		currentSt.y = averageY.getAverage();
+		currentSt.angle = averageAngle.getAverage();
 	}
 }
 
@@ -410,18 +444,19 @@ RoutePoint RouteManager::getInterpolatedRoutePoint(Route& route, double time)
 		return route.alignedRoutePoints.at(firstIndex);
 	else
 	{
-		RoutePoint firstRoutePoint = route.alignedRoutePoints.at(firstIndex);
-		RoutePoint secondRoutePoint = route.alignedRoutePoints.at(secondIndex);
-		RoutePoint interpolatedRoutePoint = firstRoutePoint;
+		RoutePoint firstRp = route.alignedRoutePoints.at(firstIndex);
+		RoutePoint secondRp = route.alignedRoutePoints.at(secondIndex);
+		RoutePoint interpolatedRp = firstRp;
 
-		interpolatedRoutePoint.time = time;
-		interpolatedRoutePoint.position = (1.0 - alpha) * firstRoutePoint.position + alpha * secondRoutePoint.position;
-		interpolatedRoutePoint.elevation = (1.0 - alpha) * firstRoutePoint.elevation + alpha * secondRoutePoint.elevation;
-		interpolatedRoutePoint.heartRate = (1.0 - alpha) * firstRoutePoint.heartRate + alpha * secondRoutePoint.heartRate;
-		interpolatedRoutePoint.pace = (1.0 - alpha) * firstRoutePoint.pace + alpha * secondRoutePoint.pace;
-		interpolatedRoutePoint.color = interpolateFromGreenToRed(route.highPace, route.lowPace, interpolatedRoutePoint.pace);
+		interpolatedRp.time = time;
+		interpolatedRp.position = (1.0 - alpha) * firstRp.position + alpha * secondRp.position;
+		interpolatedRp.elevation = (1.0 - alpha) * firstRp.elevation + alpha * secondRp.elevation;
+		interpolatedRp.heartRate = (1.0 - alpha) * firstRp.heartRate + alpha * secondRp.heartRate;
+		interpolatedRp.pace = (1.0 - alpha) * firstRp.pace + alpha * secondRp.pace;
+		interpolatedRp.orientation = (1.0 - alpha) * firstRp.orientation + alpha * secondRp.orientation;
+		interpolatedRp.color = interpolateFromGreenToRed(route.highPace, route.lowPace, interpolatedRp.pace);
 
-		return interpolatedRoutePoint;
+		return interpolatedRp;
 	}
 }
 
@@ -457,22 +492,33 @@ void RouteManager::windowResized(double newWidth, double newHeight)
 
 double RouteManager::getX() const
 {
-	return currentSplitTransformation.x;
+	return currentSt.x;
 }
 
 double RouteManager::getY() const
 {
-	return currentSplitTransformation.y;
+	return currentSt.y;
 }
 
 double RouteManager::getScale() const
 {
-	return currentSplitTransformation.scale;
+	return currentSt.scale;
 }
 
 double RouteManager::getAngle() const
 {
-	return currentSplitTransformation.angle;
+	return currentSt.angle;
+}
+
+ViewMode RouteManager::getViewMode() const
+{
+	return viewMode;
+}
+
+void RouteManager::setViewMode(ViewMode value)
+{
+	viewMode = value;
+	instantSplitTransitionRequested = true;
 }
 
 Route& RouteManager::getDefaultRoute()

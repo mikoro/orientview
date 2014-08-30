@@ -285,9 +285,9 @@ void VideoStabilizer::reset()
 	cumulativeY = 0.0;
 	cumulativeAngle = 0.0;
 
-	cumulativeXAverage.reset();
-	cumulativeYAverage.reset();
-	cumulativeAngleAverage.reset();
+	cumulativeXAverage.reset(0.0);
+	cumulativeYAverage.reset(0.0);
+	cumulativeAngleAverage.reset(0.0);
 
 	normalizedFramePosition = FramePosition();
 	previousTransformation = cv::Mat::eye(2, 3, CV_64F);

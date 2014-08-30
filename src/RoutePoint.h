@@ -18,6 +18,7 @@ namespace OrientView
 		double elevation = 0.0;		// Elevation in meters.
 		double heartRate = 0.0;		// Heart rate bpm.
 		double pace = 0.0;			// Pace in min / km.
+		double orientation = 0.0;	// Orientation in degrees (continuous, not compass).
 		QColor color;				// Color representing the pace.
 	};
 }

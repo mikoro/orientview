@@ -10,6 +10,7 @@
 
 #include "RoutePoint.h"
 #include "SplitsManager.h"
+#include "MovingAverage.h"
 
 namespace OrientView
 {
@@ -18,6 +19,7 @@ namespace OrientView
 	class Settings;
 
 	enum RouteRenderMode { None, Discreet, Highlight, Pace };
+	enum ViewMode { FixedSplit, RunnerCentered };
 
 	struct SplitTransformation
 	{
@@ -90,10 +92,15 @@ namespace OrientView
 		void requestFullUpdate();
 		void requestInstantTransition();
 		void windowResized(double newWidth, double newHeight);
+
 		double getX() const;
 		double getY() const;
 		double getScale() const;
 		double getAngle() const;
+
+		ViewMode getViewMode() const;
+		void setViewMode(ViewMode value);
+
 		Route& getDefaultRoute();
 
 	private:
@@ -112,6 +119,8 @@ namespace OrientView
 
 		Renderer* renderer = nullptr;
 
+		ViewMode viewMode = ViewMode::RunnerCentered;
+
 		std::vector<Route> routes;
 
 		bool fullUpdateRequested = true;
@@ -129,8 +138,14 @@ namespace OrientView
 
 		int currentSplitTransformationIndex = -1;
 
-		SplitTransformation currentSplitTransformation;
-		SplitTransformation previousSplitTransformation;
-		SplitTransformation nextSplitTransformation;
+		SplitTransformation currentSt;
+		SplitTransformation previousSt;
+		SplitTransformation nextSt;
+
+		double averagingFactor = 2.0;
+
+		MovingAverage averageX;
+		MovingAverage averageY;
+		MovingAverage averageAngle;
 	};
 }
