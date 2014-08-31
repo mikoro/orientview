@@ -13,8 +13,9 @@ namespace OrientView
 
 		void setAlpha(double value);
 		void addMeasurement(double value);
+		void addMeasurement(double value, double frameTime);
 		double getAverage() const;
-		void reset();
+		void reset(double value);
 
 	private:
 

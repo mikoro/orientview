@@ -33,7 +33,7 @@ namespace OrientView
 		int encodeFrame();
 		void close();
 
-		double getLastEncodeTime();
+		double getEncodeDuration();
 
 	private:
 
@@ -45,7 +45,7 @@ namespace OrientView
 		Mp4File* mp4File = nullptr;
 		int64_t frameNumber = 0;
 
-		QElapsedTimer encodeTimer;
-		double lastEncodeTime = 0.0;
+		QElapsedTimer encodeDurationTimer;
+		double encodeDuration = 0.0;
 	};
 }

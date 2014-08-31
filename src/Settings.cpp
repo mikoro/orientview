@@ -48,11 +48,14 @@ void Settings::readFromQSettings(QSettings* settings)
 	route.lowPace = settings->value("route/lowPace", defaultSettings.route.lowPace).toDouble();
 	route.highPace = settings->value("route/highPace", defaultSettings.route.highPace).toDouble();
 	
+	routeManager.viewMode = (ViewMode)settings->value("routeManager/viewMode", defaultSettings.routeManager.viewMode).toInt();
 	routeManager.useSmoothSplitTransition = settings->value("routeManager/useSmoothSplitTransition", defaultSettings.routeManager.useSmoothSplitTransition).toBool();
 	routeManager.smoothSplitTransitionSpeed = settings->value("routeManager/smoothSplitTransitionSpeed", defaultSettings.routeManager.smoothSplitTransitionSpeed).toDouble();
 	routeManager.topBottomMargin = settings->value("routeManager/topBottomMargin", defaultSettings.routeManager.topBottomMargin).toDouble();
 	routeManager.leftRightMargin = settings->value("routeManager/leftRightMargin", defaultSettings.routeManager.leftRightMargin).toDouble();
 	routeManager.maximumAutomaticZoom = settings->value("routeManager/maximumAutomaticZoom", defaultSettings.routeManager.maximumAutomaticZoom).toDouble();
+	routeManager.runnerAveragingFactor = settings->value("routeManager/runnerAveragingFactor", defaultSettings.routeManager.runnerAveragingFactor).toDouble();
+	routeManager.runnerVerticalOffset = settings->value("routeManager/runnerVerticalOffset", defaultSettings.routeManager.runnerVerticalOffset).toDouble();
 
 	video.inputVideoFilePath = settings->value("video/inputVideoFilePath", defaultSettings.video.inputVideoFilePath).toString();
 	video.startTimeOffset = settings->value("video/startTimeOffset", defaultSettings.video.startTimeOffset).toDouble();
@@ -159,11 +162,14 @@ void Settings::writeToQSettings(QSettings* settings)
 	settings->setValue("route/lowPace", route.lowPace);
 	settings->setValue("route/highPace", route.highPace);
 
+	settings->setValue("routeManager/viewMode", routeManager.viewMode);
 	settings->setValue("routeManager/useSmoothSplitTransition", routeManager.useSmoothSplitTransition);
 	settings->setValue("routeManager/smoothSplitTransitionSpeed", routeManager.smoothSplitTransitionSpeed);
 	settings->setValue("routeManager/topBottomMargin", routeManager.topBottomMargin);
 	settings->setValue("routeManager/leftRightMargin", routeManager.leftRightMargin);
 	settings->setValue("routeManager/maximumAutomaticZoom", routeManager.maximumAutomaticZoom);
+	settings->setValue("routeManager/runnerAveragingFactor", routeManager.runnerAveragingFactor);
+	settings->setValue("routeManager/runnerVerticalOffset", routeManager.runnerVerticalOffset);
 
 	settings->setValue("video/inputVideoFilePath", video.inputVideoFilePath);
 	settings->setValue("video/startTimeOffset", video.startTimeOffset);

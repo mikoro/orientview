@@ -376,6 +376,40 @@ void QuickRouteReader::processRoutePoints()
 		if (distanceToPrevious > 0.0)
 			routePoints.at(i).pace = (timeToPrevious / 60.0) / (distanceToPrevious / 1000.0);
 	}
+
+	double currentAngle = 0.0;
+
+	// calculate orientations
+	for (size_t i = 0; i < routePoints.size() - 1; ++i)
+	{
+		RoutePoint& rp1 = routePoints.at(i);
+		RoutePoint& rp2 = routePoints.at(i + 1);
+
+		QPointF firstToSecond = rp2.position - rp1.position;
+
+		double angle = atan2(-firstToSecond.y(), firstToSecond.x()) * (180.0 / M_PI);
+		angle = 90.0 - angle;
+
+		if (angle > 180.0)
+			angle = angle - 360.0;
+
+		double angleDelta = angle - currentAngle;
+		double finalAngleDelta = angleDelta;
+
+		while (abs(finalAngleDelta) > 360.0)
+			finalAngleDelta += (finalAngleDelta > 0.0) ? -360.0 : 360.0;
+
+		if (abs(finalAngleDelta) > 180.0)
+		{
+			finalAngleDelta = 360.0 - abs(finalAngleDelta);
+			finalAngleDelta *= (angleDelta < 0.0) ? 1.0 : -1.0;
+		}
+
+		currentAngle += finalAngleDelta;
+		rp1.orientation = currentAngle;
+	}
+
+	routePoints.back().orientation = currentAngle;
 }
 
 QPointF QuickRouteReader::projectCoordinate(const QPointF& coordinate, const QPointF& projectionOriginCoordinate)

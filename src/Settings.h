@@ -73,11 +73,14 @@ namespace OrientView
 
 		struct RouteManager
 		{
+			ViewMode viewMode = ViewMode::FixedSplit;
 			bool useSmoothSplitTransition = true;
 			double smoothSplitTransitionSpeed = 1.0;
 			double topBottomMargin = 30.0;
 			double leftRightMargin = 10.0;
 			double maximumAutomaticZoom = 100.0;
+			double runnerAveragingFactor = 4.0;
+			double runnerVerticalOffset = 0.0;
 
 		} routeManager;
 
@@ -92,7 +95,7 @@ namespace OrientView
 			double scale = 1.0;
 			QColor backgroundColor = QColor(0, 50, 0, 255);
 			QString rescaleShader = "default";
-			bool enableClipping = true;
+			bool enableClipping = false;
 			bool enableClearing = true;
 			int frameCountDivisor = 1;
 			int frameDurationDivisor = 1;
@@ -127,12 +130,12 @@ namespace OrientView
 			double averagingFactor = 0.1;
 			double dampingFactor = 1.0;
 			double maxDisplacementFactor = 0.5;
-			double maxAngle = 5.0;
+			double maxAngle = 15.0;
 			int frameSizeDivisor = 8;
 			QString passOneOutputFilePath = "";
 			QString passTwoInputFilePath = "";
 			QString passTwoOutputFilePath = "";
-			int smoothingRadius = 30;
+			int smoothingRadius = 15;
 
 		} stabilizer;
 

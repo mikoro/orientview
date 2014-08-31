@@ -16,12 +16,18 @@ void MovingAverage::addMeasurement(double value)
 	previousAverageValue = averageValue;
 }
 
+void MovingAverage::addMeasurement(double value, double frameTime)
+{
+	averageValue = (alpha * frameTime) * value + (1.0 - (alpha * frameTime)) * previousAverageValue;
+	previousAverageValue = averageValue;
+}
+
 double MovingAverage::getAverage() const
 {
 	return averageValue;
 }
 
-void MovingAverage::reset()
+void MovingAverage::reset(double value)
 {
-	averageValue = previousAverageValue = 0.0;
+	averageValue = previousAverageValue = value;
 }
