@@ -41,14 +41,15 @@ namespace OrientView
 
 	public slots:
 
-		void frameProcessed(int frameNumber, int frameSize);
+		void frameProcessed(int frameNumber, int frameSize, double currentTime);
 		void encodingFinished();
 
 	private slots:
 
-		void on_pushButtonOpenVideo_clicked();
+		void on_pushButtonPauseContinue_clicked();
 		void on_pushButtonStopClose_clicked();
-
+		void on_pushButtonOpen_clicked();
+		
 	private:
 
 		bool event(QEvent* event);
@@ -57,6 +58,8 @@ namespace OrientView
 		VideoEncoderThread* videoEncoderThread = nullptr;
 
 		QTime startTime;
+		QTime pauseTime;
+		int totalPauseTime = 0;
 
 		QOffscreenSurface* surface = nullptr;
 		QOpenGLContext* context = nullptr;

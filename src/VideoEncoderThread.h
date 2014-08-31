@@ -20,9 +20,12 @@ namespace OrientView
 
 		void initialize(VideoDecoder* videoDecoder, VideoEncoder* videoEncoder, RenderOffScreenThread* renderOffScreenThread);
 
+		void togglePaused();
+		bool getIsPaused() const;
+
 	signals:
 
-		void frameProcessed(int frameNumber, int frameSize);
+		void frameProcessed(int frameNumber, int frameSize, double currentTime);
 		void encodingFinished();
 
 	protected:
@@ -34,5 +37,7 @@ namespace OrientView
 		VideoDecoder* videoDecoder = nullptr;
 		VideoEncoder* videoEncoder = nullptr;
 		RenderOffScreenThread* renderOffScreenThread = nullptr;
+
+		bool isPaused = false;
 	};
 }

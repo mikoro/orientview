@@ -41,6 +41,7 @@ namespace OrientView
 		int64_t getFrameRateNum() const;
 		int64_t getFrameRateDen() const;
 		double getFrameDuration() const;
+		double getTotalDuration() const;
 
 	private:
 
@@ -75,6 +76,7 @@ namespace OrientView
 		int64_t previousFrameTimestamp = 0; // video stream time base units
 
 		double currentTimeInSeconds = 0.0;
+		double totalDurationInSeconds = 0.0;
 
 		bool isInitialized = false;
 		bool isFinished = true;

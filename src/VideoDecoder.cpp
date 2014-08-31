@@ -158,6 +158,8 @@ bool VideoDecoder::initialize(Settings* settings)
 	frameRateDen = (int64_t)videoStream->r_frame_rate.den;
 	frameDuration = frameRateDen * 1000000 / frameRateNum;
 
+	totalDurationInSeconds = ((double)videoStream->time_base.num / videoStream->time_base.den) * videoStream->duration;
+
 	isInitialized = true;
 	isFinished = false;
 
@@ -410,4 +412,9 @@ int64_t VideoDecoder::getFrameRateDen() const
 double VideoDecoder::getFrameDuration() const
 {
 	return (double)frameDuration / 1000.0;
+}
+
+double VideoDecoder::getTotalDuration() const
+{
+	return totalDurationInSeconds;
 }

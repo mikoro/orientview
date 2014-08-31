@@ -16,19 +16,35 @@ void VideoEncoderThread::initialize(VideoDecoder* videoDecoder, VideoEncoder* vi
 	this->renderOffScreenThread = renderOffScreenThread;
 }
 
+void VideoEncoderThread::togglePaused()
+{
+	isPaused = !isPaused;
+}
+
+bool VideoEncoderThread::getIsPaused() const
+{
+	return isPaused;
+}
+
 void VideoEncoderThread::run()
 {
 	FrameData renderedFrameData;
 
 	while (!isInterruptionRequested())
 	{
+		if (isPaused)
+		{
+			QThread::msleep(100);
+			continue;
+		}
+
 		if (renderOffScreenThread->tryGetNextFrame(renderedFrameData, 100))
 		{
 			videoEncoder->readFrameData(renderedFrameData);
 			renderOffScreenThread->signalFrameRead();
 			int frameSize = videoEncoder->encodeFrame();
 
-			emit frameProcessed(renderedFrameData.cumulativeNumber, frameSize);
+			emit frameProcessed(renderedFrameData.cumulativeNumber, frameSize, videoDecoder->getCurrentTime());
 		}
 		else if (videoDecoder->getIsFinished())
 			break;
