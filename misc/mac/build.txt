@@ -1,8 +1,0 @@
-* All the libraries other than Qt should be compiled as shared and installed to the system.
-* It seems that it is easier to make things work by compiling Qt statically.
-* Download the Qt source package and:
-
-./configure -static -release -nomake examples -nomake tests -skip qtwebkit -skip qtwebkit-examples -opensource -confirm-license
-sudo make -j4 install
-
-* Run qmake and then make. Then run macdeployqt to copy needed shared libraries. Some symbolic links probably need to be created to make it find everything.
