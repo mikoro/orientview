@@ -1,7 +1,7 @@
 # Maintainer: Mikko Ronkainen <firstname@mikkoronkainen.com>
 
 pkgname=orientview
-pkgver=1.0.0
+pkgver=1.1.0
 pkgrel=3
 pkgdesc="Orienteering video and map analysis"
 arch=("i686" "x86_64")

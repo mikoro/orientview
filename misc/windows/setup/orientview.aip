@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<DOCUMENT Type="Advanced Installer" CreateVersion="11.4" version="11.4" Modules="simple" RootPath="." Language="en" Id="{37B97301-1F3A-44A0-9661-545704D05415}">
+<DOCUMENT Type="Advanced Installer" CreateVersion="11.4" version="11.4.1" Modules="simple" RootPath="." Language="en" Id="{37B97301-1F3A-44A0-9661-545704D05415}">
   <COMPONENT cid="caphyon.advinst.msicomp.MsiPropsComponent">
     <ROW Property="AI_BITMAP_DISPLAY_MODE" Value="0"/>
     <ROW Property="ALLUSERS" Value="1"/>
@@ -11,10 +11,10 @@
     <ROW Property="ARPURLUPDATEINFO" Value="https://github.com/mikoro/orientview"/>
     <ROW Property="MSIFASTINSTALL" MultiBuildValue="DefaultBuild:1"/>
     <ROW Property="Manufacturer" Value="Mikko Ronkainen"/>
-    <ROW Property="ProductCode" Value="1033:{33CBC450-1257-4DBB-A69B-F83C94E047E5} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{3B285AE7-5D58-498F-A01F-42330B9B6828} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="OrientView"/>
-    <ROW Property="ProductVersion" Value="1.0.0" Type="32"/>
+    <ROW Property="ProductVersion" Value="1.1.0" Type="32"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
     <ROW Property="UpgradeCode" Value="{4DD74A19-E5F6-4CF8-9EBB-E63D4107985F}"/>
     <ROW Property="WindowsType9X" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>
