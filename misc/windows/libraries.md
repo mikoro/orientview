@@ -1,4 +1,4 @@
-# Compiling external libraries for Windows
+# Compiling external libraries on Windows
 
 ## Prerequisites
 
@@ -24,6 +24,7 @@
 
 * Environment 1
 * `git clone git://source.ffmpeg.org/ffmpeg.git`
+* `git checkout tags/n2.3.3`
 * `./configure --toolchain=icl --prefix=./install --enable-gpl --disable-static --enable-shared --disable-programs --disable-doc`
 * `make install`
 
@@ -31,6 +32,7 @@
 
 * Environment 1
 * `git clone git://git.videolan.org/x264.git`
+* `git checkout stable`
 * `./configure --prefix=./install --disable-cli --enable-shared --enable-win32thread --disable-interlaced --bit-depth=8 --chroma-format=420`
 * `make install`
 
@@ -40,7 +42,7 @@
 * `git clone https://github.com/l-smash/l-smash.git`
 * `./configure --prefix=./install --disable-static --enable-shared --extra-cflags="-m64" --extra-ldflags="-m64 -static-libgcc -static-libstdc++"`
 * `make`
-* Run the link command again (gcc -shared...) and modify the *Wl* flag to following: `-Wl,--output-def,liblsmash.def,--out-implib,liblsmash.a`
+* Run the link command again (gcc -shared...) after modifying the *Wl* flag to following: `-Wl,--output-def,liblsmash.def,--out-implib,liblsmash.a`
 * Open CMD in the l-smash directory and run: `"C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\vcvarsall.bat" amd64`
 * `lib /machine:x64 /def:liblsmash.def`
 * `make install`
@@ -48,6 +50,7 @@
 ## OpenCV
 
 * `git clone https://github.com/Itseez/opencv.git`
+* `git checkout tags/2.4.9`
 * Open CMake GUI, select opencv directory, set binary directory to opencv/build
 * Configure -> yes -> vs 2013 win64 -> native
 * Change (at least): no docs, no tests, no debug info, no static crt, no perf tests, no openexr
