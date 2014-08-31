@@ -37,9 +37,9 @@ namespace OrientView
 
 		int getFrameWidth() const;
 		int getFrameHeight() const;
-		int getTotalFrameCount() const;
-		int getFrameRateNum() const;
-		int getFrameRateDen() const;
+		int64_t getTotalFrameCount() const;
+		int64_t getFrameRateNum() const;
+		int64_t getFrameRateDen() const;
 		double getFrameDuration() const;
 
 	private:

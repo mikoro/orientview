@@ -154,8 +154,8 @@ bool VideoDecoder::initialize(Settings* settings)
 
 	totalFrameCount = videoStream->nb_frames / frameCountDivisor;
 
-	frameRateNum = (int64_t)videoStream->avg_frame_rate.num / (int64_t)frameCountDivisor * (int64_t)frameDurationDivisor;
-	frameRateDen = (int64_t)videoStream->avg_frame_rate.den;
+	frameRateNum = (int64_t)videoStream->r_frame_rate.num / frameCountDivisor * frameDurationDivisor;
+	frameRateDen = (int64_t)videoStream->r_frame_rate.den;
 	frameDuration = frameRateDen * 1000000 / frameRateNum;
 
 	isInitialized = true;
@@ -392,17 +392,17 @@ int VideoDecoder::getFrameHeight() const
 	return frameHeight;
 }
 
-int VideoDecoder::getTotalFrameCount() const
+int64_t VideoDecoder::getTotalFrameCount() const
 {
 	return totalFrameCount;
 }
 
-int VideoDecoder::getFrameRateNum() const
+int64_t VideoDecoder::getFrameRateNum() const
 {
 	return frameRateNum;
 }
 
-int VideoDecoder::getFrameRateDen() const
+int64_t VideoDecoder::getFrameRateDen() const
 {
 	return frameRateDen;
 }
@@ -411,4 +411,3 @@ double VideoDecoder::getFrameDuration() const
 {
 	return (double)frameDuration / 1000.0;
 }
-
