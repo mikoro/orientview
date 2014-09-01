@@ -19,7 +19,7 @@ Download the latest version:
 | [OrientView-1.1.0-Setup.msi](https://github.com/mikoro/orientview/releases/download/v1.1.0/OrientView-1.1.0-Setup.msi) | [OrientView-1.1.0-mac.zip](https://github.com/mikoro/orientview/releases/download/v1.1.0/OrientView-1.1.0-mac.zip) | [Arch Linux AUR](https://aur.archlinux.org/packages/orientview/) |
 | [OrientView-1.1.0-win.zip](https://github.com/mikoro/orientview/releases/download/v1.1.0/OrientView-1.1.0-win.zip)     | &nbsp;                                                                                                             | [Build instructions](#linux_build)                               |
 
-For testing out the program, you can also [download test data](https://mega.co.nz/#F!nM1gHbZJ!pvFqf3UOrHrmMyuUTlMSrg) ([mirror](http://orientview-test.s3-website-us-east-1.amazonaws.com/)).
+For testing out the program, you can also [download test data](https://mega.co.nz/#!2c1HjIgR!Ncq7OezFAh9h3uDetVioWrryyf4VYS03lavvnYjGWHM) ([mirror](https://s3.amazonaws.com/orientview-testdata/orientview-testdata.zip)).
 
 **Note:** You will need a pretty recent GPU (less than four years old) with up-to-date graphics drivers.
 
