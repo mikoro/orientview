@@ -19,7 +19,6 @@ setup/
 *.tar.gz
 *.tgz
 *.xz
-*.html
 orientview
 Makefile*
 .directory
