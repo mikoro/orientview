@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>406</width>
-    <height>224</height>
+    <width>473</width>
+    <height>272</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -61,7 +61,7 @@
       <widget class="QGroupBox" name="groupBox">
        <property name="minimumSize">
         <size>
-         <width>190</width>
+         <width>0</width>
          <height>0</height>
         </size>
        </property>
@@ -71,6 +71,12 @@
        <layout class="QFormLayout" name="formLayout">
         <property name="fieldGrowthPolicy">
          <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+        </property>
+        <property name="labelAlignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+        <property name="formAlignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
         </property>
         <property name="horizontalSpacing">
          <number>12</number>
@@ -272,7 +278,7 @@
       <widget class="QGroupBox" name="groupBox_2">
        <property name="minimumSize">
         <size>
-         <width>190</width>
+         <width>0</width>
          <height>0</height>
         </size>
        </property>
@@ -280,6 +286,15 @@
         <string>Frames</string>
        </property>
        <layout class="QFormLayout" name="formLayout_2">
+        <property name="fieldGrowthPolicy">
+         <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+        </property>
+        <property name="labelAlignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+        <property name="formAlignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+        </property>
         <property name="horizontalSpacing">
          <number>12</number>
         </property>
