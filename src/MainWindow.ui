@@ -4091,6 +4091,7 @@
    <addaction name="actionPlayVideo"/>
    <addaction name="actionEncodeVideo"/>
    <addaction name="separator"/>
+   <addaction name="actionHelp"/>
    <addaction name="actionExit"/>
   </widget>
   <action name="actionLoadSettings">
@@ -4163,6 +4164,18 @@
    </property>
    <property name="toolTip">
     <string>Default settings</string>
+   </property>
+  </action>
+  <action name="actionHelp">
+   <property name="icon">
+    <iconset resource="OrientView.qrc">
+     <normaloff>:/icons/misc/icons/help.svg</normaloff>:/icons/misc/icons/help.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Help</string>
+   </property>
+   <property name="toolTip">
+    <string>Help</string>
    </property>
   </action>
  </widget>

@@ -55,6 +55,7 @@ namespace OrientView
 		void on_actionDefaultSettings_triggered();
 		void on_actionPlayVideo_triggered();
 		void on_actionEncodeVideo_triggered();
+		void on_actionHelp_triggered();
 		void on_actionExit_triggered();
 
 		void on_pushButtonBrowseMapImageFile_clicked();
