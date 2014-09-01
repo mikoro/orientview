@@ -48,6 +48,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	ui->treeViewLog->setModel(logDataModel);
 
 	ui->tabWidgetMain->setCurrentIndex(0);
+
+	ui->comboBoxRouteManagerViewMode->view()->setMinimumSize(200, 0);
 }
 
 MainWindow::~MainWindow()
