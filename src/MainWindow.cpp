@@ -35,7 +35,7 @@ using namespace OrientView;
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
 	ui->setupUi(this);
-	resize(600, 500);
+	resize(700, 500);
 
 	logDataModel = new QStandardItemModel(0, 3);
 	settings = new Settings();
@@ -617,10 +617,32 @@ void MainWindow::on_pushButtonPickRouteHighlightColor_clicked()
 void MainWindow::on_pushButtonPickRouteRunnerColor_clicked()
 {
 	QColorDialog colorDialog;
-	QColor resultColor = colorDialog.getColor(settings->route.runnerColor, this, "Pick route runner color", QColorDialog::ColorDialogOption::ShowAlphaChannel);
+	QColor resultColor = colorDialog.getColor(settings->route.runnerColor, this, "Pick runner color", QColorDialog::ColorDialogOption::ShowAlphaChannel);
 
 	if (resultColor.isValid())
 		settings->route.runnerColor = resultColor;
+
+	settings->writeToUI(ui);
+}
+
+void MainWindow::on_pushButtonPickRouteRunnerBorderColor_clicked()
+{
+	QColorDialog colorDialog;
+	QColor resultColor = colorDialog.getColor(settings->route.runnerBorderColor, this, "Pick runner border color", QColorDialog::ColorDialogOption::ShowAlphaChannel);
+
+	if (resultColor.isValid())
+		settings->route.runnerBorderColor = resultColor;
+
+	settings->writeToUI(ui);
+}
+
+void MainWindow::on_pushButtonPickRouteControlBorderColor_clicked()
+{
+	QColorDialog colorDialog;
+	QColor resultColor = colorDialog.getColor(settings->route.controlBorderColor, this, "Pick control border color", QColorDialog::ColorDialogOption::ShowAlphaChannel);
+
+	if (resultColor.isValid())
+		settings->route.controlBorderColor = resultColor;
 
 	settings->writeToUI(ui);
 }

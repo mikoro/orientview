@@ -19,7 +19,7 @@ namespace OrientView
 	class Settings;
 
 	enum RouteRenderMode { None, Discreet, Highlight, Pace };
-	enum ViewMode { FixedSplit, RunnerCentered, RunnerCenteredFixedOrientation };
+	enum ViewMode { FixedSplit, RunnerCentered, RunnerCenteredSplitOriented };
 
 	struct SplitTransformation
 	{
@@ -70,6 +70,7 @@ namespace OrientView
 		QPointF runnerPosition;
 		QColor runnerColor = QColor(0, 100, 255, 255);
 		QColor runnerBorderColor = QColor(0, 0, 0, 255);
+		double runnerRadius = 10.0;
 		double runnerBorderWidth = 1.0;
 		double runnerScale = 1.0;
 		bool showRunner = true;

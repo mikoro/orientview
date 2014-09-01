@@ -48,6 +48,7 @@ bool RouteManager::initialize(QuickRouteReader* quickRouteReader, SplitsManager*
 	defaultRoute.showControls = settings->route.showControls;
 	defaultRoute.runnerColor = settings->route.runnerColor;
 	defaultRoute.runnerBorderColor = settings->route.runnerBorderColor;
+	defaultRoute.runnerRadius = settings->route.runnerRadius;
 	defaultRoute.runnerBorderWidth = settings->route.runnerBorderWidth;
 	defaultRoute.runnerScale = settings->route.runnerScale;
 	defaultRoute.showRunner = settings->route.showRunner;
@@ -66,7 +67,7 @@ bool RouteManager::initialize(QuickRouteReader* quickRouteReader, SplitsManager*
 
 	update(0.0, 0.0);
 
-	if (currentSplitTransformationIndex == -1 && defaultRoute.splitTransformations.size() > 0)
+	if (viewMode == ViewMode::FixedSplit && currentSplitTransformationIndex == -1 && defaultRoute.splitTransformations.size() > 0)
 	{
 		currentSt = defaultRoute.splitTransformations.at(0);
 		currentSplitTransformationIndex = 0;
@@ -387,7 +388,7 @@ void RouteManager::calculateCurrentSplitTransformation(Route& route, double curr
 			}
 		}
 	}
-	else if (viewMode == ViewMode::RunnerCentered || viewMode == ViewMode::RunnerCenteredFixedOrientation)
+	else if (viewMode == ViewMode::RunnerCentered || viewMode == ViewMode::RunnerCenteredSplitOriented)
 	{
 		RoutePoint rp = getInterpolatedRoutePoint(route, currentTime + route.runnerTimeOffset);
 
@@ -395,7 +396,7 @@ void RouteManager::calculateCurrentSplitTransformation(Route& route, double curr
 		double y = rp.position.y();
 		double angle = rp.orientation;
 
-		if (viewMode == ViewMode::RunnerCenteredFixedOrientation)
+		if (viewMode == ViewMode::RunnerCenteredSplitOriented)
 		{
 			int index = -1;
 
@@ -403,8 +404,8 @@ void RouteManager::calculateCurrentSplitTransformation(Route& route, double curr
 				angle = route.splitTransformations.at(index).angle;
 		}
 
-		x -= sin(angle * M_PI / 180.0) * runnerVerticalOffset;
-		y -= cos(angle * M_PI / 180.0) * runnerVerticalOffset;
+		x -= sin(angle * M_PI / 180.0) * -runnerVerticalOffset;
+		y -= cos(angle * M_PI / 180.0) * -runnerVerticalOffset;
 		
 		if (instantSplitTransitionRequested)
 		{

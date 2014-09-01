@@ -95,8 +95,8 @@ void InputHandler::handleInput(double frameTime)
 		switch (routeManager->getViewMode())
 		{
 			case ViewMode::FixedSplit: routeManager->setViewMode(ViewMode::RunnerCentered); break;
-			case ViewMode::RunnerCentered: routeManager->setViewMode(ViewMode::RunnerCenteredFixedOrientation); break;
-			case ViewMode::RunnerCenteredFixedOrientation: routeManager->setViewMode(ViewMode::FixedSplit); break;
+			case ViewMode::RunnerCentered: routeManager->setViewMode(ViewMode::RunnerCenteredSplitOriented); break;
+			case ViewMode::RunnerCenteredSplitOriented: routeManager->setViewMode(ViewMode::FixedSplit); break;
 			default: routeManager->setViewMode(ViewMode::FixedSplit);
 		}
 	}

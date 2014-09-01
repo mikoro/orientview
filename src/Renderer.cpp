@@ -51,7 +51,7 @@ bool Renderer::initialize(VideoDecoder* videoDecoder, MapImageReader* mapImageRe
 	mapPanel.relativeWidth = settings->map.relativeWidth;
 
 	multisamples = settings->window.multisamples;
-	showInfoPanel = settings->window.showInfoPanel;
+	showInfoPanel = settings->renderer.showInfoPanel;
 	renderMode = settings->renderer.renderMode;
 
 	const double averagingFactor = 0.005;
@@ -578,7 +578,7 @@ void Renderer::renderRoute(Route& route)
 		runnerBrush.setColor(route.runnerColor);
 		runnerBrush.setStyle(Qt::SolidPattern);
 
-		double runnerRadius = (((route.routeWidth / 2.0) - (route.runnerBorderWidth / 2.0)) * route.runnerScale) * route.userScale;
+		double runnerRadius = route.runnerRadius * route.runnerScale * route.userScale;
 
 		painter->setPen(runnerPen);
 		painter->setBrush(runnerBrush);

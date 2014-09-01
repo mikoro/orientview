@@ -39,6 +39,7 @@ void Settings::readFromQSettings(QSettings* settings)
 	route.showControls = settings->value("route/showControls", defaultSettings.route.showControls).toBool();
 	route.runnerColor = settings->value("route/runnerColor", defaultSettings.route.runnerColor).value<QColor>();
 	route.runnerBorderColor = settings->value("route/runnerBorderColor", defaultSettings.route.runnerBorderColor).value<QColor>();
+	route.runnerRadius = settings->value("route/runnerRadius", defaultSettings.route.runnerRadius).toDouble();
 	route.runnerBorderWidth = settings->value("route/runnerBorderWidth", defaultSettings.route.runnerBorderWidth).toDouble();
 	route.runnerScale = settings->value("route/runnerScale", defaultSettings.route.runnerScale).toDouble();
 	route.showRunner = settings->value("route/showRunner", defaultSettings.route.showRunner).toBool();
@@ -59,7 +60,6 @@ void Settings::readFromQSettings(QSettings* settings)
 
 	video.inputVideoFilePath = settings->value("video/inputVideoFilePath", defaultSettings.video.inputVideoFilePath).toString();
 	video.startTimeOffset = settings->value("video/startTimeOffset", defaultSettings.video.startTimeOffset).toDouble();
-	video.seekToAnyFrame = settings->value("video/seekToAnyFrame", defaultSettings.video.seekToAnyFrame).toBool();
 	video.x = settings->value("video/x", defaultSettings.video.x).toDouble();
 	video.y = settings->value("video/y", defaultSettings.video.y).toDouble();
 	video.angle = settings->value("video/angle", defaultSettings.video.angle).toDouble();
@@ -72,6 +72,7 @@ void Settings::readFromQSettings(QSettings* settings)
 	video.frameDurationDivisor = settings->value("video/frameDurationDivisor", defaultSettings.video.frameDurationDivisor).toInt();
 	video.frameSizeDivisor = settings->value("video/frameSizeDivisor", defaultSettings.video.frameSizeDivisor).toInt();
 	video.enableVerboseLogging = settings->value("video/enableVerboseLogging", defaultSettings.video.enableVerboseLogging).toBool();
+	video.seekToAnyFrame = settings->value("video/seekToAnyFrame", defaultSettings.video.seekToAnyFrame).toBool();
 
 	splits.type = (SplitTimeType)settings->value("splits/type", defaultSettings.splits.type).toInt();
 	splits.splitTimes = settings->value("splits/splitTimes", defaultSettings.splits.splitTimes).toString();
@@ -81,7 +82,9 @@ void Settings::readFromQSettings(QSettings* settings)
 	window.multisamples = settings->value("window/multisamples", defaultSettings.window.multisamples).toInt();
 	window.fullscreen = settings->value("window/fullscreen", defaultSettings.window.fullscreen).toBool();
 	window.hideCursor = settings->value("window/hideCursor", defaultSettings.window.hideCursor).toBool();
-	window.showInfoPanel = settings->value("window/showInfoPanel", defaultSettings.window.showInfoPanel).toBool();
+
+	renderer.renderMode = (RenderMode)settings->value("renderer/renderMode", defaultSettings.renderer.renderMode).toInt();
+	renderer.showInfoPanel = settings->value("renderer/showInfoPanel", defaultSettings.renderer.showInfoPanel).toBool();
 
 	stabilizer.enabled = settings->value("stabilizer/enabled", defaultSettings.stabilizer.enabled).toBool();
 	stabilizer.mode = (VideoStabilizerMode)settings->value("stabilizer/mode", defaultSettings.stabilizer.mode).toInt();
@@ -100,8 +103,6 @@ void Settings::readFromQSettings(QSettings* settings)
 	encoder.preset = settings->value("encoder/preset", defaultSettings.encoder.preset).toString();
 	encoder.profile = settings->value("encoder/profile", defaultSettings.encoder.profile).toString();
 	encoder.constantRateFactor = settings->value("encoder/constantRateFactor", defaultSettings.encoder.constantRateFactor).toInt();
-
-	renderer.renderMode = (RenderMode)settings->value("renderer/renderMode", defaultSettings.renderer.renderMode).toInt();
 
 	inputHandler.smallSeekAmount = settings->value("inputHandler/smallSeekAmount", defaultSettings.inputHandler.smallSeekAmount).toDouble();
 	inputHandler.normalSeekAmount = settings->value("inputHandler/normalSeekAmount", defaultSettings.inputHandler.normalSeekAmount).toDouble();
@@ -153,6 +154,7 @@ void Settings::writeToQSettings(QSettings* settings)
 	settings->setValue("route/showControls", route.showControls);
 	settings->setValue("route/runnerColor", route.runnerColor);
 	settings->setValue("route/runnerBorderColor", route.runnerBorderColor);
+	settings->setValue("route/runnerRadius", route.runnerRadius);
 	settings->setValue("route/runnerBorderWidth", route.runnerBorderWidth);
 	settings->setValue("route/runnerScale", route.runnerScale);
 	settings->setValue("route/showRunner", route.showRunner);
@@ -173,7 +175,6 @@ void Settings::writeToQSettings(QSettings* settings)
 
 	settings->setValue("video/inputVideoFilePath", video.inputVideoFilePath);
 	settings->setValue("video/startTimeOffset", video.startTimeOffset);
-	settings->setValue("video/seekToAnyFrame", video.seekToAnyFrame);
 	settings->setValue("video/x", video.x);
 	settings->setValue("video/y", video.y);
 	settings->setValue("video/angle", video.angle);
@@ -186,6 +187,7 @@ void Settings::writeToQSettings(QSettings* settings)
 	settings->setValue("video/frameDurationDivisor", video.frameDurationDivisor);
 	settings->setValue("video/frameSizeDivisor", video.frameSizeDivisor);
 	settings->setValue("video/enableVerboseLogging", video.enableVerboseLogging);
+	settings->setValue("video/seekToAnyFrame", video.seekToAnyFrame);
 
 	settings->setValue("splits/type", splits.type);
 	settings->setValue("splits/splitTimes", splits.splitTimes);
@@ -195,7 +197,9 @@ void Settings::writeToQSettings(QSettings* settings)
 	settings->setValue("window/multisamples", window.multisamples);
 	settings->setValue("window/fullscreen", window.fullscreen);
 	settings->setValue("window/hideCursor", window.hideCursor);
-	settings->setValue("window/showInfoPanel", window.showInfoPanel);
+	
+	settings->setValue("renderer/renderMode", renderer.renderMode);
+	settings->setValue("renderer/showInfoPanel", renderer.showInfoPanel);
 
 	settings->setValue("stabilizer/enabled", stabilizer.enabled);
 	settings->setValue("stabilizer/mode", stabilizer.mode);
@@ -214,8 +218,6 @@ void Settings::writeToQSettings(QSettings* settings)
 	settings->setValue("encoder/preset", encoder.preset);
 	settings->setValue("encoder/profile", encoder.profile);
 	settings->setValue("encoder/constantRateFactor", encoder.constantRateFactor);
-
-	settings->setValue("renderer/renderMode", renderer.renderMode);
 
 	settings->setValue("inputHandler/smallSeekAmount", inputHandler.smallSeekAmount);
 	settings->setValue("inputHandler/normalSeekAmount", inputHandler.normalSeekAmount);
@@ -249,19 +251,29 @@ void Settings::readFromUI(Ui::MainWindow* ui)
 
 	route.quickRouteJpegFilePath = ui->lineEditQuickRouteJpegFile->text();
 	route.routeRenderMode = (RouteRenderMode)ui->comboBoxRouteRenderMode->currentIndex();
+	route.routeWidth = ui->doubleSpinBoxRouteWidth->value();
 	route.tailRenderMode = (RouteRenderMode)ui->comboBoxRouteTailRenderMode->currentIndex();
+	route.tailWidth = ui->doubleSpinBoxRouteTailWidth->value();
 	route.tailLength = ui->doubleSpinBoxRouteTailLength->value();
+	route.controlRadius = ui->doubleSpinBoxRouteControlRadius->value();
+	route.controlBorderWidth = ui->doubleSpinBoxRouteControlBorderWidth->value();
 	route.showControls = ui->checkBoxRouteShowControls->isChecked();
+	route.runnerRadius = ui->doubleSpinBoxRouteRunnerRadius->value();
+	route.runnerBorderWidth = ui->doubleSpinBoxRouteRunnerBorderWidth->value();
 	route.showRunner = ui->checkBoxRouteShowRunner->isChecked();
 	route.controlTimeOffset = ui->doubleSpinBoxRouteControlTimeOffset->value();
 	route.runnerTimeOffset = ui->doubleSpinBoxRouteRunnerTimeOffset->value();
-	route.scale = ui->doubleSpinBoxRouteScale->value();
+	route.lowPace = ui->doubleSpinBoxRouteLowPace->value();
+	route.highPace = ui->doubleSpinBoxRouteHighPace->value();
 	
+	routeManager.viewMode = (ViewMode)ui->comboBoxRouteManagerViewMode->currentIndex();
 	routeManager.useSmoothSplitTransition = ui->checkBoxRouteManagerUseSmoothSplitTransition->isChecked();
 	routeManager.smoothSplitTransitionSpeed = ui->doubleSpinBoxRouteManagerSmoothSplitTransitionSpeed->value();
 	routeManager.topBottomMargin = ui->doubleSpinBoxRouteManagerTopBottomMargin->value();
 	routeManager.leftRightMargin = ui->doubleSpinBoxRouteManagerLeftRightMargin->value();
 	routeManager.maximumAutomaticZoom = ui->doubleSpinBoxRouteManagerMaximumAutomaticZoom->value();
+	routeManager.runnerAveragingFactor = ui->doubleSpinBoxRouteManagerRunnerAveragingFactor->value();
+	routeManager.runnerVerticalOffset = ui->doubleSpinBoxRouteManagerRunnerVerticalOffset->value();
 
 	video.inputVideoFilePath = ui->lineEditInputVideoFile->text();
 	video.startTimeOffset = ui->doubleSpinBoxVideoStartTimeOffset->value();
@@ -273,6 +285,7 @@ void Settings::readFromUI(Ui::MainWindow* ui)
 	video.frameDurationDivisor = ui->spinBoxVideoDecoderFrameDurationDivisor->value();
 	video.frameSizeDivisor = ui->spinBoxVideoDecoderFrameSizeDivisor->value();
 	video.enableVerboseLogging = ui->checkBoxVideoDecoderEnableVerboseLogging->isChecked();
+	video.seekToAnyFrame = ui->checkBoxVideoDecoderSeekToAnyFrame->isChecked();
 
 	splits.type = (SplitTimeType)ui->comboBoxSplitTimeType->currentIndex();
 	splits.splitTimes = ui->lineEditSplitTimes->text();
@@ -282,7 +295,9 @@ void Settings::readFromUI(Ui::MainWindow* ui)
 	window.multisamples = ui->comboBoxWindowMultisamples->currentText().toInt();
 	window.fullscreen = ui->checkBoxWindowFullscreen->isChecked();
 	window.hideCursor = ui->checkBoxWindowHideCursor->isChecked();
-	window.showInfoPanel = ui->checkBoxWindowShowInfoPanel->isChecked();
+
+	renderer.renderMode = (RenderMode)ui->comboBoxRendererRenderMode->currentIndex();
+	renderer.showInfoPanel = ui->checkBoxRendererShowInfoPanel->isChecked();
 
 	stabilizer.enabled = ui->checkBoxVideoStabilizerEnabled->isChecked();
 	stabilizer.mode = (VideoStabilizerMode)ui->comboBoxVideoStabilizerMode->currentIndex();
@@ -316,20 +331,32 @@ void Settings::writeToUI(Ui::MainWindow* ui)
 	ui->labelRouteDiscreetColor->setStyleSheet(QString("background-color: rgb(%1, %2, %3, %4);").arg(QString::number(route.discreetColor.red()), QString::number(route.discreetColor.green()), QString::number(route.discreetColor.blue()), QString::number(route.discreetColor.alpha())));
 	ui->labelRouteHighlightColor->setStyleSheet(QString("background-color: rgb(%1, %2, %3, %4);").arg(QString::number(route.highlightColor.red()), QString::number(route.highlightColor.green()), QString::number(route.highlightColor.blue()), QString::number(route.highlightColor.alpha())));
 	ui->comboBoxRouteRenderMode->setCurrentIndex(route.routeRenderMode);
+	ui->doubleSpinBoxRouteWidth->setValue(route.routeWidth);
 	ui->comboBoxRouteTailRenderMode->setCurrentIndex(route.tailRenderMode);
+	ui->doubleSpinBoxRouteTailWidth->setValue(route.tailWidth);
 	ui->doubleSpinBoxRouteTailLength->setValue(route.tailLength);
+	ui->labelRouteControlBorderColor->setStyleSheet(QString("background-color: rgb(%1, %2, %3, %4);").arg(QString::number(route.controlBorderColor.red()), QString::number(route.controlBorderColor.green()), QString::number(route.controlBorderColor.blue()), QString::number(route.controlBorderColor.alpha())));
+	ui->doubleSpinBoxRouteControlRadius->setValue(route.controlRadius);
+	ui->doubleSpinBoxRouteControlBorderWidth->setValue(route.controlBorderWidth);
 	ui->checkBoxRouteShowControls->setChecked(route.showControls);
 	ui->labelRouteRunnerColor->setStyleSheet(QString("background-color: rgb(%1, %2, %3, %4);").arg(QString::number(route.runnerColor.red()), QString::number(route.runnerColor.green()), QString::number(route.runnerColor.blue()), QString::number(route.runnerColor.alpha())));
+	ui->labelRouteRunnerBorderColor->setStyleSheet(QString("background-color: rgb(%1, %2, %3, %4);").arg(QString::number(route.runnerBorderColor.red()), QString::number(route.runnerBorderColor.green()), QString::number(route.runnerBorderColor.blue()), QString::number(route.runnerBorderColor.alpha())));
+	ui->doubleSpinBoxRouteRunnerRadius->setValue(route.runnerRadius);
+	ui->doubleSpinBoxRouteRunnerBorderWidth->setValue(route.runnerBorderWidth);
 	ui->checkBoxRouteShowRunner->setChecked(route.showRunner);
 	ui->doubleSpinBoxRouteControlTimeOffset->setValue(route.controlTimeOffset);
 	ui->doubleSpinBoxRouteRunnerTimeOffset->setValue(route.runnerTimeOffset);
-	ui->doubleSpinBoxRouteScale->setValue(route.scale);
+	ui->doubleSpinBoxRouteLowPace->setValue(route.lowPace);
+	ui->doubleSpinBoxRouteHighPace->setValue(route.highPace);
 
+	ui->comboBoxRouteManagerViewMode->setCurrentIndex(routeManager.viewMode);
 	ui->checkBoxRouteManagerUseSmoothSplitTransition->setChecked(routeManager.useSmoothSplitTransition);
 	ui->doubleSpinBoxRouteManagerSmoothSplitTransitionSpeed->setValue(routeManager.smoothSplitTransitionSpeed);
 	ui->doubleSpinBoxRouteManagerTopBottomMargin->setValue(routeManager.topBottomMargin);
 	ui->doubleSpinBoxRouteManagerLeftRightMargin->setValue(routeManager.leftRightMargin);
 	ui->doubleSpinBoxRouteManagerMaximumAutomaticZoom->setValue(routeManager.maximumAutomaticZoom);
+	ui->doubleSpinBoxRouteManagerRunnerAveragingFactor->setValue(routeManager.runnerAveragingFactor);
+	ui->doubleSpinBoxRouteManagerRunnerVerticalOffset->setValue(routeManager.runnerVerticalOffset);
 
 	ui->lineEditInputVideoFile->setText(video.inputVideoFilePath);
 	ui->doubleSpinBoxVideoStartTimeOffset->setValue(video.startTimeOffset);
@@ -342,6 +369,7 @@ void Settings::writeToUI(Ui::MainWindow* ui)
 	ui->spinBoxVideoDecoderFrameDurationDivisor->setValue(video.frameDurationDivisor);
 	ui->spinBoxVideoDecoderFrameSizeDivisor->setValue(video.frameSizeDivisor);
 	ui->checkBoxVideoDecoderEnableVerboseLogging->setChecked(video.enableVerboseLogging);
+	ui->checkBoxVideoDecoderSeekToAnyFrame->setChecked(video.seekToAnyFrame);
 
 	ui->comboBoxSplitTimeType->setCurrentIndex(splits.type);
 	ui->lineEditSplitTimes->setText(splits.splitTimes);
@@ -351,7 +379,9 @@ void Settings::writeToUI(Ui::MainWindow* ui)
 	ui->comboBoxWindowMultisamples->setCurrentText(QString::number(window.multisamples));
 	ui->checkBoxWindowFullscreen->setChecked(window.fullscreen);
 	ui->checkBoxWindowHideCursor->setChecked(window.hideCursor);
-	ui->checkBoxWindowShowInfoPanel->setChecked(window.showInfoPanel);
+
+	ui->comboBoxRendererRenderMode->setCurrentIndex(renderer.renderMode);
+	ui->checkBoxRendererShowInfoPanel->setChecked(renderer.showInfoPanel);
 
 	ui->checkBoxVideoStabilizerEnabled->setChecked(stabilizer.enabled);
 	ui->comboBoxVideoStabilizerMode->setCurrentIndex(stabilizer.mode);

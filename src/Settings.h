@@ -53,13 +53,14 @@ namespace OrientView
 			double routeWidth = 10.0;
 			RouteRenderMode tailRenderMode = RouteRenderMode::None;
 			double tailWidth = 10.0;
-			double tailLength = 60.0;
+			double tailLength = 30.0;
 			QColor controlBorderColor = QColor(140, 40, 140, 255);
 			double controlRadius = 15.0;
 			double controlBorderWidth = 5.0;
 			bool showControls = true;
 			QColor runnerColor = QColor(0, 100, 255, 255);
 			QColor runnerBorderColor = QColor(0, 0, 0, 255);
+			double runnerRadius = 5.0;
 			double runnerBorderWidth = 1.0;
 			double runnerScale = 1.0;
 			bool showRunner = true;
@@ -88,7 +89,6 @@ namespace OrientView
 		{
 			QString inputVideoFilePath = "";
 			double startTimeOffset = 0.0;
-			bool seekToAnyFrame = false;
 			double x = 0.0;
 			double y = 0.0;
 			double angle = 0.0;
@@ -101,6 +101,7 @@ namespace OrientView
 			int frameDurationDivisor = 1;
 			int frameSizeDivisor = 1;
 			bool enableVerboseLogging = false;
+			bool seekToAnyFrame = false;
 
 		} video;
 
@@ -118,9 +119,15 @@ namespace OrientView
 			int multisamples = 16;
 			bool fullscreen = false;
 			bool hideCursor = false;
-			bool showInfoPanel = false;
 
 		} window;
+
+		struct Renderer
+		{
+			RenderMode renderMode = RenderMode::All;
+			bool showInfoPanel = false;
+
+		} renderer;
 
 		struct Stabilizer
 		{
@@ -147,12 +154,6 @@ namespace OrientView
 			int constantRateFactor = 23;
 
 		} encoder;
-
-		struct Renderer
-		{
-			RenderMode renderMode = RenderMode::All;
-
-		} renderer;
 
 		struct InputHandler
 		{
