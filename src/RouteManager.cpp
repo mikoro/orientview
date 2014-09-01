@@ -337,6 +337,7 @@ void RouteManager::calculateCurrentSplitTransformation(Route& route, double curr
 				currentSt = route.splitTransformations.at(index);
 				currentSplitTransformationIndex = index;
 				instantSplitTransitionRequested = false;
+				smoothSplitTransitionInProgress = false;
 			}
 			else if (index != currentSplitTransformationIndex)
 			{
