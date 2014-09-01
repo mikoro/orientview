@@ -88,7 +88,7 @@ bool EncodeWindow::initialize(VideoDecoder* videoDecoder, VideoEncoderThread* vi
 	ui->labelTotalFrames->setText(QString::number(totalFrameCount));
 	ui->pushButtonOpen->setEnabled(false);
 
-	startTime.restart();
+	startTime.start();
 
 	isInitialized = true;
 

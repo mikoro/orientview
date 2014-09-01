@@ -26,16 +26,32 @@ bool VideoStabilizerThread::initialize(VideoDecoder* videoDecoder, VideoStabiliz
 	return true;
 }
 
+void VideoStabilizerThread::togglePaused()
+{
+	isPaused = !isPaused;
+}
+
+bool VideoStabilizerThread::getIsPaused() const
+{
+	return isPaused;
+}
+
 void VideoStabilizerThread::run()
 {
 	FrameData frameDataGrayscale;
 
 	while (!isInterruptionRequested())
 	{
+		if (isPaused)
+		{
+			QThread::msleep(100);
+			continue;
+		}
+
 		if (videoDecoder->getNextFrame(nullptr, &frameDataGrayscale))
 		{
 			videoStabilizer->preProcessFrame(frameDataGrayscale, outputFile);
-			emit frameProcessed(frameDataGrayscale.cumulativeNumber);
+			emit frameProcessed(frameDataGrayscale.cumulativeNumber, videoDecoder->getCurrentTime());
 		}
 		else if (videoDecoder->getIsFinished())
 			break;
