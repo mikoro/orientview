@@ -322,7 +322,7 @@ img {
 </tr>
 </tbody>
 </table>
-<p>For testing out the program, you can also <a href="https://mega.co.nz/#!2c1HjIgR!Ncq7OezFAh9h3uDetVioWrryyf4VYS03lavvnYjGWHM">download test data</a> (<a href="https://s3.amazonaws.com/orientview-testdata/orientview-testdata.zip">mirror</a>).</p>
+<p>For testing out the program, you can also <a href="https://s3.amazonaws.com/orientview-testdata/orientview-testdata.zip?torrent">download test data</a> (<a href="https://mega.co.nz/#!HEViiR4I!eCpLCMwYRWjMB3NhPcbfZJtToYsI9tw1SfnEEoqFppM">mirror 1</a>) (<a href="https://s3.amazonaws.com/orientview-testdata/orientview-testdata.zip">mirror 2</a>).</p>
 <p><strong>Note:</strong> You will need a pretty recent GPU (less than four years old) with up-to-date graphics drivers.</p>
 <h2 id="features">Features</h2>
 <ul>
@@ -356,6 +356,10 @@ img {
 <li>Not all settings are exposed to the UI. You can edit the extra settings by first saving the current settings to a file, opening it with a text editor (the file is in ini format), and then loading the file back.</li>
 <li>The difference between real-time and preprocessed stabilization is that the latter can look at the future when doing the stabilization analysis. This makes the centering faster with sudden large frame movements and also makes the stabilization a little bit more responsive to small movements.</li>
 <li>The rescale shaders are in the <em>data/shaders</em> folder. The bicubic shader can be further customized by editing the <em>rescale_bicubic.frag</em> file (currently there are five different interpolation functions and some other settings).</li>
+</ul>
+<h3 id="known-issues">Known issues</h3>
+<ul>
+<li>If the route rendering doesn&#39;t work (route appears as a large rectangle), try settings the route color to 100% opaque.</li>
 </ul>
 <h3 id="controls">Controls</h3>
 <table>
