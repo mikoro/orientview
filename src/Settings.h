@@ -126,6 +126,7 @@ namespace OrientView
 		{
 			RenderMode renderMode = RenderMode::All;
 			bool showInfoPanel = false;
+			int infoPanelFontSize = 8;
 
 		} renderer;
 

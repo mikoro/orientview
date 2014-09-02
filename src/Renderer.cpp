@@ -51,8 +51,9 @@ bool Renderer::initialize(VideoDecoder* videoDecoder, MapImageReader* mapImageRe
 	mapPanel.relativeWidth = settings->map.relativeWidth;
 
 	multisamples = settings->window.multisamples;
-	showInfoPanel = settings->renderer.showInfoPanel;
 	renderMode = settings->renderer.renderMode;
+	showInfoPanel = settings->renderer.showInfoPanel;
+	infoPanelFontSize = settings->renderer.infoPanelFontSize;
 
 	const double averagingFactor = 0.005;
 	averageFps.setAlpha(averagingFactor);
@@ -591,7 +592,7 @@ void Renderer::renderRoute(Route& route)
 
 void Renderer::renderInfoPanel()
 {
-	QFont font = QFont("DejaVu Sans", 8, QFont::Bold);
+	QFont font = QFont("DejaVu Sans", infoPanelFontSize, QFont::Bold);
 	QFontMetrics metrics(font);
 
 	int textX = 10;

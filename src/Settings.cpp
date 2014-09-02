@@ -85,6 +85,7 @@ void Settings::readFromQSettings(QSettings* settings)
 
 	renderer.renderMode = (RenderMode)settings->value("renderer/renderMode", defaultSettings.renderer.renderMode).toInt();
 	renderer.showInfoPanel = settings->value("renderer/showInfoPanel", defaultSettings.renderer.showInfoPanel).toBool();
+	renderer.infoPanelFontSize = settings->value("renderer/infoPanelFontSize", defaultSettings.renderer.infoPanelFontSize).toInt();
 
 	stabilizer.enabled = settings->value("stabilizer/enabled", defaultSettings.stabilizer.enabled).toBool();
 	stabilizer.mode = (VideoStabilizerMode)settings->value("stabilizer/mode", defaultSettings.stabilizer.mode).toInt();
@@ -200,6 +201,7 @@ void Settings::writeToQSettings(QSettings* settings)
 	
 	settings->setValue("renderer/renderMode", renderer.renderMode);
 	settings->setValue("renderer/showInfoPanel", renderer.showInfoPanel);
+	settings->setValue("renderer/infoPanelFontSize", renderer.infoPanelFontSize);
 
 	settings->setValue("stabilizer/enabled", stabilizer.enabled);
 	settings->setValue("stabilizer/mode", stabilizer.mode);
@@ -298,6 +300,7 @@ void Settings::readFromUI(Ui::MainWindow* ui)
 
 	renderer.renderMode = (RenderMode)ui->comboBoxRendererRenderMode->currentIndex();
 	renderer.showInfoPanel = ui->checkBoxRendererShowInfoPanel->isChecked();
+	renderer.infoPanelFontSize = ui->spinBoxRendererInfoPanelFontSize->value();
 
 	stabilizer.enabled = ui->checkBoxVideoStabilizerEnabled->isChecked();
 	stabilizer.mode = (VideoStabilizerMode)ui->comboBoxVideoStabilizerMode->currentIndex();
@@ -382,6 +385,7 @@ void Settings::writeToUI(Ui::MainWindow* ui)
 
 	ui->comboBoxRendererRenderMode->setCurrentIndex(renderer.renderMode);
 	ui->checkBoxRendererShowInfoPanel->setChecked(renderer.showInfoPanel);
+	ui->spinBoxRendererInfoPanelFontSize->setValue(renderer.infoPanelFontSize);
 
 	ui->checkBoxVideoStabilizerEnabled->setChecked(stabilizer.enabled);
 	ui->comboBoxVideoStabilizerMode->setCurrentIndex(stabilizer.mode);

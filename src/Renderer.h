@@ -107,6 +107,7 @@ namespace OrientView
 		double windowHeight = 0.0;
 		double currentTime = 0.0;
 		int multisamples = 0;
+		int infoPanelFontSize = 0;
 
 		Panel videoPanel;
 		Panel mapPanel;

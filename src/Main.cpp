@@ -42,10 +42,7 @@ int main(int argc, char *argv[])
 		logger.initialize("orientview.log");
 		qInstallMessageHandler(messageHandler);
 
-		QFontDatabase::addApplicationFont("data/fonts/dejavu-sans.ttf");
 		QFontDatabase::addApplicationFont("data/fonts/dejavu-sans-bold.ttf");
-		QFontDatabase::addApplicationFont("data/fonts/dejavu-sans-mono.ttf");
-		QFontDatabase::addApplicationFont("data/fonts/dejavu-sans-mono-bold.ttf");
 
 		OrientView::MainWindow mainWindow;
 
