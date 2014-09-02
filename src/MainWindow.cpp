@@ -523,12 +523,9 @@ void MainWindow::encodeVideoFinished()
 
 void MainWindow::on_actionHelp_triggered()
 {
-	if (QFile::exists("readme.html"))
-	{
-		QFileInfo fileInfo("readme.html");
-		QDesktopServices::openUrl(QUrl(QString("file:///%1").arg(fileInfo.absoluteFilePath())));
-	}
-	else
+	QFileInfo fileInfo("readme.html");
+
+	if(!QDesktopServices::openUrl(QUrl(QString("file:///%1").arg(fileInfo.absoluteFilePath()))))
 		QDesktopServices::openUrl(QUrl(QString("https://github.com/mikoro/orientview")));
 }
 
