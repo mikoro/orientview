@@ -701,7 +701,7 @@
                   <string>The discreet route/tail color</string>
                  </property>
                  <property name="styleSheet">
-                  <string notr="true">background-color: rgb(0, 0, 0, 50);</string>
+                  <string notr="true">background-color: rgb(0, 0, 0, 80);</string>
                  </property>
                  <property name="frameShape">
                   <enum>QFrame::StyledPanel</enum>

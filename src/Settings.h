@@ -47,7 +47,7 @@ namespace OrientView
 		struct Route
 		{
 			QString quickRouteJpegFilePath = "";
-			QColor discreetColor = QColor(0, 0, 0, 50);
+			QColor discreetColor = QColor(0, 0, 0, 80);
 			QColor highlightColor = QColor(0, 100, 255, 200);
 			RouteRenderMode routeRenderMode = RouteRenderMode::Discreet;
 			double routeWidth = 10.0;
