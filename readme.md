@@ -19,7 +19,7 @@ Download the latest version:
 | [OrientView-1.1.0-Setup.msi](https://github.com/mikoro/orientview/releases/download/v1.1.0/OrientView-1.1.0-Setup.msi) | [OrientView-1.1.0-mac.zip](https://github.com/mikoro/orientview/releases/download/v1.1.0/OrientView-1.1.0-mac.zip) | [Arch Linux AUR](https://aur.archlinux.org/packages/orientview/) |
 | [OrientView-1.1.0-win.zip](https://github.com/mikoro/orientview/releases/download/v1.1.0/OrientView-1.1.0-win.zip)     | &nbsp;                                                                                                             | [Build instructions](#linux_build)                               |
 
-For testing out the program, you can also [download test data](https://mega.co.nz/#!2c1HjIgR!Ncq7OezFAh9h3uDetVioWrryyf4VYS03lavvnYjGWHM) ([mirror](https://s3.amazonaws.com/orientview-testdata/orientview-testdata.zip)).
+For testing out the program, you can also [download test data](https://s3.amazonaws.com/orientview-testdata/orientview-testdata.zip?torrent) ([mirror 1](https://mega.co.nz/#!HEViiR4I!eCpLCMwYRWjMB3NhPcbfZJtToYsI9tw1SfnEEoqFppM)) ([mirror 2](https://s3.amazonaws.com/orientview-testdata/orientview-testdata.zip)).
 
 **Note:** You will need a pretty recent GPU (less than four years old) with up-to-date graphics drivers.
 
@@ -56,6 +56,10 @@ For testing out the program, you can also [download test data](https://mega.co.n
 * Not all settings are exposed to the UI. You can edit the extra settings by first saving the current settings to a file, opening it with a text editor (the file is in ini format), and then loading the file back.
 * The difference between real-time and preprocessed stabilization is that the latter can look at the future when doing the stabilization analysis. This makes the centering faster with sudden large frame movements and also makes the stabilization a little bit more responsive to small movements.
 * The rescale shaders are in the *data/shaders* folder. The bicubic shader can be further customized by editing the *rescale_bicubic.frag* file (currently there are five different interpolation functions and some other settings).
+
+### Known issues
+
+* If the route rendering doesn't work (route appears as a large rectangle), try settings the route color to 100% opaque.
 
 ### Controls
 
