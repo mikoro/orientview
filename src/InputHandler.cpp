@@ -215,11 +215,11 @@ void InputHandler::handleInput(double frameTime)
 
 	if (scrollMode == ScrollMode::Map)
 	{
-		translateSpeed *= (-1.0 / (mapPanel.scale * mapPanel.userScale));
+		double scaledTranslateSpeed = translateSpeed * (-1.0 / (mapPanel.scale * mapPanel.userScale));
 
 		double angle = (mapPanel.angle + mapPanel.userAngle + routeManager->getAngle()) * M_PI / 180.0;
-		double deltaX = cos(angle) * translateSpeed;
-		double deltaY = sin(angle) * translateSpeed;
+		double deltaX = cos(angle) * scaledTranslateSpeed;
+		double deltaY = sin(angle) * scaledTranslateSpeed;
 
 		if (videoWindow->keyIsDown(Qt::Key_Left))
 		{
@@ -235,8 +235,8 @@ void InputHandler::handleInput(double frameTime)
 			renderer->requestFullClear();
 		}
 
-		deltaX = sin(angle) * translateSpeed;
-		deltaY = cos(angle) * translateSpeed;
+		deltaX = sin(angle) * scaledTranslateSpeed;
+		deltaY = cos(angle) * scaledTranslateSpeed;
 
 		if (videoWindow->keyIsDown(Qt::Key_Up))
 		{
