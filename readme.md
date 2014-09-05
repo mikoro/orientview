@@ -17,7 +17,7 @@ Download the latest version:
 | Windows 64-bit                                                                                                         | Mac OS X                                                                                                           | Linux                                                            |
 |------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------|
 | [OrientView-1.1.0-Setup.msi](https://github.com/mikoro/orientview/releases/download/v1.1.0/OrientView-1.1.0-Setup.msi) | [OrientView-1.1.0-mac.zip](https://github.com/mikoro/orientview/releases/download/v1.1.0/OrientView-1.1.0-mac.zip) | [Arch Linux AUR](https://aur.archlinux.org/packages/orientview/) |
-| [OrientView-1.1.0-win.zip](https://github.com/mikoro/orientview/releases/download/v1.1.0/OrientView-1.1.0-win.zip)     | &nbsp;                                                                                                             | [Build instructions](#linux_build)                               |
+| [OrientView-1.1.0-win.zip](https://github.com/mikoro/orientview/releases/download/v1.1.0/OrientView-1.1.0-win.zip)     | &nbsp;                                                                                                             | &nbsp;                                                           |
 
 For testing out the program, you can also [download test data](https://s3.amazonaws.com/orientview-testdata/orientview-testdata.zip?torrent) ([mirror 1](https://mega.co.nz/#!HEViiR4I!eCpLCMwYRWjMB3NhPcbfZJtToYsI9tw1SfnEEoqFppM)) ([mirror 2](https://s3.amazonaws.com/orientview-testdata/orientview-testdata.zip)).
 
@@ -29,13 +29,13 @@ For testing out the program, you can also [download test data](https://s3.amazon
 * Plays all the video files that are supported by [FFmpeg](https://www.ffmpeg.org/general.html#Supported-File-Formats_002c-Codecs-or-Features).
 * Reads route point and calibration data from JPEG images created with [QuickRoute](http://www.matstroeng.se/quickroute/en/).
 * Split times are input manually using simple formatting (absolute or relative).
-* Supports basic video seeking and pausing. Different timing offsets are also adjustable to make the video and route match.
+* Supports video seeking and pausing. Different timing offsets are also adjustable to make the video and route match.
+* Supports basic video stabilization using the [OpenCV](http://opencv.org/) library. Stabilization can be done real-time or by using preprocessed data.
 * Differents parts of the UI are fully adjustable.
 * Draws all the graphics using OpenGL. Also utilizes shaders to do custom image resampling (e.g. high quality bicubic).
-* Video window (and exported video) is completely resizable - original video resolution does not pose any restrictions.
+* Video window and exported video are completely resizable - original video resolution does not pose any restrictions.
 * Resulting video can be exported to MP4 format with H.264 encoding.
 * Program architecture is multithreaded and should allow maximal CPU core usage when for example exporting video.
-* Supports basic video stabilization using the [OpenCV](http://opencv.org/) library. Stabilization can be done real-time or by using preprocessed data.
 
 ## Instructions
 
@@ -104,29 +104,6 @@ For testing out the program, you can also [download test data](https://s3.amazon
 | **End**       | Decrease control offset                                                                    |
 | **Insert**    | Increase tail length                                                                       |
 | **Delete**    | Decrease tail length                                                                       |
-
-### Building on Windows
-
-1. Install [Visual Studio 2013 Professional](http://www.visualstudio.com/).
-2. Install [Qt 5.3](http://qt-project.org/downloads) (64-bit, VS 2013, OpenGL).
-3. Install [Visual Studio Add-in for Qt5](http://qt-project.org/downloads).
-4. Configure Qt Visual Studio settings to point to the correct Qt installation.
-5. Add Qt bin folder to your path.
-6. Clone [https://github.com/mikoro/orientview.git](https://github.com/mikoro/orientview.git).
-7. Clone [https://github.com/mikoro/orientview-binaries.git](https://github.com/mikoro/orientview-binaries.git).
-8. Copy the files from *orientview-binaries/windows* to the orientview root folder.
-9. Build using either Visual Studio or QtCreator.
-10. If launching the debug build from Visual Studio fails with warning about missing dlls, edit the project working directory to point to the debug build output folder.
-
-### <a name="linux_build"></a>Building on Linux
-
-1. Install [Qt 5.3](http://qt-project.org/).
-2. Install [FFmpeg 2.3](https://www.ffmpeg.org/).
-3. Install [OpenCV 2.4](http://opencv.org/).
-4. Install [x264](http://www.videolan.org/developers/x264.html).
-5. Install [L-SMASH](https://github.com/l-smash/l-smash).
-6. Clone [https://github.com/mikoro/orientview.git](https://github.com/mikoro/orientview.git).
-7. Run `qmake && make`.
 
 ## License
 

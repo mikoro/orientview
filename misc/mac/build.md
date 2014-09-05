@@ -1,4 +1,6 @@
-* All the libraries other than Qt should be compiled as shared and installed to the system. Use the windows build instructions as a guide.
+# Building on Mac
+
+* All the libraries other than Qt should be compiled as shared and installed to the system. See Linux and Windows build instructions for reference.
 * It seems that it is easier to make things work by compiling Qt statically. Download the Qt source package and:
 
 ```
