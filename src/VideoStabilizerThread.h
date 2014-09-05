@@ -20,9 +20,12 @@ namespace OrientView
 
 		bool initialize(VideoDecoder* videoDecoder, VideoStabilizer* videoStabilizer, Settings* settings);
 
+		void togglePaused();
+		bool getIsPaused() const;
+
 	signals:
 
-		void frameProcessed(int frameNumber);
+		void frameProcessed(int frameNumber, double currentTime);
 		void processingFinished();
 
 	protected:
@@ -35,5 +38,7 @@ namespace OrientView
 		VideoStabilizer* videoStabilizer = nullptr;
 
 		QFile outputFile;
+
+		bool isPaused = false;
 	};
 }

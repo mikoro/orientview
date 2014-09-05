@@ -51,7 +51,7 @@ void VideoStabilizer::processFrame(const FrameData& frameDataGrayscale)
 	if (!isEnabled)
 		return;
 
-	processTimer.restart();
+	processDurationTimer.restart();
 
 	if (mode == VideoStabilizerMode::Preprocessed)
 		normalizedFramePosition = searchNormalizedFramePosition(frameDataGrayscale);
@@ -76,7 +76,7 @@ void VideoStabilizer::processFrame(const FrameData& frameDataGrayscale)
 	normalizedFramePosition.y = std::max(-maxDisplacementFactor, std::min(normalizedFramePosition.y, maxDisplacementFactor));
 	normalizedFramePosition.angle = std::max(-maxAngle, std::min(normalizedFramePosition.angle, maxAngle));
 
-	lastProcessTime = processTimer.nsecsElapsed() / 1000000.0;
+	processDuration = processDurationTimer.nsecsElapsed() / 1000000.0;
 }
 
 FramePosition VideoStabilizer::calculateCumulativeFramePosition(const FrameData& frameDataGrayscale)
@@ -285,15 +285,15 @@ void VideoStabilizer::reset()
 	cumulativeY = 0.0;
 	cumulativeAngle = 0.0;
 
-	cumulativeXAverage.reset();
-	cumulativeYAverage.reset();
-	cumulativeAngleAverage.reset();
+	cumulativeXAverage.reset(0.0);
+	cumulativeYAverage.reset(0.0);
+	cumulativeAngleAverage.reset(0.0);
 
 	normalizedFramePosition = FramePosition();
 	previousTransformation = cv::Mat::eye(2, 3, CV_64F);
 
 	isFirstImage = true;
-	lastProcessTime = 0.0;
+	processDuration = 0.0;
 }
 
 double VideoStabilizer::getX() const
@@ -311,7 +311,12 @@ double VideoStabilizer::getAngle() const
 	return normalizedFramePosition.angle;
 }
 
-double VideoStabilizer::getLastProcessTime() const
+double VideoStabilizer::getProcessDuration() const
 {
-	return lastProcessTime;
+	return processDuration;
+}
+
+void VideoStabilizer::resetProcessDuration()
+{
+	processDuration = 0.0;
 }

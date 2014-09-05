@@ -16,10 +16,10 @@ Download the latest version:
 
 | Windows 64-bit                                                                                                         | Mac OS X                                                                                                           | Linux                                                            |
 |------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------|
-| [OrientView-1.0.0-Setup.msi](https://github.com/mikoro/orientview/releases/download/v1.0.0/OrientView-1.0.0-Setup.msi) | [OrientView-1.0.0-mac.zip](https://github.com/mikoro/orientview/releases/download/v1.0.0/OrientView-1.0.0-mac.zip) | [Arch Linux AUR](https://aur.archlinux.org/packages/orientview/) |
-| [OrientView-1.0.0-win.zip](https://github.com/mikoro/orientview/releases/download/v1.0.0/OrientView-1.0.0-win.zip)     | &nbsp;                                                                                                             | [Build instructions](#linux_build)                               |
+| [OrientView-1.1.0-Setup.msi](https://github.com/mikoro/orientview/releases/download/v1.1.0/OrientView-1.1.0-Setup.msi) | [OrientView-1.1.0-mac.zip](https://github.com/mikoro/orientview/releases/download/v1.1.0/OrientView-1.1.0-mac.zip) | [Arch Linux AUR](https://aur.archlinux.org/packages/orientview/) |
+| [OrientView-1.1.0-win.zip](https://github.com/mikoro/orientview/releases/download/v1.1.0/OrientView-1.1.0-win.zip)     | &nbsp;                                                                                                             | &nbsp;                                                           |
 
-For testing out the program, you can also [download test data](https://mega.co.nz/#F!nM1gHbZJ!pvFqf3UOrHrmMyuUTlMSrg) ([mirror](http://orientview-test.s3-website-us-east-1.amazonaws.com/)).
+For testing out the program, you can also [download test data](https://s3.amazonaws.com/orientview-testdata/orientview-testdata.zip?torrent) ([mirror 1](https://mega.co.nz/#!HEViiR4I!eCpLCMwYRWjMB3NhPcbfZJtToYsI9tw1SfnEEoqFppM)) ([mirror 2](https://s3.amazonaws.com/orientview-testdata/orientview-testdata.zip)).
 
 **Note:** You will need a pretty recent GPU (less than four years old) with up-to-date graphics drivers.
 
@@ -29,13 +29,13 @@ For testing out the program, you can also [download test data](https://mega.co.n
 * Plays all the video files that are supported by [FFmpeg](https://www.ffmpeg.org/general.html#Supported-File-Formats_002c-Codecs-or-Features).
 * Reads route point and calibration data from JPEG images created with [QuickRoute](http://www.matstroeng.se/quickroute/en/).
 * Split times are input manually using simple formatting (absolute or relative).
-* Supports basic video seeking and pausing. Different timing offsets are also adjustable to make the video and route match.
+* Supports video seeking and pausing. Different timing offsets are also adjustable to make the video and route match.
+* Supports basic video stabilization using the [OpenCV](http://opencv.org/) library. Stabilization can be done real-time or by using preprocessed data.
 * Differents parts of the UI are fully adjustable.
 * Draws all the graphics using OpenGL. Also utilizes shaders to do custom image resampling (e.g. high quality bicubic).
-* Video window (and exported video) is completely resizable - original video resolution does not pose any restrictions.
+* Video window and exported video are completely resizable - original video resolution does not pose any restrictions.
 * Resulting video can be exported to MP4 format with H.264 encoding.
 * Program architecture is multithreaded and should allow maximal CPU core usage when for example exporting video.
-* Supports basic video stabilization using the [OpenCV](http://opencv.org/) library. Stabilization can be done real-time or by using preprocessed data.
 
 ## Instructions
 
@@ -55,66 +55,55 @@ For testing out the program, you can also [download test data](https://mega.co.n
 * Most of the UI controls have tooltips explaining what they are for.
 * Not all settings are exposed to the UI. You can edit the extra settings by first saving the current settings to a file, opening it with a text editor (the file is in ini format), and then loading the file back.
 * The difference between real-time and preprocessed stabilization is that the latter can look at the future when doing the stabilization analysis. This makes the centering faster with sudden large frame movements and also makes the stabilization a little bit more responsive to small movements.
-* The rescale shaders are in the *data/shaders* folder. The bicubic shader can be further customized by editing the *bicubic.frag* file (currently there are five different interpolation functions and some other settings).
+* The rescale shaders are in the *data/shaders* folder. The bicubic shader can be further customized by editing the *rescale_bicubic.frag* file (currently there are five different interpolation functions and some other settings).
+
+### Known issues
+
+* If the route rendering doesn't work (route appears as a large rectangle), try settings the route color to 100% opaque.
 
 ### Controls
 
-| Key           | Action                                                     |
-|---------------|------------------------------------------------------------|
-| **F1**        | Toggle info panel on/off                                   |
-| **F2**        | Select map/video/none for scrolling                        |
-| **F3**        | Select render mode (map/video/all)                         |
-| **F4**        | Select route render mode (normal/pace/none)                |
-| **F5**        | Toggle runner on/off                                       |
-| **F6**        | Toggle controls on/off                                     |
-| **F7**        | Toggle video stabilizer on/off                             |
-| **Space**     | Pause or resume video <br> Ctrl + Space advances one frame |
-| **Ctrl**      | Slow/small modifier                                        |
-| **Shift**     | Fast/large modifier                                        |
-| **Alt**       | Very fast/large modifier                                   |
-| **Backspace** | Reset all user transformations to default                  |
-| **Left**      | Seek video backwards <br> Scroll map/video left            |
-| **Right**     | Seek video forwards <br> Scroll map/video right            |
-| **Up**        | Scroll map/video up                                        |
-| **Down**      | Scroll map/video down                                      |
-| **Q**         | Zoom map in                                                |
-| **A**         | Zoom map out                                               |
-| **W**         | Rotate map counterclockwise                                |
-| **S**         | Rotate map clockwise                                       |
-| **E**         | Increase map width                                         |
-| **D**         | Decrease map width                                         |
-| **R**         | Zoom video in                                              |
-| **F**         | Zoom video out                                             |
-| **T**         | Rotate video counterclockwise                              |
-| **G**         | Rotate video clockwise                                     |
-| **Page Up**   | Increase runner time offset                                |
-| **Page Down** | Decrease runner time offset                                |
-| **Home**      | Increase control time offset                               |
-| **End**       | Decrease control time offset                               |
-| **Insert**    | Increase route scale                                       |
-| **Delete**    | Decrease route scale                                       |
-
-### Building on Windows
-
-1. Install [Visual Studio 2013 Professional](http://www.visualstudio.com/).
-2. Install [Qt 5.3](http://qt-project.org/downloads) (64-bit, VS 2013, OpenGL).
-3. Install [Visual Studio Add-in for Qt5](http://qt-project.org/downloads).
-4. Configure Qt Visual Studio settings to point to the correct Qt installation.
-5. Add Qt bin folder to your path.
-1. Clone [https://github.com/mikoro/orientview.git](https://github.com/mikoro/orientview.git).
-2. Clone [https://github.com/mikoro/orientview-binaries.git](https://github.com/mikoro/orientview-binaries.git).
-3. Copy the files from orientview-binaries/windows to the orientview root folder.
-4. Build using either Visual Studio or QtCreator.
-
-### <a name="linux_build"></a>Building on Linux
-
-1. Install [Qt 5.3](http://qt-project.org/).
-2. Install [FFmpeg 2.3](https://www.ffmpeg.org/).
-3. Install [OpenCV 2.4](http://opencv.org/).
-4. Install [x264](http://www.videolan.org/developers/x264.html).
-5. Install [L-SMASH](https://github.com/l-smash/l-smash).
-6. Clone [https://github.com/mikoro/orientview.git](https://github.com/mikoro/orientview.git).
-7. Run `qmake && make`.
+| Key           | Action                                                                                     |
+|---------------|--------------------------------------------------------------------------------------------|
+| **F1**        | Toggle info panel on/off                                                                   |
+| **F2**        | Select map/video/none for scrolling                                                        |
+| **F3**        | Select render mode (map/video/all)                                                         |
+| **F4**        | Select route render mode (none/discreet/highlight/pace)                                    |
+| **F5**        | Select tail render mode (none/discreet/highlight)                                          |
+| **F6**        | Select route view mode (fixed split / runner centered / runner centered fixed orientation) |
+| **F7**        | Toggle runner on/off                                                                       |
+| **F8**        | Toggle controls on/off                                                                     |
+| **F9**        | Toggle video stabilizer on/off                                                             |
+| **Space**     | Pause or resume video <br> Ctrl + Space advances one frame                                 |
+| **Ctrl**      | Slow/small modifier                                                                        |
+| **Shift**     | Fast/large modifier                                                                        |
+| **Alt**       | Very fast/large modifier                                                                   |
+| **Ctrl + 1**  | Reset map modifications                                                                    |
+| **Ctrl + 2**  | Reset video modifications                                                                  |
+| **Ctrl + 3**  | Reset route modifications                                                                  |
+| **Ctrl + 4**  | Reset timing offset modifications                                                          |
+| **Left**      | Seek video backwards <br> Scroll map/video left                                            |
+| **Right**     | Seek video forwards <br> Scroll map/video right                                            |
+| **Up**        | Scroll map/video up                                                                        |
+| **Down**      | Scroll map/video down                                                                      |
+| **Q**         | Zoom map in                                                                                |
+| **A**         | Zoom map out                                                                               |
+| **W**         | Rotate map counterclockwise                                                                |
+| **S**         | Rotate map clockwise                                                                       |
+| **E**         | Increase map width                                                                         |
+| **D**         | Decrease map width                                                                         |
+| **R**         | Zoom video in                                                                              |
+| **F**         | Zoom video out                                                                             |
+| **T**         | Rotate video counterclockwise                                                              |
+| **G**         | Rotate video clockwise                                                                     |
+| **Y**         | Increase route scale                                                                       |
+| **H**         | Decrease route scale                                                                       |
+| **Page Up**   | Increase runner offset                                                                     |
+| **Page Down** | Decrease runner offset                                                                     |
+| **Home**      | Increase control offset                                                                    |
+| **End**       | Decrease control offset                                                                    |
+| **Insert**    | Increase tail length                                                                       |
+| **Delete**    | Decrease tail length                                                                       |
 
 ## License
 

@@ -9,7 +9,7 @@
 	<key>CFBundleIdentifier</key>
 	<string>com.orientview.OrientView</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0.0</string>
+	<string>1.1.0</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleSignature</key>

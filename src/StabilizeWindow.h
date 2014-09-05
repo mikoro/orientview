@@ -34,11 +34,12 @@ namespace OrientView
 
 		public slots:
 
-		void frameProcessed(int frameNumber);
+		void frameProcessed(int frameNumber, double currentTime);
 		void processingFinished();
 
-		private slots:
+	private slots:
 
+		void on_pushButtonPauseContinue_clicked();
 		void on_pushButtonStopClose_clicked();
 
 	private:
@@ -47,7 +48,10 @@ namespace OrientView
 
 		Ui::StabilizeWindow* ui = nullptr;
 		VideoStabilizerThread* videoStabilizerThread = nullptr;
+
 		QTime startTime;
+		QTime pauseTime;
+		int totalPauseTime = 0;
 
 		bool isRunning = true;
 		int totalFrameCount = 0;

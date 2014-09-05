@@ -103,6 +103,11 @@ bool VideoWindow::event(QEvent* event)
 		emit resizing(re->size().width(), re->size().height());
 	}
 
+	if (event->type() == QEvent::FocusIn)
+	{
+		emit resizing(width(), height());
+	}
+
 	if (event->type() == QEvent::KeyPress)
 	{
 		QKeyEvent* ke = (QKeyEvent*)event;

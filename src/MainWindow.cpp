@@ -35,7 +35,7 @@ using namespace OrientView;
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
 	ui->setupUi(this);
-	resize(600, 500);
+	resize(700, 500);
 
 	logDataModel = new QStandardItemModel(0, 3);
 	settings = new Settings();
@@ -48,6 +48,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	ui->treeViewLog->setModel(logDataModel);
 
 	ui->tabWidgetMain->setCurrentIndex(0);
+
+	ui->comboBoxRouteManagerViewMode->view()->setMinimumSize(200, 0);
 }
 
 MainWindow::~MainWindow()
@@ -216,7 +218,10 @@ void MainWindow::on_actionPlayVideo_triggered()
 
 		inputHandler->initialize(videoWindow, renderer, videoDecoder, videoDecoderThread, videoStabilizer, routeManager, renderOnScreenThread, settings);
 		splitsManager->initialize(settings);
-		routeManager->initialize(quickRouteReader, splitsManager, renderer, settings);
+
+		if (!routeManager->initialize(quickRouteReader, splitsManager, renderer, settings))
+			throw std::runtime_error("Could not initialize route manager");
+
 		videoDecoderThread->initialize(videoDecoder);
 		renderOnScreenThread->initialize(this, videoWindow, videoDecoder, videoDecoderThread, videoStabilizer, routeManager, renderer, inputHandler);
 
@@ -391,7 +396,10 @@ void MainWindow::on_actionEncodeVideo_triggered()
 			throw std::runtime_error("Could not initialize video stabilizer");
 
 		splitsManager->initialize(settings);
-		routeManager->initialize(quickRouteReader, splitsManager, renderer, settings);
+
+		if (!routeManager->initialize(quickRouteReader, splitsManager, renderer, settings))
+			throw std::runtime_error("Could not initialize route manager");
+
 		videoDecoderThread->initialize(videoDecoder);
 		renderOffScreenThread->initialize(this, encodeWindow, videoDecoder, videoDecoderThread, videoStabilizer, routeManager, renderer, videoEncoder);
 		videoEncoderThread->initialize(videoDecoder, videoEncoder, renderOffScreenThread);
@@ -513,6 +521,14 @@ void MainWindow::encodeVideoFinished()
 	}
 }
 
+void MainWindow::on_actionHelp_triggered()
+{
+	QFileInfo fileInfo("readme.html");
+
+	if(!QDesktopServices::openUrl(QUrl(QString("file:///%1").arg(fileInfo.absoluteFilePath()))))
+		QDesktopServices::openUrl(QUrl(QString("https://github.com/mikoro/orientview")));
+}
+
 void MainWindow::on_actionExit_triggered()
 {
 	close();
@@ -564,28 +580,79 @@ void MainWindow::on_pushButtonBrowseOutputVideoFile_clicked()
 		ui->lineEditOutputVideoFile->setText(fileDialog.selectedFiles().at(0));
 }
 
-void MainWindow::on_pushButtonPickVideoBackgroundColor_clicked()
+void MainWindow::on_pushButtonPickMapBackgroundColor_clicked()
 {
-	settings->readFromUI(ui);
-
 	QColorDialog colorDialog;
-	QColor resultColor = colorDialog.getColor(settings->video.backgroundColor, this, "Pick video panel background color");
+	QColor resultColor = colorDialog.getColor(settings->map.backgroundColor, this, "Pick map background color");
 
 	if (resultColor.isValid())
-		settings->video.backgroundColor = resultColor;
+		settings->map.backgroundColor = resultColor;
 
 	settings->writeToUI(ui);
 }
 
-void MainWindow::on_pushButtonPickMapBackgroundColor_clicked()
+void MainWindow::on_pushButtonPickRouteDiscreetColor_clicked()
 {
-	settings->readFromUI(ui);
-
 	QColorDialog colorDialog;
-	QColor resultColor = colorDialog.getColor(settings->map.backgroundColor, this, "Pick map panel background color");
+	QColor resultColor = colorDialog.getColor(settings->route.discreetColor, this, "Pick route discreet color", QColorDialog::ColorDialogOption::ShowAlphaChannel);
 
 	if (resultColor.isValid())
-		settings->map.backgroundColor = resultColor;
+		settings->route.discreetColor = resultColor;
+
+	settings->writeToUI(ui);
+}
+
+void MainWindow::on_pushButtonPickRouteHighlightColor_clicked()
+{
+	QColorDialog colorDialog;
+	QColor resultColor = colorDialog.getColor(settings->route.highlightColor, this, "Pick route highlight color", QColorDialog::ColorDialogOption::ShowAlphaChannel);
+
+	if (resultColor.isValid())
+		settings->route.highlightColor = resultColor;
+
+	settings->writeToUI(ui);
+}
+
+void MainWindow::on_pushButtonPickRouteRunnerColor_clicked()
+{
+	QColorDialog colorDialog;
+	QColor resultColor = colorDialog.getColor(settings->route.runnerColor, this, "Pick runner color", QColorDialog::ColorDialogOption::ShowAlphaChannel);
+
+	if (resultColor.isValid())
+		settings->route.runnerColor = resultColor;
+
+	settings->writeToUI(ui);
+}
+
+void MainWindow::on_pushButtonPickRouteRunnerBorderColor_clicked()
+{
+	QColorDialog colorDialog;
+	QColor resultColor = colorDialog.getColor(settings->route.runnerBorderColor, this, "Pick runner border color", QColorDialog::ColorDialogOption::ShowAlphaChannel);
+
+	if (resultColor.isValid())
+		settings->route.runnerBorderColor = resultColor;
+
+	settings->writeToUI(ui);
+}
+
+void MainWindow::on_pushButtonPickRouteControlBorderColor_clicked()
+{
+	QColorDialog colorDialog;
+	QColor resultColor = colorDialog.getColor(settings->route.controlBorderColor, this, "Pick control border color", QColorDialog::ColorDialogOption::ShowAlphaChannel);
+
+	if (resultColor.isValid())
+		settings->route.controlBorderColor = resultColor;
+
+	settings->writeToUI(ui);
+}
+
+void MainWindow::on_pushButtonPickVideoBackgroundColor_clicked()
+{
+	QColorDialog colorDialog;
+	QColor resultColor = colorDialog.getColor(settings->video.backgroundColor, this, "Pick video background color");
+
+	if (resultColor.isValid())
+		settings->video.backgroundColor = resultColor;
 
 	settings->writeToUI(ui);
 }

@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>readme</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<style type="text/css">
+/* GitHub stylesheet for MarkdownPad (http://markdownpad.com) */
+/* Author: Nicolas Hery - http://nicolashery.com */
+/* Version: b13fe65ca28d2e568c6ed5d7f06581183df8f2ff */
+/* Source: https://github.com/nicolahery/markdownpad-github */
+
+/* RESET
+=============================================================================*/
+
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* BODY
+=============================================================================*/
+
+body {
+  font-family: Helvetica, arial, freesans, clean, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333;
+  background-color: #fff;
+  padding: 20px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+body>*:first-child {
+  margin-top: 0 !important;
+}
+
+body>*:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* BLOCKS
+=============================================================================*/
+
+p, blockquote, ul, ol, dl, table, pre {
+  margin: 15px 0;
+}
+
+/* HEADERS
+=============================================================================*/
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 20px 0 10px;
+  padding: 0;
+  font-weight: bold;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1 tt, h1 code, h2 tt, h2 code, h3 tt, h3 code, h4 tt, h4 code, h5 tt, h5 code, h6 tt, h6 code {
+  font-size: inherit;
+}
+
+h1 {
+  font-size: 28px;
+  color: #000;
+}
+
+h2 {
+  font-size: 24px;
+  border-bottom: 1px solid #ccc;
+  color: #000;
+}
+
+h3 {
+  font-size: 18px;
+}
+
+h4 {
+  font-size: 16px;
+}
+
+h5 {
+  font-size: 14px;
+}
+
+h6 {
+  color: #777;
+  font-size: 14px;
+}
+
+body>h2:first-child, body>h1:first-child, body>h1:first-child+h2, body>h3:first-child, body>h4:first-child, body>h5:first-child, body>h6:first-child {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+a:first-child h1, a:first-child h2, a:first-child h3, a:first-child h4, a:first-child h5, a:first-child h6 {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+h1+p, h2+p, h3+p, h4+p, h5+p, h6+p {
+  margin-top: 10px;
+}
+
+/* LINKS
+=============================================================================*/
+
+a {
+  color: #4183C4;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* LISTS
+=============================================================================*/
+
+ul, ol {
+  padding-left: 30px;
+}
+
+ul li > :first-child, 
+ol li > :first-child, 
+ul li ul:first-of-type, 
+ol li ol:first-of-type, 
+ul li ol:first-of-type, 
+ol li ul:first-of-type {
+  margin-top: 0px;
+}
+
+ul ul, ul ol, ol ol, ol ul {
+  margin-bottom: 0;
+}
+
+dl {
+  padding: 0;
+}
+
+dl dt {
+  font-size: 14px;
+  font-weight: bold;
+  font-style: italic;
+  padding: 0;
+  margin: 15px 0 5px;
+}
+
+dl dt:first-child {
+  padding: 0;
+}
+
+dl dt>:first-child {
+  margin-top: 0px;
+}
+
+dl dt>:last-child {
+  margin-bottom: 0px;
+}
+
+dl dd {
+  margin: 0 0 15px;
+  padding: 0 15px;
+}
+
+dl dd>:first-child {
+  margin-top: 0px;
+}
+
+dl dd>:last-child {
+  margin-bottom: 0px;
+}
+
+/* CODE
+=============================================================================*/
+
+pre, code, tt {
+  font-size: 12px;
+  font-family: Consolas, "Liberation Mono", Courier, monospace;
+}
+
+code, tt {
+  margin: 0 0px;
+  padding: 0px 0px;
+  white-space: nowrap;
+  border: 1px solid #eaeaea;
+  background-color: #f8f8f8;
+  border-radius: 3px;
+}
+
+pre>code {
+  margin: 0;
+  padding: 0;
+  white-space: pre;
+  border: none;
+  background: transparent;
+}
+
+pre {
+  background-color: #f8f8f8;
+  border: 1px solid #ccc;
+  font-size: 13px;
+  line-height: 19px;
+  overflow: auto;
+  padding: 6px 10px;
+  border-radius: 3px;
+}
+
+pre code, pre tt {
+  background-color: transparent;
+  border: none;
+}
+
+kbd {
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    background-color: #DDDDDD;
+    background-image: linear-gradient(#F1F1F1, #DDDDDD);
+    background-repeat: repeat-x;
+    border-color: #DDDDDD #CCCCCC #CCCCCC #DDDDDD;
+    border-image: none;
+    border-radius: 2px 2px 2px 2px;
+    border-style: solid;
+    border-width: 1px;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    line-height: 10px;
+    padding: 1px 4px;
+}
+
+/* QUOTES
+=============================================================================*/
+
+blockquote {
+  border-left: 4px solid #DDD;
+  padding: 0 15px;
+  color: #777;
+}
+
+blockquote>:first-child {
+  margin-top: 0px;
+}
+
+blockquote>:last-child {
+  margin-bottom: 0px;
+}
+
+/* HORIZONTAL RULES
+=============================================================================*/
+
+hr {
+  clear: both;
+  margin: 15px 0;
+  height: 0px;
+  overflow: hidden;
+  border: none;
+  background: transparent;
+  border-bottom: 4px solid #ddd;
+  padding: 0;
+}
+
+/* TABLES
+=============================================================================*/
+
+table th {
+  font-weight: bold;
+}
+
+table th, table td {
+  border: 1px solid #ccc;
+  padding: 6px 13px;
+}
+
+table tr {
+  border-top: 1px solid #ccc;
+  background-color: #fff;
+}
+
+table tr:nth-child(2n) {
+  background-color: #f8f8f8;
+}
+
+/* IMAGES
+=============================================================================*/
+
+img {
+  max-width: 100%
+}
+</style>
+</head>
+<body>
+<h1 id="orientview">OrientView</h1>
+<p>OrientView is an orienteering video analyzing program which displays the video and the map side-by-side in real-time. Almost all image and video file formats are supported. Routes are created and calibrated using <a href="http://www.matstroeng.se/quickroute/en/">QuickRoute</a>. Resulting video can be exported to a MP4 video file.</p>
+<ul>
+<li>Author: <a href="http://mikkoronkainen.com">Mikko Ronkainen</a></li>
+<li>Website: <a href="https://github.com/mikoro/orientview">github.com/mikoro/orientview</a></li>
+</ul>
+<p><a href="https://travis-ci.org/mikoro/orientview"><img src="https://travis-ci.org/mikoro/orientview.svg?branch=master" alt="Travis Status"></a><br><a href="https://scan.coverity.com/projects/2849"><img src="https://scan.coverity.com/projects/2849/badge.svg" alt="Coverity Status"></a></p>
+<p><img src="http://mikoro.github.io/images/orientview/readme-screenshot.jpg" alt="Screenshot" title="Screenshot"></p>
+<h2 id="download">Download</h2>
+<p>Download the latest version:</p>
+<table>
+<thead>
+<tr>
+<th>Windows 64-bit</th>
+<th>Mac OS X</th>
+<th>Linux</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/mikoro/orientview/releases/download/v1.1.0/OrientView-1.1.0-Setup.msi">OrientView-1.1.0-Setup.msi</a></td>
+<td><a href="https://github.com/mikoro/orientview/releases/download/v1.1.0/OrientView-1.1.0-mac.zip">OrientView-1.1.0-mac.zip</a></td>
+<td><a href="https://aur.archlinux.org/packages/orientview/">Arch Linux AUR</a></td>
+</tr>
+<tr>
+<td><a href="https://github.com/mikoro/orientview/releases/download/v1.1.0/OrientView-1.1.0-win.zip">OrientView-1.1.0-win.zip</a></td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<p>For testing out the program, you can also <a href="https://s3.amazonaws.com/orientview-testdata/orientview-testdata.zip?torrent">download test data</a> (<a href="https://mega.co.nz/#!HEViiR4I!eCpLCMwYRWjMB3NhPcbfZJtToYsI9tw1SfnEEoqFppM">mirror 1</a>) (<a href="https://s3.amazonaws.com/orientview-testdata/orientview-testdata.zip">mirror 2</a>).</p>
+<p><strong>Note:</strong> You will need a pretty recent GPU (less than four years old) with up-to-date graphics drivers.</p>
+<h2 id="features">Features</h2>
+<ul>
+<li>Opens all the image formats supported by <a href="http://qt-project.org/doc/qt/QImage.html#reading-and-writing-image-files">Qt</a>.</li>
+<li>Plays all the video files that are supported by <a href="https://www.ffmpeg.org/general.html#Supported-File-Formats_002c-Codecs-or-Features">FFmpeg</a>.</li>
+<li>Reads route point and calibration data from JPEG images created with <a href="http://www.matstroeng.se/quickroute/en/">QuickRoute</a>.</li>
+<li>Split times are input manually using simple formatting (absolute or relative).</li>
+<li>Supports video seeking and pausing. Different timing offsets are also adjustable to make the video and route match.</li>
+<li>Supports basic video stabilization using the <a href="http://opencv.org/">OpenCV</a> library. Stabilization can be done real-time or by using preprocessed data.</li>
+<li>Differents parts of the UI are fully adjustable.</li>
+<li>Draws all the graphics using OpenGL. Also utilizes shaders to do custom image resampling (e.g. high quality bicubic).</li>
+<li>Video window and exported video are completely resizable - original video resolution does not pose any restrictions.</li>
+<li>Resulting video can be exported to MP4 format with H.264 encoding.</li>
+<li>Program architecture is multithreaded and should allow maximal CPU core usage when for example exporting video.</li>
+</ul>
+<h2 id="instructions">Instructions</h2>
+<h3 id="workflow">Workflow</h3>
+<ul>
+<li>You need the video of the run, the map, the gps track, and the split times.</li>
+<li>If the video is in multiple parts, you need to stitch it together using e.g. <a href="http://fixounet.free.fr/avidemux/">Avidemux</a>.</li>
+<li>Scan the map with high resolution (600 dpi TIFF format is preferrable).</li>
+<li>Fix the map (orientation, cropping, levels etc.) and export one version with the original resolution (TIFF format preferrable) and export a smaller version for use with QuickRoute. Modern GPUs can easily take in 8192x8192 250 MB TIFF image - so there is no need to scale down or compress the map image that gets sent to the GPU. The QuickRoute image data will not be used so it&#39;s quality doesn&#39;t matter (only data inserted by QuickRoute to the JPEG file headers is used).</li>
+<li>Using <a href="http://www.matstroeng.se/quickroute/en/">QuickRoute</a> cut and align the gps track to the map. You can use as many aligment points as you want. Then export the map as a JPEG image.</li>
+<li>Format the split times to a single string. Format is &quot;hours:minutes:seconds&quot; with hours and minutes being optional and the separator between splits being &quot;|&quot; or &quot;;&quot;. For example: <code>1:23|1:23:45</code>. Time separator can also be &quot;.&quot;. For example: <code>1.23;1.23.45</code>. Split times can be absolute or relative.</li>
+<li>Open OrientView and select the map image file, the QuickRoute JPEG file, and the video file. Input the split times and press Play.</li>
+<li>Adjust the control time offset to move the controls to correct positions. Then seek the video to the first control and pause. Now adjust the runner time offset to move the runner to the correct position. Press F1 and take note of the adjusted values which you can then input back at the settings window.</li>
+</ul>
+<h3 id="misc">Misc</h3>
+<ul>
+<li>Most of the UI controls have tooltips explaining what they are for.</li>
+<li>Not all settings are exposed to the UI. You can edit the extra settings by first saving the current settings to a file, opening it with a text editor (the file is in ini format), and then loading the file back.</li>
+<li>The difference between real-time and preprocessed stabilization is that the latter can look at the future when doing the stabilization analysis. This makes the centering faster with sudden large frame movements and also makes the stabilization a little bit more responsive to small movements.</li>
+<li>The rescale shaders are in the <em>data/shaders</em> folder. The bicubic shader can be further customized by editing the <em>rescale_bicubic.frag</em> file (currently there are five different interpolation functions and some other settings).</li>
+</ul>
+<h3 id="known-issues">Known issues</h3>
+<ul>
+<li>If the route rendering doesn&#39;t work (route appears as a large rectangle), try settings the route color to 100% opaque.</li>
+</ul>
+<h3 id="controls">Controls</h3>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>F1</strong></td>
+<td>Toggle info panel on/off</td>
+</tr>
+<tr>
+<td><strong>F2</strong></td>
+<td>Select map/video/none for scrolling</td>
+</tr>
+<tr>
+<td><strong>F3</strong></td>
+<td>Select render mode (map/video/all)</td>
+</tr>
+<tr>
+<td><strong>F4</strong></td>
+<td>Select route render mode (none/discreet/highlight/pace)</td>
+</tr>
+<tr>
+<td><strong>F5</strong></td>
+<td>Select tail render mode (none/discreet/highlight)</td>
+</tr>
+<tr>
+<td><strong>F6</strong></td>
+<td>Select route view mode (fixed split / runner centered / runner centered fixed orientation)</td>
+</tr>
+<tr>
+<td><strong>F7</strong></td>
+<td>Toggle runner on/off</td>
+</tr>
+<tr>
+<td><strong>F8</strong></td>
+<td>Toggle controls on/off</td>
+</tr>
+<tr>
+<td><strong>F9</strong></td>
+<td>Toggle video stabilizer on/off</td>
+</tr>
+<tr>
+<td><strong>Space</strong></td>
+<td>Pause or resume video <br> Ctrl + Space advances one frame</td>
+</tr>
+<tr>
+<td><strong>Ctrl</strong></td>
+<td>Slow/small modifier</td>
+</tr>
+<tr>
+<td><strong>Shift</strong></td>
+<td>Fast/large modifier</td>
+</tr>
+<tr>
+<td><strong>Alt</strong></td>
+<td>Very fast/large modifier</td>
+</tr>
+<tr>
+<td><strong>Ctrl + 1</strong></td>
+<td>Reset map modifications</td>
+</tr>
+<tr>
+<td><strong>Ctrl + 2</strong></td>
+<td>Reset video modifications</td>
+</tr>
+<tr>
+<td><strong>Ctrl + 3</strong></td>
+<td>Reset route modifications</td>
+</tr>
+<tr>
+<td><strong>Ctrl + 4</strong></td>
+<td>Reset timing offset modifications</td>
+</tr>
+<tr>
+<td><strong>Left</strong></td>
+<td>Seek video backwards <br> Scroll map/video left</td>
+</tr>
+<tr>
+<td><strong>Right</strong></td>
+<td>Seek video forwards <br> Scroll map/video right</td>
+</tr>
+<tr>
+<td><strong>Up</strong></td>
+<td>Scroll map/video up</td>
+</tr>
+<tr>
+<td><strong>Down</strong></td>
+<td>Scroll map/video down</td>
+</tr>
+<tr>
+<td><strong>Q</strong></td>
+<td>Zoom map in</td>
+</tr>
+<tr>
+<td><strong>A</strong></td>
+<td>Zoom map out</td>
+</tr>
+<tr>
+<td><strong>W</strong></td>
+<td>Rotate map counterclockwise</td>
+</tr>
+<tr>
+<td><strong>S</strong></td>
+<td>Rotate map clockwise</td>
+</tr>
+<tr>
+<td><strong>E</strong></td>
+<td>Increase map width</td>
+</tr>
+<tr>
+<td><strong>D</strong></td>
+<td>Decrease map width</td>
+</tr>
+<tr>
+<td><strong>R</strong></td>
+<td>Zoom video in</td>
+</tr>
+<tr>
+<td><strong>F</strong></td>
+<td>Zoom video out</td>
+</tr>
+<tr>
+<td><strong>T</strong></td>
+<td>Rotate video counterclockwise</td>
+</tr>
+<tr>
+<td><strong>G</strong></td>
+<td>Rotate video clockwise</td>
+</tr>
+<tr>
+<td><strong>Y</strong></td>
+<td>Increase route scale</td>
+</tr>
+<tr>
+<td><strong>H</strong></td>
+<td>Decrease route scale</td>
+</tr>
+<tr>
+<td><strong>Page Up</strong></td>
+<td>Increase runner offset</td>
+</tr>
+<tr>
+<td><strong>Page Down</strong></td>
+<td>Decrease runner offset</td>
+</tr>
+<tr>
+<td><strong>Home</strong></td>
+<td>Increase control offset</td>
+</tr>
+<tr>
+<td><strong>End</strong></td>
+<td>Decrease control offset</td>
+</tr>
+<tr>
+<td><strong>Insert</strong></td>
+<td>Increase tail length</td>
+</tr>
+<tr>
+<td><strong>Delete</strong></td>
+<td>Decrease tail length</td>
+</tr>
+</tbody>
+</table>
+<h2 id="license">License</h2>
+<pre><code>OrientView
+Copyright © 2014 Mikko Ronkainen
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</code></pre>
+
+</body>
+</html>
+<!-- This document was created with MarkdownPad, the Markdown editor for Windows (http://markdownpad.com) -->

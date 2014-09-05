@@ -154,9 +154,11 @@ bool VideoDecoder::initialize(Settings* settings)
 
 	totalFrameCount = videoStream->nb_frames / frameCountDivisor;
 
-	frameRateNum = (int64_t)videoStream->avg_frame_rate.num / (int64_t)frameCountDivisor * (int64_t)frameDurationDivisor;
-	frameRateDen = (int64_t)videoStream->avg_frame_rate.den;
+	frameRateNum = (int64_t)videoStream->r_frame_rate.num / frameCountDivisor * frameDurationDivisor;
+	frameRateDen = (int64_t)videoStream->r_frame_rate.den;
 	frameDuration = frameRateDen * 1000000 / frameRateNum;
+
+	totalDurationInSeconds = ((double)videoStream->time_base.num / videoStream->time_base.den) * videoStream->duration;
 
 	isInitialized = true;
 	isFinished = false;
@@ -219,10 +221,10 @@ bool VideoDecoder::getNextFrame(FrameData* frameData, FrameData* frameDataGraysc
 	if (!isInitialized)
 		return false;
 
+	decodeDurationTimer.restart();
+
 	int framesRead = 0;
 	int readResult = 0;
-
-	decodeTimer.restart();
 
 	while (true)
 	{
@@ -288,7 +290,7 @@ bool VideoDecoder::getNextFrame(FrameData* frameData, FrameData* frameDataGraysc
 					double totalDurationInSeconds = ((double)videoStream->time_base.num / videoStream->time_base.den) * videoStream->duration;
 					currentTimeInSeconds = ((double)frame->best_effort_timestamp / videoStream->duration) * totalDurationInSeconds;
 					previousFrameTimestamp = frame->best_effort_timestamp;
-					lastDecodeTime = decodeTimer.nsecsElapsed() / 1000000.0;
+					decodeDuration = decodeDurationTimer.nsecsElapsed() / 1000000.0;
 					isFinished = false;
 
 					av_free_packet(&packet);
@@ -303,6 +305,7 @@ bool VideoDecoder::getNextFrame(FrameData* frameData, FrameData* frameDataGraysc
 			if (readResult != AVERROR_EOF)
 				qWarning("Could not read a frame: %d", readResult);
 
+			decodeDuration = decodeDurationTimer.nsecsElapsed() / 1000000.0;
 			isFinished = true;
 
 			return false;
@@ -367,11 +370,18 @@ double VideoDecoder::getCurrentTime()
 	return currentTimeInSeconds;
 }
 
-double VideoDecoder::getLastDecodeTime()
+double VideoDecoder::getDecodeDuration()
 {
 	QMutexLocker locker(&decoderMutex);
 
-	return lastDecodeTime;
+	return decodeDuration;
+}
+
+void  VideoDecoder::resetDecodeDuration()
+{
+	QMutexLocker locker(&decoderMutex);
+
+	decodeDuration = 0.0;
 }
 
 int VideoDecoder::getFrameWidth() const
@@ -384,17 +394,17 @@ int VideoDecoder::getFrameHeight() const
 	return frameHeight;
 }
 
-int VideoDecoder::getTotalFrameCount() const
+int64_t VideoDecoder::getTotalFrameCount() const
 {
 	return totalFrameCount;
 }
 
-int VideoDecoder::getFrameRateNum() const
+int64_t VideoDecoder::getFrameRateNum() const
 {
 	return frameRateNum;
 }
 
-int VideoDecoder::getFrameRateDen() const
+int64_t VideoDecoder::getFrameRateDen() const
 {
 	return frameRateDen;
 }
@@ -402,4 +412,9 @@ int VideoDecoder::getFrameRateDen() const
 double VideoDecoder::getFrameDuration() const
 {
 	return (double)frameDuration / 1000.0;
+}
+
+double VideoDecoder::getTotalDuration() const
+{
+	return totalDurationInSeconds;
 }

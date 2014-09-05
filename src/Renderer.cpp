@@ -14,6 +14,10 @@
 
 using namespace OrientView;
 
+Panel::Panel() : texture(QOpenGLTexture::Target2D)
+{
+}
+
 bool Renderer::initialize(VideoDecoder* videoDecoder, MapImageReader* mapImageReader, VideoStabilizer* videoStabilizer, InputHandler* inputHandler, RouteManager* routeManager, Settings* settings, bool renderToOffscreen)
 {
 	qDebug("Initializing renderer");
@@ -47,26 +51,22 @@ bool Renderer::initialize(VideoDecoder* videoDecoder, MapImageReader* mapImageRe
 	mapPanel.relativeWidth = settings->map.relativeWidth;
 
 	multisamples = settings->window.multisamples;
-	showInfoPanel = settings->window.showInfoPanel;
+	renderMode = settings->renderer.renderMode;
+	showInfoPanel = settings->renderer.showInfoPanel;
+	infoPanelFontSize = settings->renderer.infoPanelFontSize;
 
-	const double movingAverageAlpha = 0.1;
-	averageFps.setAlpha(movingAverageAlpha);
-	averageFrameTime.setAlpha(movingAverageAlpha);
-	averageDecodeTime.setAlpha(movingAverageAlpha);
-	averageStabilizeTime.setAlpha(movingAverageAlpha);
-	averageRenderTime.setAlpha(movingAverageAlpha);
-	averageEncodeTime.setAlpha(movingAverageAlpha);
-	averageSpareTime.setAlpha(movingAverageAlpha);
+	const double averagingFactor = 0.005;
+	averageFps.setAlpha(averagingFactor);
+	averageFrameDuration.setAlpha(averagingFactor);
+	averageDecodeDuration.setAlpha(averagingFactor);
+	averageStabilizeDuration.setAlpha(averagingFactor);
+	averageRenderDuration.setAlpha(averagingFactor);
+	averageEncodeDuration.setAlpha(averagingFactor);
+	averageSpareTime.setAlpha(averagingFactor);
 
 	initializeOpenGLFunctions();
 
 	if (!windowResized(settings->window.width, settings->window.height))
-		return false;
-
-	if (!loadShaders(videoPanel, settings->video.rescaleShader))
-		return false;
-
-	if (!loadShaders(mapPanel, settings->map.rescaleShader))
 		return false;
 
 	// 1 2
@@ -99,28 +99,43 @@ bool Renderer::initialize(VideoDecoder* videoDecoder, MapImageReader* mapImageRe
 		0.0f, 1.0f  // 4
 	};
 
-	loadBuffer(videoPanel, videoPanelBuffer, 20);
-	loadBuffer(mapPanel, mapPanelBuffer, 20);
+	videoPanel.vertexBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
+	videoPanel.vertexBuffer.create();
+	videoPanel.vertexBuffer.bind();
+	videoPanel.vertexBuffer.allocate(videoPanelBuffer, sizeof(GLfloat) * 20);
+	videoPanel.vertexBuffer.release();
 
-	videoPanel.texture = new QOpenGLTexture(QOpenGLTexture::Target2D);
-	videoPanel.texture->create();
-	videoPanel.texture->bind();
-	videoPanel.texture->setSize(videoPanel.textureWidth, videoPanel.textureHeight);
-	videoPanel.texture->setFormat(QOpenGLTexture::RGBA8_UNorm);
-	videoPanel.texture->setMinificationFilter(QOpenGLTexture::Linear);
-	videoPanel.texture->setMagnificationFilter(QOpenGLTexture::Linear);
-	videoPanel.texture->setWrapMode(QOpenGLTexture::ClampToEdge);
-	videoPanel.texture->allocateStorage();
-	videoPanel.texture->release();
+	mapPanel.vertexBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
+	mapPanel.vertexBuffer.create();
+	mapPanel.vertexBuffer.bind();
+	mapPanel.vertexBuffer.allocate(mapPanelBuffer, sizeof(GLfloat) * 20);
+	mapPanel.vertexBuffer.release();
 
-	mapPanel.texture = new QOpenGLTexture(mapImageReader->getMapImage());
-	mapPanel.texture->bind();
-	mapPanel.texture->setMinificationFilter(QOpenGLTexture::Linear);
-	mapPanel.texture->setMagnificationFilter(QOpenGLTexture::Linear);
-	mapPanel.texture->setWrapMode(QOpenGLTexture::ClampToEdge);
-	mapPanel.texture->release();
+	videoPanel.texture.create();
+	videoPanel.texture.bind();
+	videoPanel.texture.setSize(videoPanel.textureWidth, videoPanel.textureHeight);
+	videoPanel.texture.setFormat(QOpenGLTexture::RGBA8_UNorm);
+	videoPanel.texture.setMinificationFilter(QOpenGLTexture::Linear);
+	videoPanel.texture.setMagnificationFilter(QOpenGLTexture::Linear);
+	videoPanel.texture.setWrapMode(QOpenGLTexture::ClampToEdge);
+	videoPanel.texture.allocateStorage();
+	videoPanel.texture.release();
 
-	paintDevice = new QOpenGLPaintDevice();
+	mapPanel.texture.create();
+	mapPanel.texture.bind();
+	mapPanel.texture.setData(mapImageReader->getMapImage());
+	mapPanel.texture.setMinificationFilter(QOpenGLTexture::Linear);
+	mapPanel.texture.setMagnificationFilter(QOpenGLTexture::Linear);
+	mapPanel.texture.setWrapMode(QOpenGLTexture::ClampToEdge);
+	mapPanel.texture.release();
+
+	if (!loadRescaleShader(videoPanel, settings->video.rescaleShader))
+		return false;
+
+	if (!loadRescaleShader(mapPanel, settings->map.rescaleShader))
+		return false;
+
+	paintDevice = new QOpenGLPaintDevice(windowWidth, windowHeight);
 	paintDevice->setPaintFlipped(renderToOffscreen);
 	painter = new QPainter();
 
@@ -140,15 +155,15 @@ bool Renderer::windowResized(int newWidth, int newHeight)
 		format.setSamples(multisamples);
 		format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
 
-		if (outputFramebuffer != nullptr)
+		if (offscreenFramebuffer != nullptr)
 		{
-			delete outputFramebuffer;
-			outputFramebuffer = nullptr;
+			delete offscreenFramebuffer;
+			offscreenFramebuffer = nullptr;
 		}
 
-		outputFramebuffer = new QOpenGLFramebufferObject(windowWidth, windowHeight, format);
+		offscreenFramebuffer = new QOpenGLFramebufferObject(windowWidth, windowHeight, format);
 
-		if (!outputFramebuffer->isValid())
+		if (!offscreenFramebuffer->isValid())
 		{
 			qWarning("Could not create main frame buffer");
 			return false;
@@ -156,15 +171,15 @@ bool Renderer::windowResized(int newWidth, int newHeight)
 
 		format.setSamples(0);
 
-		if (outputFramebufferNonMultisample != nullptr)
+		if (offscreenFramebufferNonMultisample != nullptr)
 		{
-			delete outputFramebufferNonMultisample;
-			outputFramebufferNonMultisample = nullptr;
+			delete offscreenFramebufferNonMultisample;
+			offscreenFramebufferNonMultisample = nullptr;
 		}
 
-		outputFramebufferNonMultisample = new QOpenGLFramebufferObject(windowWidth, windowHeight, format);
+		offscreenFramebufferNonMultisample = new QOpenGLFramebufferObject(windowWidth, windowHeight, format);
 
-		if (!outputFramebufferNonMultisample->isValid())
+		if (!offscreenFramebufferNonMultisample->isValid())
 		{
 			qWarning("Could not create non multisampled main frame buffer");
 			return false;
@@ -195,16 +210,16 @@ Renderer::~Renderer()
 		renderedFrameData.data = nullptr;
 	}
 
-	if (outputFramebufferNonMultisample != nullptr)
+	if (offscreenFramebufferNonMultisample != nullptr)
 	{
-		delete outputFramebufferNonMultisample;
-		outputFramebufferNonMultisample = nullptr;
+		delete offscreenFramebufferNonMultisample;
+		offscreenFramebufferNonMultisample = nullptr;
 	}
 
-	if (outputFramebuffer != nullptr)
+	if (offscreenFramebuffer != nullptr)
 	{
-		delete outputFramebuffer;
-		outputFramebuffer = nullptr;
+		delete offscreenFramebuffer;
+		offscreenFramebuffer = nullptr;
 	}
 
 	if (painter != nullptr)
@@ -218,105 +233,53 @@ Renderer::~Renderer()
 		delete paintDevice;
 		paintDevice = nullptr;
 	}
-
-	if (mapPanel.texture != nullptr)
-	{
-		delete mapPanel.texture;
-		mapPanel.texture = nullptr;
-	}
-
-	if (videoPanel.texture != nullptr)
-	{
-		delete videoPanel.texture;
-		videoPanel.texture = nullptr;
-	}
-
-	if (mapPanel.buffer != nullptr)
-	{
-		delete mapPanel.buffer;
-		mapPanel.buffer = nullptr;
-	}
-
-	if (videoPanel.buffer != nullptr)
-	{
-		delete videoPanel.buffer;
-		videoPanel.buffer = nullptr;
-	}
-
-	if (mapPanel.program != nullptr)
-	{
-		delete mapPanel.program;
-		mapPanel.program = nullptr;
-	}
-
-	if (videoPanel.program != nullptr)
-	{
-		delete videoPanel.program;
-		videoPanel.program = nullptr;
-	}
 }
 
-bool Renderer::loadShaders(Panel& panel, const QString& shaderName)
+bool Renderer::loadRescaleShader(Panel& panel, const QString& shaderName)
 {
-	panel.program = new QOpenGLShaderProgram();
-
-	if (!panel.program->addShaderFromSourceFile(QOpenGLShader::Vertex, QString("data/shaders/%1.vert").arg(shaderName)))
+	if (!panel.shaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, QString("data/shaders/rescale_%1.vert").arg(shaderName)))
 		return false;
 
-	if (!panel.program->addShaderFromSourceFile(QOpenGLShader::Fragment, QString("data/shaders/%1.frag").arg(shaderName)))
+	if (!panel.shaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, QString("data/shaders/rescale_%1.frag").arg(shaderName)))
 		return false;
 
-	if (!panel.program->link())
+	if (!panel.shaderProgram.link())
 		return false;
 
-	if ((panel.vertexMatrixUniform = panel.program->uniformLocation("vertexMatrix")) == -1)
-		qWarning("Could not find vertexMatrix uniform");
+	panel.vertexArrayObject.create();
+	panel.vertexArrayObject.bind();
 
-	if ((panel.vertexPositionAttribute = panel.program->attributeLocation("vertexPosition")) == -1)
-		qWarning("Could not find vertexPosition attribute");
+	panel.vertexBuffer.bind();
+	panel.shaderProgram.enableAttributeArray("vertexPosition");
+	panel.shaderProgram.enableAttributeArray("vertexTextureCoordinate");
+	panel.shaderProgram.setAttributeBuffer("vertexPosition", GL_FLOAT, 0, 3, 0);
+	panel.shaderProgram.setAttributeBuffer("vertexTextureCoordinate", GL_FLOAT, sizeof(GLfloat) * 12, 2, 0);
 
-	if ((panel.vertexTextureCoordinateAttribute = panel.program->attributeLocation("vertexTextureCoordinate")) == -1)
-		qWarning("Could not find vertexTextureCoordinate attribute");
-
-	if ((panel.textureSamplerUniform = panel.program->uniformLocation("textureSampler")) == -1)
-		qWarning("Could not find textureSampler uniform");
-
-	panel.textureWidthUniform = panel.program->uniformLocation("textureWidth");
-	panel.textureHeightUniform = panel.program->uniformLocation("textureHeight");
-	panel.texelWidthUniform = panel.program->uniformLocation("texelWidth");
-	panel.texelHeightUniform = panel.program->uniformLocation("texelHeight");
+	panel.vertexArrayObject.release();
+	panel.vertexBuffer.release();
 
 	return true;
 }
 
-void Renderer::loadBuffer(Panel& panel, GLfloat* buffer, size_t size)
+void Renderer::startRendering(double currentTime, double frameDuration, double decodeDuration, double stabilizeDuration, double encodeDuration, double spareTime)
 {
-	panel.buffer = new QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
-	panel.buffer->setUsagePattern(QOpenGLBuffer::StaticDraw);
-	panel.buffer->create();
-	panel.buffer->bind();
-	panel.buffer->allocate(buffer, (int)(sizeof(GLfloat) * size));
-	panel.buffer->release();
-}
-
-void Renderer::startRendering(double currentTime, double frameTime, double spareTime, double decoderTime, double stabilizerTime, double encoderTime)
-{
-	renderTimer.restart();
+	renderDurationTimer.restart();
 
 	this->currentTime = currentTime;
 
-	averageFps.addMeasurement(1000.0 / frameTime);
-	averageFrameTime.addMeasurement(frameTime);
-	averageDecodeTime.addMeasurement(decoderTime);
-	averageStabilizeTime.addMeasurement(stabilizerTime);
-	averageRenderTime.addMeasurement(lastRenderTime);
-	averageEncodeTime.addMeasurement(encoderTime);
-	averageSpareTime.addMeasurement(spareTime);
+	averageFps.addMeasurement(1000.0 / frameDuration, frameDuration);
+	averageFrameDuration.addMeasurement(frameDuration, frameDuration);
+	averageDecodeDuration.addMeasurement(decodeDuration, frameDuration);
+	averageStabilizeDuration.addMeasurement(stabilizeDuration, frameDuration);
+	averageRenderDuration.addMeasurement(renderDuration, frameDuration);
+	averageEncodeDuration.addMeasurement(encodeDuration, frameDuration);
+	averageSpareTime.addMeasurement(spareTime, frameDuration);
 
 	paintDevice->setSize(QSize(windowWidth, windowHeight));
 
 	glViewport(0, 0, windowWidth, windowHeight);
 	glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	glDisable(GL_DEPTH_TEST);
 }
 
 void Renderer::uploadFrameData(const FrameData& frameData)
@@ -329,14 +292,14 @@ void Renderer::uploadFrameData(const FrameData& frameData)
 		options.setImageHeight(frameData.height);
 		options.setAlignment(1);
 
-		videoPanel.texture->setData(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, frameData.data, &options);
+		videoPanel.texture.setData(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, frameData.data, &options);
 	}
 }
 
 void Renderer::renderAll()
 {
 	if (renderToOffscreen)
-		outputFramebuffer->bind();
+		offscreenFramebuffer->bind();
 
 	if (renderMode == RenderMode::All || renderMode == RenderMode::Video)
 		renderVideoPanel();
@@ -361,12 +324,12 @@ void Renderer::renderAll()
 		renderInfoPanel();
 
 	if (renderToOffscreen)
-		outputFramebuffer->release();
+		offscreenFramebuffer->release();
 }
 
 void Renderer::stopRendering()
 {
-	lastRenderTime = renderTimer.nsecsElapsed() / 1000000.0;
+	renderDuration = renderDurationTimer.nsecsElapsed() / 1000000.0;
 }
 
 FrameData Renderer::getRenderedFrame()
@@ -374,15 +337,15 @@ FrameData Renderer::getRenderedFrame()
 	if (!renderToOffscreen)
 		return FrameData();
 
-	QOpenGLFramebufferObject* sourceFbo = outputFramebuffer;
+	QOpenGLFramebufferObject* sourceFbo = offscreenFramebuffer;
 
 	// pixels cannot be directly read from a multisampled framebuffer
 	// copy the framebuffer to a non-multisampled framebuffer and continue
 	if (sourceFbo->format().samples() != 0)
 	{
 		QRect rect(0, 0, windowWidth, windowHeight);
-		QOpenGLFramebufferObject::blitFramebuffer(outputFramebufferNonMultisample, rect, sourceFbo, rect);
-		sourceFbo = outputFramebufferNonMultisample;
+		QOpenGLFramebufferObject::blitFramebuffer(offscreenFramebufferNonMultisample, rect, sourceFbo, rect);
+		sourceFbo = offscreenFramebufferNonMultisample;
 	}
 
 	sourceFbo->bind();
@@ -498,54 +461,35 @@ void Renderer::renderMapPanel()
 	glDisable(GL_SCISSOR_TEST);
 }
 
-void Renderer::renderPanel(const Panel& panel)
+void Renderer::renderPanel(Panel& panel)
 {
-	panel.program->bind();
+	panel.shaderProgram.bind();
 
-	if (panel.vertexMatrixUniform >= 0)
-		panel.program->setUniformValue((GLuint)panel.vertexMatrixUniform, panel.vertexMatrix);
+	panel.shaderProgram.setUniformValue("vertexMatrix", panel.vertexMatrix);
+	panel.shaderProgram.setUniformValue("textureSampler", 0);
+	panel.shaderProgram.setUniformValue("textureWidth", (float)panel.textureWidth);
+	panel.shaderProgram.setUniformValue("textureHeight", (float)panel.textureHeight);
+	panel.shaderProgram.setUniformValue("texelWidth", (float)panel.texelWidth);
+	panel.shaderProgram.setUniformValue("texelHeight", (float)panel.texelHeight);
 
-	if (panel.textureSamplerUniform >= 0)
-		panel.program->setUniformValue((GLuint)panel.textureSamplerUniform, 0);
+	panel.vertexArrayObject.bind();
+	panel.texture.bind();
 
-	if (panel.textureWidthUniform >= 0)
-		panel.program->setUniformValue((GLuint)panel.textureWidthUniform, (float)panel.textureWidth);
-
-	if (panel.textureHeightUniform >= 0)
-		panel.program->setUniformValue((GLuint)panel.textureHeightUniform, (float)panel.textureHeight);
-
-	if (panel.texelWidthUniform >= 0)
-		panel.program->setUniformValue((GLuint)panel.texelWidthUniform, (float)panel.texelWidth);
-
-	if (panel.texelHeightUniform >= 0)
-		panel.program->setUniformValue((GLuint)panel.texelHeightUniform, (float)panel.texelHeight);
-
-	panel.buffer->bind();
-	panel.texture->bind();
-
-	int* textureCoordinateOffset = (int*)(sizeof(GLfloat) * 12);
-
-	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(panel.vertexPositionAttribute, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	glVertexAttribPointer(panel.vertexTextureCoordinateAttribute, 2, GL_FLOAT, GL_FALSE, 0, textureCoordinateOffset);
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-	glDisableVertexAttribArray(0);
-	glDisableVertexAttribArray(1);
 
-	panel.texture->release();
-	panel.buffer->release();
-	panel.program->release();
+	panel.texture.release();
+	panel.vertexArrayObject.release();
+	panel.shaderProgram.release();
 }
 
-void Renderer::renderRoute(const Route& route)
+void Renderer::renderRoute(Route& route)
 {
-	QMatrix m;
-	m.translate(windowWidth / 2.0, windowHeight / 2.0);
-	m.translate(mapPanel.offsetX, mapPanel.offsetY);
-	m.rotate(-(mapPanel.angle + mapPanel.userAngle + routeManager->getAngle()));
-	m.scale(mapPanel.scale * mapPanel.userScale * routeManager->getScale(), mapPanel.scale * mapPanel.userScale * routeManager->getScale());
-	m.translate(mapPanel.x + mapPanel.userX + routeManager->getX(), -(mapPanel.y + mapPanel.userY + routeManager->getY()));
+	QMatrix painterMatrix;
+	painterMatrix.translate(windowWidth / 2.0, windowHeight / 2.0);
+	painterMatrix.translate(mapPanel.offsetX, mapPanel.offsetY);
+	painterMatrix.rotate(-(mapPanel.angle + mapPanel.userAngle + routeManager->getAngle()));
+	painterMatrix.scale(mapPanel.scale * mapPanel.userScale * routeManager->getScale(), mapPanel.scale * mapPanel.userScale * routeManager->getScale());
+	painterMatrix.translate(mapPanel.x + mapPanel.userX + routeManager->getX(), -(mapPanel.y + mapPanel.userY + routeManager->getY()));
 
 	painter->begin(paintDevice);
 	painter->setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform | QPainter::HighQualityAntialiasing);
@@ -556,40 +500,59 @@ void Renderer::renderRoute(const Route& route)
 		painter->setClipRect(0, 0, (int)(mapPanel.relativeWidth * windowWidth + 0.5), (int)windowHeight);
 	}
 
-	painter->setWorldMatrix(m);
+	painter->setWorldMatrix(painterMatrix);
 
-	if (route.wholeRouteRenderMode == RouteRenderMode::Normal)
+	if (route.routeRenderMode == RouteRenderMode::Discreet || route.routeRenderMode == RouteRenderMode::Highlight)
 	{
-		QPen wholeRoutePen;
-		wholeRoutePen.setWidthF(route.wholeRouteWidth * route.userScale);
-		wholeRoutePen.setColor(route.wholeRouteColor);
-		wholeRoutePen.setJoinStyle(Qt::PenJoinStyle::RoundJoin);
-		wholeRoutePen.setCapStyle(Qt::PenCapStyle::RoundCap);
+		QPen routePen;
+		routePen.setWidthF(route.routeWidth * route.userScale);
+		routePen.setJoinStyle(Qt::PenJoinStyle::RoundJoin);
+		routePen.setCapStyle(Qt::PenCapStyle::RoundCap);
+		routePen.setColor(route.routeRenderMode == RouteRenderMode::Discreet ? route.discreetColor : route.highlightColor);
 
-		painter->setPen(wholeRoutePen);
+		painter->setPen(routePen);
 		painter->setBrush(Qt::NoBrush);
-		painter->drawPath(route.wholeRoutePath);
+		painter->drawPath(route.routePath);
 	}
 
-	if (route.wholeRouteRenderMode == RouteRenderMode::Pace)
+	if (route.routeRenderMode == RouteRenderMode::Pace)
 	{
 		QPen paceRoutePen;
-		paceRoutePen.setWidthF(route.wholeRouteWidth * route.userScale);
-		paceRoutePen.setJoinStyle(Qt::PenJoinStyle::RoundJoin);
+		paceRoutePen.setWidthF(route.routeWidth * route.userScale);
 		paceRoutePen.setCapStyle(Qt::PenCapStyle::RoundCap);
 
-		painter->setBrush(Qt::NoBrush);
-
-		for (size_t i = 1; i < routeManager->getDefaultRoute().routePoints.size(); ++i)
+		for (int i = 0; i < (int)routeManager->getDefaultRoute().routePoints.size() - 1; ++i)
 		{
-			RoutePoint rp1 = routeManager->getDefaultRoute().routePoints.at(i - 1);
-			RoutePoint rp2 = routeManager->getDefaultRoute().routePoints.at(i);
+			RoutePoint& rp1 = routeManager->getDefaultRoute().routePoints.at(i);
+			RoutePoint& rp2 = routeManager->getDefaultRoute().routePoints.at(i + 1);
 
 			paceRoutePen.setColor(rp2.color);
 
 			painter->setPen(paceRoutePen);
+			painter->setBrush(Qt::NoBrush);
 			painter->drawLine(rp1.position, rp2.position);
 		}
+	}
+
+	if (route.tailRenderMode == RouteRenderMode::Discreet || route.tailRenderMode == RouteRenderMode::Highlight)
+	{
+		QPen tailPen;
+		tailPen.setWidthF(route.tailWidth * route.userScale);
+		tailPen.setJoinStyle(Qt::PenJoinStyle::RoundJoin);
+		tailPen.setCapStyle(Qt::PenCapStyle::RoundCap);
+
+		QColor tailColor;
+
+		if (route.tailRenderMode == RouteRenderMode::Discreet)
+			tailColor = route.discreetColor;
+		else
+			tailColor = route.highlightColor;
+
+		tailPen.setColor(tailColor);
+
+		painter->setPen(tailPen);
+		painter->setBrush(Qt::NoBrush);
+		painter->drawPath(route.tailPath);
 	}
 
 	if (route.showControls)
@@ -616,7 +579,7 @@ void Renderer::renderRoute(const Route& route)
 		runnerBrush.setColor(route.runnerColor);
 		runnerBrush.setStyle(Qt::SolidPattern);
 
-		double runnerRadius = (((route.wholeRouteWidth / 2.0) - (route.runnerBorderWidth / 2.0)) * route.runnerScale) * route.userScale;
+		double runnerRadius = route.runnerRadius * route.runnerScale * route.userScale;
 
 		painter->setPen(runnerPen);
 		painter->setBrush(runnerBrush);
@@ -629,7 +592,7 @@ void Renderer::renderRoute(const Route& route)
 
 void Renderer::renderInfoPanel()
 {
-	QFont font = QFont("DejaVu Sans", 8, QFont::Bold);
+	QFont font = QFont("DejaVu Sans", infoPanelFontSize, QFont::Bold);
 	QFontMetrics metrics(font);
 
 	int textX = 10;
@@ -641,7 +604,7 @@ void Renderer::renderInfoPanel()
 	int rightPartMargin = 15;
 	int backgroundRadius = 10;
 	int backgroundWidth = textX + backgroundRadius + lineWidth1 + rightPartMargin + lineWidth2 + 10;
-	int backgroundHeight = lineSpacing * 19 + textY + 3;
+	int backgroundHeight = lineSpacing * 18 + textY + 3;
 
 	QColor textColor = QColor(255, 255, 255, 200);
 	QColor textGreenColor = QColor(0, 255, 0, 200);
@@ -674,7 +637,6 @@ void Renderer::renderInfoPanel()
 
 	textY += lineSpacing;
 
-	painter->drawText(textX, textY += lineSpacing, lineWidth1, lineHeight, 0, "render:");
 	painter->drawText(textX, textY += lineSpacing, lineWidth1, lineHeight, 0, "scroll:");
 
 	textY += lineSpacing;
@@ -697,13 +659,13 @@ void Renderer::renderInfoPanel()
 	textY += lineSpacing;
 
 	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString::number(averageFps.getAverage(), 'f', 2));
-	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString("%1 ms").arg(QString::number(averageFrameTime.getAverage(), 'f', 2)));
-	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString("%1 ms").arg(QString::number(averageDecodeTime.getAverage(), 'f', 2)));
-	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString("%1 ms").arg(QString::number(averageStabilizeTime.getAverage(), 'f', 2)));
-	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString("%1 ms").arg(QString::number(averageRenderTime.getAverage(), 'f', 2)));
+	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString("%1 ms").arg(QString::number(averageFrameDuration.getAverage(), 'f', 2)));
+	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString("%1 ms").arg(QString::number(averageDecodeDuration.getAverage(), 'f', 2)));
+	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString("%1 ms").arg(QString::number(averageStabilizeDuration.getAverage(), 'f', 2)));
+	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString("%1 ms").arg(QString::number(averageRenderDuration.getAverage(), 'f', 2)));
 
 	if (renderToOffscreen)
-		painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString("%1 ms").arg(QString::number(averageEncodeTime.getAverage(), 'f', 2)));
+		painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, QString("%1 ms").arg(QString::number(averageEncodeDuration.getAverage(), 'f', 2)));
 	else
 	{
 		if (averageSpareTime.getAverage() < 0)
@@ -715,20 +677,11 @@ void Renderer::renderInfoPanel()
 		painter->setPen(textColor);
 	}
 
-	QString renderText;
 	QString scrollText;
-
-	switch (renderMode)
-	{
-		case RenderMode::All: renderText = "both"; break;
-		case RenderMode::Map: renderText = "map"; break;
-		case RenderMode::Video: renderText = "video"; break;
-		default: renderText = "unknown"; break;
-	}
 
 	switch (inputHandler->getScrollMode())
 	{
-		case ScrollMode::None: scrollText = "none"; break;
+		case ScrollMode::None: scrollText = "none (seek)"; break;
 		case ScrollMode::Map: scrollText = "map"; break;
 		case ScrollMode::Video: scrollText = "video"; break;
 		default: scrollText = "unknown"; break;
@@ -736,7 +689,6 @@ void Renderer::renderInfoPanel()
 
 	textY += lineSpacing;
 
-	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, renderText);
 	painter->drawText(textX, textY += lineSpacing, lineWidth2, lineHeight, 0, scrollText);
 
 	textY += lineSpacing;

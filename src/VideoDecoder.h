@@ -32,13 +32,16 @@ namespace OrientView
 
 		bool getIsFinished();
 		double getCurrentTime();
-		double getLastDecodeTime();
+		double getDecodeDuration();
+		void resetDecodeDuration();
+
 		int getFrameWidth() const;
 		int getFrameHeight() const;
-		int getTotalFrameCount() const;
-		int getFrameRateNum() const;
-		int getFrameRateDen() const;
+		int64_t getTotalFrameCount() const;
+		int64_t getFrameRateNum() const;
+		int64_t getFrameRateDen() const;
 		double getFrameDuration() const;
+		double getTotalDuration() const;
 
 	private:
 
@@ -73,12 +76,13 @@ namespace OrientView
 		int64_t previousFrameTimestamp = 0; // video stream time base units
 
 		double currentTimeInSeconds = 0.0;
+		double totalDurationInSeconds = 0.0;
 
 		bool isInitialized = false;
 		bool isFinished = true;
 		bool seekToAnyFrame = false;
 
-		QElapsedTimer decodeTimer;
-		double lastDecodeTime = 0.0;
+		QElapsedTimer decodeDurationTimer;
+		double decodeDuration = 0.0;
 	};
 }

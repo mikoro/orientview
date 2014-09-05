@@ -50,7 +50,7 @@ void InputHandler::handleInput(double frameTime)
 			case ScrollMode::None: scrollMode = ScrollMode::Map; break;
 			case ScrollMode::Map: scrollMode = ScrollMode::Video; break;
 			case ScrollMode::Video: scrollMode = ScrollMode::None; break;
-			default: break;
+			default: scrollMode = ScrollMode::None;
 		}
 	}
 
@@ -61,7 +61,7 @@ void InputHandler::handleInput(double frameTime)
 			case RenderMode::All: renderer->setRenderMode(RenderMode::Map); break;
 			case RenderMode::Map: renderer->setRenderMode(RenderMode::Video); break;
 			case RenderMode::Video: renderer->setRenderMode(RenderMode::All); break;
-			default: break;
+			default: renderer->setRenderMode(RenderMode::All);
 		}
 
 		renderer->requestFullClear();
@@ -69,24 +69,45 @@ void InputHandler::handleInput(double frameTime)
 
 	if (videoWindow->keyIsDownOnce(Qt::Key_F4))
 	{
-		switch (defaultRoute.wholeRouteRenderMode)
+		switch (defaultRoute.routeRenderMode)
 		{
-			case RouteRenderMode::Normal: defaultRoute.wholeRouteRenderMode = RouteRenderMode::Pace; break;
-			case RouteRenderMode::Pace: defaultRoute.wholeRouteRenderMode = RouteRenderMode::None; break;
-			case RouteRenderMode::None: defaultRoute.wholeRouteRenderMode = RouteRenderMode::Normal; break;
-			default: break;
+			case RouteRenderMode::None: defaultRoute.routeRenderMode = RouteRenderMode::Discreet; break;
+			case RouteRenderMode::Discreet: defaultRoute.routeRenderMode = RouteRenderMode::Highlight; break;
+			case RouteRenderMode::Highlight: defaultRoute.routeRenderMode = RouteRenderMode::Pace; break;
+			case RouteRenderMode::Pace: defaultRoute.routeRenderMode = RouteRenderMode::None; break;
+			default: defaultRoute.routeRenderMode = RouteRenderMode::Discreet;
 		}
-
-		renderer->requestFullClear();
 	}
 
 	if (videoWindow->keyIsDownOnce(Qt::Key_F5))
-		defaultRoute.showRunner = !defaultRoute.showRunner;
+	{
+		switch (defaultRoute.tailRenderMode)
+		{
+			case RouteRenderMode::None: defaultRoute.tailRenderMode = RouteRenderMode::Discreet; break;
+			case RouteRenderMode::Discreet: defaultRoute.tailRenderMode = RouteRenderMode::Highlight; break;
+			case RouteRenderMode::Highlight: defaultRoute.tailRenderMode = RouteRenderMode::None; break;
+			default: defaultRoute.tailRenderMode = RouteRenderMode::None;
+		}
+	}
 
 	if (videoWindow->keyIsDownOnce(Qt::Key_F6))
-		defaultRoute.showControls = !defaultRoute.showControls;
+	{
+		switch (routeManager->getViewMode())
+		{
+			case ViewMode::FixedSplit: routeManager->setViewMode(ViewMode::RunnerCentered); break;
+			case ViewMode::RunnerCentered: routeManager->setViewMode(ViewMode::RunnerCenteredSplitOriented); break;
+			case ViewMode::RunnerCenteredSplitOriented: routeManager->setViewMode(ViewMode::FixedSplit); break;
+			default: routeManager->setViewMode(ViewMode::FixedSplit);
+		}
+	}
 
 	if (videoWindow->keyIsDownOnce(Qt::Key_F7))
+		defaultRoute.showRunner = !defaultRoute.showRunner;
+
+	if (videoWindow->keyIsDownOnce(Qt::Key_F8))
+		defaultRoute.showControls = !defaultRoute.showControls;
+
+	if (videoWindow->keyIsDownOnce(Qt::Key_F9))
 		videoStabilizer->toggleEnabled();
 
 	if (!videoWindow->keyIsDown(Qt::Key_Control) && videoWindow->keyIsDownOnce(Qt::Key_Space))
@@ -135,15 +156,42 @@ void InputHandler::handleInput(double frameTime)
 
 	translateSpeed *= frameTime;
 	rotateSpeed *= frameTime;
+	scaleSpeed *= frameTime;
+	timeOffset *= frameTime / 33.367; // time offsets have been calibrated for 30 fps
 
-	if (videoWindow->keyIsDown(Qt::Key_Backspace))
+	if (videoWindow->keyIsDown(Qt::Key_Control) && videoWindow->keyIsDown(Qt::Key_1))
 	{
-		mapPanel.userX = videoPanel.userX = 0.0;
-		mapPanel.userY = videoPanel.userY = 0.0;
-		mapPanel.userAngle = videoPanel.userAngle = 0.0;
-		mapPanel.userScale = videoPanel.userScale = 1.0;
+		mapPanel.userX = 0.0;
+		mapPanel.userY = 0.0;
+		mapPanel.userAngle = 0.0;
+		mapPanel.userScale = 1.0;
+		mapPanel.relativeWidth = 0.25;
 
 		renderer->requestFullClear();
+		routeManager->requestFullUpdate();
+	}
+
+	if (videoWindow->keyIsDown(Qt::Key_Control) && videoWindow->keyIsDown(Qt::Key_2))
+	{
+		videoPanel.userX = 0.0;
+		videoPanel.userY = 0.0;
+		videoPanel.userAngle = 0.0;
+		videoPanel.userScale = 1.0;
+
+		renderer->requestFullClear();
+	}
+
+	if (videoWindow->keyIsDown(Qt::Key_Control) && videoWindow->keyIsDown(Qt::Key_3))
+	{
+		defaultRoute.userScale = 1.0;
+	}
+
+	if (videoWindow->keyIsDown(Qt::Key_Control) && videoWindow->keyIsDown(Qt::Key_4))
+	{
+		defaultRoute.controlTimeOffset = 0.0;
+		defaultRoute.runnerTimeOffset = 0.0;
+
+		routeManager->requestFullUpdate();
 	}
 
 	if (scrollMode == ScrollMode::None)
@@ -167,11 +215,11 @@ void InputHandler::handleInput(double frameTime)
 
 	if (scrollMode == ScrollMode::Map)
 	{
-		translateSpeed *= (-1.0 / (mapPanel.scale * mapPanel.userScale));
+		double scaledTranslateSpeed = translateSpeed * (-1.0 / (mapPanel.scale * mapPanel.userScale));
 
 		double angle = (mapPanel.angle + mapPanel.userAngle + routeManager->getAngle()) * M_PI / 180.0;
-		double deltaX = cos(angle) * translateSpeed;
-		double deltaY = sin(angle) * translateSpeed;
+		double deltaX = cos(angle) * scaledTranslateSpeed;
+		double deltaY = sin(angle) * scaledTranslateSpeed;
 
 		if (videoWindow->keyIsDown(Qt::Key_Left))
 		{
@@ -187,8 +235,8 @@ void InputHandler::handleInput(double frameTime)
 			renderer->requestFullClear();
 		}
 
-		deltaX = sin(angle) * translateSpeed;
-		deltaY = cos(angle) * translateSpeed;
+		deltaX = sin(angle) * scaledTranslateSpeed;
+		deltaY = cos(angle) * scaledTranslateSpeed;
 
 		if (videoWindow->keyIsDown(Qt::Key_Up))
 		{
@@ -234,13 +282,13 @@ void InputHandler::handleInput(double frameTime)
 
 	if (videoWindow->keyIsDown(Qt::Key_Q))
 	{
-		mapPanel.userScale *= (1.0 + frameTime * scaleSpeed);
+		mapPanel.userScale *= (1.0 + scaleSpeed);
 		renderer->requestFullClear();
 	}
 
 	if (videoWindow->keyIsDown(Qt::Key_A))
 	{
-		mapPanel.userScale *= (1.0 - frameTime * scaleSpeed);
+		mapPanel.userScale *= (1.0 - scaleSpeed);
 		renderer->requestFullClear();
 	}
 
@@ -274,13 +322,13 @@ void InputHandler::handleInput(double frameTime)
 
 	if (videoWindow->keyIsDown(Qt::Key_R))
 	{
-		videoPanel.userScale *= (1.0 + frameTime * scaleSpeed);
+		videoPanel.userScale *= (1.0 + scaleSpeed);
 		renderer->requestFullClear();
 	}
 
 	if (videoWindow->keyIsDown(Qt::Key_F))
 	{
-		videoPanel.userScale *= (1.0 - frameTime * scaleSpeed);
+		videoPanel.userScale *= (1.0 - scaleSpeed);
 		renderer->requestFullClear();
 	}
 
@@ -296,42 +344,50 @@ void InputHandler::handleInput(double frameTime)
 		renderer->requestFullClear();
 	}
 
+	if (videoWindow->keyIsDown(Qt::Key_Y))
+	{
+		defaultRoute.userScale *= (1.0 + scaleSpeed);
+		defaultRoute.userScale = std::max(0.001, defaultRoute.userScale);
+	}
+
+	if (videoWindow->keyIsDown(Qt::Key_H))
+	{
+		defaultRoute.userScale *= (1.0 - scaleSpeed);
+		defaultRoute.userScale = std::max(0.001, defaultRoute.userScale);
+	}
+
 	if (videoWindow->keyIsDown(Qt::Key_PageUp))
 	{
 		defaultRoute.runnerTimeOffset += timeOffset;
-		routeManager->requestFullUpdate();
 	}
 
 	if (videoWindow->keyIsDown(Qt::Key_PageDown))
 	{
 		defaultRoute.runnerTimeOffset -= timeOffset;
-		routeManager->requestFullUpdate();
 	}
 
 	if (videoWindow->keyIsDown(Qt::Key_Home))
 	{
 		defaultRoute.controlTimeOffset += timeOffset;
 		routeManager->requestFullUpdate();
-		routeManager->requestInstantTransition();
 	}
 
 	if (videoWindow->keyIsDown(Qt::Key_End))
 	{
 		defaultRoute.controlTimeOffset -= timeOffset;
 		routeManager->requestFullUpdate();
-		routeManager->requestInstantTransition();
 	}
 
 	if (videoWindow->keyIsDown(Qt::Key_Insert))
 	{
-		defaultRoute.userScale *= (1.0 + frameTime * scaleSpeed);
-		defaultRoute.userScale = std::max(0.001, defaultRoute.userScale);
+		defaultRoute.tailLength += timeOffset;
+		defaultRoute.tailLength = std::max(0.0, defaultRoute.tailLength);
 	}
 
 	if (videoWindow->keyIsDown(Qt::Key_Delete))
 	{
-		defaultRoute.userScale *= (1.0 - frameTime * scaleSpeed);
-		defaultRoute.userScale = std::max(0.001, defaultRoute.userScale);
+		defaultRoute.tailLength -= timeOffset;
+		defaultRoute.tailLength = std::max(0.0, defaultRoute.tailLength);
 	}
 }
 

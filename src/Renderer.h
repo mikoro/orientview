@@ -6,11 +6,12 @@
 #include <QElapsedTimer>
 #include <QOpenGLFunctions>
 #include <QOpenGLShaderProgram>
-#include <QOpenGLPaintDevice>
-#include <QPainter>
+#include <QOpenGLVertexArrayObject>
 #include <QOpenGLBuffer>
 #include <QOpenGLTexture>
 #include <QOpenGLFramebufferObject>
+#include <QOpenGLPaintDevice>
+#include <QPainter>
 
 #include "MovingAverage.h"
 #include "FrameData.h"
@@ -25,13 +26,16 @@ namespace OrientView
 	class Settings;
 	struct Route;
 
-	enum class RenderMode { All, Map, Video };
+	enum RenderMode { All, Map, Video };
 
 	struct Panel
 	{
-		QOpenGLShaderProgram* program = nullptr;
-		QOpenGLBuffer* buffer = nullptr;
-		QOpenGLTexture* texture = nullptr;
+		Panel();
+
+		QOpenGLShaderProgram shaderProgram;
+		QOpenGLVertexArrayObject vertexArrayObject;
+		QOpenGLBuffer vertexBuffer;
+		QOpenGLTexture texture;
 
 		QMatrix4x4 vertexMatrix;
 
@@ -56,15 +60,6 @@ namespace OrientView
 		double texelHeight = 0.0;
 
 		double relativeWidth = 1.0;
-
-		int vertexMatrixUniform = 0;
-		int vertexPositionAttribute = 0;
-		int vertexTextureCoordinateAttribute = 0;
-		int textureSamplerUniform = 0;
-		int textureWidthUniform = 0;
-		int textureHeightUniform = 0;
-		int texelWidthUniform = 0;
-		int texelHeightUniform = 0;
 	};
 
 	// Does the actual drawing using OpenGL.
@@ -77,12 +72,12 @@ namespace OrientView
 		bool windowResized(int newWidth, int newHeight);
 		~Renderer();
 
-		void startRendering(double currentTime, double frameTime, double spareTime, double decoderTime, double stabilizerTime, double encoderTime);
+		void startRendering(double currentTime, double frameDuration, double decodeDuration, double stabilizeDuration, double encodeDuration, double spareTime);
 		void uploadFrameData(const FrameData& frameData);
 		void renderAll();
 		void stopRendering();
-		FrameData getRenderedFrame();
 
+		FrameData getRenderedFrame();
 		Panel& getVideoPanel();
 		Panel& getMapPanel();
 		RenderMode getRenderMode() const;
@@ -93,12 +88,11 @@ namespace OrientView
 
 	private:
 
-		bool loadShaders(Panel& panel, const QString& shaderName);
-		void loadBuffer(Panel& panel, GLfloat* buffer, size_t size);
+		bool loadRescaleShader(Panel& panel, const QString& shaderName);
 		void renderVideoPanel();
 		void renderMapPanel();
-		void renderPanel(const Panel& panel);
-		void renderRoute(const Route& route);
+		void renderPanel(Panel& panel);
+		void renderRoute(Route& route);
 		void renderInfoPanel();
 
 		VideoStabilizer* videoStabilizer = nullptr;
@@ -113,27 +107,28 @@ namespace OrientView
 		double windowHeight = 0.0;
 		double currentTime = 0.0;
 		int multisamples = 0;
+		int infoPanelFontSize = 0;
 
 		Panel videoPanel;
 		Panel mapPanel;
 		RenderMode renderMode = RenderMode::All;
 
-		QElapsedTimer renderTimer;
-		double lastRenderTime = 0.0;
+		QElapsedTimer renderDurationTimer;
+		double renderDuration = 0.0;
 
 		MovingAverage averageFps;
-		MovingAverage averageFrameTime;
-		MovingAverage averageDecodeTime;
-		MovingAverage averageStabilizeTime;
-		MovingAverage averageRenderTime;
-		MovingAverage averageEncodeTime;
+		MovingAverage averageFrameDuration;
+		MovingAverage averageDecodeDuration;
+		MovingAverage averageStabilizeDuration;
+		MovingAverage averageRenderDuration;
+		MovingAverage averageEncodeDuration;
 		MovingAverage averageSpareTime;
 
 		QOpenGLPaintDevice* paintDevice = nullptr;
 		QPainter* painter = nullptr;
 
-		QOpenGLFramebufferObject* outputFramebuffer = nullptr;
-		QOpenGLFramebufferObject* outputFramebufferNonMultisample = nullptr;
+		QOpenGLFramebufferObject* offscreenFramebuffer = nullptr;
+		QOpenGLFramebufferObject* offscreenFramebufferNonMultisample = nullptr;
 		FrameData renderedFrameData;
 	};
 }

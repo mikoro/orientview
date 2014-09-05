@@ -334,8 +334,7 @@
       <AdditionalDependencies>opengl32.lib;qtmaind.lib;Qt5Cored.lib;Qt5Guid.lib;Qt5OpenGLd.lib;Qt5Svgd.lib;Qt5Widgetsd.lib;Qt5Xmld.lib;opencv_core249d.lib;opencv_imgproc249d.lib;opencv_photo249d.lib;opencv_video249d.lib;avformat.lib;avutil.lib;avcodec.lib;swscale.lib;libx264.dll.lib;liblsmash.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>call misc\windows\post-build.bat $(Configuration)
-call misc\windows\post-build-debug.bat</Command>
+      <Command>call misc\windows\post-build-debug.bat bin\Debug</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -359,7 +358,7 @@ call misc\windows\post-build-debug.bat</Command>
       <AdditionalDependencies>opengl32.lib;qtmain.lib;Qt5Core.lib;Qt5Gui.lib;Qt5OpenGL.lib;Qt5Svg.lib;Qt5Widgets.lib;Qt5Xml.lib;opencv_core249.lib;opencv_imgproc249.lib;opencv_photo249.lib;opencv_video249.lib;avformat.lib;avutil.lib;avcodec.lib;swscale.lib;libx264.dll.lib;liblsmash.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>misc\windows\post-build.bat $(Configuration)</Command>
+      <Command>call misc\windows\post-build-release.bat bin\Release</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

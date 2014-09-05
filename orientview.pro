@@ -25,14 +25,21 @@ unix {
 }
 
 win32 {
-    INCLUDEPATH += include
-    QMAKE_LIBDIR += lib
     CONFIG -= embed_manifest_exe
     RC_FILE = misc/windows/orientview.rc
+
+    INCLUDEPATH += include
+    QMAKE_LIBDIR += lib
+
     LIBS += avformat.lib avutil.lib avcodec.lib swscale.lib libx264.dll.lib liblsmash.lib
-    debug:LIBS += opencv_core249d.lib opencv_imgproc249d.lib opencv_photo249d.lib opencv_video249d.lib
-    release:LIBS += opencv_core249.lib opencv_imgproc249.lib opencv_photo249.lib opencv_video249.lib
-    # data folder, *.config and debug dlls need to be copied to output folder
+
+    CONFIG(debug, debug|release) {
+        LIBS += opencv_core249d.lib opencv_imgproc249d.lib opencv_photo249d.lib opencv_video249d.lib
+        QMAKE_POST_LINK += misc\windows\post-build-debug.bat debug
+    } else {
+        LIBS += opencv_core249.lib opencv_imgproc249.lib opencv_photo249.lib opencv_video249.lib
+        QMAKE_POST_LINK += misc\windows\post-build-release.bat release
+    }
 }
 
 mac {
@@ -41,10 +48,9 @@ mac {
     QMAKE_INFO_PLIST = misc/mac/Info.plist
     
     LIBS += -lavcodec -lavformat -lavutil -lswresample -lswscale -lopencv_core -lopencv_imgproc -lopencv_photo -lopencv_video -lx264 -llsmash
-    QTPLUGIN += 
     
     target.path = Contents/MacOs
-    target.files = data
+    target.files = data misc/readme.html
 
     QMAKE_BUNDLE_DATA += target
 

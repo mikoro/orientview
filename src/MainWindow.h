@@ -55,6 +55,7 @@ namespace OrientView
 		void on_actionDefaultSettings_triggered();
 		void on_actionPlayVideo_triggered();
 		void on_actionEncodeVideo_triggered();
+		void on_actionHelp_triggered();
 		void on_actionExit_triggered();
 
 		void on_pushButtonBrowseMapImageFile_clicked();
@@ -62,8 +63,13 @@ namespace OrientView
 		void on_pushButtonBrowseInputVideoFile_clicked();
 		void on_pushButtonBrowseOutputVideoFile_clicked();
 
-		void on_pushButtonPickVideoBackgroundColor_clicked();
 		void on_pushButtonPickMapBackgroundColor_clicked();
+		void on_pushButtonPickRouteDiscreetColor_clicked();
+		void on_pushButtonPickRouteHighlightColor_clicked();
+		void on_pushButtonPickRouteRunnerColor_clicked();
+		void on_pushButtonPickRouteRunnerBorderColor_clicked();
+		void on_pushButtonPickRouteControlBorderColor_clicked();
+		void on_pushButtonPickVideoBackgroundColor_clicked();
 
 		void on_pushButtonVideoStabilizerBrowseInputDataFile_clicked();
 		void on_pushButtonVideoStabilizerBrowsePassOneOutputFile_clicked();

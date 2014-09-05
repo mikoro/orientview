@@ -10,6 +10,7 @@
 #include "RouteManager.h"
 #include "SplitsManager.h"
 #include "VideoStabilizer.h"
+#include "Renderer.h"
 
 namespace Ui
 {
@@ -37,58 +38,70 @@ namespace OrientView
 			double y = 0.0;
 			double angle = 0.0;
 			double scale = 1.0;
-			int headerCrop = 0;
 			QColor backgroundColor = QColor(255, 255, 255, 255);
-			QString rescaleShader = "legacy";
+			int headerCrop = 0;
+			QString rescaleShader = "default";
 
 		} map;
 
 		struct Route
 		{
 			QString quickRouteJpegFilePath = "";
-			double controlTimeOffset = 0.0;
-			double runnerTimeOffset = 0.0;
-			double scale = 1.0;
-			double topBottomMargin = 30.0;
-			double leftRightMargin = 10.0;
-			double minimumZoom = 0.0;
-			double maximumZoom = 9999.0;
-			double lowPace = 15.0;
-			double highPace = 5.0;
-			bool useSmoothTransition = true;
-			double smoothTransitionSpeed = 0.001;
-			bool showRunner = true;
-			bool showControls = true;
-			RouteRenderMode wholeRouteRenderMode = RouteRenderMode::Normal;
-			QColor wholeRouteColor = QColor(0, 0, 0, 80);
-			double wholeRouteWidth = 10.0;
+			QColor discreetColor = QColor(0, 0, 0, 80);
+			QColor highlightColor = QColor(0, 100, 255, 200);
+			RouteRenderMode routeRenderMode = RouteRenderMode::Discreet;
+			double routeWidth = 10.0;
+			RouteRenderMode tailRenderMode = RouteRenderMode::None;
+			double tailWidth = 10.0;
+			double tailLength = 30.0;
 			QColor controlBorderColor = QColor(140, 40, 140, 255);
 			double controlRadius = 15.0;
 			double controlBorderWidth = 5.0;
-			QColor runnerColor = QColor(0, 100, 255, 220);
+			bool showControls = true;
+			QColor runnerColor = QColor(0, 100, 255, 255);
 			QColor runnerBorderColor = QColor(0, 0, 0, 255);
+			double runnerRadius = 5.0;
 			double runnerBorderWidth = 1.0;
 			double runnerScale = 1.0;
+			bool showRunner = true;
+			double controlTimeOffset = 0.0;
+			double runnerTimeOffset = 0.0;
+			double scale = 1.0;
+			double lowPace = 15.0;
+			double highPace = 5.0;
 
 		} route;
+
+		struct RouteManager
+		{
+			ViewMode viewMode = ViewMode::FixedSplit;
+			bool useSmoothSplitTransition = true;
+			double smoothSplitTransitionSpeed = 1.0;
+			double topBottomMargin = 30.0;
+			double leftRightMargin = 10.0;
+			double maximumAutomaticZoom = 100.0;
+			double runnerAveragingFactor = 4.0;
+			double runnerVerticalOffset = 0.0;
+
+		} routeManager;
 
 		struct Video
 		{
 			QString inputVideoFilePath = "";
 			double startTimeOffset = 0.0;
-			bool seekToAnyFrame = false;
 			double x = 0.0;
 			double y = 0.0;
 			double angle = 0.0;
 			double scale = 1.0;
 			QColor backgroundColor = QColor(0, 50, 0, 255);
-			QString rescaleShader = "legacy";
-			bool enableClipping = true;
+			QString rescaleShader = "default";
+			bool enableClipping = false;
 			bool enableClearing = true;
 			int frameCountDivisor = 1;
 			int frameDurationDivisor = 1;
 			int frameSizeDivisor = 1;
 			bool enableVerboseLogging = false;
+			bool seekToAnyFrame = false;
 
 		} video;
 
@@ -103,12 +116,19 @@ namespace OrientView
 		{
 			int width = 1280;
 			int height = 720;
-			int multisamples = 0;
+			int multisamples = 16;
 			bool fullscreen = false;
 			bool hideCursor = false;
-			bool showInfoPanel = false;
 
 		} window;
+
+		struct Renderer
+		{
+			RenderMode renderMode = RenderMode::All;
+			bool showInfoPanel = false;
+			int infoPanelFontSize = 8;
+
+		} renderer;
 
 		struct Stabilizer
 		{
@@ -118,12 +138,12 @@ namespace OrientView
 			double averagingFactor = 0.1;
 			double dampingFactor = 1.0;
 			double maxDisplacementFactor = 0.5;
-			double maxAngle = 5.0;
+			double maxAngle = 15.0;
 			int frameSizeDivisor = 8;
 			QString passOneOutputFilePath = "";
 			QString passTwoInputFilePath = "";
 			QString passTwoOutputFilePath = "";
-			int smoothingRadius = 30;
+			int smoothingRadius = 15;
 
 		} stabilizer;
 

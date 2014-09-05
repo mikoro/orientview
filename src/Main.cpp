@@ -24,11 +24,17 @@ int main(int argc, char *argv[])
 {
 	try
 	{
-		QCoreApplication::setOrganizationName("OrientView");
 		QCoreApplication::setOrganizationDomain("orientview.com");
+		
+#ifdef Q_OS_WIN32
+		QCoreApplication::setOrganizationName("OrientView");
 		QCoreApplication::setApplicationName("OrientView");
 		QCoreApplication::addLibraryPath("data/plugins");
-
+#else
+		QCoreApplication::setOrganizationName("orientview");
+		QCoreApplication::setApplicationName("orientview");
+#endif
+		
 		QApplication app(argc, argv);
 
 		QDir::setCurrent(QCoreApplication::applicationDirPath());
@@ -36,10 +42,7 @@ int main(int argc, char *argv[])
 		logger.initialize("orientview.log");
 		qInstallMessageHandler(messageHandler);
 
-		QFontDatabase::addApplicationFont("data/fonts/dejavu-sans.ttf");
 		QFontDatabase::addApplicationFont("data/fonts/dejavu-sans-bold.ttf");
-		QFontDatabase::addApplicationFont("data/fonts/dejavu-sans-mono.ttf");
-		QFontDatabase::addApplicationFont("data/fonts/dejavu-sans-mono-bold.ttf");
 
 		OrientView::MainWindow mainWindow;
 

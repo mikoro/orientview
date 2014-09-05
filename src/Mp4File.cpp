@@ -1,33 +1,6 @@
 // Copyright © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
 // License: GPLv3, see the LICENSE file.
 
-/*****************************************************************************
-* Copyright (C) 2003-2014 x264 project
-*
-* Authors: Laurent Aimar <fenrir@via.ecp.fr>
-*          Loren Merritt <lorenm@u.washington.edu>
-*          Yusuke Nakamura <muken.the.vfrmaniac@gmail.com>
-*          Takashi Hirata <silverfilain@gmail.com>
-*          golgol7777 <golgol7777@gmail.com>
-*
-* This program is free software; you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation; either version 2 of the License, or
-* (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program; if not, write to the Free Software
-* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111, USA.
-*
-* This program is also available under a commercial proprietary license.
-* For more information, contact us at licensing@x264.com.
-*****************************************************************************/
-
 #include <cstdint>
 
 #include <QtGlobal>
@@ -91,16 +64,12 @@ bool Mp4File::setParameters(x264_param_t* param)
 	mp4Handle->timeIncrement = (uint64_t)param->i_timebase_num;
 	RETURN_IF_ERR(mediaTimescale > UINT32_MAX, "MP4 media timescale exceeds maximum");
 
-	lsmash_brand_type brands[6] = { (lsmash_brand_type)0 };
-	uint32_t brandCount = 0;
-	brands[brandCount++] = ISOM_BRAND_TYPE_MP42;
-	brands[brandCount++] = ISOM_BRAND_TYPE_MP41;
-	brands[brandCount++] = ISOM_BRAND_TYPE_ISOM;
-
+	lsmash_brand_type brands[3] = { ISOM_BRAND_TYPE_MP42, ISOM_BRAND_TYPE_MP41, ISOM_BRAND_TYPE_ISOM };
+	
 	lsmash_file_parameters_t* fileParameters = &mp4Handle->fileParameters;
 	fileParameters->major_brand = brands[0];
 	fileParameters->brands = brands;
-	fileParameters->brand_count = brandCount;
+	fileParameters->brand_count = 3;
 	fileParameters->minor_version = 0;
 	RETURN_IF_ERR(!lsmash_set_file(mp4Handle->root, fileParameters), "Failed to add an output file into a ROOT");
 
@@ -116,22 +85,6 @@ bool Mp4File::setParameters(x264_param_t* param)
 
 	mp4Handle->summary->width = param->i_width;
 	mp4Handle->summary->height = param->i_height;
-	uint32_t displayWidth = param->i_width << 16;
-	uint32_t displayHeight = param->i_height << 16;
-
-	if (param->vui.i_sar_width && param->vui.i_sar_height)
-	{
-		double sar = (double)param->vui.i_sar_width / param->vui.i_sar_height;
-
-		if (sar > 1.0)
-			displayWidth *= sar;
-		else
-			displayHeight /= sar;
-
-		mp4Handle->summary->par_h = param->vui.i_sar_width;
-		mp4Handle->summary->par_v = param->vui.i_sar_height;
-	}
-
 	mp4Handle->summary->color.primaries_index = param->vui.i_colorprim;
 	mp4Handle->summary->color.transfer_index = param->vui.i_transfer;
 	mp4Handle->summary->color.matrix_index = param->vui.i_colmatrix >= 0 ? param->vui.i_colmatrix : ISOM_MATRIX_INDEX_UNSPECIFIED;
@@ -140,14 +93,14 @@ bool Mp4File::setParameters(x264_param_t* param)
 	lsmash_track_parameters_t trackParameters;
 	lsmash_initialize_track_parameters(&trackParameters);
 	trackParameters.mode = (lsmash_track_mode)(ISOM_TRACK_ENABLED | ISOM_TRACK_IN_MOVIE | ISOM_TRACK_IN_PREVIEW);
-	trackParameters.display_width = displayWidth;
-	trackParameters.display_height = displayHeight;
+	trackParameters.display_width = param->i_width << 16;
+	trackParameters.display_height = param->i_height << 16;
 	RETURN_IF_ERR(lsmash_set_track_parameters(mp4Handle->root, mp4Handle->track, &trackParameters), "Failed to set track parameters for video");
 
 	lsmash_media_parameters_t mediaParameters;
 	lsmash_initialize_media_parameters(&mediaParameters);
 	mediaParameters.timescale = mediaTimescale;
-	mediaParameters.media_handler_name = (char*)"L-SMASH Video Media Handler";
+	mediaParameters.media_handler_name = (char*)"OrientView";
 	RETURN_IF_ERR(lsmash_set_media_parameters(mp4Handle->root, mp4Handle->track, &mediaParameters), "Failed to set media parameters for video");
 
 	mp4Handle->videoTimescale = lsmash_get_media_timescale(mp4Handle->root, mp4Handle->track);
@@ -174,12 +127,8 @@ bool Mp4File::writeHeaders(x264_nal_t* nal)
 	RETURN_IF_ERR(lsmash_add_codec_specific_data((lsmash_summary_t*)mp4Handle->summary, cs), "Failed to add H.264 specific info");
 
 	lsmash_destroy_codec_specific_data(cs);
-
 	cs = lsmash_create_codec_specific_data(LSMASH_CODEC_SPECIFIC_DATA_TYPE_ISOM_VIDEO_H264_BITRATE, LSMASH_CODEC_SPECIFIC_FORMAT_STRUCTURED);
-
-	if (cs)
-		lsmash_add_codec_specific_data((lsmash_summary_t*)mp4Handle->summary, cs);
-
+	lsmash_add_codec_specific_data((lsmash_summary_t*)mp4Handle->summary, cs);
 	lsmash_destroy_codec_specific_data(cs);
 
 	mp4Handle->sampleEntry = lsmash_add_sample_entry(mp4Handle->root, mp4Handle->track, mp4Handle->summary);

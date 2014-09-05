@@ -81,12 +81,14 @@ bool EncodeWindow::initialize(VideoDecoder* videoDecoder, VideoEncoderThread* vi
 	totalFrameCount = videoDecoder->getTotalFrameCount();
 	videoFilePath = settings->encoder.outputVideoFilePath;
 
-	ui->progressBarMain->setValue(0);
-	ui->labelTotalFrames->setText(QString::number(totalFrameCount));
-	ui->pushButtonOpenVideo->setEnabled(false);
-	ui->pushButtonStopClose->setText("Stop");
+	QTime totalVideoDuration = QTime(0, 0, 0, 0).addMSecs(videoDecoder->getTotalDuration() * 1000.0);
 
-	startTime.restart();
+	ui->progressBarMain->setValue(0);
+	ui->labelTotalVideoDuration->setText(totalVideoDuration.toString());
+	ui->labelTotalFrames->setText(QString::number(totalFrameCount));
+	ui->pushButtonOpen->setEnabled(false);
+
+	startTime.start();
 
 	isInitialized = true;
 
@@ -108,12 +110,12 @@ bool EncodeWindow::getIsInitialized() const
 	return isInitialized;
 }
 
-void EncodeWindow::frameProcessed(int frameNumber, int frameSize)
+void EncodeWindow::frameProcessed(int frameNumber, int frameSize, double currentTime)
 {
 	int value = (int)round((double)frameNumber / totalFrameCount * 1000.0);
 	ui->progressBarMain->setValue(value);
 
-	int elapsedTimeMs = startTime.elapsed();
+	int elapsedTimeMs = startTime.elapsed() - totalPauseTime;
 	double timePerFrameMs = (double)elapsedTimeMs / frameNumber;
 	double framesPerSecond = 1.0 / timePerFrameMs * 1000.0;
 	int totalTimeMs = (int)round(timePerFrameMs * totalFrameCount);
@@ -126,11 +128,13 @@ void EncodeWindow::frameProcessed(int frameNumber, int frameSize)
 
 	QTime elapsedTime = QTime(0, 0, 0, 0).addMSecs(elapsedTimeMs);
 	QTime remainingTime = QTime(0, 0, 0, 0).addMSecs(remainingTimeMs);
-	QTime totalTime = QTime(0, 0, 0, 0).addMSecs(totalTimeMs);
+	QTime totalEncodeTime = QTime(0, 0, 0, 0).addMSecs(totalTimeMs);
+	QTime currentVideoTime = QTime(0, 0, 0, 0).addMSecs(currentTime * 1000.0);
 
 	ui->labelElapsedTime->setText(elapsedTime.toString());
 	ui->labelRemainingTime->setText(remainingTime.toString());
-	ui->labelTotalTime->setText(totalTime.toString());
+	ui->labelTotalEncodeTime->setText(totalEncodeTime.toString());
+	ui->labelCurrentVideoTime->setText(currentVideoTime.toString());
 	ui->labelCurrentFrame->setText(QString::number(frameNumber));
 	ui->labelFramesPerSecond->setText(QString::number(framesPerSecond, 'f', 1));
 	ui->labelCurrentSize->setText(QString("%1 MB").arg(QString::number(currentSize, 'f', 2)));
@@ -139,18 +143,26 @@ void EncodeWindow::frameProcessed(int frameNumber, int frameSize)
 
 void EncodeWindow::encodingFinished()
 {
-	ui->pushButtonOpenVideo->setEnabled(true);
+	ui->pushButtonPauseContinue->setEnabled(false);
 	ui->pushButtonStopClose->setText("Close");
-
+	ui->pushButtonOpen->setEnabled(true);
+	
 	isRunning = false;
 }
 
-void EncodeWindow::on_pushButtonOpenVideo_clicked()
+void EncodeWindow::on_pushButtonPauseContinue_clicked()
 {
-	if (QFile::exists(videoFilePath))
+	videoEncoderThread->togglePaused();
+
+	if (videoEncoderThread->getIsPaused())
 	{
-		QFileInfo fileInfo(videoFilePath);
-		QDesktopServices::openUrl(QUrl(QString("file:///%1").arg(fileInfo.absoluteFilePath())));
+		ui->pushButtonPauseContinue->setText("Continue");
+		pauseTime.restart();
+	}
+	else
+	{
+		ui->pushButtonPauseContinue->setText("Pause");
+		totalPauseTime += pauseTime.elapsed();
 	}
 }
 
@@ -163,6 +175,15 @@ void EncodeWindow::on_pushButtonStopClose_clicked()
 	}
 	else
 		close();
+}
+
+void EncodeWindow::on_pushButtonOpen_clicked()
+{
+	if (QFile::exists(videoFilePath))
+	{
+		QFileInfo fileInfo(videoFilePath);
+		QDesktopServices::openUrl(QUrl(QString("file:///%1").arg(fileInfo.absoluteFilePath())));
+	}
 }
 
 bool EncodeWindow::event(QEvent* event)
