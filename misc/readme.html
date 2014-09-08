@@ -293,6 +293,7 @@ img {
 <body>
 <h1 id="orientview">OrientView</h1>
 <p>OrientView is an orienteering video analyzing program which displays the video and the map side-by-side in real-time. Almost all image and video file formats are supported. Routes are created and calibrated using <a href="http://www.matstroeng.se/quickroute/en/">QuickRoute</a>. Resulting video can be exported to a MP4 video file.</p>
+<p><a href="http://youtu.be/4jh9KmYjdq8">Watch an example video</a>.</p>
 <ul>
 <li>Author: <a href="http://mikkoronkainen.com">Mikko Ronkainen</a></li>
 <li>Website: <a href="https://github.com/mikoro/orientview">github.com/mikoro/orientview</a></li>
@@ -332,7 +333,7 @@ img {
 <li>Split times are input manually using simple formatting (absolute or relative).</li>
 <li>Supports video seeking and pausing. Different timing offsets are also adjustable to make the video and route match.</li>
 <li>Supports basic video stabilization using the <a href="http://opencv.org/">OpenCV</a> library. Stabilization can be done real-time or by using preprocessed data.</li>
-<li>Differents parts of the UI are fully adjustable.</li>
+<li>Different parts of the UI are fully adjustable.</li>
 <li>Draws all the graphics using OpenGL. Also utilizes shaders to do custom image resampling (e.g. high quality bicubic).</li>
 <li>Video window and exported video are completely resizable - original video resolution does not pose any restrictions.</li>
 <li>Resulting video can be exported to MP4 format with H.264 encoding.</li>
@@ -343,9 +344,9 @@ img {
 <ul>
 <li>You need the video of the run, the map, the gps track, and the split times.</li>
 <li>If the video is in multiple parts, you need to stitch it together using e.g. <a href="http://fixounet.free.fr/avidemux/">Avidemux</a>.</li>
-<li>Scan the map with high resolution (600 dpi TIFF format is preferrable).</li>
-<li>Fix the map (orientation, cropping, levels etc.) and export one version with the original resolution (TIFF format preferrable) and export a smaller version for use with QuickRoute. Modern GPUs can easily take in 8192x8192 250 MB TIFF image - so there is no need to scale down or compress the map image that gets sent to the GPU. The QuickRoute image data will not be used so it&#39;s quality doesn&#39;t matter (only data inserted by QuickRoute to the JPEG file headers is used).</li>
-<li>Using <a href="http://www.matstroeng.se/quickroute/en/">QuickRoute</a> cut and align the gps track to the map. You can use as many aligment points as you want. Then export the map as a JPEG image.</li>
+<li>Scan the map with high resolution (600 dpi TIFF format is preferable).</li>
+<li>Fix the map (orientation, cropping, levels etc.) and export one version with the original resolution (TIFF format preferable) and export a smaller version for use with QuickRoute. Modern GPUs can easily take in 8192x8192 250 MB TIFF image - so there is no need to scale down or compress the map image that gets sent to the GPU. The QuickRoute image data will not be used so its quality doesn&#39;t matter (only data inserted by QuickRoute to the JPEG file headers is used).</li>
+<li>Using <a href="http://www.matstroeng.se/quickroute/en/">QuickRoute</a> cut and align the gps track to the map. You can use as many alignment points as you want. Then export the map as a JPEG image.</li>
 <li>Format the split times to a single string. Format is &quot;hours:minutes:seconds&quot; with hours and minutes being optional and the separator between splits being &quot;|&quot; or &quot;;&quot;. For example: <code>1:23|1:23:45</code>. Time separator can also be &quot;.&quot;. For example: <code>1.23;1.23.45</code>. Split times can be absolute or relative.</li>
 <li>Open OrientView and select the map image file, the QuickRoute JPEG file, and the video file. Input the split times and press Play.</li>
 <li>Adjust the control time offset to move the controls to correct positions. Then seek the video to the first control and pause. Now adjust the runner time offset to move the runner to the correct position. Press F1 and take note of the adjusted values which you can then input back at the settings window.</li>
@@ -359,7 +360,7 @@ img {
 </ul>
 <h3 id="known-issues">Known issues</h3>
 <ul>
-<li>If the route rendering doesn&#39;t work (route appears as a large rectangle), try settings the route color to 100% opaque.</li>
+<li>If the route rendering doesn&#39;t work (route appears as a large rectangle), try setting the route color to 100% opaque.</li>
 </ul>
 <h3 id="controls">Controls</h3>
 <table>

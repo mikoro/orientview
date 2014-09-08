@@ -2,6 +2,8 @@
 
 OrientView is an orienteering video analyzing program which displays the video and the map side-by-side in real-time. Almost all image and video file formats are supported. Routes are created and calibrated using [QuickRoute](http://www.matstroeng.se/quickroute/en/). Resulting video can be exported to a MP4 video file.
 
+[Watch an example video](http://youtu.be/4jh9KmYjdq8).
+
 * Author: [Mikko Ronkainen](http://mikkoronkainen.com)
 * Website: [github.com/mikoro/orientview](https://github.com/mikoro/orientview)
 
@@ -31,7 +33,7 @@ For testing out the program, you can also [download test data](https://s3.amazon
 * Split times are input manually using simple formatting (absolute or relative).
 * Supports video seeking and pausing. Different timing offsets are also adjustable to make the video and route match.
 * Supports basic video stabilization using the [OpenCV](http://opencv.org/) library. Stabilization can be done real-time or by using preprocessed data.
-* Differents parts of the UI are fully adjustable.
+* Different parts of the UI are fully adjustable.
 * Draws all the graphics using OpenGL. Also utilizes shaders to do custom image resampling (e.g. high quality bicubic).
 * Video window and exported video are completely resizable - original video resolution does not pose any restrictions.
 * Resulting video can be exported to MP4 format with H.264 encoding.
@@ -43,9 +45,9 @@ For testing out the program, you can also [download test data](https://s3.amazon
 
 * You need the video of the run, the map, the gps track, and the split times.
 * If the video is in multiple parts, you need to stitch it together using e.g. [Avidemux](http://fixounet.free.fr/avidemux/).
-* Scan the map with high resolution (600 dpi TIFF format is preferrable).
-* Fix the map (orientation, cropping, levels etc.) and export one version with the original resolution (TIFF format preferrable) and export a smaller version for use with QuickRoute. Modern GPUs can easily take in 8192x8192 250 MB TIFF image - so there is no need to scale down or compress the map image that gets sent to the GPU. The QuickRoute image data will not be used so it's quality doesn't matter (only data inserted by QuickRoute to the JPEG file headers is used).
-* Using [QuickRoute](http://www.matstroeng.se/quickroute/en/) cut and align the gps track to the map. You can use as many aligment points as you want. Then export the map as a JPEG image.
+* Scan the map with high resolution (600 dpi TIFF format is preferable).
+* Fix the map (orientation, cropping, levels etc.) and export one version with the original resolution (TIFF format preferable) and export a smaller version for use with QuickRoute. Modern GPUs can easily take in 8192x8192 250 MB TIFF image - so there is no need to scale down or compress the map image that gets sent to the GPU. The QuickRoute image data will not be used so its quality doesn't matter (only data inserted by QuickRoute to the JPEG file headers is used).
+* Using [QuickRoute](http://www.matstroeng.se/quickroute/en/) cut and align the gps track to the map. You can use as many alignment points as you want. Then export the map as a JPEG image.
 * Format the split times to a single string. Format is "hours:minutes:seconds" with hours and minutes being optional and the separator between splits being "|" or ";". For example: `1:23|1:23:45`. Time separator can also be ".". For example: `1.23;1.23.45`. Split times can be absolute or relative.
 * Open OrientView and select the map image file, the QuickRoute JPEG file, and the video file. Input the split times and press Play.
 * Adjust the control time offset to move the controls to correct positions. Then seek the video to the first control and pause. Now adjust the runner time offset to move the runner to the correct position. Press F1 and take note of the adjusted values which you can then input back at the settings window.
@@ -59,7 +61,7 @@ For testing out the program, you can also [download test data](https://s3.amazon
 
 ### Known issues
 
-* If the route rendering doesn't work (route appears as a large rectangle), try settings the route color to 100% opaque.
+* If the route rendering doesn't work (route appears as a large rectangle), try setting the route color to 100% opaque.
 
 ### Controls
 
