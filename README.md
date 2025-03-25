@@ -5,9 +5,9 @@ OrientView is an orienteering video analyzing program which displays the video a
 Example videos:
 
 [Kattilajärvi, Finland (stabilised)](https://youtu.be/4jh9KmYjdq8?si=M1UggbHVKInae4A9)  
-[Český Ráj, Czech Republic](https://youtu.be/KzfDpsgoeck?si=FSmcId5gGnHgNfyn)  
-[Prague Zoo, Czech Republic](https://youtu.be/wrvxJsXHAtc?si=Hv29LG7lthBRwy39)    
-[Český Ráj, Czech Republic](https://youtu.be/iqBbxpQatak?si=TpNw071LAsF-BR9D)
+[Český Ráj, Czech Republic (split centered)](https://youtu.be/KzfDpsgoeck?si=FSmcId5gGnHgNfyn)  
+[Prague Zoo, Czech Republic (runner centered, split oriented)](https://youtu.be/wrvxJsXHAtc?si=Hv29LG7lthBRwy39)    
+[Český Ráj, Czech Republic (runner centered)](https://youtu.be/iqBbxpQatak?si=TpNw071LAsF-BR9D)
 
 * Author: [Mikko Ronkainen](http://mikkoronkainen.com)
 * Website: [github.com/mikoro/orientview](https://github.com/mikoro/orientview)
