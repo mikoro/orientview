@@ -701,7 +701,7 @@
                   <string>The discreet route/tail color</string>
                  </property>
                  <property name="styleSheet">
-                  <string notr="true">background-color: rgb(0, 0, 0, 80);</string>
+                  <string notr="true">background-color: rgba(0, 0, 0, 80);</string>
                  </property>
                  <property name="frameShape">
                   <enum>QFrame::StyledPanel</enum>
@@ -765,7 +765,7 @@
                   <string>The highlight route/tail color</string>
                  </property>
                  <property name="styleSheet">
-                  <string notr="true">background-color: rgb(0, 100, 255, 200);</string>
+                  <string notr="true">background-color: rgba(0, 100, 255, 200);</string>
                  </property>
                  <property name="frameShape">
                   <enum>QFrame::StyledPanel</enum>
@@ -829,7 +829,7 @@
                   <string>The runner color</string>
                  </property>
                  <property name="styleSheet">
-                  <string notr="true">background-color: rgb(0, 100, 255, 200);</string>
+                  <string notr="true">background-color: rgba(0, 100, 255, 200);</string>
                  </property>
                  <property name="frameShape">
                   <enum>QFrame::StyledPanel</enum>
@@ -893,7 +893,7 @@
                   <string>The runner border color</string>
                  </property>
                  <property name="styleSheet">
-                  <string notr="true">background-color: rgb(0, 0, 0, 255);</string>
+                  <string notr="true">background-color: rgba(0, 0, 0, 255);</string>
                  </property>
                  <property name="frameShape">
                   <enum>QFrame::StyledPanel</enum>
@@ -957,7 +957,7 @@
                   <string>The control color</string>
                  </property>
                  <property name="styleSheet">
-                  <string notr="true">background-color: rgb(140, 40, 140, 255);</string>
+                  <string notr="true">background-color: rgba(140, 40, 140, 255);</string>
                  </property>
                  <property name="frameShape">
                   <enum>QFrame::StyledPanel</enum>
