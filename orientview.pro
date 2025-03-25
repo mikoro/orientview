@@ -16,13 +16,6 @@ unix {
     
     TEMP_CXX = $$(CXX)
     !isEmpty(TEMP_CXX) { QMAKE_CXX = $$TEMP_CXX }
-    
-    # travis-ci specific
-    TRAVIS = $$(TRAVIS)
-    equals(TRAVIS, "true") {
-        QMAKE_CXXFLAGS += -isystem /var/tmp/ffmpeg/include -isystem /var/tmp/opencv/include -isystem /var/tmp/x264/include -isystem /var/tmp/l-smash/include
-        QMAKE_LFLAGS += -L/var/tmp/ffmpeg/lib -L/var/tmp/opencv/lib -L/var/tmp/x264/lib -L/var/tmp/l-smash/lib
-    }
 }
 
 win32 {
