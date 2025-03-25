@@ -34,7 +34,7 @@ namespace
 			qDebug("%s", lineClipped);
 	}
 
-	bool openCodecContext(int* streamIndex, AVFormatContext* formatContext, AVMediaType mediaType)
+	bool openCodecContext(int* streamIndex, AVFormatContext* formatContext, AVMediaType mediaType, AVCodecContext** codecContext)
 	{
 		*streamIndex = av_find_best_stream(formatContext, mediaType, -1, -1, nullptr, 0);
 
@@ -45,8 +45,8 @@ namespace
 		}
 		else
 		{
-			AVCodecContext* codecContext = formatContext->streams[(size_t)(*streamIndex)]->codec;
-			AVCodec* codec = avcodec_find_decoder(codecContext->codec_id);
+			AVCodecParameters* codecParams = formatContext->streams[*streamIndex]->codecpar;
+			const AVCodec* codec = avcodec_find_decoder(codecParams->codec_id);
 
 			if (!codec)
 			{
@@ -54,11 +54,26 @@ namespace
 				return false;
 			}
 
+			*codecContext = avcodec_alloc_context3(codec);
+			if (!*codecContext)
+			{
+				qWarning("Could not allocate codec context for %s", av_get_media_type_string(mediaType));
+				return false;
+			}
+
+			if (avcodec_parameters_to_context(*codecContext, codecParams) < 0)
+			{
+				qWarning("Could not copy codec parameters to context for %s", av_get_media_type_string(mediaType));
+				avcodec_free_context(codecContext);
+				return false;
+			}
+
 			AVDictionary* opts = nullptr;
 
-			if (avcodec_open2(codecContext, codec, &opts) < 0)
+			if (avcodec_open2(*codecContext, codec, &opts) < 0)
 			{
 				qWarning("Could not open %s codec", av_get_media_type_string(mediaType));
+				avcodec_free_context(codecContext);
 				return false;
 			}
 		}
@@ -76,7 +91,7 @@ bool VideoDecoder::initialize(Settings* settings)
 
 	av_log_set_level(enableVerboseLogging ? AV_LOG_DEBUG : AV_LOG_WARNING);
 	av_log_set_callback(ffmpegLogCallback);
-	av_register_all();
+	// av_register_all() is deprecated and not needed in newer FFmpeg versions
 
 	if (avformat_open_input(&formatContext, settings->video.inputVideoFilePath.toUtf8().constData(), nullptr, nullptr) < 0)
 	{
@@ -90,7 +105,7 @@ bool VideoDecoder::initialize(Settings* settings)
 		return false;
 	}
 
-	if (!openCodecContext(&videoStreamIndex, formatContext, AVMEDIA_TYPE_VIDEO))
+	if (!openCodecContext(&videoStreamIndex, formatContext, AVMEDIA_TYPE_VIDEO, &videoCodecContext))
 	{
 		qWarning("Could not open video codec context");
 		return false;
@@ -104,17 +119,18 @@ bool VideoDecoder::initialize(Settings* settings)
 		return false;
 	}
 
+	// Initialize packet
 	av_init_packet(&packet);
 	packet.data = nullptr;
 	packet.size = 0;
 
 	videoStream = formatContext->streams[(size_t)videoStreamIndex];
-	videoCodecContext = videoStream->codec;
+	// videoCodecContext is now set by openCodecContext
 
 	frameWidth = videoCodecContext->width / settings->video.frameSizeDivisor;
 	frameHeight = videoCodecContext->height / settings->video.frameSizeDivisor;
 
-	swsContext = sws_getContext(videoCodecContext->width, videoCodecContext->height, videoCodecContext->pix_fmt, frameWidth, frameHeight, PIX_FMT_RGBA, SWS_BILINEAR, nullptr, nullptr, nullptr);
+	swsContext = sws_getContext(videoCodecContext->width, videoCodecContext->height, videoCodecContext->pix_fmt, frameWidth, frameHeight, AV_PIX_FMT_RGBA, SWS_BILINEAR, nullptr, nullptr, nullptr);
 
 	if (!swsContext)
 	{
@@ -122,18 +138,27 @@ bool VideoDecoder::initialize(Settings* settings)
 		return false;
 	}
 
-	convertedPicture = new AVPicture();
-
-	if (avpicture_alloc(convertedPicture, PIX_FMT_RGBA, frameWidth, frameHeight) < 0)
+	convertedPicture = av_frame_alloc();
+	if (!convertedPicture)
 	{
-		qWarning("Could not allocate conversion picture");
+		qWarning("Could not allocate conversion frame");
+		return false;
+	}
+
+	convertedPicture->format = AV_PIX_FMT_RGBA;
+	convertedPicture->width = frameWidth;
+	convertedPicture->height = frameHeight;
+
+	if (av_frame_get_buffer(convertedPicture, 0) < 0)
+	{
+		qWarning("Could not allocate conversion frame buffer");
 		return false;
 	}
 
 	grayscaleFrameWidth = videoCodecContext->width / settings->stabilizer.frameSizeDivisor;
 	grayscaleFrameHeight = videoCodecContext->height / settings->stabilizer.frameSizeDivisor;
 
-	swsContextGrayscale = sws_getContext(videoCodecContext->width, videoCodecContext->height, videoCodecContext->pix_fmt, grayscaleFrameWidth, grayscaleFrameHeight, PIX_FMT_GRAY8, SWS_BILINEAR, nullptr, nullptr, nullptr);
+	swsContextGrayscale = sws_getContext(videoCodecContext->width, videoCodecContext->height, videoCodecContext->pix_fmt, grayscaleFrameWidth, grayscaleFrameHeight, AV_PIX_FMT_GRAY8, SWS_BILINEAR, nullptr, nullptr, nullptr);
 
 	if (!swsContextGrayscale)
 	{
@@ -141,11 +166,20 @@ bool VideoDecoder::initialize(Settings* settings)
 		return false;
 	}
 
-	convertedPictureGrayscale = new AVPicture();
-
-	if (avpicture_alloc(convertedPictureGrayscale, PIX_FMT_GRAY8, grayscaleFrameWidth, grayscaleFrameHeight) < 0)
+	convertedPictureGrayscale = av_frame_alloc();
+	if (!convertedPictureGrayscale)
 	{
-		qWarning("Could not allocate grayscale conversion picture");
+		qWarning("Could not allocate grayscale conversion frame");
+		return false;
+	}
+
+	convertedPictureGrayscale->format = AV_PIX_FMT_GRAY8;
+	convertedPictureGrayscale->width = grayscaleFrameWidth;
+	convertedPictureGrayscale->height = grayscaleFrameHeight;
+
+	if (av_frame_get_buffer(convertedPictureGrayscale, 0) < 0)
+	{
+		qWarning("Could not allocate grayscale conversion frame buffer");
 		return false;
 	}
 
@@ -173,7 +207,7 @@ VideoDecoder::~VideoDecoder()
 {
 	if (videoCodecContext != nullptr)
 	{
-		avcodec_close(videoCodecContext);
+		avcodec_free_context(&videoCodecContext);
 		videoCodecContext = nullptr;
 	}
 
@@ -197,7 +231,7 @@ VideoDecoder::~VideoDecoder()
 
 	if (convertedPictureGrayscale != nullptr)
 	{
-		avpicture_free(convertedPictureGrayscale);
+		av_frame_free(&convertedPictureGrayscale);
 		convertedPictureGrayscale = nullptr;
 	}
 
@@ -209,7 +243,7 @@ VideoDecoder::~VideoDecoder()
 
 	if (convertedPicture != nullptr)
 	{
-		avpicture_free(convertedPicture);
+		av_frame_free(&convertedPicture);
 		convertedPicture = nullptr;
 	}
 }
@@ -232,73 +266,85 @@ bool VideoDecoder::getNextFrame(FrameData* frameData, FrameData* frameDataGraysc
 		{
 			if (packet.stream_index == videoStreamIndex)
 			{
-				int gotPicture = 0;
-				int decodedBytes = avcodec_decode_video2(videoCodecContext, frame, &gotPicture, &packet);
+				// Send packet to decoder
+				int sendResult = avcodec_send_packet(videoCodecContext, &packet);
+				if (sendResult < 0)
+				{
+					qWarning("Error sending packet for decoding: %d", sendResult);
+					av_packet_unref(&packet);
+					return false;
+				}
+
+				// Receive frame from decoder
+				int receiveResult = avcodec_receive_frame(videoCodecContext, frame);
+				if (receiveResult == AVERROR(EAGAIN) || receiveResult == AVERROR_EOF)
+				{
+					// Need more packets or end of file
+					av_packet_unref(&packet);
+					continue;
+				}
+				else if (receiveResult < 0)
+				{
+					qWarning("Error during decoding: %d", receiveResult);
+					av_packet_unref(&packet);
+					return false;
+				}
 
 				if (++framesRead < frameCountDivisor)
 				{
-					av_free_packet(&packet);
+					av_packet_unref(&packet);
 					continue;
 				}
 
 				framesRead = 0;
 				cumulativeFrameNumber++;
 
-				if (decodedBytes < 0)
+				// We have a valid frame
+				if (frameData != nullptr)
 				{
-					qWarning("Could not decode video frame");
-					av_free_packet(&packet);
-					return false;
+					sws_scale(swsContext, frame->data, frame->linesize, 0, frame->height, convertedPicture->data, convertedPicture->linesize);
+
+					frameData->data = convertedPicture->data[0];
+					frameData->dataLength = (size_t)(frameHeight * convertedPicture->linesize[0]);
+					frameData->rowLength = (size_t)(convertedPicture->linesize[0]);
+					frameData->width = frameWidth;
+					frameData->height = frameHeight;
+					frameData->duration = av_rescale((frame->best_effort_timestamp - previousFrameTimestamp) * 1000000 / frameDurationDivisor, videoStream->time_base.num, videoStream->time_base.den);
+					frameData->timeStamp = frame->best_effort_timestamp;
+					frameData->cumulativeNumber = cumulativeFrameNumber;
+
+					if (frameData->duration <= 0 || frameData->duration > 1000000)
+						frameData->duration = frameDuration;
 				}
 
-				if (gotPicture)
+				if (frameDataGrayscale != nullptr)
 				{
-					if (frameData != nullptr)
-					{
-						sws_scale(swsContext, frame->data, frame->linesize, 0, frame->height, convertedPicture->data, convertedPicture->linesize);
+					sws_scale(swsContextGrayscale, frame->data, frame->linesize, 0, frame->height, convertedPictureGrayscale->data, convertedPictureGrayscale->linesize);
 
-						frameData->data = convertedPicture->data[0];
-						frameData->dataLength = (size_t)(frameHeight * convertedPicture->linesize[0]);
-						frameData->rowLength = (size_t)(convertedPicture->linesize[0]);
-						frameData->width = frameWidth;
-						frameData->height = frameHeight;
-						frameData->duration = av_rescale((frame->best_effort_timestamp - previousFrameTimestamp) * 1000000 / frameDurationDivisor, videoStream->time_base.num, videoStream->time_base.den);
-						frameData->timeStamp = frame->best_effort_timestamp;
-						frameData->cumulativeNumber = cumulativeFrameNumber;
+					frameDataGrayscale->data = convertedPictureGrayscale->data[0];
+					frameDataGrayscale->dataLength = (size_t)(grayscaleFrameHeight * convertedPictureGrayscale->linesize[0]);
+					frameDataGrayscale->rowLength = (size_t)(convertedPictureGrayscale->linesize[0]);
+					frameDataGrayscale->width = grayscaleFrameWidth;
+					frameDataGrayscale->height = grayscaleFrameHeight;
+					frameDataGrayscale->duration = (int)av_rescale((frame->best_effort_timestamp - previousFrameTimestamp) * 1000000 / frameDurationDivisor, videoStream->time_base.num, videoStream->time_base.den);
+					frameDataGrayscale->timeStamp = frame->best_effort_timestamp;
+					frameDataGrayscale->cumulativeNumber = cumulativeFrameNumber;
 
-						if (frameData->duration <= 0 || frameData->duration > 1000000)
-							frameData->duration = frameDuration;
-					}
-
-					if (frameDataGrayscale != nullptr)
-					{
-						sws_scale(swsContextGrayscale, frame->data, frame->linesize, 0, frame->height, convertedPictureGrayscale->data, convertedPictureGrayscale->linesize);
-
-						frameDataGrayscale->data = convertedPictureGrayscale->data[0];
-						frameDataGrayscale->dataLength = (size_t)(grayscaleFrameHeight * convertedPictureGrayscale->linesize[0]);
-						frameDataGrayscale->rowLength = (size_t)(convertedPictureGrayscale->linesize[0]);
-						frameDataGrayscale->width = grayscaleFrameWidth;
-						frameDataGrayscale->height = grayscaleFrameHeight;
-						frameDataGrayscale->duration = (int)av_rescale((frame->best_effort_timestamp - previousFrameTimestamp) * 1000000 / frameDurationDivisor, videoStream->time_base.num, videoStream->time_base.den);
-						frameDataGrayscale->timeStamp = frame->best_effort_timestamp;
-						frameDataGrayscale->cumulativeNumber = cumulativeFrameNumber;
-
-						if (frameDataGrayscale->duration <= 0 || frameDataGrayscale->duration > 1000000)
-							frameDataGrayscale->duration = frameDuration;
-					}
-
-					double totalDurationInSeconds = ((double)videoStream->time_base.num / videoStream->time_base.den) * videoStream->duration;
-					currentTimeInSeconds = ((double)frame->best_effort_timestamp / videoStream->duration) * totalDurationInSeconds;
-					previousFrameTimestamp = frame->best_effort_timestamp;
-					decodeDuration = decodeDurationTimer.nsecsElapsed() / 1000000.0;
-					isFinished = false;
-
-					av_free_packet(&packet);
-					return true;
+					if (frameDataGrayscale->duration <= 0 || frameDataGrayscale->duration > 1000000)
+						frameDataGrayscale->duration = frameDuration;
 				}
+
+				double totalDurationInSeconds = ((double)videoStream->time_base.num / videoStream->time_base.den) * videoStream->duration;
+				currentTimeInSeconds = ((double)frame->best_effort_timestamp / videoStream->duration) * totalDurationInSeconds;
+				previousFrameTimestamp = frame->best_effort_timestamp;
+				decodeDuration = decodeDurationTimer.nsecsElapsed() / 1000000.0;
+				isFinished = false;
+
+				av_packet_unref(&packet);
+				return true;
 			}
 
-			av_free_packet(&packet);
+			av_packet_unref(&packet);
 		}
 		else
 		{
@@ -327,7 +373,7 @@ void VideoDecoder::seekRelative(double seconds)
 	{
 		avcodec_flush_buffers(videoCodecContext);
 
-		int gotPicture = 0;
+		bool gotPicture = false;
 
 		while (!gotPicture)
 		{
@@ -336,9 +382,36 @@ void VideoDecoder::seekRelative(double seconds)
 			if ((readResult = av_read_frame(formatContext, &packet)) >= 0)
 			{
 				if (packet.stream_index == videoStreamIndex)
-					avcodec_decode_video2(videoCodecContext, frame, &gotPicture, &packet);
+				{
+					// Send packet to decoder
+					int sendResult = avcodec_send_packet(videoCodecContext, &packet);
+					if (sendResult < 0)
+					{
+						qWarning("Error sending packet for decoding during seek: %d", sendResult);
+						av_packet_unref(&packet);
+						continue;
+					}
 
-				av_free_packet(&packet);
+					// Receive frame from decoder
+					int receiveResult = avcodec_receive_frame(videoCodecContext, frame);
+					if (receiveResult == AVERROR(EAGAIN) || receiveResult == AVERROR_EOF)
+					{
+						// Need more packets or end of file
+						av_packet_unref(&packet);
+						continue;
+					}
+					else if (receiveResult < 0)
+					{
+						qWarning("Error during decoding during seek: %d", receiveResult);
+						av_packet_unref(&packet);
+						continue;
+					}
+
+					// We have a valid frame
+					gotPicture = true;
+				}
+
+				av_packet_unref(&packet);
 			}
 			else
 			{

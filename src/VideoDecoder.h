@@ -5,9 +5,11 @@
 
 #include <QMutex>
 #include <QElapsedTimer>
+#include <QPicture>
 
 extern "C"
 {
+#include "libavcodec/avcodec.h"
 #include "libavformat/avformat.h"
 #include "libavutil/avutil.h"
 #include "libswscale/swscale.h"
@@ -56,8 +58,8 @@ namespace OrientView
 
 		SwsContext* swsContext = nullptr;
 		SwsContext* swsContextGrayscale = nullptr;
-		AVPicture* convertedPicture = nullptr;
-		AVPicture* convertedPictureGrayscale = nullptr;
+ 		AVFrame* convertedPicture = nullptr;
+ 		AVFrame* convertedPictureGrayscale = nullptr;
 
 		int frameWidth = 0;
 		int frameHeight = 0;

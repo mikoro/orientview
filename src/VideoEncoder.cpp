@@ -62,7 +62,7 @@ bool VideoEncoder::initialize(VideoDecoder* videoDecoder, Settings* settings)
 		return false;
 	}
 
-	swsContext = sws_getContext(settings->window.width, settings->window.height, PIX_FMT_RGBA, settings->window.width, settings->window.height, PIX_FMT_YUV420P, SWS_BILINEAR, nullptr, nullptr, nullptr);
+	swsContext = sws_getContext(settings->window.width, settings->window.height, AV_PIX_FMT_RGBA, settings->window.width, settings->window.height, AV_PIX_FMT_YUV420P, SWS_BILINEAR, nullptr, nullptr, nullptr);
 
 	if (!swsContext)
 	{
