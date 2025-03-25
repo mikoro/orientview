@@ -34,7 +34,9 @@ int main(int argc, char *argv[])
 		QCoreApplication::setOrganizationName("orientview");
 		QCoreApplication::setApplicationName("orientview");
 #endif
-		
+		// TODO: Make compatible with Wayland. This is a temporary workaround. 
+		qputenv("QT_QPA_PLATFORM", "xcb");
+
 		QApplication app(argc, argv);
 
 		QDir::setCurrent(QCoreApplication::applicationDirPath());
