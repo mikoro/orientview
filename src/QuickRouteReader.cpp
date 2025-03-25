@@ -59,9 +59,12 @@ bool QuickRouteReader::extractDataPartFromJpeg(QFile& file, QByteArray& buffer)
 	QByteArray quickRouteIdBuffer(quickRouteId, quickRouteIdLength);
 	QByteArray readBuffer;
 
+	buffer.clear();
+	
 	if (!readBytes(file, readBuffer, 2))
 		return false;
 
+	// Check JPEG Start of Image marker (SOI)
 	if ((uint8_t)readBuffer.at(0) != 0xff || (uint8_t)readBuffer.at(1) != 0xd8)
 	{
 		qWarning("Not a supported JPEG file format");
@@ -73,46 +76,42 @@ bool QuickRouteReader::extractDataPartFromJpeg(QFile& file, QByteArray& buffer)
 		if (!readBytes(file, readBuffer, 2))
 			return false;
 
-		if ((uint8_t)readBuffer.at(0) != 0xff)
-		{
-			qWarning("Could not find QuickRoute Jpeg Extension Data");
-			return false;
-		}
+		// Check JFIF APP0 marker
+		if ((uint8_t)readBuffer.at(0) != 0xff || (uint8_t)readBuffer.at(1) != 0xe0)
+			continue;
 
-		if ((uint8_t)readBuffer.at(1) == 0xe0)
+		if (!readBytes(file, readBuffer, 2))
+			return false;
+
+		uint32_t length = (uint8_t)readBuffer.at(1) + 256 * (uint8_t)readBuffer.at(0);
+
+		if (length >= (quickRouteIdLength + 2))
 		{
-			if (!readBytes(file, readBuffer, 2))
+			if (!readBytes(file, readBuffer, quickRouteIdLength))
 				return false;
 
-			uint32_t length = (uint8_t)readBuffer.at(1) + 256 * (uint8_t)readBuffer.at(0);
+			bool match = readBuffer.startsWith(quickRouteIdBuffer);
 
-			if (length >= (quickRouteIdLength + 2))
-			{
-				if (!readBytes(file, readBuffer, quickRouteIdLength))
-					return false;
+			if (!readBytes(file, readBuffer, length - 2 - quickRouteIdLength))
+				return false;
 
-				bool match = readBuffer.startsWith(quickRouteIdBuffer);
-
-				if (!readBytes(file, readBuffer, length - 2 - quickRouteIdLength))
-					return false;
-
-				if (match)
-				{
-					buffer = readBuffer;
-					return true;
-				}
-			}
-			else
-			{
-				if (!readBytes(file, readBuffer, length - 2))
-					return false;
-			}
-
+			if (match)
+				buffer.append(readBuffer);
+		}
+		else
+		{
+			if (!readBytes(file, readBuffer, length - 2))
+				return false;
 		}
 	}
 
-	qWarning("Could not find QuickRoute Jpeg Extension Data");
-	return false;
+	if (buffer.size() == 0)
+	{
+		qWarning("Could not find QuickRoute Jpeg Extension Data");
+		return false;
+	}
+
+	return true;
 }
 
 bool QuickRouteReader::readBytes(QFile& file, QByteArray& buffer, int count)
