@@ -1,0 +1,19 @@
+{
+  "dependencies": [
+    "pkgconf",
+    "x264",
+    "opencv2",
+    "qt5-base",
+    "qt5-svg",
+    {
+      "name": "ffmpeg",
+      "features": [
+        "avcodec",
+        "avdevice",
+        "avfilter",
+        "avformat",
+        "swscale"
+      ]
+    }
+  ]
+}
