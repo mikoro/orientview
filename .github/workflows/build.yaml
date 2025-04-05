@@ -28,9 +28,9 @@ jobs:
           - os: ubuntu-latest
             platform: linux
             friendly_name: "Linux (Ubuntu)"
-          # - os: macos-latest
-          #   platform: macos
-          #   friendly_name: "macOS"
+          - os: macos-latest
+            platform: macos
+            friendly_name: "macOS"
           - os: windows-latest
             platform: windows
             friendly_name: "Windows"
