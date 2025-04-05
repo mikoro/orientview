@@ -1,5 +1,5 @@
 [Desktop Entry]
-Version=1.0
+Version=<VERSION>
 Name=OrientView
 Comment=Orienteering video and map analysis
 Exec=orientview

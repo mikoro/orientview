@@ -117,7 +117,7 @@ Download the latest version:
 ## License
 
     OrientView
-    Copyright © 2014 Mikko Ronkainen
+    Copyright © 2014-2025 Mikko Ronkainen
     
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by

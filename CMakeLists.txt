@@ -1,13 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
 
-if (WIN32 OR APPLE)
-  project(OrientView VERSION 1.0 LANGUAGES C CXX)
-  set(EXE_NAME OrientView)
-else()
-  project(orientview VERSION 1.0 LANGUAGES C CXX)
-  set(EXE_NAME orientview)
-endif()
-
 if (WIN32)
   set(VCPKG_TARGET_TRIPLET "x64-windows-static")
   set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
@@ -15,6 +7,17 @@ endif()
 
 set(VCPKG_OVERLAY_PORTS "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg-ports")
 set(CMAKE_TOOLCHAIN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/scripts/buildsystems/vcpkg.cmake")
+
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/version.txt" PROJECT_VERSION_STRING)
+string(STRIP "${PROJECT_VERSION_STRING}" PROJECT_VERSION_STRING)
+
+if (WIN32 OR APPLE)
+  project(OrientView VERSION ${PROJECT_VERSION_STRING} LANGUAGES C CXX)
+  set(EXE_NAME OrientView)
+else()
+  project(orientview VERSION ${PROJECT_VERSION_STRING} LANGUAGES C CXX)
+  set(EXE_NAME orientview)
+endif()
 
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_CXX_STANDARD 11)

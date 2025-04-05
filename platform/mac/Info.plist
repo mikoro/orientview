@@ -9,7 +9,7 @@
 	<key>CFBundleIdentifier</key>
 	<string>com.orientview.OrientView</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.1.0</string>
+	<string><VERSION></string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleSignature</key>
@@ -19,6 +19,6 @@
 	<key>CFBundleIconFile</key>
 	<string>orientview.icns</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>Copyright © 2014 Mikko Ronkainen</string>
+	<string>Copyright © 2014-2025 Mikko Ronkainen</string>
 </dict>
 </plist>

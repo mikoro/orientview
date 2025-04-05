@@ -1,0 +1,88 @@
+name: Build
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+    inputs:
+      make_a_release:
+        description: "Make a release"
+        type: boolean
+        required: false
+        default: false
+  schedule:
+    # Runs every 7 days
+    - cron: '0 0 */7 * *'
+
+env:
+  VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          # - os: ubuntu-latest
+          #   platform: linux
+          # - os: macos-latest
+          #   platform: mac
+          - os: windows-latest
+            platform: windows
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+          fetch-depth: 0
+
+      - name: Export GitHub Actions cache environment variables
+        uses: actions/github-script@v7
+        with:
+          script: |
+            core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
+            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
+
+      - name: Read version from version.txt
+        id: read_version
+        run: echo "VERSION=$(cat version.txt)" >> $GITHUB_ENV
+
+      - name: Replace <VERSION> in platform files
+        shell: bash
+        run: |
+          sed -i "s/<VERSION>/${{ env.VERSION }}/g" platform/linux/orientview.desktop
+          sed -i "s/<VERSION>/${{ env.VERSION }}/g" platform/mac/Info.plist
+          sed -i "s/<VERSION>/${{ env.VERSION }}/g" platform/windows/orientview.rc
+
+      - name: Configure
+        run: |
+          cmake -S . -B build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX="${{ github.workspace }}/install"
+
+      - name: Build and install
+        run: cmake --build build --config Release --target install
+
+      - name: Zip the installed artifacts
+        run: |
+          cd ${{ github.workspace }}/install
+          zip -r "orientview-${{ env.VERSION }}-${{ matrix.platform }}.zip" .
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: "orientview-${{ env.VERSION }}-${{ matrix.platform }}"
+          path: "install/orientview-${{ env.VERSION }}-${{ matrix.platform }}.zip"
+
+      - name: Create a GitHub release
+        if: ${{ github.event.inputs.make_a_release == 'true' }}
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ env.VERSION }}
+          name: "OrientView v${{ env.VERSION }}"
+          files: "install/orientview-${{ env.VERSION }}-${{ matrix.platform }}.zip"
+          generate_release_notes: true
+          make_latest: true

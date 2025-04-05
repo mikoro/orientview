@@ -1,8 +1,8 @@
 RT_ICON ICON "../icons/orientview.ico"
 
 1 VERSIONINFO
-FILEVERSION     1,1,0,0
-PRODUCTVERSION  1,1,0,0
+FILEVERSION     1,0,0,0
+PRODUCTVERSION  1,0,0,0
 BEGIN
   BLOCK "StringFileInfo"
   BEGIN
@@ -11,10 +11,10 @@ BEGIN
       VALUE "FileDescription", "OrientView"
       VALUE "ProductName", "OrientView"
       VALUE "InternalName", "OrientView"
-      VALUE "ProductVersion", "1.1.0"
-      VALUE "FileVersion", "1.1.0"
+      VALUE "ProductVersion", "<VERSION>"
+      VALUE "FileVersion", "<VERSION>"
       VALUE "CompanyName", "Mikko Ronkainen"
-      VALUE "LegalCopyright", "Copyright (C) 2014 Mikko Ronkainen"
+      VALUE "LegalCopyright", "Copyright (C) 2014-2025 Mikko Ronkainen"
       VALUE "OriginalFilename", "OrientView.exe"
     END
   END
