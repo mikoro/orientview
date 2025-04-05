@@ -10,11 +10,17 @@ Note that the first CMake configure run will take a long time as vcpkg will buil
 
 1. Install latest [Visual Studio](https://visualstudio.microsoft.com/downloads/). Enable C++ development when installing.
 2. Install latest [CMake](https://cmake.org/download/)
-3. `git clone https://github.com/mikoro/orientview.git`
+3. `git clone --recurse-submodules https://github.com/mikoro/orientview.git`
 4. `cd orientview; mkdir build; cd build; cmake ..; cmake --build .`
 
 Alternatively after `cmake ..` one can open the `OrientView.sln` in Visual Studio and build there.
 
 ## Linux
 
+1. `sudo apt update && sudo apt install build-essential cmake nasm`
+2. `git clone --recurse-submodules https://github.com/mikoro/orientview.git`
+3. `cd orientview && mkdir build && cd build && cmake ..`
+
 ## Mac
+
+TBD

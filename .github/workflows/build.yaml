@@ -73,11 +73,18 @@ jobs:
       - name: Build and install
         run: cmake --build build --config Release --target install
 
-      - name: Zip the installed artifacts
-        shell: bash
+      - name: Zip the installed artifacts (Unix)
+        if: runner.os != 'Windows'
         run: |
           cd ${{ github.workspace }}/install
           zip -r "orientview-${{ env.VERSION }}-${{ matrix.platform }}.zip" .
+    
+      - name: Zip the installed artifacts (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $OutputPath = "${{ github.workspace }}\install\orientview-${{ env.VERSION }}-${{ matrix.platform }}.zip"
+          Compress-Archive -Path "${{ github.workspace }}\install\*" -DestinationPath $OutputPath
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
