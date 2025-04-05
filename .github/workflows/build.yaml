@@ -73,33 +73,22 @@ jobs:
           sudo apt update
           sudo apt install -y nasm bison libxi-dev libxtst-dev '^libxcb.*-dev' libx11-xcb-dev libgl1-mesa-dev libxrender-dev libxkbcommon-dev libxkbcommon-x11-dev libltdl-dev
 
-      - name: Configure
+      - name: Build
         run: |
-          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="${{ github.workspace }}/install"
-
-      - name: Build and install
-        run: cmake --build build --config Release --target install
-
-      - name: Zip the installed artifacts (Linux)
-        if: runner.os != 'Windows' && runner.os != 'macOS'
-        run: |
-          cd ${{ github.workspace }}/install
-          zip -r "orientview-${{ env.VERSION }}-${{ matrix.platform }}.zip" .
-    
-      - name: Zip the installed artifacts (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          $OutputPath = "${{ github.workspace }}\install\orientview-${{ env.VERSION }}-${{ matrix.platform }}.zip"
-          Compress-Archive -Path "${{ github.workspace }}\install\*" -DestinationPath $OutputPath
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+          cmake --build build --target package
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: "platform-binaries"
+          name: "${{ matrix.platform }}-binaries"
           path: |
-            install/orientview-*.zip
-            install/OrientView.app
+            build/*.zip
+            build/*.deb
+            build/*.dmg
+            build/*.app
+            build/*.msi
+            build/*.exe
 
       - name: Create a GitHub release
         if: ${{ github.event.inputs.make_a_release == 'true' }}
@@ -107,6 +96,12 @@ jobs:
         with:
           tag_name: v${{ env.VERSION }}
           name: "OrientView v${{ env.VERSION }}"
-          files: "install/orientview-*.zip"
+          files: |
+            build/*.zip
+            build/*.deb
+            build/*.dmg
+            build/*.app
+            build/*.msi
+            build/*.exe
           generate_release_notes: true
           make_latest: true

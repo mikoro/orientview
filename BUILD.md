@@ -1,7 +1,7 @@
 # The easy way (GitHub Actions)
 
 [Fork the repo](https://github.com/mikoro/orientview/fork) at GitHub, enable Actions for the fork, make the changes, push to GitHub and let Actions build all the platform binaries for you.
-You will find the results under the specific workflow run in [Actions](https://github.com/mikoro/orientview/actions) (look for `platform-binaries`).
+You will find the results under the specific workflow run in [Actions](https://github.com/mikoro/orientview/actions) (look for `*-binaries`).
 
 # Build locally
 
