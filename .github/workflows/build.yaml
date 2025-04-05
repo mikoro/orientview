@@ -56,6 +56,7 @@ jobs:
           find ./vcpkg/triplets -type f -exec sh -c "echo 'set(VCPKG_BUILD_TYPE release)' >> \"\$1\"" _ {} \;
 
       - name: Read version from version.txt
+        shell: bash
         id: read_version
         run: echo "VERSION=$(cat version.txt)" >> $GITHUB_ENV
 
@@ -89,8 +90,8 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: "orientview-${{ env.VERSION }}-${{ matrix.platform }}"
-          path: "install/orientview-${{ env.VERSION }}-${{ matrix.platform }}.zip"
+          name: "artifacts"
+          path: "install/orientview-*.zip"
 
       - name: Create a GitHub release
         if: ${{ github.event.inputs.make_a_release == 'true' }}
@@ -98,6 +99,6 @@ jobs:
         with:
           tag_name: v${{ env.VERSION }}
           name: "OrientView v${{ env.VERSION }}"
-          files: "install/orientview-${{ env.VERSION }}-${{ matrix.platform }}.zip"
+          files: "install/orientview-*.zip"
           generate_release_notes: true
           make_latest: true
