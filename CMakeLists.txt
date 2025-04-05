@@ -42,7 +42,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 include(GNUInstallDirs)
 
-add_executable(${EXE_NAME}
+set(SRC_FILES
   src/EncodeWindow.cpp src/EncodeWindow.h src/EncodeWindow.ui
   src/FrameData.h
   src/GpxReader.cpp src/GpxReader.h
@@ -71,6 +71,12 @@ add_executable(${EXE_NAME}
   src/VideoWindow.cpp src/VideoWindow.h
 )
 
+if(WIN32)
+  list(APPEND SRC_FILES ${CMAKE_CURRENT_SOURCE_DIR}/misc/windows/orientview.rc)
+endif()
+
+add_executable(${EXE_NAME} ${SRC_FILES})
+
 qt_add_resources(RESOURCES src/OrientView.qrc)
 target_sources(${EXE_NAME} PRIVATE ${RESOURCES})
 
@@ -96,6 +102,7 @@ target_link_libraries(${EXE_NAME} PRIVATE
   ${FFMPEG_LIBRARIES}
 )
 
+# On Windows: Debug builds show console, Release builds hide it
 if(WIN32)
   set_target_properties(${EXE_NAME} PROPERTIES
     WIN32_EXECUTABLE $<NOT:$<CONFIG:Debug>>
