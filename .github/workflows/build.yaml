@@ -21,15 +21,19 @@ env:
 
 jobs:
   build:
+    name: Build on ${{ matrix.friendly_name }}
     strategy:
       matrix:
         include:
           # - os: ubuntu-latest
           #   platform: linux
+          #   friendly_name: "Linux (Ubuntu)"
           # - os: macos-latest
           #   platform: mac
+          #   friendly_name: "macOS"
           - os: windows-latest
             platform: windows
+            friendly_name: "Windows"
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -46,6 +50,11 @@ jobs:
             core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
             core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
 
+      - name: Force VCPKG_BUILD_TYPE to release
+        shell: bash
+        run: |
+          find ./vcpkg/triplets/* -type f -exec sh -c "echo '\nset(VCPKG_BUILD_TYPE release)\n' >> {}" \;
+
       - name: Read version from version.txt
         id: read_version
         run: echo "VERSION=$(cat version.txt)" >> $GITHUB_ENV
@@ -59,9 +68,7 @@ jobs:
 
       - name: Configure
         run: |
-          cmake -S . -B build \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DCMAKE_INSTALL_PREFIX="${{ github.workspace }}/install"
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="${{ github.workspace }}/install"
 
       - name: Build and install
         run: cmake --build build --config Release --target install
