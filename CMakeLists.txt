@@ -1,5 +1,13 @@
 cmake_minimum_required(VERSION 3.16)
 
+if (WIN32 OR APPLE)
+  project(OrientView VERSION 1.0 LANGUAGES C CXX)
+  set(EXE_NAME OrientView)
+else()
+  project(orientview VERSION 1.0 LANGUAGES C CXX)
+  set(EXE_NAME orientview)
+endif()
+
 if (WIN32)
   set(VCPKG_TARGET_TRIPLET "x64-windows-static")
   set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
@@ -7,8 +15,6 @@ endif()
 
 set(VCPKG_OVERLAY_PORTS "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg-ports")
 set(CMAKE_TOOLCHAIN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/scripts/buildsystems/vcpkg.cmake")
-
-project(orientview VERSION 1.0 LANGUAGES C CXX)
 
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_CXX_STANDARD 11)
@@ -22,7 +28,7 @@ find_program(CCACHE_FOUND ccache)
 if(CCACHE_FOUND)
   set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
   set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
-endif(CCACHE_FOUND)
+endif()
 
 find_package(PkgConfig REQUIRED)
 find_package(Qt5 COMPONENTS Core Gui OpenGL Svg Widgets Xml REQUIRED)
@@ -36,7 +42,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 include(GNUInstallDirs)
 
-add_executable(orientview
+add_executable(${EXE_NAME}
   src/EncodeWindow.cpp src/EncodeWindow.h src/EncodeWindow.ui
   src/FrameData.h
   src/GpxReader.cpp src/GpxReader.h
@@ -66,18 +72,18 @@ add_executable(orientview
 )
 
 qt_add_resources(RESOURCES src/OrientView.qrc)
-target_sources(orientview PRIVATE ${RESOURCES})
+target_sources(${EXE_NAME} PRIVATE ${RESOURCES})
 
-target_include_directories(orientview PRIVATE
+target_include_directories(${EXE_NAME} PRIVATE
   ${OpenCV_INCLUDE_DIRS}
   ${FFMPEG_INCLUDE_DIRS}
 )
 
-target_link_directories(orientview PRIVATE
+target_link_directories(${EXE_NAME} PRIVATE
   ${FFMPEG_LIBRARY_DIRS}
 )
 
-target_link_libraries(orientview PRIVATE
+target_link_libraries(${EXE_NAME} PRIVATE
   Qt5::Core
   Qt5::Gui
   Qt5::OpenGL
@@ -90,11 +96,17 @@ target_link_libraries(orientview PRIVATE
   ${FFMPEG_LIBRARIES}
 )
 
-add_custom_command(TARGET orientview POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_SOURCE_DIR}/data $<TARGET_FILE_DIR:orientview>/data)
+if(WIN32)
+  set_target_properties(${EXE_NAME} PROPERTIES
+    WIN32_EXECUTABLE $<NOT:$<CONFIG:Debug>>
+  )
+endif()
 
-install(TARGETS orientview
+add_custom_command(TARGET ${EXE_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/data $<TARGET_FILE_DIR:${EXE_NAME}>/data)
+
+install(TARGETS ${EXE_NAME}
         BUNDLE DESTINATION .
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
