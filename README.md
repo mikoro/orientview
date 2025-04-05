@@ -107,6 +107,10 @@ Download the latest version from the [Releases](https://github.com/mikoro/orient
 | **Insert**    | Increase tail length                                                                       |
 | **Delete**    | Decrease tail length                                                                       |
 
+## How to build
+
+For build instructions, see [BUILD.md](https://github.com/mikoro/orientview/blob/main/BUILD.md)
+
 ## License
 
     OrientView
