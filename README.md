@@ -18,6 +18,8 @@ Example videos:
 
 Download the latest version from the [Releases](https://github.com/mikoro/orientview/releases/latest) page.
 
+For testing out the program, you can also [download test data](https://s3.amazonaws.com/orientview-testdata/orientview-testdata.zip)
+
 ## Features
 
 * Opens the most common image file formats (e.g. JPEG, PNG and TIFF).

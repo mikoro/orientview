@@ -154,7 +154,6 @@ elseif(APPLE)
   )
 
   install(TARGETS ${EXE_NAME} BUNDLE DESTINATION .)
-  install(DIRECTORY data DESTINATION "${EXE_NAME}.app/Contents/Resources")
 else()
   set(PLATFORM_NAME "ubuntu")
 
