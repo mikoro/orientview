@@ -2,6 +2,11 @@
 
 OrientView is an orienteering video analyzing program which displays the video and the map side-by-side in real-time. Many image and video file formats are supported. Routes are created and calibrated using [QuickRoute](http://www.matstroeng.se/quickroute/en/). Resulting video can be exported to an MP4 video file.
 
+* Author: [Mikko Ronkainen](http://mikkoronkainen.com)
+* Website: [github.com/mikoro/orientview](https://github.com/mikoro/orientview)
+
+![Screenshot](http://mikoro.github.io/images/orientview/readme-screenshot.jpg "Screenshot")
+
 Example videos:
 
 [Kattilajärvi, Finland (stabilised)](https://youtu.be/4jh9KmYjdq8?si=M1UggbHVKInae4A9)  
@@ -9,19 +14,9 @@ Example videos:
 [Prague Zoo, Czech Republic (runner centered, split oriented)](https://youtu.be/wrvxJsXHAtc?si=Hv29LG7lthBRwy39)    
 [Český Ráj, Czech Republic (runner centered)](https://youtu.be/iqBbxpQatak?si=TpNw071LAsF-BR9D)
 
-* Author: [Mikko Ronkainen](http://mikkoronkainen.com)
-* Website: [github.com/mikoro/orientview](https://github.com/mikoro/orientview)
-
-![Screenshot](http://mikoro.github.io/images/orientview/readme-screenshot.jpg "Screenshot")
-
 ## Download
 
-Download the latest version:
-
-| Windows 64-bit                                                                                                         | Mac OS X                                                                                                           | Linux                                                            |
-|------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------|
-| [OrientView-1.1.0-Setup.msi](https://github.com/mikoro/orientview/releases/download/v1.1.0/OrientView-1.1.0-Setup.msi) | [OrientView-1.1.0-mac.zip](https://github.com/mikoro/orientview/releases/download/v1.1.0/OrientView-1.1.0-mac.zip) | [Arch Linux AUR](https://aur.archlinux.org/packages/orientview/) |
-| [OrientView-1.1.0-win.zip](https://github.com/mikoro/orientview/releases/download/v1.1.0/OrientView-1.1.0-win.zip)     | &nbsp;                                                                                                             | &nbsp;                                                           |
+Download the latest version from the [Releases](https://github.com/mikoro/orientview/releases/latest) page.
 
 ## Features
 
