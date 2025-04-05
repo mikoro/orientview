@@ -71,7 +71,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt update
-          sudo apt install -y nasm bison libxi-dev libxtst-dev '^libxcb.*-dev' libx11-xcb-dev libgl1-mesa-dev libxrender-dev libxkbcommon-dev libxkbcommon-x11-dev
+          sudo apt install -y nasm bison libxi-dev libxtst-dev '^libxcb.*-dev' libx11-xcb-dev libgl1-mesa-dev libxrender-dev libxkbcommon-dev libxkbcommon-x11-dev libltdl-dev
 
       - name: Configure
         run: |
@@ -80,8 +80,8 @@ jobs:
       - name: Build and install
         run: cmake --build build --config Release --target install
 
-      - name: Zip the installed artifacts (Unix)
-        if: runner.os != 'Windows'
+      - name: Zip the installed artifacts (Linux)
+        if: runner.os != 'Windows' && runner.os != 'macOS'
         run: |
           cd ${{ github.workspace }}/install
           zip -r "orientview-${{ env.VERSION }}-${{ matrix.platform }}.zip" .
@@ -97,7 +97,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: "platform-binaries"
-          path: "install/orientview-*.zip"
+          path: |
+            install/orientview-*.zip
+            install/OrientView.app
 
       - name: Create a GitHub release
         if: ${{ github.event.inputs.make_a_release == 'true' }}
