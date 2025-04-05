@@ -53,7 +53,7 @@ jobs:
       - name: Force VCPKG_BUILD_TYPE to release
         shell: bash
         run: |
-          find ./vcpkg/triplets/* -type f -exec sh -c "echo '\nset(VCPKG_BUILD_TYPE release)\n' >> {}" \;
+          find ./vcpkg/triplets/* -type f -exec sh -c "echo \"\nset(VCPKG_BUILD_TYPE release)\n\" >> {}" \;
 
       - name: Read version from version.txt
         id: read_version
