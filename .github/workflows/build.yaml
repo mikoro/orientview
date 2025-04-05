@@ -74,6 +74,7 @@ jobs:
         run: cmake --build build --config Release --target install
 
       - name: Zip the installed artifacts
+        shell: bash
         run: |
           cd ${{ github.workspace }}/install
           zip -r "orientview-${{ env.VERSION }}-${{ matrix.platform }}.zip" .
