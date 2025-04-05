@@ -142,6 +142,10 @@ elseif(APPLE)
 else()
   set(PLATFORM_NAME "ubuntu")
 
+  set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Os -ffunction-sections -fdata-sections")
+  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Os -ffunction-sections -fdata-sections")
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--gc-sections -s")
+
   install(
       FILES "platform/linux/orientview.desktop"
       DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/applications"
