@@ -5,6 +5,7 @@
     "opencv2",
     "qt5-base",
     "qt5-svg",
+    "lsmash",
     {
       "name": "ffmpeg",
       "features": [

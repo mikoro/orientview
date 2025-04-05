@@ -1,5 +1,3 @@
-# TODO: Add lsmash support (https://learn.microsoft.com/en-us/vcpkg/get_started/get-started-packaging?pivots=shell-powershell)
-
 cmake_minimum_required(VERSION 3.16)
 
 if (WIN32)
@@ -7,6 +5,7 @@ if (WIN32)
   set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 endif()
 
+set(VCPKG_OVERLAY_PORTS "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg-ports")
 set(CMAKE_TOOLCHAIN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/scripts/buildsystems/vcpkg.cmake")
 
 project(orientview VERSION 1.0 LANGUAGES C CXX)
@@ -29,6 +28,7 @@ find_package(PkgConfig REQUIRED)
 find_package(Qt5 COMPONENTS Core Gui OpenGL Svg Widgets Xml REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(FFMPEG REQUIRED)
+find_package(lsmash CONFIG REQUIRED)
 
 pkg_check_modules(X264 REQUIRED IMPORTED_TARGET x264)
 
@@ -85,6 +85,7 @@ target_link_libraries(orientview PRIVATE
   Qt5::Widgets
   Qt5::Xml
   PkgConfig::X264
+  lsmash::lsmash
   ${OpenCV_LIBS}
   ${FFMPEG_LIBRARIES}
 )
