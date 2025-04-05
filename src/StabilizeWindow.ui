@@ -27,7 +27,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="OrientView.qrc">
-    <normaloff>:/icons/misc/icons/orientview.ico</normaloff>:/icons/misc/icons/orientview.ico</iconset>
+    <normaloff>:/icons/icons/orientview.ico</normaloff>:/icons/icons/orientview.ico</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>

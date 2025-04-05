@@ -9,8 +9,6 @@
 /My*
 /cov-int
 setup/
-/misc/linux/src
-/misc/linux/pkg
 *.sdf
 *.opensdf
 *.suo

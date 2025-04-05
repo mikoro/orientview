@@ -72,7 +72,7 @@ set(SRC_FILES
 )
 
 if(WIN32)
-  list(APPEND SRC_FILES ${CMAKE_CURRENT_SOURCE_DIR}/misc/windows/orientview.rc)
+  list(APPEND SRC_FILES ${CMAKE_CURRENT_SOURCE_DIR}/platform/windows/orientview.rc)
 endif()
 
 add_executable(${EXE_NAME} ${SRC_FILES})
@@ -112,15 +112,15 @@ endif()
 if(APPLE)
   set_target_properties(${EXE_NAME} PROPERTIES
     MACOSX_BUNDLE TRUE
-    MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/misc/mac/Info.plist"
+    MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/platform/mac/Info.plist"
   )
 
   target_sources(${EXE_NAME} PRIVATE
-    "${CMAKE_CURRENT_SOURCE_DIR}/misc/icons/orientview.icns"
+    "${CMAKE_CURRENT_SOURCE_DIR}/icons/orientview.icns"
   )
 
   set_source_files_properties(
-    "${CMAKE_CURRENT_SOURCE_DIR}/misc/icons/orientview.icns"
+    "${CMAKE_CURRENT_SOURCE_DIR}/icons/orientview.icns"
     PROPERTIES
     MACOSX_PACKAGE_LOCATION "Resources"
   )
