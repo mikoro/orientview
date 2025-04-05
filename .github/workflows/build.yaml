@@ -83,7 +83,7 @@ jobs:
           if [[ "${{ matrix.platform }}" == "windows" ]]; then
             cpack -G NSIS
             cpack -G ZIP
-          elif [[ "${{ matrix.platform }}" == "ubuntu" ]]; then
+          elif [[ "${{ matrix.platform }}" == "linux" ]]; then
             cpack -G DEB
             cpack -G RPM
             cpack -G TGZ
