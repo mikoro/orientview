@@ -61,9 +61,15 @@ jobs:
       - name: Replace <VERSION> in platform files
         shell: bash
         run: |
-          sed -i "s/<VERSION>/${{ env.VERSION }}/g" platform/linux/orientview.desktop
-          sed -i "s/<VERSION>/${{ env.VERSION }}/g" platform/macos/Info.plist
-          sed -i "s/<VERSION>/${{ env.VERSION }}/g" platform/windows/orientview.rc
+          if [[ "$OSTYPE" == "darwin"* ]]; then
+            SED_INPLACE="sed -i ''"
+          else
+            SED_INPLACE="sed -i"
+          fi
+          
+          $SED_INPLACE "s/<VERSION>/${{ env.VERSION }}/g" platform/linux/orientview.desktop
+          $SED_INPLACE "s/<VERSION>/${{ env.VERSION }}/g" platform/macos/Info.plist
+          $SED_INPLACE "s/<VERSION>/${{ env.VERSION }}/g" platform/windows/orientview.rc
 
       - name: Install Linux build dependencies
         if: runner.os == 'Linux'
