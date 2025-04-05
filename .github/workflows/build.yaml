@@ -56,7 +56,6 @@ jobs:
 
       - name: Read version from version.txt
         shell: bash
-        id: read_version
         run: echo "VERSION=$(cat version.txt)" >> $GITHUB_ENV
 
       - name: Replace <VERSION> in platform files
@@ -104,18 +103,32 @@ jobs:
             build/*.exe
             build/*.tar.gz
 
-      - name: Create a GitHub release
-        if: github.ref == 'refs/heads/main' && github.event.inputs.make_a_release == 'true'
+  release:
+    name: Create GitHub Release
+    needs: build
+    if: github.ref == 'refs/heads/main' && github.event.inputs.make_a_release == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts
+
+      - name: Flatten artifact directory
+        run: |
+          mkdir release-files
+          find artifacts -type f -exec cp {} release-files/ \;
+
+      - name: Read version from version.txt
+        run: echo "VERSION=$(cat version.txt)" >> $GITHUB_ENV
+
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ env.VERSION }}
           name: "OrientView v${{ env.VERSION }}"
-          files: |
-            build/*.zip
-            build/*.deb
-            build/*.rpm
-            build/*.dmg
-            build/*.exe
-            build/*.tar.gz
+          files: release-files/*
           generate_release_notes: true
           make_latest: true
