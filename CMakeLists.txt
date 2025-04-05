@@ -134,9 +134,45 @@ add_custom_command(TARGET ${EXE_NAME} POST_BUILD
   ${CMAKE_SOURCE_DIR}/data $<TARGET_FILE_DIR:${EXE_NAME}>/data
 )
 
-install(TARGETS ${EXE_NAME}
-  BUNDLE DESTINATION .
-  RUNTIME DESTINATION .
-)
+if(WIN32)
+  install(TARGETS ${EXE_NAME} RUNTIME DESTINATION .)
+  install(DIRECTORY data DESTINATION .)
+elseif(APPLE)
+  install(TARGETS ${EXE_NAME} BUNDLE DESTINATION .)
+  install(DIRECTORY data DESTINATION "${EXE_NAME}.app/Contents/Resources")
+else()
+  install(TARGETS ${EXE_NAME} RUNTIME DESTINATION bin)
+  install(DIRECTORY data DESTINATION share/orientview)
+endif()
 
-install(DIRECTORY data DESTINATION .)
+include(CPack)
+
+string(TOLOWER "${CMAKE_SYSTEM_NAME}" PLATFORM_NAME)
+
+set(CPACK_PACKAGE_NAME "orientview")
+set(CPACK_PACKAGE_VERSION "${PROJECT_VERSION_STRING}")
+set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-${PLATFORM_NAME}")
+set(CPACK_PACKAGE_CONTACT "Mikko Ronkainen <firstname@mikkoronkainen.com>")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "OrientView - Real-time analysis of orienteering runs with video and map displays")
+set(CPACK_PACKAGE_VENDOR "OrientView")
+set(CPACK_PACKAGE_HOMEPAGE_URL "https://github.com/mikoro/orientview")
+
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
+set(CPACK_RESOURCE_FILE_README "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
+
+if(WIN32)
+  set(CPACK_GENERATOR "ZIP;NSIS")
+  set(CPACK_NSIS_DISPLAY_NAME "OrientView")
+  set(CPACK_NSIS_PACKAGE_NAME "OrientView Installer")
+  set(CPACK_NSIS_CONTACT "${CPACK_PACKAGE_CONTACT}")
+  set(CPACK_NSIS_MODIFY_PATH ON)
+elseif(APPLE)
+  set(CPACK_GENERATOR "ZIP;DragNDrop")
+  set(CPACK_DMG_VOLUME_NAME "OrientView")
+else()
+  set(CPACK_GENERATOR "ZIP;DEB")
+  set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Mikko Ronkainen")
+  set(CPACK_DEBIAN_FILE_NAME "DEB-DEFAULT")
+  set(CPACK_DEBIAN_PACKAGE_SECTION "utils")
+  set(CPACK_DEBIAN_PACKAGE_DEPENDS "")
+endif()
