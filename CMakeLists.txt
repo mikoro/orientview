@@ -179,4 +179,11 @@ set(CPACK_DEBIAN_FILE_NAME "DEB-DEFAULT")
 set(CPACK_DEBIAN_PACKAGE_SECTION "utils")
 set(CPACK_DEBIAN_PACKAGE_DEPENDS "")
 
+set(CPACK_RPM_PACKAGE_LICENSE "GPLv3")
+set(CPACK_RPM_PACKAGE_GROUP "Utilities")
+set(CPACK_RPM_PACKAGE_VENDOR "OrientView")
+set(CPACK_RPM_PACKAGE_URL "https://github.com/mikoro/orientview")
+set(CPACK_RPM_PACKAGE_DESCRIPTION "Orienteering video and map analysis")
+set(CPACK_RPM_PACKAGE_REQUIRES "")
+
 include(CPack)

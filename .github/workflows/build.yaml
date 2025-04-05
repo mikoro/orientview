@@ -70,7 +70,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt update
-          sudo apt install -y nasm bison libxi-dev libxtst-dev '^libxcb.*-dev' libx11-xcb-dev libgl1-mesa-dev libxrender-dev libxkbcommon-dev libxkbcommon-x11-dev libltdl-dev
+          sudo apt install -y nasm bison rpm libxi-dev libxtst-dev '^libxcb.*-dev' libx11-xcb-dev libgl1-mesa-dev libxrender-dev libxkbcommon-dev libxkbcommon-x11-dev libltdl-dev
 
       - name: Configure and Build
         run: |
@@ -86,11 +86,12 @@ jobs:
             cpack -G ZIP
           elif [[ "${{ matrix.platform }}" == "ubuntu" ]]; then
             cpack -G DEB
+            cpack -G RPM
             cpack -G TGZ
           elif [[ "${{ matrix.platform }}" == "macos" ]]; then
             cpack -G DragNDrop
           fi
-        
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -98,9 +99,8 @@ jobs:
           path: |
             build/*.zip
             build/*.deb
+            build/*.rpm
             build/*.dmg
-            build/*.app
-            build/*.msi
             build/*.exe
             build/*.tar.gz
 
@@ -113,9 +113,8 @@ jobs:
           files: |
             build/*.zip
             build/*.deb
+            build/*.rpm
             build/*.dmg
-            build/*.app
-            build/*.msi
             build/*.exe
             build/*.tar.gz
           generate_release_notes: true
