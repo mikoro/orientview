@@ -73,24 +73,24 @@ jobs:
       - name: Build and install
         run: cmake --build build --config Release --target install
 
-      # - name: Zip the installed artifacts
-      #   shell: bash
-      #   run: |
-      #     cd ${{ github.workspace }}/install
-      #     zip -r "orientview-${{ env.VERSION }}-${{ matrix.platform }}.zip" .
+      - name: Zip the installed artifacts
+        shell: bash
+        run: |
+          cd ${{ github.workspace }}/install
+          zip -r "orientview-${{ env.VERSION }}-${{ matrix.platform }}.zip" .
 
-      # - name: Upload artifacts
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: "orientview-${{ env.VERSION }}-${{ matrix.platform }}"
-      #     path: "install/orientview-${{ env.VERSION }}-${{ matrix.platform }}.zip"
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: "orientview-${{ env.VERSION }}-${{ matrix.platform }}"
+          path: "install/orientview-${{ env.VERSION }}-${{ matrix.platform }}.zip"
 
-      # - name: Create a GitHub release
-      #   if: ${{ github.event.inputs.make_a_release == 'true' }}
-      #   uses: softprops/action-gh-release@v2
-      #   with:
-      #     tag_name: v${{ env.VERSION }}
-      #     name: "OrientView v${{ env.VERSION }}"
-      #     files: "install/orientview-${{ env.VERSION }}-${{ matrix.platform }}.zip"
-      #     generate_release_notes: true
-      #     make_latest: true
+      - name: Create a GitHub release
+        if: ${{ github.event.inputs.make_a_release == 'true' }}
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ env.VERSION }}
+          name: "OrientView v${{ env.VERSION }}"
+          files: "install/orientview-${{ env.VERSION }}-${{ matrix.platform }}.zip"
+          generate_release_notes: true
+          make_latest: true
