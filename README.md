@@ -12,8 +12,6 @@ Example videos:
 * Author: [Mikko Ronkainen](http://mikkoronkainen.com)
 * Website: [github.com/mikoro/orientview](https://github.com/mikoro/orientview)
 
-[![Coverity Status](https://scan.coverity.com/projects/2849/badge.svg)](https://scan.coverity.com/projects/2849)
-
 ![Screenshot](http://mikoro.github.io/images/orientview/readme-screenshot.jpg "Screenshot")
 
 ## Download
