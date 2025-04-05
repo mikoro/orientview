@@ -72,11 +72,25 @@ jobs:
           sudo apt update
           sudo apt install -y nasm bison libxi-dev libxtst-dev '^libxcb.*-dev' libx11-xcb-dev libgl1-mesa-dev libxrender-dev libxkbcommon-dev libxkbcommon-x11-dev libltdl-dev
 
-      - name: Build
+      - name: Configure and Build
         run: |
           cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-          cmake --build build --config Release --target package
+          cmake --build build --config Release
 
+      - name: Run CPack generators
+        shell: bash
+        working-directory: build
+        run: |
+          if [[ "${{ matrix.platform }}" == "windows" ]]; then
+            cpack -G NSIS
+            cpack -G ZIP
+          elif [[ "${{ matrix.platform }}" == "ubuntu" ]]; then
+            cpack -G DEB
+            cpack -G TGZ
+          elif [[ "${{ matrix.platform }}" == "macos" ]]; then
+            cpack -G DragNDrop
+          fi
+        
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
