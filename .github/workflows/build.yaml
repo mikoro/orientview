@@ -26,8 +26,8 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            platform: ubuntu
-            friendly_name: "Ubuntu"
+            platform: linux
+            friendly_name: "Linux (Ubuntu)"
           # - os: macos-latest
           #   platform: macos
           #   friendly_name: "macOS"
@@ -63,7 +63,7 @@ jobs:
         shell: bash
         run: |
           sed -i "s/<VERSION>/${{ env.VERSION }}/g" platform/linux/orientview.desktop
-          sed -i "s/<VERSION>/${{ env.VERSION }}/g" platform/mac/Info.plist
+          sed -i "s/<VERSION>/${{ env.VERSION }}/g" platform/macos/Info.plist
           sed -i "s/<VERSION>/${{ env.VERSION }}/g" platform/windows/orientview.rc
 
       - name: Install Linux build dependencies
@@ -102,6 +102,7 @@ jobs:
             build/*.app
             build/*.msi
             build/*.exe
+            build/*.tar.gz
 
       - name: Create a GitHub release
         if: ${{ github.event.inputs.make_a_release == 'true' }}
@@ -116,5 +117,6 @@ jobs:
             build/*.app
             build/*.msi
             build/*.exe
+            build/*.tar.gz
           generate_release_notes: true
           make_latest: true

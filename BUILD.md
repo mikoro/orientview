@@ -22,7 +22,7 @@ Alternatively after `cmake ..` one can open the `OrientView.sln` in Visual Studi
 2. `git clone --recurse-submodules https://github.com/mikoro/orientview.git`
 3. `cd orientview && mkdir build && cd build && cmake ..`
 
-## Mac
+## MacOS
 
 TBD
 

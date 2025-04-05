@@ -124,7 +124,7 @@ elseif(APPLE)
 
   set_target_properties(${EXE_NAME} PROPERTIES
     MACOSX_BUNDLE TRUE
-    MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/platform/mac/Info.plist"
+    MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/platform/macos/Info.plist"
   )
 
   target_sources(${EXE_NAME} PRIVATE
