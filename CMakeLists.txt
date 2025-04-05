@@ -102,20 +102,38 @@ target_link_libraries(${EXE_NAME} PRIVATE
   ${FFMPEG_LIBRARIES}
 )
 
-# On Windows: Debug builds show console, Release builds hide it
 if(WIN32)
+  # On Windows: Debug builds show console, Release builds hide it
   set_target_properties(${EXE_NAME} PROPERTIES
     WIN32_EXECUTABLE $<NOT:$<CONFIG:Debug>>
   )
 endif()
 
+if(APPLE)
+  set_target_properties(${EXE_NAME} PROPERTIES
+    MACOSX_BUNDLE TRUE
+    MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/misc/mac/Info.plist"
+  )
+
+  target_sources(${EXE_NAME} PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/misc/icons/orientview.icns"
+  )
+
+  set_source_files_properties(
+    "${CMAKE_CURRENT_SOURCE_DIR}/misc/icons/orientview.icns"
+    PROPERTIES
+    MACOSX_PACKAGE_LOCATION "Resources"
+  )
+endif()
+
 add_custom_command(TARGET ${EXE_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_SOURCE_DIR}/data $<TARGET_FILE_DIR:${EXE_NAME}>/data)
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+  ${CMAKE_SOURCE_DIR}/data $<TARGET_FILE_DIR:${EXE_NAME}>/data
+)
 
 install(TARGETS ${EXE_NAME}
-        BUNDLE DESTINATION .
-        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  BUNDLE DESTINATION .
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
 install(DIRECTORY data DESTINATION ${CMAKE_INSTALL_BINDIR})
