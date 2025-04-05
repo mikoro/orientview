@@ -25,9 +25,9 @@ jobs:
     strategy:
       matrix:
         include:
-          # - os: ubuntu-latest
-          #   platform: linux
-          #   friendly_name: "Linux (Ubuntu)"
+          - os: ubuntu-latest
+            platform: linux
+            friendly_name: "Linux (Ubuntu)"
           # - os: macos-latest
           #   platform: mac
           #   friendly_name: "macOS"
@@ -67,6 +67,12 @@ jobs:
           sed -i "s/<VERSION>/${{ env.VERSION }}/g" platform/mac/Info.plist
           sed -i "s/<VERSION>/${{ env.VERSION }}/g" platform/windows/orientview.rc
 
+      - name: Install Linux build dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt update
+          sudo apt install -y nasm bison libxi-dev libxtst-dev '^libxcb.*-dev' libx11-xcb-dev libgl1-mesa-dev libxrender-dev libxkbcommon-dev libxkbcommon-x11-dev
+
       - name: Configure
         run: |
           cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="${{ github.workspace }}/install"
@@ -90,7 +96,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: "artifacts"
+          name: "platform-binaries"
           path: "install/orientview-*.zip"
 
       - name: Create a GitHub release
