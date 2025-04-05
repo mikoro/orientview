@@ -26,16 +26,15 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            platform: linux
-            friendly_name: "Linux (Ubuntu)"
+            platform: ubuntu
+            friendly_name: "Ubuntu"
           # - os: macos-latest
-          #   platform: mac
+          #   platform: macos
           #   friendly_name: "macOS"
           - os: windows-latest
             platform: windows
             friendly_name: "Windows"
     runs-on: ${{ matrix.os }}
-
     steps:
       - name: Check out source
         uses: actions/checkout@v3

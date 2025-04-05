@@ -105,14 +105,23 @@ target_link_libraries(${EXE_NAME} PRIVATE
   ${FFMPEG_LIBRARIES}
 )
 
+add_custom_command(TARGET ${EXE_NAME} POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+  ${CMAKE_SOURCE_DIR}/data $<TARGET_FILE_DIR:${EXE_NAME}>/data
+)
+
 if(WIN32)
-  # On Windows: Debug builds show console, Release builds hide it
+  set(PLATFORM_NAME "windows")
+
   set_target_properties(${EXE_NAME} PROPERTIES
     WIN32_EXECUTABLE $<NOT:$<CONFIG:Debug>>
   )
-endif()
 
-if(APPLE)
+  install(TARGETS ${EXE_NAME} RUNTIME DESTINATION .)
+  install(DIRECTORY data DESTINATION .)
+elseif(APPLE)
+  set(PLATFORM_NAME "macos")
+
   set_target_properties(${EXE_NAME} PROPERTIES
     MACOSX_BUNDLE TRUE
     MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/platform/mac/Info.plist"
@@ -127,50 +136,49 @@ if(APPLE)
     PROPERTIES
     MACOSX_PACKAGE_LOCATION "Resources"
   )
-endif()
 
-add_custom_command(TARGET ${EXE_NAME} POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy_directory
-  ${CMAKE_SOURCE_DIR}/data $<TARGET_FILE_DIR:${EXE_NAME}>/data
-)
-
-if(WIN32)
-  install(TARGETS ${EXE_NAME} RUNTIME DESTINATION .)
-  install(DIRECTORY data DESTINATION .)
-elseif(APPLE)
   install(TARGETS ${EXE_NAME} BUNDLE DESTINATION .)
   install(DIRECTORY data DESTINATION "${EXE_NAME}.app/Contents/Resources")
 else()
+  set(PLATFORM_NAME "ubuntu")
+
+  install(
+      FILES "platform/linux/orientview.desktop"
+      DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/applications"
+  )
+
+  install(
+      FILES "icons/orientview.svg"
+      DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/scalable/apps"
+  )
+
   install(TARGETS ${EXE_NAME} RUNTIME DESTINATION bin)
   install(DIRECTORY data DESTINATION share/orientview)
 endif()
 
 include(CPack)
 
-string(TOLOWER "${CMAKE_SYSTEM_NAME}" PLATFORM_NAME)
-
 set(CPACK_PACKAGE_NAME "orientview")
 set(CPACK_PACKAGE_VERSION "${PROJECT_VERSION_STRING}")
 set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-${PLATFORM_NAME}")
 set(CPACK_PACKAGE_CONTACT "Mikko Ronkainen <firstname@mikkoronkainen.com>")
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "OrientView - Real-time analysis of orienteering runs with video and map displays")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Orienteering video and map analysis")
 set(CPACK_PACKAGE_VENDOR "OrientView")
 set(CPACK_PACKAGE_HOMEPAGE_URL "https://github.com/mikoro/orientview")
-
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
 set(CPACK_RESOURCE_FILE_README "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
 
 if(WIN32)
-  set(CPACK_GENERATOR "ZIP;NSIS")
+  set(CPACK_GENERATOR "NSIS;ZIP")
   set(CPACK_NSIS_DISPLAY_NAME "OrientView")
   set(CPACK_NSIS_PACKAGE_NAME "OrientView Installer")
   set(CPACK_NSIS_CONTACT "${CPACK_PACKAGE_CONTACT}")
   set(CPACK_NSIS_MODIFY_PATH ON)
 elseif(APPLE)
-  set(CPACK_GENERATOR "ZIP;DragNDrop")
+  set(CPACK_GENERATOR "DRAGNDROP")
   set(CPACK_DMG_VOLUME_NAME "OrientView")
 else()
-  set(CPACK_GENERATOR "ZIP;DEB")
+  set(CPACK_GENERATOR "DEB;TGZ")
   set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Mikko Ronkainen")
   set(CPACK_DEBIAN_FILE_NAME "DEB-DEFAULT")
   set(CPACK_DEBIAN_PACKAGE_SECTION "utils")
