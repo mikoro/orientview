@@ -84,7 +84,7 @@ jobs:
         if: matrix.platform == 'linux'
         run: |
           sudo apt update
-          sudo apt install -y nasm libltdl-dev
+          sudo apt install -y nasm libltdl-dev libx11-dev libxft-dev libxext-dev
 
       - name: Configure and Build
         run: |
