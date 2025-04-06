@@ -1,3 +1,6 @@
+# cmake -S . -B build
+# cmake --build build
+
 cmake_minimum_required(VERSION 3.16)
 
 if (WIN32)
@@ -5,22 +8,32 @@ if (WIN32)
   set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 endif()
 
-set(VCPKG_OVERLAY_PORTS "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg-ports")
 set(CMAKE_TOOLCHAIN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/scripts/buildsystems/vcpkg.cmake")
 
-file(READ "${CMAKE_CURRENT_SOURCE_DIR}/version.txt" PROJECT_VERSION_STRING)
-string(STRIP "${PROJECT_VERSION_STRING}" PROJECT_VERSION_STRING)
+execute_process(
+  COMMAND git describe --tags --abbrev=0
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+  RESULT_VARIABLE GIT_RESULT
+  OUTPUT_VARIABLE GIT_TAG
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+string(REGEX REPLACE "^v" "" PROJECT_VERSION_STRING "${GIT_TAG}")
+
+if(NOT PROJECT_VERSION_STRING MATCHES "^[0-9]+\\.[0-9]+\\.[0-9]+$")
+  message(WARNING "Could not determine current version from git tags, using fallback version 0.0.0")
+  set(PROJECT_VERSION_STRING "0.0.0")
+endif()
 
 if (WIN32 OR APPLE)
-  project(OrientView VERSION ${PROJECT_VERSION_STRING} LANGUAGES C CXX)
   set(EXE_NAME OrientView)
 else()
-  project(orientview VERSION ${PROJECT_VERSION_STRING} LANGUAGES C CXX)
   set(EXE_NAME orientview)
 endif()
 
-set(CMAKE_C_STANDARD 99)
-set(CMAKE_CXX_STANDARD 11)
+project(${EXE_NAME} VERSION ${PROJECT_VERSION_STRING} LANGUAGES C CXX)
+
+set(CMAKE_CXX_STANDARD 20)
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
@@ -42,65 +55,26 @@ if(CMAKE_BUILD_TYPE STREQUAL "Release")
   endif()
 endif()
 
-find_program(CCACHE_FOUND ccache)
-
-if(CCACHE_FOUND)
-  set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
-  set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
-endif()
-
-find_package(PkgConfig REQUIRED)
-find_package(Qt5 COMPONENTS Core Gui OpenGL Svg Widgets Xml REQUIRED)
-find_package(OpenCV REQUIRED)
 find_package(FFMPEG REQUIRED)
-find_package(lsmash CONFIG REQUIRED)
+find_package(glm CONFIG REQUIRED)
+find_package(imgui CONFIG REQUIRED)
+find_package(nlohmann_json CONFIG REQUIRED)
+find_package(pugixml CONFIG REQUIRED)
+find_package(SDL3 CONFIG REQUIRED)
+find_package(spdlog CONFIG REQUIRED)
 
-pkg_check_modules(X264 REQUIRED IMPORTED_TARGET x264)
-
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTOUIC ON)
-include(GNUInstallDirs)
-
-set(SRC_FILES
-  src/EncodeWindow.cpp src/EncodeWindow.h src/EncodeWindow.ui
-  src/FrameData.h
-  src/GpxReader.cpp src/GpxReader.h
-  src/InputHandler.cpp src/InputHandler.h
-  src/Main.cpp
-  src/MainWindow.cpp src/MainWindow.h src/MainWindow.ui
-  src/MapImageReader.cpp src/MapImageReader.h
-  src/MovingAverage.cpp src/MovingAverage.h
-  src/Mp4File.cpp src/Mp4File.h
-  src/QuickRouteReader.cpp src/QuickRouteReader.h
-  src/Renderer.cpp src/Renderer.h
-  src/RenderOffScreenThread.cpp src/RenderOffScreenThread.h
-  src/RenderOnScreenThread.cpp src/RenderOnScreenThread.h
-  src/RouteManager.cpp src/RouteManager.h
-  src/RoutePoint.h
-  src/Settings.cpp src/Settings.h
-  src/SimpleLogger.cpp src/SimpleLogger.h
-  src/SplitsManager.cpp src/SplitsManager.h
-  src/StabilizeWindow.cpp src/StabilizeWindow.h src/StabilizeWindow.ui
-  src/VideoDecoder.cpp src/VideoDecoder.h
-  src/VideoDecoderThread.cpp src/VideoDecoderThread.h
-  src/VideoEncoder.cpp src/VideoEncoder.h
-  src/VideoEncoderThread.cpp src/VideoEncoderThread.h
-  src/VideoStabilizer.cpp src/VideoStabilizer.h
-  src/VideoStabilizerThread.cpp src/VideoStabilizerThread.h
-  src/VideoWindow.cpp src/VideoWindow.h
+file(GLOB_RECURSE SRC_FILES
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/*.hpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
 )
 
 if(WIN32)
-  list(APPEND SRC_FILES ${CMAKE_CURRENT_SOURCE_DIR}/platform/windows/orientview.rc)
+  list(APPEND SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/platform/windows/orientview.rc")
 endif()
 
 add_executable(${EXE_NAME} ${SRC_FILES})
 
-qt_add_resources(RESOURCES src/OrientView.qrc)
-target_sources(${EXE_NAME} PRIVATE ${RESOURCES})
-
 target_include_directories(${EXE_NAME} PRIVATE
-  ${OpenCV_INCLUDE_DIRS}
   ${FFMPEG_INCLUDE_DIRS}
 )
 
@@ -109,21 +83,13 @@ target_link_directories(${EXE_NAME} PRIVATE
 )
 
 target_link_libraries(${EXE_NAME} PRIVATE
-  Qt5::Core
-  Qt5::Gui
-  Qt5::OpenGL
-  Qt5::Svg
-  Qt5::Widgets
-  Qt5::Xml
-  PkgConfig::X264
-  lsmash::lsmash
-  ${OpenCV_LIBS}
   ${FFMPEG_LIBRARIES}
-)
-
-add_custom_command(TARGET ${EXE_NAME} POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy_directory
-  ${CMAKE_SOURCE_DIR}/data $<TARGET_FILE_DIR:${EXE_NAME}>/data
+  glm::glm
+  imgui::imgui
+  nlohmann_json::nlohmann_json
+  pugixml::pugixml
+  SDL3::SDL3
+  spdlog::spdlog
 )
 
 if(WIN32)
@@ -135,6 +101,7 @@ if(WIN32)
 
   install(TARGETS ${EXE_NAME} RUNTIME DESTINATION .)
   install(DIRECTORY data DESTINATION .)
+
 elseif(APPLE)
   set(PLATFORM_NAME "macos")
 
@@ -154,8 +121,9 @@ elseif(APPLE)
   )
 
   install(TARGETS ${EXE_NAME} BUNDLE DESTINATION .)
+
 else()
-  set(PLATFORM_NAME "ubuntu")
+  set(PLATFORM_NAME "linux")
 
   install(
       FILES "platform/linux/orientview.desktop"

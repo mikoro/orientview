@@ -1,19 +1,28 @@
 {
   "dependencies": [
-    "pkgconf",
-    "x264",
-    "opencv2",
-    "qt5-base",
-    "qt5-svg",
-    "lsmash",
+    "glm",
+    "nlohmann-json",
+    "pugixml",
+    "sdl3",
+    "spdlog",
+    {
+      "name": "imgui",
+      "features": [
+        "docking-experimental",
+        "sdl3-binding",
+        "sdl3-renderer-binding"
+      ]
+    },
     {
       "name": "ffmpeg",
       "features": [
         "avcodec",
-        "avdevice",
-        "avfilter",
         "avformat",
-        "swscale"
+        "swscale",
+        "swresample",
+        "nvcodec",
+        "x264",
+        "x265"
       ]
     }
   ]

@@ -71,12 +71,6 @@ jobs:
           $SED_INPLACE "s/<VERSION>/${{ env.VERSION }}/g" platform/macos/Info.plist
           $SED_INPLACE "s/<VERSION>/${{ env.VERSION }}/g" platform/windows/orientview.rc
 
-      - name: Install Linux build dependencies
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt update
-          sudo apt install -y nasm bison rpm libxi-dev libxtst-dev '^libxcb.*-dev' libx11-xcb-dev libgl1-mesa-dev libxrender-dev libxkbcommon-dev libxkbcommon-x11-dev libltdl-dev
-
       - name: Configure and Build
         run: |
           cmake -S . -B build -DCMAKE_BUILD_TYPE=Release

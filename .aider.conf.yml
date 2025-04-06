@@ -1,0 +1,16 @@
+read: [PROMPT.md]
+model: gemini-2.5-pro
+architect: false
+auto-accept-architect: false
+cache-prompts: true
+dark-mode: true
+pretty: true
+stream: true
+auto-commits: false
+watch-files: true
+auto-lint: true
+auto-test: true
+test-cmd: cmake --build build
+analytics-disable: true
+suggest-shell-commands: false
+notifications: false
