@@ -84,7 +84,7 @@ jobs:
         if: matrix.platform == 'linux'
         run: |
           sudo apt update
-          sudo apt install -y nasm libltdl-dev libx11-dev libxft-dev libxext-dev
+          sudo apt install -y nasm libltdl-dev libx11-dev libxft-dev libxext-dev libwayland-dev libxkbcommon-dev libegl1-mesa-dev libibus-1.0-dev
 
       - name: Configure and Build
         run: |
