@@ -2,7 +2,6 @@
 # cmake --build build
 
 cmake_minimum_required(VERSION 3.16)
-include(GNUInstallDirs)
 
 if (WIN32)
   set(VCPKG_TARGET_TRIPLET "x64-windows-static")
@@ -39,6 +38,8 @@ set(CMAKE_CXX_STANDARD 20)
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
 endif()
+
+include(GNUInstallDirs)
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
   if(MSVC)
