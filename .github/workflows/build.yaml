@@ -80,6 +80,12 @@ jobs:
         run: |
           jq '(.dependencies[] | select(type == "object") | select(.name == "ffmpeg") .features) |= map(select(. != "nvcodec"))' vcpkg.json > vcpkg.tmp.json && mv vcpkg.tmp.json vcpkg.json
 
+      - name: Install Linux build dependencies
+        if: matrix.platform == 'linux'
+        run: |
+          sudo apt update
+          sudo apt install -y nasm
+
       - name: Configure and Build
         run: |
           cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
