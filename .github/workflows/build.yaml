@@ -54,9 +54,12 @@ jobs:
         run: |
           find ./vcpkg/triplets -type f -exec sh -c "echo 'set(VCPKG_BUILD_TYPE release)' >> \"\$1\"" _ {} \;
 
-      - name: Read version from version.txt
+      - name: Read version from latest Git tag
         shell: bash
-        run: echo "VERSION=$(cat version.txt)" >> $GITHUB_ENV
+        run: |
+          GIT_TAG=$(git describe --tags --abbrev=0)
+          VERSION="${GIT_TAG#v}"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Replace <VERSION> in platform files
         shell: bash
@@ -70,6 +73,12 @@ jobs:
           $SED_INPLACE "s/<VERSION>/${{ env.VERSION }}/g" platform/linux/orientview.desktop
           $SED_INPLACE "s/<VERSION>/${{ env.VERSION }}/g" platform/macos/Info.plist
           $SED_INPLACE "s/<VERSION>/${{ env.VERSION }}/g" platform/windows/orientview.rc
+
+      - name: Remove nvcodec from vcpkg.json on macOS
+        if: matrix.platform == 'macos'
+        shell: bash
+        run: |
+          jq '(.dependencies[] | select(type == "object") | select(.name == "ffmpeg") .features) |= map(select(. != "nvcodec"))' vcpkg.json > vcpkg.tmp.json && mv vcpkg.tmp.json vcpkg.json
 
       - name: Configure and Build
         run: |
