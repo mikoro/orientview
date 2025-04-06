@@ -38,11 +38,11 @@ enum class ActionType {
 class ActionHandler {
 private:
     int _count = 0;
-    bool _active = true;
+    bool _activeFlag = true;
 
 public:
     std::string HandleAction(ActionType type, const std::string& name, int* outCode) {
-        if (!_active) {
+        if (!_activeFlag) {
             if (outCode) {
                 *outCode = -1;
             }
