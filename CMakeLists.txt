@@ -56,6 +56,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "Release")
 endif()
 
 find_package(FFMPEG REQUIRED)
+find_package(fmt CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
 find_package(imgui CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
@@ -84,6 +85,7 @@ target_link_directories(${EXE_NAME} PRIVATE
 
 target_link_libraries(${EXE_NAME} PRIVATE
   ${FFMPEG_LIBRARIES}
+  fmt::fmt
   glm::glm
   imgui::imgui
   nlohmann_json::nlohmann_json
@@ -92,8 +94,14 @@ target_link_libraries(${EXE_NAME} PRIVATE
   spdlog::spdlog
 )
 
+add_custom_command(TARGET ${EXE_NAME} POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+  ${CMAKE_SOURCE_DIR}/data $<TARGET_FILE_DIR:${EXE_NAME}>/data
+)
+
 if(WIN32)
   set(PLATFORM_NAME "windows")
+  set(DATA_DIR_PATH "data")
 
   set_target_properties(${EXE_NAME} PROPERTIES
     WIN32_EXECUTABLE $<NOT:$<CONFIG:Debug>>
@@ -104,6 +112,7 @@ if(WIN32)
 
 elseif(APPLE)
   set(PLATFORM_NAME "macos")
+  set(DATA_DIR_PATH "data")
 
   set_target_properties(${EXE_NAME} PROPERTIES
     MACOSX_BUNDLE TRUE
@@ -124,20 +133,26 @@ elseif(APPLE)
 
 else()
   set(PLATFORM_NAME "linux")
+  set(DATA_DIR_PATH "${CMAKE_INSTALL_FULL_DATADIR}/orientview/data")
 
   install(
-      FILES "platform/linux/orientview.desktop"
-      DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/applications"
+    FILES "platform/linux/orientview.desktop"
+    DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/applications"
   )
 
   install(
-      FILES "icons/orientview.svg"
-      DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/scalable/apps"
+    FILES "icons/orientview.svg"
+    DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/scalable/apps"
   )
 
   install(TARGETS ${EXE_NAME} RUNTIME DESTINATION bin)
   install(DIRECTORY data DESTINATION share/orientview)
 endif()
+
+target_compile_definitions(${EXE_NAME} PRIVATE
+  ORIENTVIEW_DATA_DIR_PATH="${DATA_DIR_PATH}"
+  ORIENTVIEW_VERSION="${PROJECT_VERSION_STRING}"
+)
 
 set(CPACK_PACKAGE_NAME "OrientView")
 set(CPACK_PACKAGE_VERSION "${PROJECT_VERSION_STRING}")

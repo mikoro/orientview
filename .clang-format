@@ -22,8 +22,8 @@ AlwaysBreakTemplateDeclarations: Yes
 AlwaysBreakAfterReturnType: None
 
 ConstructorInitializerIndentWidth: 4
-AlignConsecutiveAssignments: true
-AlignConsecutiveDeclarations: true
+AlignConsecutiveAssignments: false
+AlignConsecutiveDeclarations: false
 AlignOperands: true
 
 NamespaceIndentation: All

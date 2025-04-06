@@ -5,6 +5,7 @@
     "pugixml",
     "sdl3",
     "spdlog",
+    "fmt",
     {
       "name": "imgui",
       "features": [

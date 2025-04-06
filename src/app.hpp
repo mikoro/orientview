@@ -1,7 +1,7 @@
 #pragma once
 
-#include "custom_font_data.hpp"
 #include "settings.hpp"
+#include "translate.hpp"
 
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
@@ -9,26 +9,28 @@
 #include <imgui_impl_sdl3.h>
 #include <imgui_impl_sdlrenderer3.h>
 #include <spdlog/spdlog.h>
+#include <fmt/core.h>
 
 #include <exception>
 
 class App {
-    SDL_Window*   _window   = nullptr;
+    SDL_Window* _window = nullptr;
     SDL_Renderer* _renderer = nullptr;
-    bool          _running  = false;
+    bool _running = false;
 
     bool Init() {
         spdlog::set_level(spdlog::level::debug);
         spdlog::info("Starting OrientView");
 
         Settings::Instance().Load();
+        Translate::Instance().Load();
 
         if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != true) {
             spdlog::error("SDL_Init Error: {}", SDL_GetError());
             return false;
         }
 
-        _window = SDL_CreateWindow("OrientView", Settings::Instance().windowWidth, Settings::Instance().windowHeight, SDL_WINDOW_RESIZABLE);
+        _window = SDL_CreateWindow(fmt::format("{} {}", TR("app_title"), ORIENTVIEW_VERSION).c_str(), Settings::Instance().windowWidth, Settings::Instance().windowHeight, SDL_WINDOW_RESIZABLE);
         if (!_window) {
             spdlog::error("SDL_CreateWindow Error: {}", SDL_GetError());
             return false;
@@ -43,20 +45,19 @@ class App {
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
         ImGuiIO& io = ImGui::GetIO();
-        (void) io;
+
+        io.IniFilename = Settings::GetDataFilePath("imgui.ini").c_str();
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
         io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
-
-        ImFontConfig font_cfg;
-        font_cfg.FontDataOwnedByAtlas = false;
-        io.Fonts->AddFontFromMemoryTTF((void*) custom_font_data, sizeof(custom_font_data), Settings::Instance().fontSize, &font_cfg);
+        io.Fonts->AddFontFromFileTTF(Settings::GetDataFilePath(Settings::Instance().fontName).c_str(), Settings::Instance().fontSize);
 
         ImGui::StyleColorsDark();
 
         ImGuiStyle& style = ImGui::GetStyle();
+
         if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
-            style.WindowRounding              = 0.0f;
+            style.WindowRounding = 0.0f;
             style.Colors[ImGuiCol_WindowBg].w = 1.0f;
         }
 
@@ -104,7 +105,7 @@ class App {
         ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), _renderer);
 
         if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
-            SDL_Window*   backup_current_window  = SDL_GL_GetCurrentWindow();
+            SDL_Window* backup_current_window = SDL_GL_GetCurrentWindow();
             SDL_GLContext backup_current_context = SDL_GL_GetCurrentContext();
             ImGui::UpdatePlatformWindows();
             ImGui::RenderPlatformWindowsDefault();
@@ -115,6 +116,7 @@ class App {
     }
 
     void Cleanup() {
+        ImGui::SaveIniSettingsToDisk(Settings::GetDataFilePath("imgui.ini").c_str());
         Settings::Instance().Save();
 
         ImGui_ImplSDLRenderer3_Shutdown();

@@ -15,6 +15,7 @@ Project is designed to use unity-style build. All code implementation is in .hpp
 
 Following third-party libraries are being used:
 - ffmpeg
+- fmt
 - glm
 - imgui
 - nlohmann-json
