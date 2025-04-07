@@ -21,7 +21,9 @@
       "select_video_file": "Select input video",
       "select_output_file": "Select output video",
       "video_files": "Video files",
-      "browse_output": "Browse"
+      "browse_output": "Browse",
+      "video_error": "Error loading video",
+      "no_video_selected": "No video selected"
     }
   }
 }

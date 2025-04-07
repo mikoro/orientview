@@ -1,6 +1,5 @@
 #pragma once
 
-#include <fmt/core.h>
 #include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
 

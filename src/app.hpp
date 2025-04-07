@@ -6,6 +6,7 @@
 #include "settings.hpp"
 #include "tinyfiledialogs.hpp"
 #include "translate.hpp"
+#include "video_decoder_ui.hpp"
 
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
@@ -24,6 +25,7 @@ class App {
     SDL_GLContext _glContext = nullptr;
     LogUI _logUI;
     Background _background;
+    VideoDecoderUI _videoDecoderUI;
     bool _running = false;
     uint64_t _lastPerformanceCounter = 0;
     uint64_t _performanceCounterFrequency = 0;
@@ -44,8 +46,11 @@ class App {
         LoadSettings();
         LoadTranslations();
         LoadSession(GetDataFilePath("session.json"));
+        
+        // Log available video codecs
+        VideoDecoder::LogAvailableCodecs();
 
-        if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != true) {
+        if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 1) {
             spdlog::error("SDL_Init Error: {}", SDL_GetError());
             return false;
         }
@@ -110,6 +115,10 @@ class App {
         ImGui_ImplOpenGL3_Init("#version 330");
 
         _background.Init();
+        _videoDecoderUI.Init();
+
+        // Set up position changed callback
+        _videoDecoderUI.SetPositionChangedCallback([this](double position) { Session::Instance().timelinePosition = position; });
 
         _performanceCounterFrequency = SDL_GetPerformanceFrequency();
         _lastPerformanceCounter = SDL_GetPerformanceCounter();
@@ -247,7 +256,7 @@ class App {
             }
         }
         ImGui::PopID();
-        
+
         ImGui::Text("%s:", TL("output_video"));
         ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x - 100);
         ImGui::InputText("##output_video", Session::Instance().outputVideoPathBuffer, sizeof(Session::Instance().outputVideoPathBuffer));
@@ -280,23 +289,16 @@ class App {
 
         ImGui::Begin(TL("panel_video"));
         windowSize = ImGui::GetContentRegionAvail();
-        textSize = ImGui::CalcTextSize(TL("panel_video"));
-        ImGui::SetCursorPos(ImVec2((windowSize.x - textSize.x) * 0.5f, (windowSize.y - textSize.y) * 0.5f));
-        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 0.5f));
-        ImGui::Text("%s", TL("panel_video"));
-        ImGui::PopStyleColor();
+        _videoDecoderUI.RenderVideoPanel(windowSize);
         ImGui::End();
 
         ImGui::Begin(TL("panel_controls"));
+        _videoDecoderUI.RenderControlsPanel(Session::Instance().timelinePosition, Session::Instance().timelineDuration, Session::Instance().isPlaying, Session::Instance().inputVideoPath);
 
-        if (ImGui::Button(Session::Instance().isPlaying ? TL("controls_pause") : TL("controls_play"))) {
-            Session::Instance().isPlaying = !Session::Instance().isPlaying;
+        // Update timeline duration when video is loaded
+        if (_videoDecoderUI.IsRunning() && Session::Instance().timelineDuration <= 0.1f) {
+            Session::Instance().timelineDuration = _videoDecoderUI.GetDuration();
         }
-
-        ImGui::SameLine();
-        ImGui::PushItemWidth(-1);
-        ImGui::SliderFloat("##timeline", &Session::Instance().timelinePosition, 0.0f, Session::Instance().timelineDuration, "%.1f s");
-        ImGui::PopItemWidth();
 
         ImGui::End();
 
@@ -310,6 +312,9 @@ class App {
         float currentTime = (float)currentFrameTicks / _performanceCounterFrequency;
         float deltaTime = (float)(currentFrameTicks - _lastPerformanceCounter) / _performanceCounterFrequency;
         _lastPerformanceCounter = currentFrameTicks;
+
+        // Update video decoder
+        _videoDecoderUI.Update();
 
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplSDL3_NewFrame();
@@ -331,6 +336,8 @@ class App {
         ImGui::SaveIniSettingsToDisk(GetDataFilePath("imgui.ini").c_str());
         SaveSettings();
         SaveSession(GetDataFilePath("session.json"));
+
+        _videoDecoderUI.Cleanup();
 
         _background.Cleanup();
 

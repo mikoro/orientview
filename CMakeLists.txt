@@ -57,7 +57,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "Release")
   endif()
 endif()
 
-find_package(FFMPEG REQUIRED)
+find_package(FFMPEG COMPONENTS avcodec avformat avutil swscale swresample REQUIRED)
 find_package(fmt CONFIG REQUIRED)
 find_package(glad CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)

@@ -22,9 +22,12 @@
         "avformat",
         "swscale",
         "swresample",
-        "nvcodec",
         "x264",
-        "x265"
+        "x265",
+        "openh264",
+        "nvcodec",
+        "amf",
+        "qsv"
       ]
     }
   ]
