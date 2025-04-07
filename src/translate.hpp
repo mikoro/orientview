@@ -52,7 +52,6 @@ struct Translations {
             }
         }
 
-        spdlog::warn("Translation key '{}' not found for language '{}' or fallback 'en'", translationKey, currentLanguageCode);
         return translationKey;
     }
 };

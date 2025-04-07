@@ -1,17 +1,18 @@
 {
   "dependencies": [
+    "fmt",
+    "glad",
     "glm",
     "nlohmann-json",
     "pugixml",
     "sdl3",
     "spdlog",
-    "fmt",
     {
       "name": "imgui",
       "features": [
         "docking-experimental",
         "sdl3-binding",
-        "sdl3-renderer-binding"
+        "opengl3-binding"
       ]
     },
     {

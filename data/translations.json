@@ -14,7 +14,14 @@
       "panel_controls": "Controls",
       "controls_play": "Play",
       "controls_pause": "Pause",
-      "controls_timeline": "Timeline"
+      "controls_timeline": "Timeline",
+      "browse_input": "Browse",
+      "input_video": "Input video",
+      "output_video": "Output video",
+      "select_video_file": "Select input video",
+      "select_output_file": "Select output video",
+      "video_files": "Video files",
+      "browse_output": "Browse"
     }
   }
 }

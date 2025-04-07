@@ -11,7 +11,7 @@
 struct Settings {
     std::string language = "en";
     std::string fontName = "noto-sans-regular.ttf";
-    float fontSize = 22.0f;
+    float fontSize = 24.0f;
     int windowWidth = 1920;
     int windowHeight = 1080;
 

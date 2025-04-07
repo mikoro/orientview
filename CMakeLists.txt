@@ -59,6 +59,7 @@ endif()
 
 find_package(FFMPEG REQUIRED)
 find_package(fmt CONFIG REQUIRED)
+find_package(glad CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
 find_package(imgui CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
@@ -88,6 +89,7 @@ target_link_directories(${EXE_NAME} PRIVATE
 target_link_libraries(${EXE_NAME} PRIVATE
   ${FFMPEG_LIBRARIES}
   fmt::fmt
+  glad::glad
   glm::glm
   imgui::imgui
   nlohmann_json::nlohmann_json

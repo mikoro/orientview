@@ -10,7 +10,7 @@ AllowShortLoopsOnASingleLine: true
 BreakBeforeBraces: Attach
 ColumnLimit: 240
 SpacesInParentheses: false
-SpaceAfterCStyleCast: true
+SpaceAfterCStyleCast: false
 
 PointerAlignment: Left
 DerivePointerAlignment: false
