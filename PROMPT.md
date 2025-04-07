@@ -11,6 +11,7 @@ Do not add comments to the code.
 Do not add a period to single sentence strings (e.g. log or exception messages).
 Avoid forward declarations.
 Target modern C++20. Do not use macros if possible and do not use gotos.
+Use PascalCase for class and function names and camelCase for variables.
 Project is designed to use unity-style build. All code implementation is in .hpp files where the member functions are implemented inline. These .hpp files are then included all in a single main.cpp file.
 
 Following third-party libraries are being used:

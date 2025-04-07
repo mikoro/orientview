@@ -1,7 +1,20 @@
 {
   "translations": {
     "en": {
-      "app_title": "OrientView"
+      "app_title": "OrientView",
+      "menu_file": "File",
+      "menu_load": "Load",
+      "menu_save": "Save",
+      "menu_exit": "Exit",
+      "menu_log": "Log",
+      "panel_settings": "Settings",
+      "panel_map": "Map",
+      "panel_video": "Video",
+      "panel_log": "Log",
+      "panel_controls": "Controls",
+      "controls_play": "Play",
+      "controls_pause": "Pause",
+      "controls_timeline": "Timeline"
     }
   }
 }
