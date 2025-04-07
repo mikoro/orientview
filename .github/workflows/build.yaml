@@ -74,11 +74,11 @@ jobs:
           $SED_INPLACE "s/<VERSION>/${{ env.VERSION }}/g" platform/macos/Info.plist
           $SED_INPLACE "s/<VERSION>/${{ env.VERSION }}/g" platform/windows/orientview.rc
 
-      - name: Remove nvcodec from vcpkg.json on macOS
+      - name: Remove unsupported ffmpeg features from vcpkg.json on macOS
         if: matrix.platform == 'macos'
         shell: bash
         run: |
-          jq '(.dependencies[] | select(type == "object") | select(.name == "ffmpeg") .features) |= map(select(. != "nvcodec"))' vcpkg.json > vcpkg.tmp.json && mv vcpkg.tmp.json vcpkg.json
+          jq '(.dependencies[] | select(type == "object") | select(.name == "ffmpeg") .features) |= map(select(. != "nvcodec" and . != "amf" and . != "qsv"))' vcpkg.json > vcpkg.tmp.json && mv vcpkg.tmp.json vcpkg.json
 
       - name: Install Linux build dependencies
         if: matrix.platform == 'linux'
