@@ -6,7 +6,7 @@
 #include <stdexcept>
 #include <string>
 
-class Background {
+class BackgroundUI {
   private:
     GLuint _vao = 0;
     GLuint _vbo = 0;
@@ -145,14 +145,14 @@ class Background {
     }
 
   public:
-    Background() = default;
+    BackgroundUI() = default;
 
     void Init() {
         CreateShaderProgram();
         SetupQuad();
     }
 
-    void Cleanup() {
+    void Close() {
         if (_vbo) glDeleteBuffers(1, &_vbo);
         if (_vao) glDeleteVertexArrays(1, &_vao);
         if (_shaderProgram) glDeleteProgram(_shaderProgram);

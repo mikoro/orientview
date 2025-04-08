@@ -14,6 +14,7 @@ struct Settings {
     int windowWidth = 1920;
     int windowHeight = 1080;
     bool rememberImguiLayout = false;
+    bool listAllCodecs = false;
 
     Settings() = default;
 
@@ -23,7 +24,7 @@ struct Settings {
     }
 };
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Settings, language, fontName, fontSize, windowWidth, windowHeight, rememberImguiLayout)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Settings, language, fontName, fontSize, windowWidth, windowHeight, rememberImguiLayout, listAllCodecs)
 
 inline std::string GetDataFilePath(const std::string& fileName) {
     std::string dataDir = ORIENTVIEW_DATA_DIR_PATH;

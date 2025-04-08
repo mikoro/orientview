@@ -2,7 +2,6 @@
 
 #include <atomic>
 #include <condition_variable>
-#include <functional>
 #include <mutex>
 #include <queue>
 #include <string>
@@ -24,7 +23,8 @@ struct VideoFrame {
     int width = 0;
     int height = 0;
     int linesize = 0;
-    double pts = 0.0;
+    double timestamp = 0.0;
+    double duration = 0.0;
 
     ~VideoFrame() {
         if (data) {
@@ -37,7 +37,6 @@ struct VideoFrame {
 struct AudioFrame {
     uint8_t* data = nullptr;
     int size = 0;
-    double pts = 0.0;
 
     ~AudioFrame() {
         if (data) {
@@ -57,10 +56,11 @@ class VideoDecoder {
     SwrContext* _swrContext = nullptr;
     int _videoStreamIndex = -1;
     int _audioStreamIndex = -1;
+    std::vector<std::string> _videoDecoders;
+    std::vector<std::string> _audioDecoders;
 
     std::thread _decodingThread;
     std::atomic<bool> _running{false};
-    std::atomic<bool> _paused{true};
     std::atomic<bool> _seekRequested{false};
     double _seekPosition = 0.0;
 
@@ -76,9 +76,6 @@ class VideoDecoder {
     double _duration = 0.0;
     double _currentPosition = 0.0;
 
-    std::function<void(std::shared_ptr<VideoFrame>)> _videoFrameCallback;
-    std::function<void(std::shared_ptr<AudioFrame>)> _audioFrameCallback;
-
     void DecodingThread() {
         AVPacket* packet = av_packet_alloc();
         AVFrame* frame = av_frame_alloc();
@@ -89,12 +86,6 @@ class VideoDecoder {
                 _seekRequested = false;
             }
 
-            if (_paused) {
-                std::this_thread::sleep_for(std::chrono::milliseconds(10));
-                continue;
-            }
-
-            // Check if queues are full
             {
                 std::unique_lock<std::mutex> videoLock(_videoQueueMutex, std::defer_lock);
                 std::unique_lock<std::mutex> audioLock(_audioQueueMutex, std::defer_lock);
@@ -109,20 +100,16 @@ class VideoDecoder {
                 }
             }
 
-            // Read packet
             int ret = av_read_frame(_formatContext, packet);
             if (ret < 0) {
                 if (ret == AVERROR_EOF) {
-                    // End of file, seek back to beginning
                     SeekToPosition(0);
                     continue;
                 } else {
-                    // Error reading frame
                     break;
                 }
             }
 
-            // Process packet
             if (!DecodePacket(packet)) {
                 av_packet_unref(packet);
                 break;
@@ -131,7 +118,6 @@ class VideoDecoder {
             av_packet_unref(packet);
         }
 
-        // Flush decoders
         if (_videoCodecContext) {
             avcodec_send_packet(_videoCodecContext, nullptr);
             while (avcodec_receive_frame(_videoCodecContext, frame) == 0) {
@@ -166,7 +152,6 @@ class VideoDecoder {
 
     bool DecodePacket(AVPacket* packet) {
         if (packet->stream_index == _videoStreamIndex) {
-            // Video packet
             int ret = avcodec_send_packet(_videoCodecContext, packet);
             if (ret < 0) {
                 spdlog::error("Error sending video packet to decoder");
@@ -188,26 +173,18 @@ class VideoDecoder {
 
                 auto videoFrame = ProcessVideoFrame(frame);
                 if (videoFrame) {
-                    // Update current position
-                    _currentPosition = videoFrame->pts;
+                    _currentPosition = videoFrame->timestamp;
 
-                    // Add to queue
                     {
                         std::lock_guard<std::mutex> lock(_videoQueueMutex);
                         _videoFrameQueue.push(videoFrame);
                         _videoQueueCV.notify_one();
-                    }
-
-                    // Call callback if set
-                    if (_videoFrameCallback) {
-                        _videoFrameCallback(videoFrame);
                     }
                 }
 
                 av_frame_free(&frame);
             }
         } else if (packet->stream_index == _audioStreamIndex) {
-            // Audio packet
             int ret = avcodec_send_packet(_audioCodecContext, packet);
             if (ret < 0) {
                 spdlog::error("Error sending audio packet to decoder");
@@ -229,16 +206,10 @@ class VideoDecoder {
 
                 auto audioFrame = ProcessAudioFrame(frame);
                 if (audioFrame) {
-                    // Add to queue
                     {
                         std::lock_guard<std::mutex> lock(_audioQueueMutex);
                         _audioFrameQueue.push(audioFrame);
                         _audioQueueCV.notify_one();
-                    }
-
-                    // Call callback if set
-                    if (_audioFrameCallback) {
-                        _audioFrameCallback(audioFrame);
                     }
                 }
 
@@ -250,7 +221,6 @@ class VideoDecoder {
     }
 
     std::shared_ptr<VideoFrame> ProcessVideoFrame(AVFrame* frame) {
-        // Initialize swscale context if needed
         if (!_swsContext) {
             _swsContext = sws_getContext(_videoCodecContext->width, _videoCodecContext->height, _videoCodecContext->pix_fmt, _videoCodecContext->width, _videoCodecContext->height, AV_PIX_FMT_RGB24, SWS_BILINEAR, nullptr, nullptr, nullptr);
 
@@ -260,13 +230,11 @@ class VideoDecoder {
             }
         }
 
-        // Create output frame
         auto videoFrame = std::make_shared<VideoFrame>();
         videoFrame->width = _videoCodecContext->width;
         videoFrame->height = _videoCodecContext->height;
         videoFrame->linesize = _videoCodecContext->width * 3; // RGB24 = 3 bytes per pixel
 
-        // Allocate buffer for RGB data
         int bufferSize = av_image_get_buffer_size(AV_PIX_FMT_RGB24, videoFrame->width, videoFrame->height, 1);
         videoFrame->data = (uint8_t*)av_malloc(bufferSize);
 
@@ -275,18 +243,25 @@ class VideoDecoder {
             return nullptr;
         }
 
-        // Convert frame to RGB
         uint8_t* dest[4] = {videoFrame->data, nullptr, nullptr, nullptr};
         int destLinesize[4] = {videoFrame->linesize, 0, 0, 0};
 
         sws_scale(_swsContext, frame->data, frame->linesize, 0, frame->height, dest, destLinesize);
 
-        // Set timestamp
+        AVRational timeBase = _formatContext->streams[_videoStreamIndex]->time_base;
+
         if (frame->pts != AV_NOPTS_VALUE) {
-            AVRational timeBase = _formatContext->streams[_videoStreamIndex]->time_base;
-            videoFrame->pts = frame->pts * av_q2d(timeBase);
+            videoFrame->timestamp = (double)frame->pts * av_q2d(timeBase);
         } else {
-            videoFrame->pts = 0;
+            videoFrame->timestamp = 0;
+        }
+
+        // Calculate frame duration
+        if (_videoCodecContext->framerate.num > 0 && _videoCodecContext->framerate.den > 0) {
+            videoFrame->duration = (double)_videoCodecContext->framerate.den / _videoCodecContext->framerate.num;
+        } else {
+            // Default to 1/25 second if we can't determine frame duration
+            videoFrame->duration = 0.04;
         }
 
         return videoFrame;
@@ -297,24 +272,20 @@ class VideoDecoder {
             return nullptr;
         }
 
-        // Initialize swresample context if needed
         if (!_swrContext) {
-            // Create stereo output channel layout
             AVChannelLayout outLayout;
             av_channel_layout_default(&outLayout, 2);
 
-            // Allocate the resampler context first
             _swrContext = swr_alloc();
             if (!_swrContext) {
                 spdlog::error("Could not allocate swresample context");
                 return nullptr;
             }
 
-            // Initialize the resampler
             int ret = swr_alloc_set_opts2(&_swrContext,
                                           &outLayout,                      // out_ch_layout
-                                          AV_SAMPLE_FMT_S16,               // out_sample_fmt
-                                          _audioCodecContext->sample_rate, // out_sample_rate
+                                          AV_SAMPLE_FMT_FLT,               // out_sample_fmt
+                                          48000,                           // out_sample_rate
                                           &_audioCodecContext->ch_layout,  // in_ch_layout
                                           _audioCodecContext->sample_fmt,  // in_sample_fmt
                                           _audioCodecContext->sample_rate, // in_sample_rate
@@ -332,12 +303,10 @@ class VideoDecoder {
             }
         }
 
-        // Create output frame
         auto audioFrame = std::make_shared<AudioFrame>();
 
-        // Calculate output size and allocate buffer
         int outSamples = swr_get_out_samples(_swrContext, frame->nb_samples);
-        int outSize = av_samples_get_buffer_size(nullptr, 2, outSamples, AV_SAMPLE_FMT_S16, 1);
+        int outSize = av_samples_get_buffer_size(nullptr, 2, outSamples, AV_SAMPLE_FMT_FLT, 1);
 
         audioFrame->data = (uint8_t*)av_malloc(outSize);
         if (!audioFrame->data) {
@@ -345,7 +314,6 @@ class VideoDecoder {
             return nullptr;
         }
 
-        // Convert audio
         uint8_t* outData[1] = {audioFrame->data};
         int convertedSamples = swr_convert(_swrContext, outData, outSamples, (const uint8_t**)frame->data, frame->nb_samples);
 
@@ -355,15 +323,7 @@ class VideoDecoder {
             return nullptr;
         }
 
-        // Set size and timestamp
-        audioFrame->size = av_samples_get_buffer_size(nullptr, 2, convertedSamples, AV_SAMPLE_FMT_S16, 1);
-
-        if (frame->pts != AV_NOPTS_VALUE) {
-            AVRational timeBase = _formatContext->streams[_audioStreamIndex]->time_base;
-            audioFrame->pts = frame->pts * av_q2d(timeBase);
-        } else {
-            audioFrame->pts = 0;
-        }
+        audioFrame->size = av_samples_get_buffer_size(nullptr, 2, convertedSamples, AV_SAMPLE_FMT_FLT, 1);
 
         return audioFrame;
     }
@@ -373,7 +333,6 @@ class VideoDecoder {
             return;
         }
 
-        // Clear queues
         {
             std::lock_guard<std::mutex> lock(_videoQueueMutex);
             std::queue<std::shared_ptr<VideoFrame>> empty;
@@ -386,7 +345,6 @@ class VideoDecoder {
             std::swap(_audioFrameQueue, empty);
         }
 
-        // Convert position to stream timebase
         int64_t timestamp = position * AV_TIME_BASE;
         int streamIndex = _videoStreamIndex;
         AVRational timeBase = AV_TIME_BASE_Q;
@@ -395,14 +353,12 @@ class VideoDecoder {
             timestamp = av_rescale_q(timestamp, timeBase, _formatContext->streams[streamIndex]->time_base);
         }
 
-        // Seek
         int ret = av_seek_frame(_formatContext, streamIndex, timestamp, AVSEEK_FLAG_BACKWARD);
         if (ret < 0) {
             spdlog::error("Error seeking to position {}", position);
             return;
         }
 
-        // Flush codec buffers
         if (_videoCodecContext) {
             avcodec_flush_buffers(_videoCodecContext);
         }
@@ -412,20 +368,27 @@ class VideoDecoder {
         }
 
         _currentPosition = position;
-        spdlog::debug("Seeked to position {}", position);
     }
 
   public:
     VideoDecoder() = default;
-
     ~VideoDecoder() { Close(); }
 
-    bool Open(const std::string& filePath) {
+    bool IsRunning() const { return _running; }
+    double GetDuration() const { return _duration; }
+    double GetCurrentPosition() const { return _currentPosition; }
+    int GetVideoWidth() const { return _videoCodecContext ? _videoCodecContext->width : 0; }
+    int GetVideoHeight() const { return _videoCodecContext ? _videoCodecContext->height : 0; }
+
+    const std::vector<std::string>& GetVideoDecoders() const { return _videoDecoders; }
+    const std::vector<std::string>& GetAudioDecoders() const { return _audioDecoders; }
+
+    bool Init(const std::string& filePath) {
         Close();
 
         _filePath = filePath;
+        _running = true;
 
-        // Open input file
         _formatContext = avformat_alloc_context();
         if (avformat_open_input(&_formatContext, filePath.c_str(), nullptr, nullptr) != 0) {
             spdlog::error("Could not open input file: {}", filePath);
@@ -433,19 +396,17 @@ class VideoDecoder {
             return false;
         }
 
-        // Find stream info
         if (avformat_find_stream_info(_formatContext, nullptr) < 0) {
             spdlog::error("Could not find stream information");
             Close();
             return false;
         }
 
-        // Find video and audio streams
         for (unsigned int i = 0; i < _formatContext->nb_streams; i++) {
             if (_formatContext->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO && _videoStreamIndex < 0) {
-                _videoStreamIndex = i;
+                _videoStreamIndex = (int)i;
             } else if (_formatContext->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO && _audioStreamIndex < 0) {
-                _audioStreamIndex = i;
+                _audioStreamIndex = (int)i;
             }
         }
 
@@ -455,15 +416,41 @@ class VideoDecoder {
             return false;
         }
 
-        // Set up video codec
-        const AVCodec* videoCodec = avcodec_find_decoder(_formatContext->streams[_videoStreamIndex]->codecpar->codec_id);
-        if (!videoCodec) {
-            spdlog::error("Unsupported video codec");
-            Close();
-            return false;
+        const AVCodec* videoCodec = nullptr;
+
+        if (!Session::Instance().videoDecoder.empty()) {
+            videoCodec = avcodec_find_decoder_by_name(Session::Instance().videoDecoder.c_str());
+
+            if (!videoCodec) {
+                spdlog::warn("Requested video codec '{}' not found, falling back to default", Session::Instance().videoDecoder);
+            }
         }
 
+        if (!videoCodec) {
+            videoCodec = avcodec_find_decoder(_formatContext->streams[_videoStreamIndex]->codecpar->codec_id);
+
+            if (!videoCodec) {
+                spdlog::error("Unsupported video codec");
+                Close();
+                return false;
+            }
+        }
+
+        _videoDecoders.clear();
+        void* iter = nullptr;
+        const AVCodec* codec = nullptr;
+
+        while ((codec = av_codec_iterate(&iter))) {
+            if (!av_codec_is_decoder(codec)) continue;
+            if (codec->id != _formatContext->streams[_videoStreamIndex]->codecpar->codec_id) continue;
+            _videoDecoders.push_back(codec->name);
+        }
+
+        Session::Instance().videoDecoder = videoCodec->name;
+        spdlog::info("Selected video decoder: {} ({})", videoCodec->name, videoCodec->long_name ? videoCodec->long_name : "unknown");
+
         _videoCodecContext = avcodec_alloc_context3(videoCodec);
+
         if (!_videoCodecContext) {
             spdlog::error("Could not allocate video codec context");
             Close();
@@ -476,20 +463,47 @@ class VideoDecoder {
             return false;
         }
 
+        _videoCodecContext->pkt_timebase = _formatContext->streams[_videoStreamIndex]->time_base;
+
         if (avcodec_open2(_videoCodecContext, videoCodec, nullptr) < 0) {
             spdlog::error("Could not open video codec");
             Close();
             return false;
         }
 
-        // Set up audio codec if available
         if (_audioStreamIndex >= 0) {
-            const AVCodec* audioCodec = avcodec_find_decoder(_formatContext->streams[_audioStreamIndex]->codecpar->codec_id);
+            const AVCodec* audioCodec = nullptr;
+
+            if (!Session::Instance().audioDecoder.empty()) {
+                audioCodec = avcodec_find_decoder_by_name(Session::Instance().audioDecoder.c_str());
+
+                if (!audioCodec) {
+                    spdlog::warn("Requested audio codec '{}' not found, falling back to default", Session::Instance().audioDecoder);
+                }
+            }
+
+            if (!audioCodec) {
+                audioCodec = avcodec_find_decoder(_formatContext->streams[_audioStreamIndex]->codecpar->codec_id);
+            }
+
+            _audioDecoders.clear();
+            void* iter = nullptr;
+            const AVCodec* codec = nullptr;
+
+            while ((codec = av_codec_iterate(&iter))) {
+                if (!av_codec_is_decoder(codec)) continue;
+                if (codec->id != _formatContext->streams[_audioStreamIndex]->codecpar->codec_id) continue;
+                _audioDecoders.push_back(codec->name);
+            }
+
             if (!audioCodec) {
                 spdlog::warn("Unsupported audio codec");
                 _audioStreamIndex = -1;
             } else {
+                Session::Instance().audioDecoder = audioCodec->name;
+                spdlog::info("Selected audio decoder: {} ({})", audioCodec->name, audioCodec->long_name ? audioCodec->long_name : "unknown");
                 _audioCodecContext = avcodec_alloc_context3(audioCodec);
+
                 if (!_audioCodecContext) {
                     spdlog::warn("Could not allocate audio codec context");
                     _audioStreamIndex = -1;
@@ -498,35 +512,43 @@ class VideoDecoder {
                         spdlog::warn("Could not copy audio codec parameters");
                         avcodec_free_context(&_audioCodecContext);
                         _audioStreamIndex = -1;
-                    } else if (avcodec_open2(_audioCodecContext, audioCodec, nullptr) < 0) {
-                        spdlog::warn("Could not open audio codec");
-                        avcodec_free_context(&_audioCodecContext);
-                        _audioStreamIndex = -1;
+                    } else {
+                        _audioCodecContext->pkt_timebase = _formatContext->streams[_audioStreamIndex]->time_base;
+
+                        if (avcodec_open2(_audioCodecContext, audioCodec, nullptr) < 0) {
+                            spdlog::warn("Could not open audio codec");
+                            avcodec_free_context(&_audioCodecContext);
+                            _audioStreamIndex = -1;
+                        }
                     }
                 }
             }
         }
 
-        // Calculate duration
         if (_formatContext->duration != AV_NOPTS_VALUE) {
-            _duration = _formatContext->duration / (double)AV_TIME_BASE;
+            _duration = (double)_formatContext->duration / (double)AV_TIME_BASE;
         } else {
             _duration = 0.0;
         }
 
-        spdlog::info("Opened video file: {}", filePath);
-        spdlog::info("Duration: {:.2f} seconds", _duration);
-        spdlog::info("Video dimensions: {}x{}", _videoCodecContext->width, _videoCodecContext->height);
+        spdlog::info("Opened video file: {}, Duration: {:.2f} seconds, Resolution: {}x{}{}", filePath, _duration, _videoCodecContext->width, _videoCodecContext->height,
+                     _audioStreamIndex >= 0 ? fmt::format(", Audio: {} channels, {} Hz", _audioCodecContext->ch_layout.nb_channels, _audioCodecContext->sample_rate) : "");
 
-        if (_audioStreamIndex >= 0) {
-            spdlog::info("Audio: {} channels, {} Hz", _audioCodecContext->ch_layout.nb_channels, _audioCodecContext->sample_rate);
-        }
-
+        _decodingThread = std::thread(&VideoDecoder::DecodingThread, this);
         return true;
     }
 
     void Close() {
-        Stop();
+        if (_running) {
+            _running = false;
+
+            _videoQueueCV.notify_all();
+            _audioQueueCV.notify_all();
+
+            if (_decodingThread.joinable()) {
+                _decodingThread.join();
+            }
+        }
 
         if (_swsContext) {
             sws_freeContext(_swsContext);
@@ -571,41 +593,6 @@ class VideoDecoder {
         }
     }
 
-    void Start() {
-        if (_running) {
-            return;
-        }
-
-        if (!_formatContext || _videoStreamIndex < 0) {
-            spdlog::error("Cannot start decoding: no video opened");
-            return;
-        }
-
-        _running = true;
-        _paused = false;
-        _decodingThread = std::thread(&VideoDecoder::DecodingThread, this);
-    }
-
-    void Pause() { _paused = true; }
-
-    void Resume() { _paused = false; }
-
-    void Stop() {
-        if (!_running) {
-            return;
-        }
-
-        _running = false;
-        _paused = true;
-
-        _videoQueueCV.notify_all();
-        _audioQueueCV.notify_all();
-
-        if (_decodingThread.joinable()) {
-            _decodingThread.join();
-        }
-    }
-
     void Seek(double position) {
         if (!_running) {
             return;
@@ -614,16 +601,6 @@ class VideoDecoder {
         _seekPosition = position;
         _seekRequested = true;
     }
-
-    double GetDuration() const { return _duration; }
-    double GetCurrentPosition() const { return _currentPosition; }
-
-    bool IsRunning() const { return _running; }
-    bool IsPaused() const { return _paused; }
-
-    void SetVideoFrameCallback(std::function<void(std::shared_ptr<VideoFrame>)> callback) { _videoFrameCallback = callback; }
-
-    void SetAudioFrameCallback(std::function<void(std::shared_ptr<AudioFrame>)> callback) { _audioFrameCallback = callback; }
 
     std::shared_ptr<VideoFrame> GetNextVideoFrame() {
         std::unique_lock<std::mutex> lock(_videoQueueMutex);
@@ -649,12 +626,7 @@ class VideoDecoder {
         return frame;
     }
 
-    int GetVideoWidth() const { return _videoCodecContext ? _videoCodecContext->width : 0; }
-    int GetVideoHeight() const { return _videoCodecContext ? _videoCodecContext->height : 0; }
-    int GetAudioChannels() const { return _audioCodecContext ? _audioCodecContext->ch_layout.nb_channels : 0; }
-    int GetAudioSampleRate() const { return _audioCodecContext ? _audioCodecContext->sample_rate : 0; }
-
-    static void LogAvailableCodecs() {
+    static void ListAllCodecs() {
         const AVCodec* codec = nullptr;
         void* iter = nullptr;
 
@@ -696,18 +668,18 @@ class VideoDecoder {
         while ((codec = av_codec_iterate(&iter))) {
             if (!av_codec_is_encoder(codec)) continue;
             if (codec->type != AVMEDIA_TYPE_VIDEO) continue;
-            
+
             // Check if this is a hardware encoder
             if (codec->capabilities & AV_CODEC_CAP_HARDWARE) {
                 foundHwEncoders = true;
                 spdlog::info("  HW Video Encoder: {} ({})", codec->name, codec->long_name ? codec->long_name : "");
             }
         }
-        
+
         if (!foundHwEncoders) {
             spdlog::info("  No hardware video encoders found");
         }
-        
+
         spdlog::info("Software video encoders:");
         iter = nullptr;
         bool foundSwEncoders = false;
@@ -715,11 +687,11 @@ class VideoDecoder {
             if (!av_codec_is_encoder(codec)) continue;
             if (codec->type != AVMEDIA_TYPE_VIDEO) continue;
             if (codec->capabilities & AV_CODEC_CAP_HARDWARE) continue;
-            
+
             foundSwEncoders = true;
             spdlog::info("  SW Video Encoder: {} ({})", codec->name, codec->long_name ? codec->long_name : "");
         }
-        
+
         if (!foundSwEncoders) {
             spdlog::info("  No software video encoders found");
         }

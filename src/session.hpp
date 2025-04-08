@@ -15,14 +15,17 @@ struct Session {
     bool showTimelineWindow = true;
     bool showUIDemoWindow = false;
 
-    bool isPlaying = false;
     float timelinePosition = 0.0f;
-    float timelineDuration = 100.0f;
+    bool isPlaying = false;
 
+    std::string name;
     std::string runVideoPath;
     std::string outputVideoPath;
     std::string mapImagePath;
     std::string gpxFilePath;
+    
+    std::string videoDecoder;
+    std::string audioDecoder;
 
     Session() = default;
 
@@ -34,8 +37,9 @@ struct Session {
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Session, 
     showLogWindow, showSessionWindow, showMapWindow, showVideoWindow, showTimelineWindow, showUIDemoWindow,
-    isPlaying, timelinePosition, timelineDuration, 
-    runVideoPath, outputVideoPath, mapImagePath, gpxFilePath)
+    timelinePosition, isPlaying,
+    name, runVideoPath, outputVideoPath, mapImagePath, gpxFilePath,
+    videoDecoder, audioDecoder)
 
 inline void LoadSession(const std::string& filePath) {
     if (!std::filesystem::exists(filePath)) {

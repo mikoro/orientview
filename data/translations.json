@@ -37,7 +37,11 @@
       "gpx_files": "GPX files",
       "input": "Input",
       "output": "Output",
-      "window_ui_demo": "UI Demo"
+      "window_ui_demo": "UI Demo",
+      "session_name": "Name",
+      "codecs": "Codecs",
+      "video_decoder": "Video decoder",
+      "audio_decoder": "Audio decoder"
     },
     "fi": {
       "app_title": "OrientView",
@@ -76,7 +80,11 @@
       "gpx_files": "GPX-tiedostot",
       "input": "Syöte",
       "output": "Tulos",
-      "window_ui_demo": "UI Demo"
+      "window_ui_demo": "UI Demo",
+      "session_name": "Nimi",
+      "codecs": "Koodekit",
+      "video_decoder": "Videokoodekki",
+      "audio_decoder": "Äänikoodekki"
     }
   }
 }

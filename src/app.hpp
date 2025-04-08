@@ -1,15 +1,17 @@
 #pragma once
 
-#include "background.hpp"
+#include "background_ui.hpp"
 #include "log_ui.hpp"
 #include "session.hpp"
 #include "settings.hpp"
 #include "tinyfiledialogs.hpp"
 #include "translate.hpp"
-#include "video_decoder_ui.hpp"
+#include "video_decoder.hpp"
+#include "video_ui.hpp"
 
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
+#include <cmath>
 #include <exception>
 #include <fmt/core.h>
 #include <glad/glad.h>
@@ -20,20 +22,27 @@
 #include <imgui_stdlib.h>
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/spdlog.h>
+#include <vector>
 
 class App {
     SDL_Window* _window = nullptr;
     SDL_GLContext _glContext = nullptr;
+    SDL_AudioStream* _outputAudioStream = nullptr;
+    SDL_AudioSpec _outputAudioSpec{};
+    VideoDecoder _videoDecoder;
     LogUI _logUI;
-    Background _background;
-    VideoDecoderUI _videoDecoderUI;
+    BackgroundUI _background;
+    VideoUI _videoUI;
     bool _running = false;
-    uint64_t _lastPerformanceCounter = 0;
+    bool _videoUpdateRequested = false;
     uint64_t _performanceCounterFrequency = 0;
-
-    uint64_t _fpsCounterStart = 0;
+    uint64_t _lastRenderTimeTicks = 0;
+    uint64_t _fpsCounterStartTimeTicks = 0;
     int _frameCount = 0;
     float _fpsLogInterval = 10.0f;
+    double _lastVideoFrameDuration = 0.0;
+    uint64_t _lastVideoFramePresentTimeTicks = 0;
+    bool _timeLineIsDragged = false;
 
     bool Init() {
         auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(GetDataFilePath("orientview.log"), true);
@@ -52,14 +61,16 @@ class App {
         LoadTranslations();
         LoadSession(GetDataFilePath("session.json"));
 
-        VideoDecoder::LogAvailableCodecs();
+        if (Settings::Instance().listAllCodecs) {
+            VideoDecoder::ListAllCodecs();
+        }
 
         if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 1) {
             spdlog::error("SDL_Init Error: {}", SDL_GetError());
             return false;
         }
 
-        _window = SDL_CreateWindow(fmt::format("{} {}", TL("app_title"), ORIENTVIEW_VERSION).c_str(), Settings::Instance().windowWidth, Settings::Instance().windowHeight, SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL);
+        _window = SDL_CreateWindow(GetWindowTitle().c_str(), Settings::Instance().windowWidth, Settings::Instance().windowHeight, SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL);
 
         if (!_window) {
             spdlog::error("SDL_CreateWindow Error: {}", SDL_GetError());
@@ -84,6 +95,32 @@ class App {
         spdlog::info("OpenGL Renderer: {}", (const char*)glGetString(GL_RENDERER));
         spdlog::info("OpenGL Vendor: {}", (const char*)glGetString(GL_VENDOR));
         spdlog::info("OpenGL Shading Language Version: {}", (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION));
+
+        _outputAudioSpec.format = SDL_AUDIO_F32;
+        _outputAudioSpec.channels = 2;
+        _outputAudioSpec.freq = 48000;
+
+        _outputAudioStream = SDL_OpenAudioDeviceStream(
+            SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &_outputAudioSpec,
+            [](void* userdata, SDL_AudioStream* stream, int additionalAmount, int totalAmount) {
+                App* app = static_cast<App*>(userdata);
+                app->AudioStreamCallback(stream, additionalAmount, totalAmount);
+            },
+            this);
+
+        if (!_outputAudioStream) {
+            spdlog::warn("Failed to open output audio device stream: {}", SDL_GetError());
+        } else {
+            SDL_AudioDeviceID outputAudioDevice = SDL_GetAudioStreamDevice(_outputAudioStream);
+
+            if (!outputAudioDevice) {
+                spdlog::warn("Failed to get output audio device from stream: {}", SDL_GetError());
+                SDL_DestroyAudioStream(_outputAudioStream);
+                _outputAudioStream = nullptr;
+            } else {
+                spdlog::info("Output audio device name: {}", SDL_GetAudioDeviceName(outputAudioDevice));
+            }
+        }
 
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
@@ -133,16 +170,26 @@ class App {
         ImGui_ImplOpenGL3_Init("#version 330");
 
         _background.Init();
-        _videoDecoderUI.Init();
-
-        // Set up position changed callback
-        _videoDecoderUI.SetPositionChangedCallback([this](double position) { Session::Instance().timelinePosition = position; });
+        _videoUI.Init();
 
         _performanceCounterFrequency = SDL_GetPerformanceFrequency();
-        _lastPerformanceCounter = SDL_GetPerformanceCounter();
-        _fpsCounterStart = _lastPerformanceCounter;
+        _lastRenderTimeTicks = SDL_GetPerformanceCounter();
+        _fpsCounterStartTimeTicks = _lastRenderTimeTicks;
         _frameCount = 0;
         _running = true;
+
+        if (std::filesystem::exists(Session::Instance().runVideoPath)) {
+            if (_videoDecoder.Init(Session::Instance().runVideoPath)) {
+                _videoDecoder.Seek(Session::Instance().timelinePosition);
+                _videoUpdateRequested = true;
+            }
+        }
+
+        if (Session::Instance().isPlaying) {
+            SDL_ResumeAudioStreamDevice(_outputAudioStream);
+        } else {
+            SDL_PauseAudioStreamDevice(_outputAudioStream);
+        }
 
         return true;
     }
@@ -182,6 +229,20 @@ class App {
         SDL_GetWindowSize(_window, &Settings::Instance().windowWidth, &Settings::Instance().windowHeight);
     }
 
+    static std::string GetWindowTitle() {
+        if (Session::Instance().name.empty()) {
+            return fmt::format("{} {}", TL("app_title"), ORIENTVIEW_VERSION);
+        } else {
+            return fmt::format("{} {} - {}", TL("app_title"), ORIENTVIEW_VERSION, Session::Instance().name);
+        }
+    }
+
+    void UpdateWindowTitle() {
+        if (_window) {
+            SDL_SetWindowTitle(_window, GetWindowTitle().c_str());
+        }
+    }
+
     void ReloadFont() {
         ImGuiIO& io = ImGui::GetIO();
         io.Fonts->Clear();
@@ -197,6 +258,19 @@ class App {
         // Rebuild font atlas
         ImGui_ImplOpenGL3_DestroyFontsTexture();
         ImGui_ImplOpenGL3_CreateFontsTexture();
+    }
+
+    void AudioStreamCallback(SDL_AudioStream* stream, int additionalAmount, int totalAmount) {
+        if (_timeLineIsDragged) {
+            std::vector<uint8_t> silentBuffer(additionalAmount, 0);
+            SDL_PutAudioStreamData(stream, silentBuffer.data(), silentBuffer.size());
+        } else {
+            auto audioFrame = _videoDecoder.GetNextAudioFrame();
+
+            if (audioFrame && audioFrame->data && audioFrame->size > 0) {
+                SDL_PutAudioStreamData(stream, audioFrame->data, audioFrame->size);
+            }
+        }
     }
 
     void SetupDockSpace() {
@@ -319,71 +393,137 @@ class App {
             if (ImGui::Begin(fmt::format("{}###window_session", TL("window_session")).c_str(), &Session::Instance().showSessionWindow)) {
                 float browseButtonWidth = ImGui::CalcTextSize(TL("browse")).x + ImGui::GetStyle().FramePadding.x * 2.0f + 10.0f;
 
-                if (ImGui::CollapsingHeader(TL("input"), ImGuiTreeNodeFlags_DefaultOpen)) {
-                    ImGui::Text("%s:", TL("run_video"));
-                    ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x - browseButtonWidth - ImGui::GetStyle().ItemSpacing.x);
-                    ImGui::InputText("##run_video", &Session::Instance().runVideoPath);
-                    ImGui::PopItemWidth();
+                ImGui::Text("%s:", TL("session_name"));
+                ImGui::PushItemWidth(-1);
+                if (ImGui::InputText("##session_name", &Session::Instance().name)) {
+                    UpdateWindowTitle();
+                }
+                ImGui::PopItemWidth();
 
-                    ImGui::SameLine();
+                ImGui::SeparatorText(TL("input"));
+                ImGui::Text("%s:", TL("run_video"));
+                ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x - browseButtonWidth - ImGui::GetStyle().ItemSpacing.x);
+                ImGui::InputText("##run_video", &Session::Instance().runVideoPath);
+                ImGui::PopItemWidth();
 
-                    if (ImGui::Button(fmt::format("{}##browse_input", TL("browse")).c_str(), ImVec2(browseButtonWidth, 0))) {
-                        const char* filters[] = {"*.*"};
-                        char* selectedFile = tinyfd_openFileDialog(TL("select_run_video"), Session::Instance().runVideoPath.c_str(), 1, filters, TL("video_files"), 0);
+                ImGui::SameLine();
 
-                        if (selectedFile) {
-                            Session::Instance().runVideoPath = selectedFile;
-                        }
-                    }
+                if (ImGui::Button(fmt::format("{}##browse_input", TL("browse")).c_str(), ImVec2(browseButtonWidth, 0))) {
+                    const char* filters[] = {"*.*"};
+                    char* selectedFile = tinyfd_openFileDialog(TL("select_run_video"), Session::Instance().runVideoPath.c_str(), 1, filters, TL("video_files"), 0);
 
-                    ImGui::Text("%s:", TL("map_image"));
-                    ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x - browseButtonWidth - ImGui::GetStyle().ItemSpacing.x);
-                    ImGui::InputText("##map_image", &Session::Instance().mapImagePath);
-                    ImGui::PopItemWidth();
+                    if (selectedFile) {
+                        Session::Instance().runVideoPath = selectedFile;
+                        Session::Instance().videoDecoder = "";
+                        Session::Instance().audioDecoder = "";
 
-                    ImGui::SameLine();
-
-                    if (ImGui::Button(fmt::format("{}##browse_map", TL("browse")).c_str(), ImVec2(browseButtonWidth, 0))) {
-                        const char* filters[] = {"*.*"};
-                        char* selectedFile = tinyfd_openFileDialog(TL("select_map_file"), Session::Instance().mapImagePath.c_str(), 1, filters, TL("image_files"), 0);
-
-                        if (selectedFile) {
-                            Session::Instance().mapImagePath = selectedFile;
-                        }
-                    }
-
-                    ImGui::Text("%s:", TL("gpx_file"));
-                    ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x - browseButtonWidth - ImGui::GetStyle().ItemSpacing.x);
-                    ImGui::InputText("##gpx_file", &Session::Instance().gpxFilePath);
-                    ImGui::PopItemWidth();
-
-                    ImGui::SameLine();
-
-                    if (ImGui::Button(fmt::format("{}##browse_gpx", TL("browse")).c_str(), ImVec2(browseButtonWidth, 0))) {
-                        const char* filters[] = {"*.*"};
-                        char* selectedFile = tinyfd_openFileDialog(TL("select_gpx_file"), Session::Instance().gpxFilePath.c_str(), 1, filters, TL("gpx_files"), 0);
-
-                        if (selectedFile) {
-                            Session::Instance().gpxFilePath = selectedFile;
-                        }
+                        _videoDecoder.Close();
+                        _videoDecoder.Init(Session::Instance().runVideoPath);
                     }
                 }
 
-                if (ImGui::CollapsingHeader(TL("output"), ImGuiTreeNodeFlags_DefaultOpen)) {
-                    ImGui::Text("%s:", TL("output_video"));
-                    ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x - browseButtonWidth - ImGui::GetStyle().ItemSpacing.x);
-                    ImGui::InputText("##output_video", &Session::Instance().outputVideoPath);
-                    ImGui::PopItemWidth();
+                ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x * 0.5f);
 
-                    ImGui::SameLine();
+                if (ImGui::BeginCombo(TL("video_decoder"), Session::Instance().videoDecoder.c_str())) {
+                    for (const auto& codec : _videoDecoder.GetVideoDecoders()) {
+                        bool isSelected = (Session::Instance().videoDecoder == codec);
+                        if (ImGui::Selectable(codec.c_str(), isSelected)) {
+                            if (Session::Instance().videoDecoder != codec) {
+                                Session::Instance().videoDecoder = codec;
+                                double currentPosition = _videoDecoder.GetCurrentPosition();
+                                _videoDecoder.Close();
 
-                    if (ImGui::Button(fmt::format("{}##browse_output", TL("browse")).c_str(), ImVec2(browseButtonWidth, 0))) {
-                        const char* filters[] = {"*.*"};
-                        char* selectedFile = tinyfd_saveFileDialog(TL("select_output_file"), Session::Instance().outputVideoPath.c_str(), 1, filters, TL("video_files"));
-
-                        if (selectedFile) {
-                            Session::Instance().outputVideoPath = selectedFile;
+                                if (_videoDecoder.Init(Session::Instance().runVideoPath)) {
+                                    _videoDecoder.Seek(currentPosition);
+                                    SDL_ClearAudioStream(_outputAudioStream);
+                                    _lastVideoFrameDuration = 0.0;
+                                    _lastVideoFramePresentTimeTicks = 0;
+                                }
+                            }
                         }
+
+                        if (isSelected) {
+                            ImGui::SetItemDefaultFocus();
+                        }
+                    }
+
+                    ImGui::EndCombo();
+                }
+
+                if (ImGui::BeginCombo(TL("audio_decoder"), Session::Instance().audioDecoder.c_str())) {
+                    for (const auto& codec : _videoDecoder.GetAudioDecoders()) {
+                        bool isSelected = (Session::Instance().audioDecoder == codec);
+                        if (ImGui::Selectable(codec.c_str(), isSelected)) {
+                            if (Session::Instance().audioDecoder != codec) {
+                                Session::Instance().audioDecoder = codec;
+                                double currentPosition = _videoDecoder.GetCurrentPosition();
+                                _videoDecoder.Close();
+
+                                if (_videoDecoder.Init(Session::Instance().runVideoPath)) {
+                                    _videoDecoder.Seek(currentPosition);
+                                    SDL_ClearAudioStream(_outputAudioStream);
+                                    _lastVideoFrameDuration = 0.0;
+                                    _lastVideoFramePresentTimeTicks = 0;
+                                }
+                            }
+                        }
+
+                        if (isSelected) {
+                            ImGui::SetItemDefaultFocus();
+                        }
+                    }
+
+                    ImGui::EndCombo();
+                }
+
+                ImGui::PopItemWidth();
+
+                ImGui::Text("%s:", TL("map_image"));
+                ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x - browseButtonWidth - ImGui::GetStyle().ItemSpacing.x);
+                ImGui::InputText("##map_image", &Session::Instance().mapImagePath);
+                ImGui::PopItemWidth();
+
+                ImGui::SameLine();
+
+                if (ImGui::Button(fmt::format("{}##browse_map", TL("browse")).c_str(), ImVec2(browseButtonWidth, 0))) {
+                    const char* filters[] = {"*.*"};
+                    char* selectedFile = tinyfd_openFileDialog(TL("select_map_file"), Session::Instance().mapImagePath.c_str(), 1, filters, TL("image_files"), 0);
+
+                    if (selectedFile) {
+                        Session::Instance().mapImagePath = selectedFile;
+                    }
+                }
+
+                ImGui::Text("%s:", TL("gpx_file"));
+                ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x - browseButtonWidth - ImGui::GetStyle().ItemSpacing.x);
+                ImGui::InputText("##gpx_file", &Session::Instance().gpxFilePath);
+                ImGui::PopItemWidth();
+
+                ImGui::SameLine();
+
+                if (ImGui::Button(fmt::format("{}##browse_gpx", TL("browse")).c_str(), ImVec2(browseButtonWidth, 0))) {
+                    const char* filters[] = {"*.*"};
+                    char* selectedFile = tinyfd_openFileDialog(TL("select_gpx_file"), Session::Instance().gpxFilePath.c_str(), 1, filters, TL("gpx_files"), 0);
+
+                    if (selectedFile) {
+                        Session::Instance().gpxFilePath = selectedFile;
+                    }
+                }
+
+                ImGui::SeparatorText(TL("output"));
+                ImGui::Text("%s:", TL("output_video"));
+                ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x - browseButtonWidth - ImGui::GetStyle().ItemSpacing.x);
+                ImGui::InputText("##output_video", &Session::Instance().outputVideoPath);
+                ImGui::PopItemWidth();
+
+                ImGui::SameLine();
+
+                if (ImGui::Button(fmt::format("{}##browse_output", TL("browse")).c_str(), ImVec2(browseButtonWidth, 0))) {
+                    const char* filters[] = {"*.*"};
+                    char* selectedFile = tinyfd_saveFileDialog(TL("select_output_file"), Session::Instance().outputVideoPath.c_str(), 1, filters, TL("video_files"));
+
+                    if (selectedFile) {
+                        Session::Instance().outputVideoPath = selectedFile;
                     }
                 }
             }
@@ -405,19 +545,23 @@ class App {
         if (Session::Instance().showVideoWindow) {
             if (ImGui::Begin(fmt::format("{}###window_video", TL("window_video")).c_str(), &Session::Instance().showVideoWindow)) {
                 ImVec2 windowSize = ImGui::GetContentRegionAvail();
-                _videoDecoderUI.RenderVideoWindow(windowSize);
+
+                if (_videoDecoder.IsRunning()) {
+                    _videoUI.RenderVideoWindow(windowSize, _videoDecoder.GetVideoWidth(), _videoDecoder.GetVideoHeight());
+                } else {
+                    ImVec2 textSize = ImGui::CalcTextSize(TL("window_video"));
+                    ImGui::SetCursorPos(ImVec2((windowSize.x - textSize.x) * 0.5f, (windowSize.y - textSize.y) * 0.5f));
+                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 0.5f));
+                    ImGui::Text("%s", TL("window_video"));
+                    ImGui::PopStyleColor();
+                }
             }
             ImGui::End();
         }
 
         if (Session::Instance().showTimelineWindow) {
             if (ImGui::Begin(fmt::format("{}###window_timeline", TL("window_timeline")).c_str(), &Session::Instance().showTimelineWindow)) {
-                _videoDecoderUI.RenderTimelineWindow(Session::Instance().timelinePosition, Session::Instance().timelineDuration, Session::Instance().isPlaying, Session::Instance().runVideoPath);
-
-                // Update timeline duration when video is loaded
-                if (_videoDecoderUI.IsRunning() && Session::Instance().timelineDuration <= 0.1f) {
-                    Session::Instance().timelineDuration = _videoDecoderUI.GetDuration();
-                }
+                RenderTimelineWindow();
             }
             ImGui::End();
         }
@@ -431,23 +575,101 @@ class App {
         }
     }
 
+    static std::string FormatTime(float seconds) {
+        int hours = static_cast<int>(seconds) / 3600;
+        int minutes = (static_cast<int>(seconds) % 3600) / 60;
+        int secs = static_cast<int>(seconds) % 60;
+        int milliseconds = static_cast<int>((seconds - static_cast<int>(seconds)) * 1000);
+        return fmt::format("{:02d}:{:02d}:{:02d}.{:03d}", hours, minutes, secs, milliseconds);
+    }
+
+    void RenderTimelineWindow() {
+        float timeWidth = ImGui::CalcTextSize("00:00:00.000").x + 10.0f;
+        ImGui::PushItemWidth(-timeWidth);
+        float prevPos = Session::Instance().timelinePosition;
+
+        if (ImGui::SliderFloat("##timeline", &Session::Instance().timelinePosition, 0.0f, _videoDecoder.GetDuration(), "")) {
+            if (prevPos != Session::Instance().timelinePosition) {
+                _videoDecoder.Seek(Session::Instance().timelinePosition);
+                SDL_ClearAudioStream(_outputAudioStream);
+                _videoUpdateRequested = true;
+                _lastVideoFrameDuration = 0.0;
+                _lastVideoFramePresentTimeTicks = 0;
+            }
+        }
+
+        _timeLineIsDragged = ImGui::IsItemActive();
+
+        ImGui::SameLine();
+        ImGui::Text("%s", FormatTime(Session::Instance().timelinePosition).c_str());
+        ImGui::PopItemWidth();
+
+        float playTextWidth = ImGui::CalcTextSize(TL("timeline_play")).x;
+        float pauseTextWidth = ImGui::CalcTextSize(TL("timeline_pause")).x;
+        float buttonWidth = std::max(playTextWidth, pauseTextWidth) + 20.0f;
+        float windowWidth = ImGui::GetContentRegionAvail().x;
+        ImGui::SetCursorPosX((windowWidth - buttonWidth) * 0.5f);
+
+        if (ImGui::Button(Session::Instance().isPlaying ? TL("timeline_pause") : TL("timeline_play"), ImVec2(buttonWidth, 0))) {
+            Session::Instance().isPlaying = !Session::Instance().isPlaying;
+
+            if (Session::Instance().isPlaying) {
+                SDL_ResumeAudioStreamDevice(_outputAudioStream);
+            } else {
+                SDL_PauseAudioStreamDevice(_outputAudioStream);
+            }
+        }
+    }
+
     void Render() {
         uint64_t currentPerformanceCounter = SDL_GetPerformanceCounter();
         float currentTime = (double)currentPerformanceCounter / (double)_performanceCounterFrequency;
-        float deltaTime = (double)(currentPerformanceCounter - _lastPerformanceCounter) / (double)_performanceCounterFrequency;
-        _lastPerformanceCounter = currentPerformanceCounter;
+        float deltaTime = (double)(currentPerformanceCounter - _lastRenderTimeTicks) / (double)_performanceCounterFrequency;
+        _lastRenderTimeTicks = currentPerformanceCounter;
 
         _frameCount++;
-        double elapsedSinceLastFpsLog = (double)(currentPerformanceCounter - _fpsCounterStart) / (double)_performanceCounterFrequency;
+        double elapsedSinceLastFpsLog = (double)(currentPerformanceCounter - _fpsCounterStartTimeTicks) / (double)_performanceCounterFrequency;
 
         if (elapsedSinceLastFpsLog >= _fpsLogInterval) {
             float averageFps = (double)_frameCount / elapsedSinceLastFpsLog;
             spdlog::info("Average FPS over last {:.1f} seconds: {:.1f}", elapsedSinceLastFpsLog, averageFps);
             _frameCount = 0;
-            _fpsCounterStart = currentPerformanceCounter;
+            _fpsCounterStartTimeTicks = currentPerformanceCounter;
         }
 
-        _videoDecoderUI.Update();
+        bool isPlaying = Session::Instance().isPlaying && !_timeLineIsDragged;
+
+        if (isPlaying || _videoUpdateRequested) {
+            bool shouldFetchNewFrame = _videoUpdateRequested;
+
+            if (isPlaying && !shouldFetchNewFrame) {
+                double elapsedSinceLastFrame = 0.0;
+
+                if (_lastVideoFramePresentTimeTicks > 0) {
+                    elapsedSinceLastFrame = (double)(currentPerformanceCounter - _lastVideoFramePresentTimeTicks) / (double)_performanceCounterFrequency;
+                }
+
+                if (_lastVideoFramePresentTimeTicks == 0 || elapsedSinceLastFrame >= _lastVideoFrameDuration) {
+                    shouldFetchNewFrame = true;
+                }
+            }
+
+            if (shouldFetchNewFrame) {
+                auto frame = _videoDecoder.GetNextVideoFrame();
+
+                if (frame) {
+                    _videoUI.UpdateTexture(frame);
+
+                    if (!_timeLineIsDragged) {
+                        Session::Instance().timelinePosition = frame->timestamp;
+                    }
+
+                    _videoUpdateRequested = false;
+                    _lastVideoFrameDuration = frame->duration;
+                    _lastVideoFramePresentTimeTicks = currentPerformanceCounter;
+                }
+            }
+        }
 
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplSDL3_NewFrame();
@@ -465,17 +687,26 @@ class App {
         SDL_GL_SwapWindow(_window);
     }
 
-    void Cleanup() {
+    void Close() {
         if (Settings::Instance().rememberImguiLayout) {
             ImGui::SaveIniSettingsToDisk(GetDataFilePath("imgui.ini").c_str());
         }
 
+        _lastVideoFrameDuration = 0.0;
+        _lastVideoFramePresentTimeTicks = 0;
+
         SaveSettings();
         SaveSession(GetDataFilePath("session.json"));
 
-        _videoDecoderUI.Cleanup();
+        _videoDecoder.Close();
+        _videoUI.Close();
 
-        _background.Cleanup();
+        if (_outputAudioStream) {
+            SDL_DestroyAudioStream(_outputAudioStream);
+            _outputAudioStream = nullptr;
+        }
+
+        _background.Close();
 
         ImGui_ImplOpenGL3_Shutdown();
         ImGui_ImplSDL3_Shutdown();
@@ -496,7 +727,7 @@ class App {
   public:
     int Run() {
         if (!Init()) {
-            Cleanup();
+            Close();
             return -1;
         }
 
@@ -510,7 +741,7 @@ class App {
             Render();
         }
 
-        Cleanup();
+        Close();
         return 0;
     }
 };
