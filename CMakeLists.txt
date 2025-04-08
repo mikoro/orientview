@@ -111,6 +111,9 @@ if(WIN32)
     WIN32_EXECUTABLE $<NOT:$<CONFIG:Debug>>
   )
 
+  add_definitions(-DWIN32_LEAN_AND_MEAN)
+  add_definitions(-DNOMINMAX)
+
   install(TARGETS ${EXE_NAME} RUNTIME DESTINATION .)
   install(DIRECTORY data DESTINATION .)
 

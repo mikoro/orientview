@@ -51,7 +51,7 @@ class LogUI {
         if (logLevel == "trace") return {0.5f, 0.5f, 0.5f, 1.0f};    // More gray
         if (logLevel == "debug") return {0.7f, 0.7f, 0.7f, 1.0f};    // Gray
         if (logLevel == "info") return {0.0f, 0.8f, 0.0f, 1.0f};     // Green
-        if (logLevel == "warn") return {1.0f, 0.8f, 0.0f, 1.0f};     // Yellow
+        if (logLevel == "warning") return {1.0f, 0.8f, 0.0f, 1.0f};     // Yellow
         if (logLevel == "error") return {1.0f, 0.2f, 0.2f, 1.0f};    // Red
         if (logLevel == "critical") return {1.0f, 0.3f, 1.0f, 1.0f}; // Magenta
         return {1.0f, 1.0f, 1.0f, 1.0f};                             // White for unknown levels
@@ -60,7 +60,7 @@ class LogUI {
     void Render() {
         ImGui::SetNextWindowSize(ImVec2(800, 400), ImGuiCond_FirstUseEver);
 
-        if (ImGui::Begin(TL("panel_log"), &Session::Instance().showLogWindow)) {
+        if (ImGui::Begin(fmt::format("{}###window_log", TL("window_log")).c_str(), &Session::Instance().showLogWindow)) {
             ImGui::BeginChild("LogScrolling", ImVec2(0, 0), false, ImGuiWindowFlags_HorizontalScrollbar);
 
             // Parse and colorize log messages

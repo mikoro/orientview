@@ -3,9 +3,9 @@
 #include "translate.hpp"
 #include "video_decoder.hpp"
 
+#include <SDL3/SDL.h>
 #include <glad/glad.h>
 #include <imgui.h>
-#include <SDL3/SDL.h>
 #include <spdlog/spdlog.h>
 
 #include <functional>
@@ -13,29 +13,29 @@
 #include <string>
 
 class VideoDecoderUI {
-private:
+  private:
     VideoDecoder _videoDecoder;
-    
+
     // Video rendering
     GLuint _videoTexture = 0;
     GLuint _videoVAO = 0;
     GLuint _videoVBO = 0;
     GLuint _videoShaderProgram = 0;
-    
+
     // Audio playback
     SDL_AudioStream* _audioStream = nullptr;
     SDL_AudioDeviceID _audioDevice = 0;
-    
+
     std::function<void(double)> _onPositionChanged;
 
-public:
+  public:
     VideoDecoderUI() = default;
-    
+
     void Init() {
         InitVideoRendering();
         InitAudioPlayback();
     }
-    
+
     void Cleanup() {
         _videoDecoder.Close();
 
@@ -65,7 +65,7 @@ public:
             _videoShaderProgram = 0;
         }
     }
-    
+
     void InitVideoRendering() {
         // Create shader program for video rendering
         const char* vertexShaderSource = R"(
@@ -155,15 +155,15 @@ public:
 
     void InitAudioPlayback() {
         // Set up SDL audio with SDL3 API
-        const SDL_AudioSpec spec = { SDL_AUDIO_S16, 2, 44100 };
-    
+        const SDL_AudioSpec spec = {SDL_AUDIO_S16, 2, 44100};
+
         // Create an audio stream and bind it to the default playback device
         _audioStream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec, NULL, NULL);
         if (!_audioStream) {
             spdlog::error("Failed to open audio device stream: {}", SDL_GetError());
             return;
         }
-    
+
         // Get the device ID from the stream
         _audioDevice = SDL_GetAudioStreamDevice(_audioStream);
         if (!_audioDevice) {
@@ -187,43 +187,39 @@ public:
         // Put audio data into the stream
         SDL_PutAudioStreamData(_audioStream, frame->data, frame->size);
     }
-    
-    bool Open(const std::string& filePath) {
-        return _videoDecoder.Open(filePath);
-    }
-    
+
+    bool Open(const std::string& filePath) { return _videoDecoder.Open(filePath); }
+
     void Start() {
         _videoDecoder.Start();
         if (_audioDevice) {
             SDL_ResumeAudioDevice(_audioDevice);
         }
     }
-    
+
     void Pause() {
         _videoDecoder.Pause();
         if (_audioDevice) {
             SDL_PauseAudioDevice(_audioDevice);
         }
     }
-    
+
     void Resume() {
         _videoDecoder.Resume();
         if (_audioDevice) {
             SDL_ResumeAudioDevice(_audioDevice);
         }
     }
-    
+
     void Stop() {
         _videoDecoder.Stop();
         if (_audioDevice) {
             SDL_PauseAudioDevice(_audioDevice);
         }
     }
-    
-    void Seek(double position) {
-        _videoDecoder.Seek(position);
-    }
-    
+
+    void Seek(double position) { _videoDecoder.Seek(position); }
+
     void Update() {
         if (_videoDecoder.IsRunning() && !_videoDecoder.IsPaused()) {
             // Process video frames
@@ -238,7 +234,7 @@ public:
                     _onPositionChanged(frame->pts);
                 }
             }
-            
+
             // Process audio frames
             auto audioFrame = _videoDecoder.GetNextAudioFrame();
             if (audioFrame) {
@@ -246,8 +242,8 @@ public:
             }
         }
     }
-    
-    void RenderVideoPanel(ImVec2 windowSize) {
+
+    void RenderVideoWindow(ImVec2 windowSize) {
         if (_videoDecoder.IsRunning() && _videoDecoder.GetVideoWidth() > 0) {
             // Calculate aspect ratio
             float videoAspect = (float)_videoDecoder.GetVideoWidth() / _videoDecoder.GetVideoHeight();
@@ -265,84 +261,80 @@ public:
             }
 
             // Center the video in the window
-            ImVec2 pos(ImGui::GetCursorPosX() + (windowSize.x - displayWidth) * 0.5f, 
-                       ImGui::GetCursorPosY() + (windowSize.y - displayHeight) * 0.5f);
+            ImVec2 pos(ImGui::GetCursorPosX() + (windowSize.x - displayWidth) * 0.5f, ImGui::GetCursorPosY() + (windowSize.y - displayHeight) * 0.5f);
 
             // Render the video texture
             ImGui::SetCursorPos(pos);
             ImGui::Image((ImTextureID)(intptr_t)_videoTexture, ImVec2(displayWidth, displayHeight));
         } else {
             // No video playing, show placeholder text
-            ImVec2 textSize = ImGui::CalcTextSize(TL("panel_video"));
+            ImVec2 textSize = ImGui::CalcTextSize(TL("window_video"));
             ImGui::SetCursorPos(ImVec2((windowSize.x - textSize.x) * 0.5f, (windowSize.y - textSize.y) * 0.5f));
             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 0.5f));
-            ImGui::Text("%s", TL("panel_video"));
+            ImGui::Text("%s", TL("window_video"));
             ImGui::PopStyleColor();
         }
     }
-    
-    void RenderControlsPanel(float& timelinePosition, float timelineDuration, bool& isPlaying, const std::string& videoPath = "") {
-        if (ImGui::Button(isPlaying ? TL("controls_pause") : TL("controls_play"))) {
+
+    static std::string FormatTime(float seconds) {
+        int hours = static_cast<int>(seconds) / 3600;
+        int minutes = (static_cast<int>(seconds) % 3600) / 60;
+        int secs = static_cast<int>(seconds) % 60;
+        int milliseconds = static_cast<int>((seconds - static_cast<int>(seconds)) * 1000);
+        return fmt::format("{:02d}:{:02d}:{:02d}.{:03d}", hours, minutes, secs, milliseconds);
+    }
+
+    void RenderTimelineWindow(float& timelinePosition, float timelineDuration, bool& isPlaying, const std::string& videoPath = "") {
+        float timeWidth = ImGui::CalcTextSize("00:00:00.000").x + 10.0f;
+        ImGui::PushItemWidth(-timeWidth);
+
+        float prevPos = timelinePosition;
+        if (ImGui::SliderFloat("##timeline", &timelinePosition, 0.0f, timelineDuration, "")) {
+            if (_videoDecoder.IsRunning() && prevPos != timelinePosition) {
+                Seek(timelinePosition);
+            }
+        }
+
+        ImGui::SameLine();
+        ImGui::Text("%s", FormatTime(timelinePosition).c_str());
+        ImGui::PopItemWidth();
+
+        float playTextWidth = ImGui::CalcTextSize(TL("timeline_play")).x;
+        float pauseTextWidth = ImGui::CalcTextSize(TL("timeline_pause")).x;
+        float buttonWidth = std::max(playTextWidth, pauseTextWidth) + 20.0f;
+        float windowWidth = ImGui::GetContentRegionAvail().x;
+        ImGui::SetCursorPosX((windowWidth - buttonWidth) * 0.5f);
+
+        if (ImGui::Button(isPlaying ? TL("timeline_pause") : TL("timeline_play"), ImVec2(buttonWidth, 0))) {
             isPlaying = !isPlaying;
 
             if (isPlaying) {
-                // Start or resume playback
                 if (!_videoDecoder.IsRunning()) {
-                    // Open and start the video if not already running
                     if (!videoPath.empty()) {
                         if (Open(videoPath)) {
                             Start();
                         }
                     }
                 } else {
-                    // Resume if already running
                     Resume();
                 }
             } else {
-                // Pause playback
                 Pause();
             }
         }
+    }
 
-        ImGui::SameLine();
-        ImGui::PushItemWidth(-1);
+    bool IsRunning() const { return _videoDecoder.IsRunning(); }
 
-        float prevPos = timelinePosition;
-        if (ImGui::SliderFloat("##timeline", &timelinePosition, 0.0f, timelineDuration, "%.1f s")) {
-            // User moved the slider, seek to the new position
-            if (_videoDecoder.IsRunning() && prevPos != timelinePosition) {
-                Seek(timelinePosition);
-            }
-        }
+    bool IsPaused() const { return _videoDecoder.IsPaused(); }
 
-        ImGui::PopItemWidth();
-    }
-    
-    bool IsRunning() const {
-        return _videoDecoder.IsRunning();
-    }
-    
-    bool IsPaused() const {
-        return _videoDecoder.IsPaused();
-    }
-    
-    double GetDuration() const {
-        return _videoDecoder.GetDuration();
-    }
-    
-    double GetCurrentPosition() const {
-        return _videoDecoder.GetCurrentPosition();
-    }
-    
-    int GetVideoWidth() const {
-        return _videoDecoder.GetVideoWidth();
-    }
-    
-    int GetVideoHeight() const {
-        return _videoDecoder.GetVideoHeight();
-    }
-    
-    void SetPositionChangedCallback(std::function<void(double)> callback) {
-        _onPositionChanged = callback;
-    }
+    double GetDuration() const { return _videoDecoder.GetDuration(); }
+
+    double GetCurrentPosition() const { return _videoDecoder.GetCurrentPosition(); }
+
+    int GetVideoWidth() const { return _videoDecoder.GetVideoWidth(); }
+
+    int GetVideoHeight() const { return _videoDecoder.GetVideoHeight(); }
+
+    void SetPositionChangedCallback(std::function<void(double)> callback) { _onPositionChanged = callback; }
 };

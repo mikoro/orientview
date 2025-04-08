@@ -9,13 +9,20 @@
 
 struct Session {
     bool showLogWindow = false;
+    bool showSessionWindow = true;
+    bool showMapWindow = true;
+    bool showVideoWindow = true;
+    bool showTimelineWindow = true;
+    bool showUIDemoWindow = false;
+
     bool isPlaying = false;
     float timelinePosition = 0.0f;
     float timelineDuration = 100.0f;
-    std::string inputVideoPath;
+
+    std::string runVideoPath;
     std::string outputVideoPath;
-    char inputVideoPathBuffer[1024] = {0};
-    char outputVideoPathBuffer[1024] = {0};
+    std::string mapImagePath;
+    std::string gpxFilePath;
 
     Session() = default;
 
@@ -25,7 +32,10 @@ struct Session {
     }
 };
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Session, showLogWindow, isPlaying, timelinePosition, timelineDuration, inputVideoPath, outputVideoPath)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Session, 
+    showLogWindow, showSessionWindow, showMapWindow, showVideoWindow, showTimelineWindow, showUIDemoWindow,
+    isPlaying, timelinePosition, timelineDuration, 
+    runVideoPath, outputVideoPath, mapImagePath, gpxFilePath)
 
 inline void LoadSession(const std::string& filePath) {
     if (!std::filesystem::exists(filePath)) {
@@ -45,14 +55,6 @@ inline void LoadSession(const std::string& filePath) {
 
         Session::Instance() = data.get<Session>();
 
-        if (!Session::Instance().inputVideoPath.empty()) {
-            strncpy(Session::Instance().inputVideoPathBuffer, Session::Instance().inputVideoPath.c_str(), sizeof(Session::Instance().inputVideoPathBuffer) - 1);
-        }
-        
-        if (!Session::Instance().outputVideoPath.empty()) {
-            strncpy(Session::Instance().outputVideoPathBuffer, Session::Instance().outputVideoPath.c_str(), sizeof(Session::Instance().outputVideoPathBuffer) - 1);
-        }
-
         spdlog::info("Loaded session from '{}'", filePath);
     } catch (const nlohmann::json::parse_error& e) {
         spdlog::error("Failed to parse session file '{}': {}", filePath, e.what());
@@ -65,9 +67,6 @@ inline void LoadSession(const std::string& filePath) {
 
 inline void SaveSession(const std::string& filePath) {
     try {
-        Session::Instance().inputVideoPath = Session::Instance().inputVideoPathBuffer;
-        Session::Instance().outputVideoPath = Session::Instance().outputVideoPathBuffer;
-
         nlohmann::json data = Session::Instance();
 
         std::ofstream f(filePath);

@@ -30,10 +30,6 @@ struct Translations {
             if (keyIt != currentLangIt->second.end()) {
                 return keyIt->second;
             }
-
-            spdlog::trace("Translation key '{}' not found for language '{}'", translationKey, currentLanguageCode);
-        } else {
-            spdlog::trace("Language '{}' not found in translations", currentLanguageCode);
         }
 
         if (currentLanguageCode != "en") {
@@ -45,10 +41,6 @@ struct Translations {
                 if (keyIt != fallbackLangIt->second.end()) {
                     return keyIt->second;
                 }
-
-                spdlog::trace("Translation key '{}' not found in fallback language 'en'", translationKey);
-            } else {
-                spdlog::trace("Fallback language 'en' not found in translations");
             }
         }
 
@@ -62,7 +54,7 @@ inline void LoadTranslations() {
     std::string translationsFilePath = GetDataFilePath("translations.json");
 
     if (!std::filesystem::exists(translationsFilePath)) {
-        spdlog::error("Translations file not found: '{}'. No translations loaded", translationsFilePath);
+        spdlog::warn("Translations file not found: '{}'. No translations loaded", translationsFilePath);
         Translations::Instance().translations.clear();
         return;
     }
@@ -92,27 +84,6 @@ inline void LoadTranslations() {
     } catch (...) {
         spdlog::error("Unknown error loading translations from '{}'", translationsFilePath);
         Translations::Instance().translations.clear();
-    }
-}
-
-inline void SaveTranslations(const std::string& filePath) {
-    try {
-        nlohmann::json data = Translations::Instance();
-
-        std::ofstream f(filePath);
-        if (!f.is_open()) {
-            spdlog::error("Failed to open translations file for writing: '{}'", filePath);
-            return;
-        }
-
-        f << data.dump(4);
-        f.close();
-
-        spdlog::info("Saved translations to '{}'", filePath);
-    } catch (const std::exception& e) {
-        spdlog::error("Error saving translations to '{}': {}", filePath, e.what());
-    } catch (...) {
-        spdlog::error("Unknown error saving translations to '{}'", filePath);
     }
 }
 
