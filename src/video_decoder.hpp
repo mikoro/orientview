@@ -145,7 +145,7 @@ class VideoDecoder {
     BufferPool _videoBufferPool;
     BufferPool _audioBufferPool;
     const size_t _maxVideoFrameQueueSize = 10;
-    const double _audioBurstDuration = 0.5;
+    const double _audioBurstDuration = 0.2;
     std::shared_ptr<VideoFrame> _initialVideoFrame = nullptr;
     std::atomic<bool> _initialVideoFrameCaptured{false};
     std::chrono::high_resolution_clock::time_point _startTimePoint;
@@ -225,6 +225,8 @@ class VideoDecoder {
                     spdlog::info("Burst audio sent");
                     _initialAudioBurstSent = true;
                     _startTimePoint = std::chrono::high_resolution_clock::now();
+                    _nextVideoFramePresentationTime = 0.0;
+                    _nextAudioFramePresentationTime = 0.0;
                 } else {
                     std::shared_ptr<AudioFrame> audioFrame = nullptr;
                     bool shouldSendAudio = false;
@@ -268,7 +270,7 @@ class VideoDecoder {
 
             if (ret < 0) {
                 if (ret == AVERROR_EOF) {
-                    SeekToPosition(0.0);
+                    _isPlaying = false;
                     continue;
                 }
 
