@@ -1,15 +1,11 @@
 #pragma once
 
-#include "translate.hpp"
 #include "video_decoder.hpp"
 
-#include <SDL3/SDL.h>
 #include <glad/glad.h>
 #include <imgui.h>
-#include <spdlog/spdlog.h>
 
 #include <memory>
-#include <string>
 
 class VideoUI {
   private:

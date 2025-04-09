@@ -12,7 +12,6 @@ class BackgroundUI {
     GLuint _vbo = 0;
     GLuint _shaderProgram = 0;
     GLint _timeLocation = -1;
-    GLint _resolutionLocation = -1;
 
     const std::string _vertexShaderSource = R"(
         #version 330 core
@@ -33,48 +32,29 @@ class BackgroundUI {
         in vec2 TexCoord;
         
         uniform float uTime;
-        uniform vec2 uResolution;
-        
-        // Function to create a smooth noise pattern
-        float noise(vec2 st) {
-            return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
-        }
-        
+
         void main() {
             vec2 uv = TexCoord;
-            
-            // Create a moving wave pattern that covers the whole screen
+
             float wave = sin((uv.x + uv.y) * 4.0 - uTime * 0.5) * 0.5 + 0.5;
-            
-            // Create color palette with more interesting colors
+
             vec3 deepBlue = vec3(0.05, 0.05, 0.15);
             vec3 purple = vec3(0.2, 0.05, 0.3);
             vec3 teal = vec3(0.0, 0.2, 0.25);
-            
-            // Create multiple oscillating values for color mixing
+
             float t1 = sin(uTime * 0.2) * 0.5 + 0.5;
             float t2 = cos(uTime * 0.3) * 0.5 + 0.5;
-            
-            // Mix colors in a more complex way
+
             vec3 color = mix(deepBlue, purple, t1);
             color = mix(color, teal, t2 * wave);
-            
-            // Add subtle noise
-            float noiseValue = noise(uv + uTime * 0.05) * 0.03;
-            
-            // Calculate distance for the pulse effect
+
             float dist = length(uv - vec2(0.5, 0.5));
-            
-            // Add subtle pulsing glow
             float pulse = 0.05 * sin(uTime * 0.7 + dist * 5.0);
-            
-            // Add subtle color variations based on position
+
             color += vec3(0.02, 0.01, 0.04) * sin(uv.x * 10.0 + uTime);
             color += vec3(0.01, 0.02, 0.03) * cos(uv.y * 8.0 - uTime * 0.2);
-            
-            // Apply pulse and noise without vignette
-            color = color + pulse + noiseValue;
-            
+
+            color = color + pulse;
             FragColor = vec4(color, 1.0);
         }
     )";
@@ -117,12 +97,18 @@ class BackgroundUI {
         glDeleteShader(fragmentShader);
 
         _timeLocation = glGetUniformLocation(_shaderProgram, "uTime");
-        _resolutionLocation = glGetUniformLocation(_shaderProgram, "uResolution");
     }
 
     void SetupQuad() {
-        // Vertices for a fullscreen quad (2 triangles)
-        float vertices[] = {-1.0f, 1.0f, 0.0f, 0.0f, 1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 1.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, -1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 1.0f};
+        float vertices[] = {
+            // positions        // texture coords
+            -1.0f, 1.0f,  0.0f, 0.0f, 0.0f, // top left
+            -1.0f, -1.0f, 0.0f, 0.0f, 1.0f, // bottom left
+            1.0f,  -1.0f, 0.0f, 1.0f, 1.0f, // bottom right
+            -1.0f, 1.0f,  0.0f, 0.0f, 0.0f, // top left
+            1.0f,  -1.0f, 0.0f, 1.0f, 1.0f, // bottom right
+            1.0f,  1.0f,  0.0f, 1.0f, 0.0f  // top right
+        };
 
         glGenVertexArrays(1, &_vao);
         glGenBuffers(1, &_vbo);
@@ -132,11 +118,9 @@ class BackgroundUI {
         glBindBuffer(GL_ARRAY_BUFFER, _vbo);
         glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-        // Position attribute
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
         glEnableVertexAttribArray(0);
 
-        // Texture coord attribute
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
         glEnableVertexAttribArray(1);
 
@@ -166,11 +150,7 @@ class BackgroundUI {
         glUseProgram(_shaderProgram);
 
         if (_timeLocation != -1) {
-            glUniform1f(_timeLocation, currentTime);
-        }
-
-        if (_resolutionLocation != -1) {
-            glUniform2f(_resolutionLocation, static_cast<float>(Settings::Instance().windowWidth), static_cast<float>(Settings::Instance().windowHeight));
+            glUniform1f(_timeLocation, currentTime * 0.1f);
         }
 
         glBindVertexArray(_vao);

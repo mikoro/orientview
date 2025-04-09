@@ -16,7 +16,6 @@ struct Session {
     bool showUIDemoWindow = false;
 
     float timelinePosition = 0.0f;
-    bool isPlaying = false;
 
     std::string name;
     std::string runVideoPath;
@@ -37,7 +36,7 @@ struct Session {
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Session, 
     showLogWindow, showSessionWindow, showMapWindow, showVideoWindow, showTimelineWindow, showUIDemoWindow,
-    timelinePosition, isPlaying,
+    timelinePosition,
     name, runVideoPath, outputVideoPath, mapImagePath, gpxFilePath,
     videoDecoder, audioDecoder)
 

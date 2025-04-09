@@ -34,14 +34,11 @@ class App {
     BackgroundUI _background;
     VideoUI _videoUI;
     bool _running = false;
-    bool _videoUpdateRequested = false;
     uint64_t _performanceCounterFrequency = 0;
     uint64_t _lastRenderTimeTicks = 0;
     uint64_t _fpsCounterStartTimeTicks = 0;
     int _frameCount = 0;
     float _fpsLogInterval = 10.0f;
-    double _lastVideoFrameDuration = 0.0;
-    uint64_t _lastVideoFramePresentTimeTicks = 0;
     bool _timeLineIsDragged = false;
 
     bool Init() {
@@ -61,13 +58,50 @@ class App {
         LoadTranslations();
         LoadSession(GetDataFilePath("session.json"));
 
-        if (Settings::Instance().listAllCodecs) {
-            VideoDecoder::ListAllCodecs();
-        }
-
         if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 1) {
             spdlog::error("SDL_Init Error: {}", SDL_GetError());
             return false;
+        }
+
+        bool hdrDisplaySupported = false;
+
+        if (Settings::Instance().forceEnableHdr) {
+            hdrDisplaySupported = true;
+            spdlog::info("HDR display support forced enabled by settings");
+        } else if (Settings::Instance().forceDisableHdr) {
+            hdrDisplaySupported = false;
+            spdlog::info("HDR display support forced disabled by settings");
+        } else {
+            int numDisplays;
+            SDL_DisplayID* displays = SDL_GetDisplays(&numDisplays);
+
+            if (!displays || numDisplays == 0) {
+                spdlog::error("SDL_GetDisplays Error: {}", SDL_GetError());
+                return false;
+            }
+
+            SDL_PropertiesID displayProps = SDL_GetDisplayProperties(displays[0]);
+
+            if (displayProps) {
+                hdrDisplaySupported = SDL_GetBooleanProperty(displayProps, SDL_PROP_DISPLAY_HDR_ENABLED_BOOLEAN, false);
+            } else {
+                spdlog::warn("Could not query display properties: {}", SDL_GetError());
+            }
+
+            SDL_free(displays);
+            spdlog::info("HDR display support detected: {}", hdrDisplaySupported ? "Yes" : "No");
+        }
+
+        if (hdrDisplaySupported) {
+            SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 10);
+            SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 10);
+            SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 10);
+            SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 2);
+        } else {
+            SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
+            SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
+            SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
+            SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
         }
 
         _window = SDL_CreateWindow(GetWindowTitle().c_str(), Settings::Instance().windowWidth, Settings::Instance().windowHeight, SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL);
@@ -96,17 +130,18 @@ class App {
         spdlog::info("OpenGL Vendor: {}", (const char*)glGetString(GL_VENDOR));
         spdlog::info("OpenGL Shading Language Version: {}", (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION));
 
+        int redBits, greenBits, blueBits, alphaBits;
+        SDL_GL_GetAttribute(SDL_GL_RED_SIZE, &redBits);
+        SDL_GL_GetAttribute(SDL_GL_GREEN_SIZE, &greenBits);
+        SDL_GL_GetAttribute(SDL_GL_BLUE_SIZE, &blueBits);
+        SDL_GL_GetAttribute(SDL_GL_ALPHA_SIZE, &alphaBits);
+        spdlog::info("Color buffer depth: R{} G{} B{} A{}", redBits, greenBits, blueBits, alphaBits);
+
         _outputAudioSpec.format = SDL_AUDIO_F32;
         _outputAudioSpec.channels = 2;
         _outputAudioSpec.freq = 48000;
 
-        _outputAudioStream = SDL_OpenAudioDeviceStream(
-            SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &_outputAudioSpec,
-            [](void* userdata, SDL_AudioStream* stream, int additionalAmount, int totalAmount) {
-                App* app = static_cast<App*>(userdata);
-                app->AudioStreamCallback(stream, additionalAmount, totalAmount);
-            },
-            this);
+        _outputAudioStream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &_outputAudioSpec, nullptr, nullptr);
 
         if (!_outputAudioStream) {
             spdlog::warn("Failed to open output audio device stream: {}", SDL_GetError());
@@ -181,15 +216,14 @@ class App {
         if (std::filesystem::exists(Session::Instance().runVideoPath)) {
             if (_videoDecoder.Init(Session::Instance().runVideoPath)) {
                 _videoDecoder.Seek(Session::Instance().timelinePosition);
-                _videoUpdateRequested = true;
             }
         }
 
-        if (Session::Instance().isPlaying) {
-            SDL_ResumeAudioStreamDevice(_outputAudioStream);
-        } else {
-            SDL_PauseAudioStreamDevice(_outputAudioStream);
-        }
+        _videoDecoder.SetAudioFrameCallback([this](std::shared_ptr<AudioFrame> audioFrame) {
+            if (audioFrame && audioFrame->data && audioFrame->size > 0 && _outputAudioStream) {
+                SDL_PutAudioStreamData(_outputAudioStream, audioFrame->data, audioFrame->size);
+            }
+        });
 
         return true;
     }
@@ -258,19 +292,6 @@ class App {
         // Rebuild font atlas
         ImGui_ImplOpenGL3_DestroyFontsTexture();
         ImGui_ImplOpenGL3_CreateFontsTexture();
-    }
-
-    void AudioStreamCallback(SDL_AudioStream* stream, int additionalAmount, int totalAmount) {
-        if (_timeLineIsDragged) {
-            std::vector<uint8_t> silentBuffer(additionalAmount, 0);
-            SDL_PutAudioStreamData(stream, silentBuffer.data(), silentBuffer.size());
-        } else {
-            auto audioFrame = _videoDecoder.GetNextAudioFrame();
-
-            if (audioFrame && audioFrame->data && audioFrame->size > 0) {
-                SDL_PutAudioStreamData(stream, audioFrame->data, audioFrame->size);
-            }
-        }
     }
 
     void SetupDockSpace() {
@@ -416,17 +437,26 @@ class App {
                         Session::Instance().runVideoPath = selectedFile;
                         Session::Instance().videoDecoder = "";
                         Session::Instance().audioDecoder = "";
+                        Session::Instance().timelinePosition = 0.0;
 
                         _videoDecoder.Close();
                         _videoDecoder.Init(Session::Instance().runVideoPath);
+                        SDL_ClearAudioStream(_outputAudioStream);
                     }
                 }
 
                 ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x * 0.5f);
+                ImVec4 hardwareDecoderColor = ImVec4(0.6f, 0.9f, 0.6f, 1.0f);
 
                 if (ImGui::BeginCombo(TL("video_decoder"), Session::Instance().videoDecoder.c_str())) {
                     for (const auto& codec : _videoDecoder.GetVideoDecoders()) {
                         bool isSelected = (Session::Instance().videoDecoder == codec);
+                        bool isHardware = _videoDecoder.IsHardwareVideoDecoder(codec);
+
+                        if (isHardware) {
+                            ImGui::PushStyleColor(ImGuiCol_Text, hardwareDecoderColor);
+                        }
+
                         if (ImGui::Selectable(codec.c_str(), isSelected)) {
                             if (Session::Instance().videoDecoder != codec) {
                                 Session::Instance().videoDecoder = codec;
@@ -436,10 +466,12 @@ class App {
                                 if (_videoDecoder.Init(Session::Instance().runVideoPath)) {
                                     _videoDecoder.Seek(currentPosition);
                                     SDL_ClearAudioStream(_outputAudioStream);
-                                    _lastVideoFrameDuration = 0.0;
-                                    _lastVideoFramePresentTimeTicks = 0;
                                 }
                             }
+                        }
+
+                        if (isHardware) {
+                            ImGui::PopStyleColor();
                         }
 
                         if (isSelected) {
@@ -453,6 +485,12 @@ class App {
                 if (ImGui::BeginCombo(TL("audio_decoder"), Session::Instance().audioDecoder.c_str())) {
                     for (const auto& codec : _videoDecoder.GetAudioDecoders()) {
                         bool isSelected = (Session::Instance().audioDecoder == codec);
+                        bool isHardware = _videoDecoder.IsHardwareAudioDecoder(codec);
+
+                        if (isHardware) {
+                            ImGui::PushStyleColor(ImGuiCol_Text, hardwareDecoderColor);
+                        }
+
                         if (ImGui::Selectable(codec.c_str(), isSelected)) {
                             if (Session::Instance().audioDecoder != codec) {
                                 Session::Instance().audioDecoder = codec;
@@ -462,10 +500,12 @@ class App {
                                 if (_videoDecoder.Init(Session::Instance().runVideoPath)) {
                                     _videoDecoder.Seek(currentPosition);
                                     SDL_ClearAudioStream(_outputAudioStream);
-                                    _lastVideoFrameDuration = 0.0;
-                                    _lastVideoFramePresentTimeTicks = 0;
                                 }
                             }
+                        }
+
+                        if (isHardware) {
+                            ImGui::PopStyleColor();
                         }
 
                         if (isSelected) {
@@ -592,9 +632,6 @@ class App {
             if (prevPos != Session::Instance().timelinePosition) {
                 _videoDecoder.Seek(Session::Instance().timelinePosition);
                 SDL_ClearAudioStream(_outputAudioStream);
-                _videoUpdateRequested = true;
-                _lastVideoFrameDuration = 0.0;
-                _lastVideoFramePresentTimeTicks = 0;
             }
         }
 
@@ -610,13 +647,14 @@ class App {
         float windowWidth = ImGui::GetContentRegionAvail().x;
         ImGui::SetCursorPosX((windowWidth - buttonWidth) * 0.5f);
 
-        if (ImGui::Button(Session::Instance().isPlaying ? TL("timeline_pause") : TL("timeline_play"), ImVec2(buttonWidth, 0))) {
-            Session::Instance().isPlaying = !Session::Instance().isPlaying;
-
-            if (Session::Instance().isPlaying) {
-                SDL_ResumeAudioStreamDevice(_outputAudioStream);
-            } else {
+        if (ImGui::Button(_videoDecoder.IsPlaying() ? TL("timeline_pause") : TL("timeline_play"), ImVec2(buttonWidth, 0))) {
+            if (_videoDecoder.IsPlaying()) {
+                _videoDecoder.Pause();
                 SDL_PauseAudioStreamDevice(_outputAudioStream);
+                SDL_ClearAudioStream(_outputAudioStream);
+            } else {
+                _videoDecoder.Play();
+                SDL_ResumeAudioStreamDevice(_outputAudioStream);
             }
         }
     }
@@ -637,39 +675,18 @@ class App {
             _fpsCounterStartTimeTicks = currentPerformanceCounter;
         }
 
-        bool isPlaying = Session::Instance().isPlaying && !_timeLineIsDragged;
+        auto videoFrame = _videoDecoder.GetNextVideoFrame();
 
-        if (isPlaying || _videoUpdateRequested) {
-            bool shouldFetchNewFrame = _videoUpdateRequested;
+        if (videoFrame) {
+            _videoUI.UpdateTexture(videoFrame);
 
-            if (isPlaying && !shouldFetchNewFrame) {
-                double elapsedSinceLastFrame = 0.0;
-
-                if (_lastVideoFramePresentTimeTicks > 0) {
-                    elapsedSinceLastFrame = (double)(currentPerformanceCounter - _lastVideoFramePresentTimeTicks) / (double)_performanceCounterFrequency;
-                }
-
-                if (_lastVideoFramePresentTimeTicks == 0 || elapsedSinceLastFrame >= _lastVideoFrameDuration) {
-                    shouldFetchNewFrame = true;
-                }
-            }
-
-            if (shouldFetchNewFrame) {
-                auto frame = _videoDecoder.GetNextVideoFrame();
-
-                if (frame) {
-                    _videoUI.UpdateTexture(frame);
-
-                    if (!_timeLineIsDragged) {
-                        Session::Instance().timelinePosition = frame->timestamp;
-                    }
-
-                    _videoUpdateRequested = false;
-                    _lastVideoFrameDuration = frame->duration;
-                    _lastVideoFramePresentTimeTicks = currentPerformanceCounter;
-                }
+            if (!_timeLineIsDragged) {
+                Session::Instance().timelinePosition = videoFrame->timestamp;
             }
         }
+
+        int windowWidth, windowHeight;
+        SDL_GetWindowSize(_window, &windowWidth, &windowHeight);
 
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplSDL3_NewFrame();
@@ -678,6 +695,7 @@ class App {
         RenderWindows();
         ImGui::Render();
 
+        glViewport(0, 0, windowWidth, windowHeight);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
@@ -691,9 +709,6 @@ class App {
         if (Settings::Instance().rememberImguiLayout) {
             ImGui::SaveIniSettingsToDisk(GetDataFilePath("imgui.ini").c_str());
         }
-
-        _lastVideoFrameDuration = 0.0;
-        _lastVideoFramePresentTimeTicks = 0;
 
         SaveSettings();
         SaveSession(GetDataFilePath("session.json"));

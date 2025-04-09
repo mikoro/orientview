@@ -18,6 +18,7 @@
     {
       "name": "ffmpeg",
       "features": [
+        "gpl",
         "avcodec",
         "avformat",
         "swscale",
@@ -25,6 +26,9 @@
         "x264",
         "x265",
         "openh264",
+        "dav1d",
+        "opus",
+        "vpx",
         "nvcodec",
         "amf",
         "qsv"
