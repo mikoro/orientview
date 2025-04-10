@@ -371,7 +371,7 @@ class App {
                 ImGui::EndMenu();
             }
 
-            if (ImGui::BeginMenu(TL("menu_windows"))) {
+            if (ImGui::BeginMenu(TL("menu_window"))) {
                 ImGui::MenuItem(TL("window_session"), nullptr, &Session::Instance().showSessionWindow);
                 ImGui::MenuItem(TL("window_map"), nullptr, &Session::Instance().showMapWindow);
                 ImGui::MenuItem(TL("window_video"), nullptr, &Session::Instance().showVideoWindow);
@@ -421,7 +421,7 @@ class App {
                 }
                 ImGui::PopItemWidth();
 
-                ImGui::SeparatorText(TL("input"));
+                ImGui::SeparatorText(TL("inputs"));
                 ImGui::Text("%s:", TL("run_video"));
                 ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x - browseButtonWidth - ImGui::GetStyle().ItemSpacing.x);
                 ImGui::InputText("##run_video", &Session::Instance().runVideoPath);
@@ -461,11 +461,16 @@ class App {
                             if (Session::Instance().videoDecoder != codec) {
                                 Session::Instance().videoDecoder = codec;
                                 double currentPosition = _videoDecoder.GetCurrentPosition();
+                                bool wasPlaying = _videoDecoder.IsPlaying();
                                 _videoDecoder.Close();
+                                SDL_ClearAudioStream(_outputAudioStream);
 
                                 if (_videoDecoder.Init(Session::Instance().runVideoPath)) {
                                     _videoDecoder.Seek(currentPosition);
-                                    SDL_ClearAudioStream(_outputAudioStream);
+
+                                    if (wasPlaying) {
+                                        _videoDecoder.Play();
+                                    }
                                 }
                             }
                         }
@@ -495,11 +500,16 @@ class App {
                             if (Session::Instance().audioDecoder != codec) {
                                 Session::Instance().audioDecoder = codec;
                                 double currentPosition = _videoDecoder.GetCurrentPosition();
+                                bool wasPlaying = _videoDecoder.IsPlaying();
                                 _videoDecoder.Close();
+                                SDL_ClearAudioStream(_outputAudioStream);
 
                                 if (_videoDecoder.Init(Session::Instance().runVideoPath)) {
                                     _videoDecoder.Seek(currentPosition);
-                                    SDL_ClearAudioStream(_outputAudioStream);
+
+                                    if (wasPlaying) {
+                                        _videoDecoder.Play();
+                                    }
                                 }
                             }
                         }
