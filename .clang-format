@@ -8,7 +8,7 @@ AllowShortIfStatementsOnASingleLine: true
 AllowShortLoopsOnASingleLine: true
 
 BreakBeforeBraces: Attach
-ColumnLimit: 240
+ColumnLimit: 180
 SpacesInParentheses: false
 SpaceAfterCStyleCast: false
 
@@ -31,3 +31,13 @@ IndentCaseLabels: true
 BreakBeforeBinaryOperators: None
 
 Cpp11BracedListStyle: true
+
+BinPackArguments: false
+BinPackParameters: false
+PenaltyBreakBeforeFirstCallParameter: 10000
+PenaltyBreakString: 10000
+PenaltyExcessCharacter: 1000000
+PenaltyBreakFirstLessLess: 10000
+PenaltyReturnTypeOnItsOwnLine: 10000
+AllowShortEnumsOnASingleLine: false
+AllowAllArgumentsOnNextLine: false

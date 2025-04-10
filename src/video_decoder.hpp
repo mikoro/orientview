@@ -18,66 +18,14 @@ extern "C" {
 #include <libswscale/swscale.h>
 }
 
-class BufferPool {
-  private:
-    std::vector<uint8_t*> _availableBuffers;
-    std::mutex _mutex;
-    size_t _bufferSize = 0;
-
-  public:
-    BufferPool() = default;
-    ~BufferPool() { Clear(); }
-
-    void Clear() {
-        std::lock_guard<std::mutex> lock(_mutex);
-        for (auto buffer : _availableBuffers) {
-            if (buffer) {
-                av_free(buffer);
-            }
-        }
-        _availableBuffers.clear();
-        _bufferSize = 0;
-    }
-
-    void SetBufferSize(size_t size) {
-        if (_bufferSize != size) {
-            Clear();
-            _bufferSize = size;
-        }
-    }
-
-    uint8_t* GetBuffer() {
-        std::lock_guard<std::mutex> lock(_mutex);
-        if (!_availableBuffers.empty()) {
-            uint8_t* buffer = _availableBuffers.back();
-            _availableBuffers.pop_back();
-            return buffer;
-        }
-
-        return static_cast<uint8_t*>(av_malloc(_bufferSize));
-    }
-
-    void ReturnBuffer(uint8_t* buffer) {
-        if (!buffer) return;
-
-        std::lock_guard<std::mutex> lock(_mutex);
-        _availableBuffers.push_back(buffer);
-    }
-};
-
 struct AudioFrame {
     uint8_t* data = nullptr;
     int size = 0;
     double duration = 0.0;
-    BufferPool* bufferPool = nullptr;
 
     ~AudioFrame() {
         if (data) {
-            if (bufferPool) {
-                bufferPool->ReturnBuffer(data);
-            } else {
-                av_free(data);
-            }
+            av_free(data);
             data = nullptr;
         }
     }
@@ -90,18 +38,14 @@ struct VideoFrame {
     int linesize = 0;
     double timestamp = 0.0;
     double duration = 0.0;
-    BufferPool* bufferPool = nullptr;
     std::vector<std::shared_ptr<AudioFrame>> audioFrames; // For Immediate mode
 
     ~VideoFrame() {
         if (data) {
-            if (bufferPool) {
-                bufferPool->ReturnBuffer(data);
-            } else {
-                av_free(data);
-            }
+            av_free(data);
             data = nullptr;
         }
+
         audioFrames.clear();
     }
 };
@@ -113,7 +57,6 @@ enum class PlaybackMode {
 
 class VideoDecoder {
   private:
-    std::string _filePath;
     AVFormatContext* _formatContext = nullptr;
     AVCodecContext* _videoCodecContext = nullptr;
     AVCodecContext* _audioCodecContext = nullptr;
@@ -126,29 +69,28 @@ class VideoDecoder {
     std::vector<std::string> _hardwareVideoDecoders;
     std::vector<std::string> _hardwareAudioDecoders;
 
-    std::function<void(std::shared_ptr<AudioFrame>)> _audioFrameCallback;
+    std::thread _decodeThread;
+    std::atomic<bool> _decodeThreadRunning{false};
 
-    std::thread _decodingThread;
-    std::atomic<bool> _running{false};
+    PlaybackMode _playbackMode = PlaybackMode::RealTime;
     std::atomic<bool> _isPlaying{false};
     std::atomic<bool> _seekRequested{false};
     double _seekPosition = 0.0;
-    PlaybackMode _playbackMode = PlaybackMode::RealTime;
-    std::atomic<bool> _initialAudioBuffered{false};
-    std::atomic<bool> _initialAudioBurstSent{false};
 
     std::queue<std::shared_ptr<VideoFrame>> _videoFrameQueue;
     std::queue<std::shared_ptr<AudioFrame>> _audioFrameQueue;
     std::mutex _queuesMutex;
-    std::condition_variable _videoFrameConsumedCV;
     std::condition_variable _videoFrameAvailableCV;
-    BufferPool _videoBufferPool;
-    BufferPool _audioBufferPool;
     const size_t _maxVideoFrameQueueSize = 10;
-    const double _audioBurstDuration = 0.2;
+
     std::shared_ptr<VideoFrame> _initialVideoFrame = nullptr;
     std::atomic<bool> _initialVideoFrameCaptured{false};
-    std::chrono::high_resolution_clock::time_point _startTimePoint;
+    const double _initialAudioBurstDuration = 0.2;
+    std::atomic<bool> _initialAudioBuffered{false};
+    std::atomic<bool> _initialAudioBurstSent{false};
+    std::function<void(std::shared_ptr<AudioFrame>)> _audioFrameCallback;
+
+    std::chrono::high_resolution_clock::time_point _playStartTime;
     double _nextVideoFramePresentationTime = 0.0;
     double _nextAudioFramePresentationTime = 0.0;
 
@@ -156,48 +98,86 @@ class VideoDecoder {
     double _currentPosition = 0.0;
     double _frameRate = 0.0;
     double _frameDuration = 0.0;
-    int _colorDepth = 0;
-    std::string _pixelFormat;
 
-    void DecodingThread() {
-        spdlog::info("Decoding thread started");
+    void DecodeThread() {
+        spdlog::debug("Decode thread started");
         AVPacket* packet = av_packet_alloc();
 
-        while (_running) {
+        while (_decodeThreadRunning) {
             if (_seekRequested) {
                 SeekToPosition(_seekPosition);
                 _seekRequested = false;
             }
 
-            if (_playbackMode == PlaybackMode::RealTime && _audioStreamIndex >= 0 && _audioFrameCallback) {
-                if (!_initialAudioBuffered) {
-                    double totalAudioDuration = 0.0;
+            if (!_initialVideoFrameCaptured) {
+                spdlog::debug("Decoding initial video frame");
 
-                    while (totalAudioDuration < _audioBurstDuration) {
-                        int ret = av_read_frame(_formatContext, packet);
-                        if (ret < 0) break;
+                while (!_initialVideoFrameCaptured && _decodeThreadRunning) {
+                    int result = av_read_frame(_formatContext, packet);
 
-                        if (!DecodePacket(packet)) {
-                            av_packet_unref(packet);
-                            break;
-                        }
-
-                        {
-                            std::lock_guard<std::mutex> lock(_queuesMutex);
-                            totalAudioDuration = 0.0;
-                            std::queue<std::shared_ptr<AudioFrame>> tempQueue = _audioFrameQueue;
-                            while (!tempQueue.empty()) {
-                                totalAudioDuration += tempQueue.front()->duration;
-                                tempQueue.pop();
-                            }
-                        }
-
-                        av_packet_unref(packet);
+                    if (result < 0) {
+                        break;
                     }
 
-                    _initialAudioBuffered = true;
-                    spdlog::info("Burst audio gathered");
+                    if (!DecodePacket(packet)) {
+                        av_packet_unref(packet);
+                        break;
+                    }
+
+                    av_packet_unref(packet);
+
+                    if (_seekRequested) {
+                        break;
+                    }
                 }
+            }
+
+            if (_seekRequested) {
+                continue;
+            }
+
+            if (_playbackMode == PlaybackMode::RealTime && _audioStreamIndex >= 0 && _audioFrameCallback && !_initialAudioBuffered) {
+                spdlog::debug("Gathering initial audio burst");
+                double totalAudioDuration = 0.0;
+
+                while (totalAudioDuration < _initialAudioBurstDuration && _decodeThreadRunning) {
+                    int result = av_read_frame(_formatContext, packet);
+
+                    if (result < 0) {
+                        break;
+                    }
+
+                    if (!DecodePacket(packet)) {
+                        av_packet_unref(packet);
+                        break;
+                    }
+
+                    {
+                        std::lock_guard lock(_queuesMutex);
+                        totalAudioDuration = 0.0;
+                        std::queue<std::shared_ptr<AudioFrame>> tempQueue = _audioFrameQueue;
+
+                        while (!tempQueue.empty()) {
+                            totalAudioDuration += tempQueue.front()->duration;
+                            tempQueue.pop();
+                        }
+                    }
+
+                    av_packet_unref(packet);
+
+                    if (_seekRequested) {
+                        break;
+                    }
+                }
+
+                if (totalAudioDuration >= _initialAudioBurstDuration) {
+                    _initialAudioBuffered = true;
+                    spdlog::debug("Burst audio gathered");
+                }
+            }
+
+            if (_seekRequested) {
+                continue;
             }
 
             if (!_isPlaying) {
@@ -210,7 +190,7 @@ class VideoDecoder {
                     std::queue<std::shared_ptr<AudioFrame>> audioFramesToBurst;
 
                     {
-                        std::lock_guard<std::mutex> lock(_queuesMutex);
+                        std::lock_guard lock(_queuesMutex);
                         audioFramesToBurst = _audioFrameQueue;
                         std::queue<std::shared_ptr<AudioFrame>> emptyAudioQueue;
                         std::swap(_audioFrameQueue, emptyAudioQueue);
@@ -222,22 +202,22 @@ class VideoDecoder {
                         _audioFrameCallback(audioFrame);
                     }
 
-                    spdlog::info("Burst audio sent");
                     _initialAudioBurstSent = true;
-                    _startTimePoint = std::chrono::high_resolution_clock::now();
+                    _playStartTime = std::chrono::high_resolution_clock::now();
                     _nextVideoFramePresentationTime = 0.0;
                     _nextAudioFramePresentationTime = 0.0;
+                    spdlog::debug("Burst audio sent");
                 } else {
                     std::shared_ptr<AudioFrame> audioFrame = nullptr;
                     bool shouldSendAudio = false;
 
                     {
-                        std::lock_guard<std::mutex> lock(_queuesMutex);
-                        if (!_audioFrameQueue.empty()) {
+                        std::lock_guard lock(_queuesMutex);
 
+                        if (!_audioFrameQueue.empty()) {
                             audioFrame = _audioFrameQueue.front();
                             auto now = std::chrono::high_resolution_clock::now();
-                            double elapsedTime = std::chrono::duration<double>(now - _startTimePoint).count();
+                            double elapsedTime = std::chrono::duration<double>(now - _playStartTime).count();
 
                             if (elapsedTime >= _nextAudioFramePresentationTime) {
                                 _audioFrameQueue.pop();
@@ -253,23 +233,18 @@ class VideoDecoder {
                 }
             }
 
-            bool videoQueueFull = false;
-
             {
-                std::unique_lock<std::mutex> lock(_queuesMutex);
-                videoQueueFull = _videoFrameQueue.size() >= _maxVideoFrameQueueSize;
+                std::lock_guard lock(_queuesMutex);
+
+                if (_videoFrameQueue.size() >= _maxVideoFrameQueueSize) {
+                    continue;
+                }
             }
 
-            if (videoQueueFull) {
-                std::unique_lock<std::mutex> lock(_queuesMutex);
-                //_videoFrameConsumedCV.wait_for(lock, std::chrono::milliseconds(10));
-                continue;
-            }
+            int result = av_read_frame(_formatContext, packet);
 
-            int ret = av_read_frame(_formatContext, packet);
-
-            if (ret < 0) {
-                if (ret == AVERROR_EOF) {
+            if (result < 0) {
+                if (result == AVERROR_EOF) {
                     _isPlaying = false;
                     continue;
                 }
@@ -290,81 +265,79 @@ class VideoDecoder {
         }
 
         av_packet_free(&packet);
-        spdlog::info("Decoding thread stopped");
+        spdlog::debug("Decode thread stopped");
     }
 
-    bool DecodePacket(AVPacket* packet) {
+    bool DecodePacket(const AVPacket* packet) {
+        if (!packet) {
+            spdlog::error("Packet was null");
+            return false;
+        }
+
         if (packet->stream_index == _videoStreamIndex) {
-            int ret = avcodec_send_packet(_videoCodecContext, packet);
-            if (ret < 0) {
+            int result = avcodec_send_packet(_videoCodecContext, packet);
+
+            if (result < 0) {
                 spdlog::error("Error sending video packet to decoder");
                 return false;
             }
 
-            while (ret >= 0) {
+            while (true) {
                 AVFrame* frame = av_frame_alloc();
-                ret = avcodec_receive_frame(_videoCodecContext, frame);
+                result = avcodec_receive_frame(_videoCodecContext, frame);
 
-                if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) {
+                if (result == AVERROR(EAGAIN) || result == AVERROR_EOF) {
                     av_frame_free(&frame);
                     break;
                 }
 
-                if (ret < 0) {
+                if (result < 0) {
                     spdlog::error("Error receiving video frame from decoder");
                     av_frame_free(&frame);
                     return false;
                 }
 
-                auto videoFrame = ProcessVideoFrame(frame);
-                if (videoFrame) {
+                if (auto videoFrame = ProcessVideoFrame(frame)) {
+                    std::lock_guard lock(_queuesMutex);
+                    _videoFrameQueue.push(videoFrame);
+
                     _currentPosition = videoFrame->timestamp;
 
-                    {
-                        std::lock_guard<std::mutex> lock(_queuesMutex);
-                        _videoFrameQueue.push(videoFrame);
-
-                        if (!_initialVideoFrameCaptured) {
-                            _initialVideoFrame = std::make_shared<VideoFrame>(*videoFrame);
-                            _initialVideoFrame->data = _videoBufferPool.GetBuffer();
-                            memcpy(_initialVideoFrame->data, videoFrame->data, videoFrame->linesize * videoFrame->height);
-                            _initialVideoFrame->bufferPool = &_videoBufferPool;
-                            _initialVideoFrameCaptured = true;
-                            spdlog::info("Initial video frame created");
-                        }
+                    if (!_initialVideoFrameCaptured) {
+                        _initialVideoFrame = videoFrame;
+                        _initialVideoFrameCaptured = true;
+                        spdlog::debug("Initial video frame captured");
                     }
                 }
 
                 av_frame_free(&frame);
             }
         } else if (packet->stream_index == _audioStreamIndex) {
-            int ret = avcodec_send_packet(_audioCodecContext, packet);
-            if (ret < 0) {
+            int result = avcodec_send_packet(_audioCodecContext, packet);
+
+            if (result < 0) {
                 spdlog::error("Error sending audio packet to decoder");
                 return false;
             }
 
-            while (ret >= 0) {
+            while (true) {
                 AVFrame* frame = av_frame_alloc();
-                ret = avcodec_receive_frame(_audioCodecContext, frame);
+                result = avcodec_receive_frame(_audioCodecContext, frame);
 
-                if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) {
+                if (result == AVERROR(EAGAIN) || result == AVERROR_EOF) {
                     av_frame_free(&frame);
                     break;
                 }
 
-                if (ret < 0) {
+                if (result < 0) {
                     spdlog::error("Error receiving audio frame from decoder");
                     av_frame_free(&frame);
                     return false;
                 }
 
-                auto audioFrame = ProcessAudioFrame(frame);
-                if (audioFrame) {
-                    {
-                        std::lock_guard<std::mutex> lock(_queuesMutex);
-                        _audioFrameQueue.push(audioFrame);
-                    }
+                if (auto audioFrame = ProcessAudioFrame(frame)) {
+                    std::lock_guard lock(_queuesMutex);
+                    _audioFrameQueue.push(audioFrame);
                 }
 
                 av_frame_free(&frame);
@@ -374,10 +347,18 @@ class VideoDecoder {
         return true;
     }
 
-    std::shared_ptr<VideoFrame> ProcessVideoFrame(AVFrame* frame) {
+    std::shared_ptr<VideoFrame> ProcessVideoFrame(const AVFrame* frame) {
         if (!_swsContext) {
-            _swsContext =
-                sws_getContext(_videoCodecContext->width, _videoCodecContext->height, _videoCodecContext->pix_fmt, _videoCodecContext->width, _videoCodecContext->height, AV_PIX_FMT_RGB24, SWS_FAST_BILINEAR, nullptr, nullptr, nullptr);
+            _swsContext = sws_getContext(_videoCodecContext->width,
+                                         _videoCodecContext->height,
+                                         _videoCodecContext->pix_fmt,
+                                         _videoCodecContext->width,
+                                         _videoCodecContext->height,
+                                         AV_PIX_FMT_RGB24,
+                                         SWS_FAST_BILINEAR,
+                                         nullptr,
+                                         nullptr,
+                                         nullptr);
 
             if (!_swsContext) {
                 spdlog::error("Could not initialize swscale context");
@@ -389,11 +370,9 @@ class VideoDecoder {
         videoFrame->width = _videoCodecContext->width;
         videoFrame->height = _videoCodecContext->height;
         videoFrame->linesize = _videoCodecContext->width * 3; // RGB24 = 3 bytes per pixel
-        videoFrame->bufferPool = &_videoBufferPool;
 
         int bufferSize = av_image_get_buffer_size(AV_PIX_FMT_RGB24, videoFrame->width, videoFrame->height, 1);
-        _videoBufferPool.SetBufferSize(bufferSize);
-        videoFrame->data = _videoBufferPool.GetBuffer();
+        videoFrame->data = static_cast<uint8_t*>(av_malloc(bufferSize));
 
         if (!videoFrame->data) {
             spdlog::error("Could not allocate video frame buffer");
@@ -406,6 +385,7 @@ class VideoDecoder {
         sws_scale(_swsContext, frame->data, frame->linesize, 0, frame->height, dest, destLinesize);
 
         AVRational timeBase = _formatContext->streams[_videoStreamIndex]->time_base;
+
         if (frame->pts != AV_NOPTS_VALUE) {
             videoFrame->timestamp = (double)frame->pts * av_q2d(timeBase);
         } else {
@@ -416,7 +396,7 @@ class VideoDecoder {
         return videoFrame;
     }
 
-    std::shared_ptr<AudioFrame> ProcessAudioFrame(AVFrame* frame) {
+    std::shared_ptr<AudioFrame> ProcessAudioFrame(const AVFrame* frame) {
         if (!_audioCodecContext) {
             return nullptr;
         }
@@ -426,21 +406,23 @@ class VideoDecoder {
             av_channel_layout_default(&outLayout, 2);
 
             _swrContext = swr_alloc();
+
             if (!_swrContext) {
                 spdlog::error("Could not allocate swresample context");
                 return nullptr;
             }
 
-            int ret = swr_alloc_set_opts2(&_swrContext,
-                                          &outLayout,                      // out_ch_layout
-                                          AV_SAMPLE_FMT_FLT,               // out_sample_fmt
-                                          48000,                           // out_sample_rate
-                                          &_audioCodecContext->ch_layout,  // in_ch_layout
-                                          _audioCodecContext->sample_fmt,  // in_sample_fmt
-                                          _audioCodecContext->sample_rate, // in_sample_rate
-                                          0, nullptr);
+            int result = swr_alloc_set_opts2(&_swrContext,
+                                             &outLayout,                      // out_ch_layout
+                                             AV_SAMPLE_FMT_FLT,               // out_sample_fmt
+                                             48000,                           // out_sample_rate
+                                             &_audioCodecContext->ch_layout,  // in_ch_layout
+                                             _audioCodecContext->sample_fmt,  // in_sample_fmt
+                                             _audioCodecContext->sample_rate, // in_sample_rate
+                                             0,
+                                             nullptr);
 
-            if (ret < 0) {
+            if (result < 0) {
                 spdlog::error("Could not set swresample options");
                 swr_free(&_swrContext);
                 return nullptr;
@@ -453,13 +435,9 @@ class VideoDecoder {
         }
 
         auto audioFrame = std::make_shared<AudioFrame>();
-        audioFrame->bufferPool = &_audioBufferPool;
-
         int outSamples = swr_get_out_samples(_swrContext, frame->nb_samples);
         int outSize = av_samples_get_buffer_size(nullptr, 2, outSamples, AV_SAMPLE_FMT_FLT, 1);
-
-        _audioBufferPool.SetBufferSize(outSize);
-        audioFrame->data = _audioBufferPool.GetBuffer();
+        audioFrame->data = static_cast<uint8_t*>(av_malloc(outSize));
 
         if (!audioFrame->data) {
             spdlog::error("Could not allocate audio frame buffer");
@@ -471,7 +449,7 @@ class VideoDecoder {
 
         if (convertedSamples < 0) {
             spdlog::error("Error converting audio samples");
-            _audioBufferPool.ReturnBuffer(audioFrame->data);
+            av_free(audioFrame->data);
             audioFrame->data = nullptr;
             return nullptr;
         }
@@ -488,32 +466,27 @@ class VideoDecoder {
     }
 
     void SeekToPosition(double position) {
-        if (!_formatContext || _videoStreamIndex < 0) {
-            return;
-        }
-
         {
-            std::lock_guard<std::mutex> lock(_queuesMutex);
+            std::lock_guard lock(_queuesMutex);
             std::queue<std::shared_ptr<VideoFrame>> emptyVideoQueue;
             std::swap(_videoFrameQueue, emptyVideoQueue);
             std::queue<std::shared_ptr<AudioFrame>> emptyAudioQueue;
             std::swap(_audioFrameQueue, emptyAudioQueue);
         }
 
+        _initialVideoFrameCaptured = false;
         _initialAudioBuffered = false;
         _initialAudioBurstSent = false;
-        _initialVideoFrameCaptured = false;
 
-        int64_t timestamp = position * AV_TIME_BASE;
-        int streamIndex = _videoStreamIndex;
-        AVRational timeBase = AV_TIME_BASE_Q;
+        auto timestamp = (int64_t)(position * AV_TIME_BASE);
 
-        if (streamIndex >= 0) {
-            timestamp = av_rescale_q(timestamp, timeBase, _formatContext->streams[streamIndex]->time_base);
+        if (_videoStreamIndex >= 0) {
+            timestamp = av_rescale_q(timestamp, AV_TIME_BASE_Q, _formatContext->streams[_videoStreamIndex]->time_base);
         }
 
-        int ret = av_seek_frame(_formatContext, streamIndex, timestamp, AVSEEK_FLAG_BACKWARD);
-        if (ret < 0) {
+        int result = av_seek_frame(_formatContext, _videoStreamIndex, timestamp, AVSEEK_FLAG_BACKWARD);
+
+        if (result < 0) {
             spdlog::error("Error seeking to position {}", position);
             return;
         }
@@ -533,36 +506,18 @@ class VideoDecoder {
     VideoDecoder() = default;
     ~VideoDecoder() { Close(); }
 
-    bool IsRunning() const { return _running; }
     bool IsPlaying() const { return _isPlaying; }
-    PlaybackMode GetPlaybackMode() const { return _playbackMode; }
     double GetDuration() const { return _duration; }
     double GetCurrentPosition() const { return _currentPosition; }
     int GetVideoWidth() const { return _videoCodecContext ? _videoCodecContext->width : 0; }
     int GetVideoHeight() const { return _videoCodecContext ? _videoCodecContext->height : 0; }
-    double GetFrameRate() const { return _frameRate; }
-    double GetFrameDuration() const { return _frameDuration; }
-    int GetColorDepth() const { return _colorDepth; }
-    const std::string& GetPixelFormat() const { return _pixelFormat; }
     const std::vector<std::string>& GetVideoDecoders() const { return _videoDecoders; }
     const std::vector<std::string>& GetAudioDecoders() const { return _audioDecoders; }
-    bool IsHardwareVideoDecoder(const std::string& codecName) const { return std::find(_hardwareVideoDecoders.begin(), _hardwareVideoDecoders.end(), codecName) != _hardwareVideoDecoders.end(); }
-    bool IsHardwareAudioDecoder(const std::string& codecName) const { return std::find(_hardwareAudioDecoders.begin(), _hardwareAudioDecoders.end(), codecName) != _hardwareAudioDecoders.end(); }
+    void SetAudioFrameCallback(const std::function<void(std::shared_ptr<AudioFrame>)>& callback) { _audioFrameCallback = callback; }
+    bool IsHardwareVideoDecoder(const std::string& codecName) const { return std::ranges::find(_hardwareVideoDecoders, codecName) != _hardwareVideoDecoders.end(); }
+    bool IsHardwareAudioDecoder(const std::string& codecName) const { return std::ranges::find(_hardwareAudioDecoders, codecName) != _hardwareAudioDecoders.end(); }
 
-    void SetPlaybackMode(PlaybackMode mode) {
-        _playbackMode = mode;
-        spdlog::info("Playback mode set to: {}", mode == PlaybackMode::RealTime ? "RealTime" : "Immediate");
-    }
-    
-    void SetAudioFrameCallback(std::function<void(std::shared_ptr<AudioFrame>)> callback) {
-        _audioFrameCallback = callback;
-    }
-    
     void Play() {
-        if (!_running) {
-            return;
-        }
-
         if (!_isPlaying) {
             _isPlaying = true;
         }
@@ -573,7 +528,7 @@ class VideoDecoder {
             _isPlaying = false;
 
             {
-                std::lock_guard<std::mutex> lock(_queuesMutex);
+                std::lock_guard lock(_queuesMutex);
                 std::queue<std::shared_ptr<VideoFrame>> emptyVideoQueue;
                 std::swap(_videoFrameQueue, emptyVideoQueue);
 
@@ -581,19 +536,17 @@ class VideoDecoder {
                 std::swap(_audioFrameQueue, emptyAudioQueue);
             }
 
+            _initialVideoFrameCaptured = false;
             _initialAudioBuffered = false;
             _initialAudioBurstSent = false;
-            _initialVideoFrameCaptured = false;
         }
     }
 
     bool Init(const std::string& filePath) {
         Close();
 
-        _filePath = filePath;
-        _running = true;
-
         _formatContext = avformat_alloc_context();
+
         if (avformat_open_input(&_formatContext, filePath.c_str(), nullptr, nullptr) != 0) {
             spdlog::error("Could not open input file: {}", filePath);
             Close();
@@ -620,45 +573,52 @@ class VideoDecoder {
             return false;
         }
 
-        const AVCodec* videoCodec = nullptr;
+        const AVCodec* defaultVideoCodec = avcodec_find_decoder(_formatContext->streams[_videoStreamIndex]->codecpar->codec_id);
 
-        if (!Session::Instance().videoDecoder.empty()) {
-            videoCodec = avcodec_find_decoder_by_name(Session::Instance().videoDecoder.c_str());
-
-            if (!videoCodec) {
-                spdlog::warn("Requested video codec '{}' not found, falling back to default", Session::Instance().videoDecoder);
-            }
-        }
-
-        if (!videoCodec) {
-            videoCodec = avcodec_find_decoder(_formatContext->streams[_videoStreamIndex]->codecpar->codec_id);
-
-            if (!videoCodec) {
-                spdlog::error("Unsupported video codec");
-                Close();
-                return false;
-            }
+        if (!defaultVideoCodec) {
+            spdlog::error("Unsupported video codec");
+            Close();
+            return false;
         }
 
         _videoDecoders.clear();
         _hardwareVideoDecoders.clear();
+
         void* iter = nullptr;
         const AVCodec* codec = nullptr;
 
         while ((codec = av_codec_iterate(&iter))) {
-            if (!av_codec_is_decoder(codec)) continue;
-            if (codec->id != _formatContext->streams[_videoStreamIndex]->codecpar->codec_id) continue;
+            if (!av_codec_is_decoder(codec)) {
+                continue;
+            }
 
-            _videoDecoders.push_back(codec->name);
+            if (codec->id != _formatContext->streams[_videoStreamIndex]->codecpar->codec_id) {
+                continue;
+            }
+
+            _videoDecoders.emplace_back(codec->name);
 
             if (codec->capabilities & AV_CODEC_CAP_HARDWARE) {
-                _hardwareVideoDecoders.push_back(codec->name);
+                _hardwareVideoDecoders.emplace_back(codec->name);
+            }
+        }
+
+        const AVCodec* videoCodec = defaultVideoCodec;
+
+        if (!Session::Instance().videoDecoder.empty()) {
+            if (const auto it = std::ranges::find(_videoDecoders, Session::Instance().videoDecoder); it != _videoDecoders.end()) {
+                if (const AVCodec* requestedCodec = avcodec_find_decoder_by_name(Session::Instance().videoDecoder.c_str())) {
+                    videoCodec = requestedCodec;
+                } else {
+                    spdlog::warn("Requested video codec '{}' not found, falling back to default", Session::Instance().videoDecoder);
+                }
+            } else {
+                spdlog::warn("Requested video codec '{}' not supported for this video, falling back to default", Session::Instance().videoDecoder);
             }
         }
 
         Session::Instance().videoDecoder = videoCodec->name;
         spdlog::info("Selected video decoder: {} ({})", videoCodec->name, videoCodec->long_name ? videoCodec->long_name : "unknown");
-
         _videoCodecContext = avcodec_alloc_context3(videoCodec);
 
         if (!_videoCodecContext) {
@@ -682,40 +642,47 @@ class VideoDecoder {
         }
 
         if (_audioStreamIndex >= 0) {
-            const AVCodec* audioCodec = nullptr;
-
-            if (!Session::Instance().audioDecoder.empty()) {
-                audioCodec = avcodec_find_decoder_by_name(Session::Instance().audioDecoder.c_str());
-
-                if (!audioCodec) {
-                    spdlog::warn("Requested audio codec '{}' not found, falling back to default", Session::Instance().audioDecoder);
-                }
-            }
-
-            if (!audioCodec) {
-                audioCodec = avcodec_find_decoder(_formatContext->streams[_audioStreamIndex]->codecpar->codec_id);
-            }
+            const AVCodec* defaultAudioCodec = avcodec_find_decoder(_formatContext->streams[_audioStreamIndex]->codecpar->codec_id);
 
             _audioDecoders.clear();
             _hardwareAudioDecoders.clear();
-            void* iter = nullptr;
-            const AVCodec* codec = nullptr;
+
+            iter = nullptr;
 
             while ((codec = av_codec_iterate(&iter))) {
-                if (!av_codec_is_decoder(codec)) continue;
-                if (codec->id != _formatContext->streams[_audioStreamIndex]->codecpar->codec_id) continue;
+                if (!av_codec_is_decoder(codec)) {
+                    continue;
+                }
 
-                _audioDecoders.push_back(codec->name);
+                if (codec->id != _formatContext->streams[_audioStreamIndex]->codecpar->codec_id) {
+                    continue;
+                }
+
+                _audioDecoders.emplace_back(codec->name);
 
                 if (codec->capabilities & AV_CODEC_CAP_HARDWARE) {
-                    _hardwareAudioDecoders.push_back(codec->name);
+                    _hardwareAudioDecoders.emplace_back(codec->name);
                 }
             }
 
-            if (!audioCodec) {
+            if (!defaultAudioCodec) {
                 spdlog::warn("Unsupported audio codec");
                 _audioStreamIndex = -1;
             } else {
+                const AVCodec* audioCodec = defaultAudioCodec;
+
+                if (!Session::Instance().audioDecoder.empty()) {
+                    if (const auto it = std::ranges::find(_audioDecoders, Session::Instance().audioDecoder); it != _audioDecoders.end()) {
+                        if (const AVCodec* requestedCodec = avcodec_find_decoder_by_name(Session::Instance().audioDecoder.c_str())) {
+                            audioCodec = requestedCodec;
+                        } else {
+                            spdlog::warn("Requested audio codec '{}' not found, falling back to default", Session::Instance().audioDecoder);
+                        }
+                    } else {
+                        spdlog::warn("Requested audio codec '{}' not supported for this audio, falling back to default", Session::Instance().audioDecoder);
+                    }
+                }
+
                 Session::Instance().audioDecoder = audioCodec->name;
                 spdlog::info("Selected audio decoder: {} ({})", audioCodec->name, audioCodec->long_name ? audioCodec->long_name : "unknown");
                 _audioCodecContext = avcodec_alloc_context3(audioCodec);
@@ -757,32 +724,40 @@ class VideoDecoder {
         }
 
         _frameDuration = 1.0 / _frameRate;
-        _colorDepth = 8;
-        _pixelFormat = "unknown";
+        int colorDepth = 0;
+        std::string pixelFormat = "unknown";
 
         if (_videoCodecContext->pix_fmt != AV_PIX_FMT_NONE) {
-            const AVPixFmtDescriptor* desc = av_pix_fmt_desc_get(_videoCodecContext->pix_fmt);
-
-            if (desc) {
-                _colorDepth = desc->comp[0].depth;
-                _pixelFormat = desc->name ? desc->name : "unknown";
+            if (const AVPixFmtDescriptor* desc = av_pix_fmt_desc_get(_videoCodecContext->pix_fmt)) {
+                colorDepth = desc->comp[0].depth;
+                pixelFormat = desc->name ? desc->name : "unknown";
             }
         }
 
-        spdlog::info("Opened video file: {}, Duration: {:.2f} seconds, Resolution: {}x{}, Framerate: {:.2f} fps, Color depth: {} bits, Pixel format: {}{}", filePath, _duration, _videoCodecContext->width, _videoCodecContext->height,
-                     _frameRate, _colorDepth, _pixelFormat, _audioStreamIndex >= 0 ? fmt::format(", Audio: {} channels, {} Hz", _audioCodecContext->ch_layout.nb_channels, _audioCodecContext->sample_rate) : "");
+        spdlog::info("Opened video file: {}, Duration: {:.2f} seconds, Resolution: {}x{}, Framerate: {:.2f} fps, Color depth: {} bits, Pixel format: {}{}",
+                     filePath,
+                     _duration,
+                     _videoCodecContext->width,
+                     _videoCodecContext->height,
+                     _frameRate,
+                     colorDepth,
+                     pixelFormat,
+                     _audioStreamIndex >= 0 ? fmt::format(", Audio: {} channels, {} Hz", _audioCodecContext->ch_layout.nb_channels, _audioCodecContext->sample_rate) : "");
 
-        _decodingThread = std::thread(&VideoDecoder::DecodingThread, this);
+        _decodeThreadRunning = true;
+        _decodeThread = std::thread(&VideoDecoder::DecodeThread, this);
+
         return true;
     }
 
     void Close() {
-        if (_running) {
-            _isPlaying = false;
-            _running = false;
+        _isPlaying = false;
 
-            if (_decodingThread.joinable()) {
-                _decodingThread.join();
+        if (_decodeThreadRunning) {
+            _decodeThreadRunning = false;
+
+            if (_decodeThread.joinable()) {
+                _decodeThread.join();
             }
         }
 
@@ -812,7 +787,7 @@ class VideoDecoder {
         }
 
         {
-            std::lock_guard<std::mutex> lock(_queuesMutex);
+            std::lock_guard lock(_queuesMutex);
             std::queue<std::shared_ptr<VideoFrame>> emptyVideoQueue;
             std::swap(_videoFrameQueue, emptyVideoQueue);
 
@@ -820,37 +795,34 @@ class VideoDecoder {
             std::swap(_audioFrameQueue, emptyAudioQueue);
         }
 
-        _videoBufferPool.Clear();
-        _audioBufferPool.Clear();
-
-        _initialAudioBuffered = false;
-        _initialAudioBurstSent = false;
-        _initialVideoFrameCaptured = false;
-
         _videoStreamIndex = -1;
         _audioStreamIndex = -1;
+
+        _seekPosition = 0.0;
+        _seekRequested = false;
+
+        _initialVideoFrame = nullptr;
+        _initialVideoFrameCaptured = false;
+        _initialAudioBuffered = false;
+        _initialAudioBurstSent = false;
+
         _duration = 0.0;
         _currentPosition = 0.0;
         _frameRate = 0.0;
-        _colorDepth = 0;
-        _pixelFormat = "unknown";
+        _frameDuration = 0.0;
     }
 
     void Seek(double position) {
-        if (!_running) {
-            return;
-        }
-
         _seekPosition = position;
         _seekRequested = true;
     }
 
     std::shared_ptr<VideoFrame> GetNextVideoFrame() {
         if (_playbackMode == PlaybackMode::RealTime) {
-            std::unique_lock<std::mutex> lock(_queuesMutex);
+            std::lock_guard lock(_queuesMutex);
 
             if (_initialVideoFrame) {
-                spdlog::info("Initial video frame used");
+                spdlog::debug("Initial video frame used");
                 auto frame = _initialVideoFrame;
                 _initialVideoFrame = nullptr;
                 return frame;
@@ -870,20 +842,18 @@ class VideoDecoder {
 
             auto frame = _videoFrameQueue.front();
             auto now = std::chrono::high_resolution_clock::now();
-            double elapsedTime = std::chrono::duration<double>(now - _startTimePoint).count();
+            double elapsedTime = std::chrono::duration<double>(now - _playStartTime).count();
 
             if (elapsedTime < _nextVideoFramePresentationTime) {
                 return nullptr;
             }
 
             _nextVideoFramePresentationTime += frame->duration;
-
             _videoFrameQueue.pop();
-            _videoFrameConsumedCV.notify_one();
 
             return frame;
         } else { // Immediate mode
-            std::unique_lock<std::mutex> lock(_queuesMutex);
+            std::unique_lock lock(_queuesMutex);
 
             while (_videoFrameQueue.empty() && _isPlaying) {
                 _videoFrameAvailableCV.wait(lock);
@@ -902,8 +872,6 @@ class VideoDecoder {
                     _audioFrameQueue.pop();
                 }
             }
-
-            _videoFrameConsumedCV.notify_one();
 
             return frame;
         }

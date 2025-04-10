@@ -584,17 +584,7 @@ class App {
 
         if (Session::Instance().showVideoWindow) {
             if (ImGui::Begin(fmt::format("{}###window_video", TL("window_video")).c_str(), &Session::Instance().showVideoWindow)) {
-                ImVec2 windowSize = ImGui::GetContentRegionAvail();
-
-                if (_videoDecoder.IsRunning()) {
-                    _videoUI.RenderVideoWindow(windowSize, _videoDecoder.GetVideoWidth(), _videoDecoder.GetVideoHeight());
-                } else {
-                    ImVec2 textSize = ImGui::CalcTextSize(TL("window_video"));
-                    ImGui::SetCursorPos(ImVec2((windowSize.x - textSize.x) * 0.5f, (windowSize.y - textSize.y) * 0.5f));
-                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 0.5f));
-                    ImGui::Text("%s", TL("window_video"));
-                    ImGui::PopStyleColor();
-                }
+                _videoUI.RenderVideoWindow(ImGui::GetContentRegionAvail(), _videoDecoder.GetVideoWidth(), _videoDecoder.GetVideoHeight());
             }
             ImGui::End();
         }

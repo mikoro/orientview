@@ -38,11 +38,11 @@ enum class ActionType {
 };
 
 class ActionHandler {
-private:
+  private:
     int _count = 0;
     bool _activeFlag = true;
 
-public:
+  public:
     std::string HandleAction(ActionType type, const std::string& name, int* outCode) {
         if (!_activeFlag) {
             if (outCode) {
@@ -78,3 +78,9 @@ public:
     }
 };
 ```
+
+Formatting notes:
+- Add new line after closing brace if not the last brace
+- Add new line before if/while/switch if not the first line
+- Avoid single line non-braced if statements
+- Use nullptr instead of NULL or 0
