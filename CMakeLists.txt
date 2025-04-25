@@ -168,7 +168,8 @@ else()
   )
 
   install(TARGETS ${EXE_NAME} RUNTIME DESTINATION bin)
-  install(DIRECTORY data DESTINATION share/orientview)
+  # The QtQStandardPaths::AppDataLocation resolves to organizationName/appName for some reason. That is why PROJECT_NAME is there twice. Currently organizationName is the same as projectName. See Main.cpp.
+  install(DIRECTORY data DESTINATION share/${PROJECT_NAME}/${PROJECT_NAME})
 endif()
 
 set(CPACK_PACKAGE_NAME "OrientView")

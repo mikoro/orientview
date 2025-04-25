@@ -2,8 +2,14 @@
 // License: GPLv3, see the LICENSE file.
 
 #include <QOpenGLPixelTransferOptions>
+#include <QStandardPaths>
+#include <QDir>
+#include <QString>
 
 #include "Renderer.h"
+
+#include <qcoreapplication.h>
+
 #include "VideoDecoder.h"
 #include "MapImageReader.h"
 #include "VideoStabilizer.h"
@@ -235,12 +241,37 @@ Renderer::~Renderer()
 	}
 }
 
+QString getDataDir()
+{
+	QStringList paths = QStandardPaths::standardLocations(QStandardPaths::AppDataLocation);
+	// Fallback: try to find data in the application directory
+	paths.append(QCoreApplication::applicationDirPath());
+
+	for (const QString& basePath : paths)
+	{
+		QString dataPath = QDir(basePath).filePath("data");
+		if (QDir(dataPath).exists())
+			return dataPath;
+	}
+
+	return nullptr;
+}
+
+
 bool Renderer::loadRescaleShader(Panel& panel, const QString& shaderName)
 {
-	if (!panel.shaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, QString("data/shaders/rescale_%1.vert").arg(shaderName)))
+	const QString dataDir = getDataDir();
+
+	if (dataDir == nullptr)
+	{
+		qWarning("Could not find data directory");
+		return false;
+	}
+
+	if (!panel.shaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, dataDir + QString("/shaders/rescale_%1.vert").arg(shaderName)))
 		return false;
 
-	if (!panel.shaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, QString("data/shaders/rescale_%1.frag").arg(shaderName)))
+	if (!panel.shaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, dataDir + QString("/shaders/rescale_%1.frag").arg(shaderName)))
 		return false;
 
 	if (!panel.shaderProgram.link())
