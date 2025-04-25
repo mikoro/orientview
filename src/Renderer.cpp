@@ -17,6 +17,7 @@
 #include "RouteManager.h"
 #include "Settings.h"
 #include "FrameData.h"
+#include "FileHandler.h"
 
 using namespace OrientView;
 
@@ -241,37 +242,15 @@ Renderer::~Renderer()
 	}
 }
 
-QString getDataDir()
-{
-	QStringList paths = QStandardPaths::standardLocations(QStandardPaths::AppDataLocation);
-	// Fallback: try to find data in the application directory
-	paths.append(QCoreApplication::applicationDirPath());
-
-	for (const QString& basePath : paths)
-	{
-		QString dataPath = QDir(basePath).filePath("data");
-		if (QDir(dataPath).exists())
-			return dataPath;
-	}
-
-	return nullptr;
-}
-
-
 bool Renderer::loadRescaleShader(Panel& panel, const QString& shaderName)
 {
-	const QString dataDir = getDataDir();
+	const QString vertexShaderPath = getDataFilePath(QString("shaders/rescale_%1.vert").arg(shaderName));
+	const QString fragmentShaderPath = getDataFilePath(QString("shaders/rescale_%1.frag").arg(shaderName));
 
-	if (dataDir == nullptr)
-	{
-		qWarning("Could not find data directory");
-		return false;
-	}
-
-	if (!panel.shaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, dataDir + QString("/shaders/rescale_%1.vert").arg(shaderName)))
+	if (!panel.shaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, vertexShaderPath))
 		return false;
 
-	if (!panel.shaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, dataDir + QString("/shaders/rescale_%1.frag").arg(shaderName)))
+	if (!panel.shaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, fragmentShaderPath))
 		return false;
 
 	if (!panel.shaderProgram.link())

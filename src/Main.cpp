@@ -7,6 +7,7 @@
 #include <QDir>
 #include <QFontDatabase>
 
+#include "FileHandler.h"
 #include "MainWindow.h"
 #include "SimpleLogger.h"
 
@@ -41,7 +42,10 @@ int main(int argc, char *argv[])
 		logger.initialize("orientview.log");
 		qInstallMessageHandler(messageHandler);
 
-		QFontDatabase::addApplicationFont("data/fonts/dejavu-sans-bold.ttf");
+		const QString fontPath = getDataFilePath("fonts/dejavu-sans-bold.ttf");
+		
+		if (QFontDatabase::addApplicationFont(fontPath) == -1)
+			qWarning("Could not load font");
 
 		OrientView::MainWindow mainWindow;
 

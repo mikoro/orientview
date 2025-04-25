@@ -88,6 +88,7 @@ set(SRC_FILES
   src/VideoStabilizer.cpp src/VideoStabilizer.h
   src/VideoStabilizerThread.cpp src/VideoStabilizerThread.h
   src/VideoWindow.cpp src/VideoWindow.h
+  src/FileHandler.cpp src/FileHandler.h
 )
 
 if(WIN32)
